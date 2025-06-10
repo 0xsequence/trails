@@ -22,7 +22,7 @@ jobs:
 
       - name: Prepare dist branch
         run: |
-          PACKAGES=("packages/anypay-sdk")
+          PACKAGES=("anypay-sdk")
 
           for PACKAGE in "${PACKAGES[@]}"; do
             BRANCH="dists/$PACKAGE"
