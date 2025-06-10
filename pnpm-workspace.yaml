@@ -1,0 +1,7 @@
+packages:
+  - apps/*
+  - configurations/*
+  - packages/*
+
+publicHoistPattern:
+- "eslint"
