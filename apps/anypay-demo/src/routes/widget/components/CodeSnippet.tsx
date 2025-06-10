@@ -1,18 +1,18 @@
-import { Check, Copy } from "lucide-react";
-import { type ReactNode, useState } from "react";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Check, Copy } from "lucide-react"
+import { type ReactNode, useState } from "react"
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"
 
 interface CodeSnippetProps {
-  toRecipient: string;
-  toAmount: string;
-  toChainId: number | undefined;
-  toToken: "ETH" | "USDC" | undefined;
-  toCalldata: string;
-  useCustomButton: boolean;
-  children?: ReactNode;
-  renderInline?: boolean;
-  theme: "light" | "dark" | "auto" | null;
+  toRecipient: string
+  toAmount: string
+  toChainId: number | undefined
+  toToken: "ETH" | "USDC" | undefined
+  toCalldata: string
+  useCustomButton: boolean
+  children?: ReactNode
+  renderInline?: boolean
+  theme: "light" | "dark" | "auto" | null
 }
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = ({
@@ -26,17 +26,17 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   renderInline,
   theme,
 }) => {
-  const [isCopied, setIsCopied] = useState(false);
+  const [isCopied, setIsCopied] = useState(false)
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(codeExample);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 2000);
+      await navigator.clipboard.writeText(codeExample)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), 2000)
     } catch (err) {
-      console.error("Failed to copy text: ", err);
+      console.error("Failed to copy text: ", err)
     }
-  };
+  }
 
   const codeExample = `import { AnyPayWidget } from '@0xsequence/anypay-sdk/widget'
 
@@ -69,7 +69,7 @@ export const App = () => {
     />`
   }
   )
-}`;
+}`
 
   return (
     <div className="bg-gray-800 rounded-lg p-6 h-full">
@@ -115,5 +115,5 @@ export const App = () => {
       </div>
       {children}
     </div>
-  );
-};
+  )
+}

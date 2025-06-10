@@ -1,20 +1,20 @@
-import { Button, NetworkImage, Text } from "@0xsequence/design-system";
-import { AlertTriangle } from "lucide-react";
-import type { Address } from "viem";
-import type { Connector, UseAccountReturnType, useConnect } from "wagmi";
-import { SectionHeader } from "@/components/SectionHeader";
+import { Button, NetworkImage, Text } from "@0xsequence/design-system"
+import { AlertTriangle } from "lucide-react"
+import type { Address } from "viem"
+import type { Connector, UseAccountReturnType, useConnect } from "wagmi"
+import { SectionHeader } from "@/components/SectionHeader"
 
 interface AccountInfoSectionProps {
   account: {
-    address?: Address;
-    chainId?: number;
-    status: UseAccountReturnType["status"];
-  };
-  connectors: readonly Connector[];
-  connect: (args: { connector: Connector; chainId?: number }) => void;
-  disconnect: () => void;
-  connectStatus: ReturnType<typeof useConnect>["status"];
-  connectError?: Error | null;
+    address?: Address
+    chainId?: number
+    status: UseAccountReturnType["status"]
+  }
+  connectors: readonly Connector[]
+  connect: (args: { connector: Connector; chainId?: number }) => void
+  disconnect: () => void
+  connectStatus: ReturnType<typeof useConnect>["status"]
+  connectError?: Error | null
 }
 
 export const AccountInfoSection = ({
@@ -145,5 +145,5 @@ export const AccountInfoSection = ({
         </div>
       )}
     </SectionHeader>
-  );
-};
+  )
+}

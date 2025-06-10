@@ -1,10 +1,10 @@
-import type { Account, MetaTxn, TokenBalance } from "@0xsequence/anypay-sdk";
+import type { Account, MetaTxn, TokenBalance } from "@0xsequence/anypay-sdk"
 import type {
   AnypayLifiInfo,
   IntentCallsPayload,
   IntentPrecondition,
-} from "@0xsequence/api";
-import { NetworkImage, Text } from "@0xsequence/design-system";
+} from "@0xsequence/api"
+import { NetworkImage, Text } from "@0xsequence/design-system"
 import {
   AlertCircle,
   AlertTriangle,
@@ -16,41 +16,41 @@ import {
   PenSquare,
   ShieldCheck,
   Zap,
-} from "lucide-react";
-import { Address as OxAddress } from "ox";
-import type React from "react";
-import { formatUnits, type Hex, isAddressEqual, zeroAddress } from "viem";
-import * as chains from "viem/chains";
-import { SectionHeader } from "@/components/SectionHeader";
-import type { IntentAction } from "@/types";
-import { getChainInfo } from "@/utils/formatting";
+} from "lucide-react"
+import { Address as OxAddress } from "ox"
+import type React from "react"
+import { formatUnits, type Hex, isAddressEqual, zeroAddress } from "viem"
+import * as chains from "viem/chains"
+import { SectionHeader } from "@/components/SectionHeader"
+import type { IntentAction } from "@/types"
+import { getChainInfo } from "@/utils/formatting"
 
 // Mock Data
-const BASE_USDC_DESTINATION_CHAIN_ID = chains.base.id;
-const RECIPIENT_ADDRESS = "0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C";
-const AMOUNT = 300000n;
-const MOCK_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000";
-const MOCK_CHAIN_ID = chains.arbitrum.id;
-const MOCK_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000";
-const MOCK_TOKEN_AMOUNT = "3000000";
+const BASE_USDC_DESTINATION_CHAIN_ID = chains.base.id
+const RECIPIENT_ADDRESS = "0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C"
+const AMOUNT = 300000n
+const MOCK_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"
+const MOCK_CHAIN_ID = chains.arbitrum.id
+const MOCK_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000"
+const MOCK_TOKEN_AMOUNT = "3000000"
 
 interface IntentQuoteDisplayStepProps {
-  createIntentPending: boolean;
-  createIntentError: Error | null;
-  intentCallsPayloads: IntentCallsPayload[] | null;
-  intentPreconditions: IntentPrecondition[] | null;
-  metaTxns: MetaTxn[] | null;
-  lifiInfos: AnypayLifiInfo[] | null;
-  intentActionType: IntentAction | null;
-  selectedToken: TokenBalance | null;
-  account: Account | undefined;
-  calculatedIntentAddress: string | null;
+  createIntentPending: boolean
+  createIntentError: Error | null
+  intentCallsPayloads: IntentCallsPayload[] | null
+  intentPreconditions: IntentPrecondition[] | null
+  metaTxns: MetaTxn[] | null
+  lifiInfos: AnypayLifiInfo[] | null
+  intentActionType: IntentAction | null
+  selectedToken: TokenBalance | null
+  account: Account | undefined
+  calculatedIntentAddress: string | null
   customCallData: {
-    to: string;
-    value: string;
-    chainId: string;
-    data: string;
-  };
+    to: string
+    value: string
+    chainId: string
+    data: string
+  }
 }
 
 export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
@@ -78,7 +78,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   if (createIntentError) {
@@ -95,7 +95,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
           </Text>
         </div>
       </div>
-    );
+    )
   }
 
   if (!intentCallsPayloads) {
@@ -113,17 +113,16 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
           </Text>
         </div>
       </div>
-    );
+    )
   }
 
   const primarySubtitleNode = (() => {
-    if (!intentCallsPayloads || !intentActionType || !selectedToken)
-      return null;
+    if (!intentCallsPayloads || !intentActionType || !selectedToken) return null
 
     if (intentActionType === "pay") {
-      const baseChainInfo = getChainInfo(BASE_USDC_DESTINATION_CHAIN_ID);
+      const baseChainInfo = getChainInfo(BASE_USDC_DESTINATION_CHAIN_ID)
       const baseChainName =
-        baseChainInfo?.name || `Chain ID ${BASE_USDC_DESTINATION_CHAIN_ID}`;
+        baseChainInfo?.name || `Chain ID ${BASE_USDC_DESTINATION_CHAIN_ID}`
       return (
         <>
           <Zap className="h-3.5 w-3.5 mr-1.5 text-purple-400 flex-shrink-0" />
@@ -140,10 +139,10 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
           </strong>
           on <strong className="text-gray-200 mx-1">{baseChainName}</strong>
         </>
-      );
+      )
     } else if (intentActionType === "mock_interaction") {
-      const mockChainInfo = getChainInfo(MOCK_CHAIN_ID);
-      const mockChainName = mockChainInfo?.name || `Chain ID ${MOCK_CHAIN_ID}`;
+      const mockChainInfo = getChainInfo(MOCK_CHAIN_ID)
+      const mockChainName = mockChainInfo?.name || `Chain ID ${MOCK_CHAIN_ID}`
       return (
         <>
           <ShieldCheck className="h-3.5 w-3.5 mr-1.5 text-yellow-400 flex-shrink-0" />
@@ -172,16 +171,16 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             </span>
           )}
         </>
-      );
+      )
     } else if (intentActionType === "custom_call") {
-      const destChainId = parseInt(customCallData.chainId);
-      const destChainInfo = getChainInfo(destChainId);
-      const destChainName = destChainInfo?.name || `Chain ID ${destChainId}`;
+      const destChainId = parseInt(customCallData.chainId)
+      const destChainInfo = getChainInfo(destChainId)
+      const destChainName = destChainInfo?.name || `Chain ID ${destChainId}`
       const formattedVal = formatUnits(
         BigInt(customCallData.value || "0"),
         destChainInfo?.nativeCurrency.decimals || 18,
-      );
-      const nativeSymbol = destChainInfo?.nativeCurrency.symbol || "ETH";
+      )
+      const nativeSymbol = destChainInfo?.nativeCurrency.symbol || "ETH"
 
       return (
         <>
@@ -204,10 +203,10 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             </span>
           )}
         </>
-      );
+      )
     }
-    return null;
-  })();
+    return null
+  })()
 
   const routeSubtitleNode = (() => {
     if (
@@ -218,34 +217,34 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
       !lifiInfos ||
       !intentPreconditions
     )
-      return null;
+      return null
 
     try {
       const tokenName =
         selectedToken.contractInfo?.symbol ||
         selectedToken.contractInfo?.name ||
-        "Token";
-      const selectedTokenChainIdStr = selectedToken.chainId.toString();
-      const originChainInfo = getChainInfo(selectedToken.chainId);
+        "Token"
+      const selectedTokenChainIdStr = selectedToken.chainId.toString()
+      const originChainInfo = getChainInfo(selectedToken.chainId)
       const originChainName =
-        originChainInfo?.name || `Chain ID ${selectedToken.chainId}`;
-      let amountToSendFormatted = "[Amount Error]";
+        originChainInfo?.name || `Chain ID ${selectedToken.chainId}`
+      let amountToSendFormatted = "[Amount Error]"
 
-      const isNativeEquivalent = selectedToken.contractAddress === zeroAddress;
-      let amountBigInt: bigint | undefined;
-      let decimals: number | undefined;
+      const isNativeEquivalent = selectedToken.contractAddress === zeroAddress
+      let amountBigInt: bigint | undefined
+      let decimals: number | undefined
 
       if (isNativeEquivalent) {
         const nativePrecondition = intentPreconditions.find(
           (p: IntentPrecondition) =>
             (p.type === "transfer-native" || p.type === "native-balance") &&
             p.chainId === selectedTokenChainIdStr,
-        );
+        )
         const nativeMinAmount =
-          nativePrecondition?.data?.minAmount ?? nativePrecondition?.data?.min;
+          nativePrecondition?.data?.minAmount ?? nativePrecondition?.data?.min
         if (nativeMinAmount !== undefined) {
-          amountBigInt = BigInt(nativeMinAmount);
-          decimals = selectedToken.contractInfo?.decimals || 18;
+          amountBigInt = BigInt(nativeMinAmount)
+          decimals = selectedToken.contractInfo?.decimals || 18
         }
       } else {
         const erc20Precondition = intentPreconditions.find(
@@ -257,21 +256,21 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
               OxAddress.from(p.data.token),
               OxAddress.from(selectedToken.contractAddress as Hex),
             ),
-        );
-        const erc20MinAmount = erc20Precondition?.data?.min;
+        )
+        const erc20MinAmount = erc20Precondition?.data?.min
         if (erc20MinAmount !== undefined) {
-          amountBigInt = BigInt(erc20MinAmount);
-          decimals = selectedToken.contractInfo?.decimals;
+          amountBigInt = BigInt(erc20MinAmount)
+          decimals = selectedToken.contractInfo?.decimals
         }
       }
 
       if (amountBigInt !== undefined && decimals !== undefined) {
-        amountToSendFormatted = formatUnits(amountBigInt, decimals);
+        amountToSendFormatted = formatUnits(amountBigInt, decimals)
       } else {
         console.warn(
           "Could not determine amount to send from preconditions for subtitle.",
-        );
-        amountToSendFormatted = "[Unknown Amount]";
+        )
+        amountToSendFormatted = "[Unknown Amount]"
       }
 
       return (
@@ -292,17 +291,17 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             </strong>
           </span>
         </>
-      );
+      )
     } catch (routeError) {
-      console.error("Error processing route subtitle data:", routeError);
+      console.error("Error processing route subtitle data:", routeError)
       return (
         <span className="flex items-center text-red-400">
           <AlertTriangle className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
           Error generating route summary.
         </span>
-      );
+      )
     }
-  })();
+  })()
 
   return (
     <SectionHeader
@@ -601,5 +600,5 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
         )}
       </div>
     </SectionHeader>
-  );
-};
+  )
+}

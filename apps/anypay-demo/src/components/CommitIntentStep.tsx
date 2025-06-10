@@ -3,38 +3,38 @@ import type {
   GetIntentConfigReturn,
   IntentCallsPayload,
   IntentPrecondition,
-} from "@0xsequence/api";
-import { Button, Text } from "@0xsequence/design-system";
-import { AlertCircle, Loader2, Zap } from "lucide-react";
-import type React from "react";
-import { SectionHeader } from "@/components/SectionHeader";
+} from "@0xsequence/api"
+import { Button, Text } from "@0xsequence/design-system"
+import { AlertCircle, Loader2, Zap } from "lucide-react"
+import type React from "react"
+import { SectionHeader } from "@/components/SectionHeader"
 
 interface CommitIntentStepProps {
-  intentCallsPayloads: IntentCallsPayload[] | null;
-  intentPreconditions: IntentPrecondition[] | null;
-  lifiInfos: AnypayLifiInfo[] | null;
+  intentCallsPayloads: IntentCallsPayload[] | null
+  intentPreconditions: IntentPrecondition[] | null
+  lifiInfos: AnypayLifiInfo[] | null
   verificationStatus: {
-    success: boolean;
-    receivedAddress?: string;
-    calculatedAddress?: string;
-  } | null;
-  commitIntentConfigError: Error | null;
-  commitIntentConfigSuccess: boolean;
-  committedIntentAddress: string | null;
-  isLoadingCommittedConfig: boolean;
-  committedConfigError: Error | null;
-  committedIntentConfigData: GetIntentConfigReturn | undefined;
+    success: boolean
+    receivedAddress?: string
+    calculatedAddress?: string
+  } | null
+  commitIntentConfigError: Error | null
+  commitIntentConfigSuccess: boolean
+  committedIntentAddress: string | null
+  isLoadingCommittedConfig: boolean
+  committedConfigError: Error | null
+  committedIntentConfigData: GetIntentConfigReturn | undefined
   commitIntentConfig: (args: {
-    walletAddress: string | null;
-    mainSigner: string;
-    calls: IntentCallsPayload[];
-    preconditions: IntentPrecondition[];
-    lifiInfos: AnypayLifiInfo[];
-  }) => void;
-  isCommitButtonDisabled: boolean;
-  commitButtonText: React.ReactNode;
-  calculatedIntentAddress: string | null;
-  accountAddress: string | undefined;
+    walletAddress: string | null
+    mainSigner: string
+    calls: IntentCallsPayload[]
+    preconditions: IntentPrecondition[]
+    lifiInfos: AnypayLifiInfo[]
+  }) => void
+  isCommitButtonDisabled: boolean
+  commitButtonText: React.ReactNode
+  calculatedIntentAddress: string | null
+  accountAddress: string | undefined
 }
 
 export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
@@ -55,7 +55,7 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
   accountAddress,
 }) => {
   if (!intentCallsPayloads || !intentPreconditions) {
-    return null;
+    return null
   }
 
   return (
@@ -198,14 +198,14 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   !intentPreconditions ||
                   !lifiInfos
                 )
-                  return;
+                  return
                 commitIntentConfig({
                   walletAddress: calculatedIntentAddress,
                   mainSigner: accountAddress,
                   calls: intentCallsPayloads,
                   preconditions: intentPreconditions,
                   lifiInfos: lifiInfos,
-                });
+                })
               }}
               disabled={isCommitButtonDisabled}
               className="px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
@@ -216,5 +216,5 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
         </div>
       </div>
     </>
-  );
-};
+  )
+}

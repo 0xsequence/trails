@@ -1,12 +1,12 @@
-import type React from "react";
-import { getExplorerUrl } from "../../anypay.js";
+import type React from "react"
+import { getExplorerUrl } from "../../anypay.js"
 
 interface ReceiptProps {
-  txHash?: string;
-  chainId?: number;
-  onSendAnother: () => void;
-  onClose: () => void;
-  theme?: "light" | "dark";
+  txHash?: string
+  chainId?: number
+  onSendAnother: () => void
+  onClose: () => void
+  theme?: "light" | "dark"
 }
 
 export const Receipt: React.FC<ReceiptProps> = ({
@@ -17,7 +17,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
   theme = "light",
 }) => {
   if (!txHash || !chainId) {
-    return null;
+    return null
   }
 
   return (
@@ -87,7 +87,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Receipt;
+export default Receipt

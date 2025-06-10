@@ -1,31 +1,31 @@
-import type { TokenBalance } from "@0xsequence/anypay-sdk";
-import { Button, NetworkImage, Text } from "@0xsequence/design-system";
-import { AlertTriangle, PenSquare, Zap } from "lucide-react";
-import type React from "react";
-import * as chains from "viem/chains";
-import { SectionHeader } from "@/components/SectionHeader";
-import type { IntentAction } from "@/types";
+import type { TokenBalance } from "@0xsequence/anypay-sdk"
+import { Button, NetworkImage, Text } from "@0xsequence/design-system"
+import { AlertTriangle, PenSquare, Zap } from "lucide-react"
+import type React from "react"
+import * as chains from "viem/chains"
+import { SectionHeader } from "@/components/SectionHeader"
+import type { IntentAction } from "@/types"
 
 interface ChooseActionStepProps {
-  isAutoExecuteEnabled: boolean;
-  setIsAutoExecuteEnabled: (enabled: boolean) => void;
-  handleActionClick: (action: IntentAction) => void;
-  selectedToken: TokenBalance | null;
-  createIntentPending: boolean;
-  intentActionType: IntentAction | null;
-  createIntentArgs: any;
-  showCustomCallForm: boolean;
-  setShowCustomCallForm: (show: boolean) => void;
+  isAutoExecuteEnabled: boolean
+  setIsAutoExecuteEnabled: (enabled: boolean) => void
+  handleActionClick: (action: IntentAction) => void
+  selectedToken: TokenBalance | null
+  createIntentPending: boolean
+  intentActionType: IntentAction | null
+  createIntentArgs: any
+  showCustomCallForm: boolean
+  setShowCustomCallForm: (show: boolean) => void
   customCallData: {
-    to: string;
-    data: string;
-    value: string;
-    chainId: string;
-    tokenAmount: string;
-    tokenAddress: string;
-  };
-  setCustomCallData: (data: ChooseActionStepProps["customCallData"]) => void;
-  handleCustomCallSubmit: (e: React.FormEvent) => void;
+    to: string
+    data: string
+    value: string
+    chainId: string
+    tokenAmount: string
+    tokenAddress: string
+  }
+  setCustomCallData: (data: ChooseActionStepProps["customCallData"]) => void
+  handleCustomCallSubmit: (e: React.FormEvent) => void
 }
 
 export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
@@ -290,5 +290,5 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
         </Text>
       )}
     </SectionHeader>
-  );
-};
+  )
+}

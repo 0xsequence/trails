@@ -1,12 +1,12 @@
-import type React from "react";
-import { Link, useLocation } from "react-router";
+import type React from "react"
+import { Link, useLocation } from "react-router"
 
 export const Header: React.FC = () => {
-  const location = useLocation();
+  const location = useLocation()
 
   const isActive = (path: string) => {
-    return location.pathname === path;
-  };
+    return location.pathname === path
+  }
 
   return (
     <header className="bg-gray-900">
@@ -37,7 +37,7 @@ export const Header: React.FC = () => {
         </div>
       </nav>
     </header>
-  );
-};
+  )
+}
 
-export default Header;
+export default Header

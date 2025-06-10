@@ -1,36 +1,36 @@
-import { NetworkImage, TokenImage } from "@0xsequence/design-system";
-import type { SequenceIndexerGateway } from "@0xsequence/indexer";
-import { ChevronLeft, Search } from "lucide-react";
-import { Address } from "ox";
-import type React from "react";
-import { useMemo, useState } from "react";
-import { formatUnits, isAddressEqual, zeroAddress } from "viem";
-import * as chains from "viem/chains";
-import { useAccount } from "wagmi";
-import { useSourceTokenList, useTokenBalances } from "../../tokenBalances.js";
+import { NetworkImage, TokenImage } from "@0xsequence/design-system"
+import type { SequenceIndexerGateway } from "@0xsequence/indexer"
+import { ChevronLeft, Search } from "lucide-react"
+import { Address } from "ox"
+import type React from "react"
+import { useMemo, useState } from "react"
+import { formatUnits, isAddressEqual, zeroAddress } from "viem"
+import * as chains from "viem/chains"
+import { useAccount } from "wagmi"
+import { useSourceTokenList, useTokenBalances } from "../../tokenBalances.js"
 
 interface Token {
-  id: number;
-  name: string;
-  symbol: string;
-  balance: string;
-  imageUrl: string;
-  chainId: number;
-  contractAddress: string;
-  balanceUsdFormatted: string;
-  tokenPriceUsd: number;
+  id: number
+  name: string
+  symbol: string
+  balance: string
+  imageUrl: string
+  chainId: number
+  contractAddress: string
+  balanceUsdFormatted: string
+  tokenPriceUsd: number
   contractInfo?: {
-    decimals: number;
-    symbol: string;
-    name: string;
-  };
+    decimals: number
+    symbol: string
+    name: string
+  }
 }
 
 interface TokenListProps {
-  onContinue: (selectedToken: Token) => void;
-  onBack: () => void;
-  indexerGatewayClient: SequenceIndexerGateway;
-  theme?: "light" | "dark";
+  onContinue: (selectedToken: Token) => void
+  onBack: () => void
+  indexerGatewayClient: SequenceIndexerGateway
+  theme?: "light" | "dark"
 }
 
 // Helper to get chain info
@@ -38,24 +38,24 @@ const getChainInfo = (chainId: number) => {
   // TODO: Add proper type
   return (
     Object.values(chains).find((chain: any) => chain.id === chainId) || null
-  );
-};
+  )
+}
 
 // Helper to format balance
 const formatBalance = (balance: string, decimals: number = 18) => {
   try {
-    const formatted = formatUnits(BigInt(balance), decimals);
-    const num = parseFloat(formatted);
-    if (num === 0) return "0";
-    if (num < 0.0001) return num.toExponential(2);
-    if (num < 1) return num.toFixed(6);
-    if (num < 1000) return num.toFixed(4);
-    return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    const formatted = formatUnits(BigInt(balance), decimals)
+    const num = parseFloat(formatted)
+    if (num === 0) return "0"
+    if (num < 0.0001) return num.toExponential(2)
+    if (num < 1) return num.toFixed(6)
+    if (num < 1000) return num.toFixed(4)
+    return num.toLocaleString(undefined, { maximumFractionDigits: 2 })
   } catch (e) {
-    console.error("Error formatting balance:", e);
-    return balance;
+    console.error("Error formatting balance:", e)
+    return balance
   }
-};
+}
 
 export const TokenList: React.FC<TokenListProps> = ({
   onContinue,
@@ -63,33 +63,33 @@ export const TokenList: React.FC<TokenListProps> = ({
   indexerGatewayClient,
   theme = "light",
 }) => {
-  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const { address } = useAccount();
+  const [selectedToken, setSelectedToken] = useState<Token | null>(null)
+  const [searchQuery, setSearchQuery] = useState("")
+  const { address } = useAccount()
   const {
     sortedTokens: allSortedTokens,
-    isLoadingBalances,
+    isLoadingSortedTokens,
     balanceError,
-  } = useTokenBalances(address as Address.Address, indexerGatewayClient);
+  } = useTokenBalances(address as Address.Address, indexerGatewayClient)
 
-  const sourceTokenList = useSourceTokenList();
+  const sourceTokenList = useSourceTokenList()
 
   const sortedTokens = useMemo(() => {
     return allSortedTokens.filter((token: any) => {
       return (
         !token.contractAddress ||
         sourceTokenList.includes(token.contractInfo?.symbol || "")
-      );
-    });
-  }, [allSortedTokens, sourceTokenList]);
+      )
+    })
+  }, [allSortedTokens, sourceTokenList])
 
   const handleTokenSelect = (token: any) => {
-    const isNative = !("contractAddress" in token);
-    const chainInfo = getChainInfo(token.chainId) as any; // TODO: Add proper type
-    const contractAddress = isNative ? zeroAddress : token.contractAddress;
-    const imageUrl = `https://assets.sequence.info/images/tokens/small/${token.chainId}/${contractAddress}.webp`;
+    const isNative = !("contractAddress" in token)
+    const chainInfo = getChainInfo(token.chainId) as any // TODO: Add proper type
+    const contractAddress = isNative ? zeroAddress : token.contractAddress
+    const imageUrl = `https://assets.sequence.info/images/tokens/small/${token.chainId}/${contractAddress}.webp`
 
-    let formattedToken: Token;
+    let formattedToken: Token
     if (isNative) {
       formattedToken = {
         id: token.chainId,
@@ -106,7 +106,7 @@ export const TokenList: React.FC<TokenListProps> = ({
           symbol: chainInfo?.nativeCurrency.symbol || "ETH",
           name: chainInfo?.nativeCurrency.name || "Native Token",
         },
-      };
+      }
     } else {
       formattedToken = {
         id: token.chainId,
@@ -119,17 +119,17 @@ export const TokenList: React.FC<TokenListProps> = ({
         contractInfo: token.contractInfo,
         balanceUsdFormatted: token.balanceUsdFormatted,
         tokenPriceUsd: token.price?.value ?? 0,
-      };
+      }
     }
 
-    setSelectedToken(formattedToken);
-    onContinue(formattedToken);
-  };
+    setSelectedToken(formattedToken)
+    onContinue(formattedToken)
+  }
 
   const isTokenSelected = (token: any): boolean => {
-    if (!selectedToken) return false;
+    if (!selectedToken) return false
 
-    const isNative = !("contractAddress" in token);
+    const isNative = !("contractAddress" in token)
     return (
       selectedToken.chainId === token.chainId &&
       (isNative
@@ -138,37 +138,37 @@ export const TokenList: React.FC<TokenListProps> = ({
             Address.from(selectedToken.contractAddress),
             Address.from(token.contractAddress),
           ))
-    );
-  };
+    )
+  }
 
   const filteredTokens = useMemo(() => {
     if (!searchQuery.trim()) {
-      return sortedTokens;
+      return sortedTokens
     }
 
-    const query = searchQuery.toLowerCase().trim();
+    const query = searchQuery.toLowerCase().trim()
     return sortedTokens.filter((token: any) => {
-      const isNative = !("contractAddress" in token);
-      const chainInfo = getChainInfo(token.chainId) as any; // TODO: Add proper type
-      const chainName = chainInfo?.name || "";
+      const isNative = !("contractAddress" in token)
+      const chainInfo = getChainInfo(token.chainId) as any // TODO: Add proper type
+      const chainName = chainInfo?.name || ""
 
       if (isNative) {
-        const nativeSymbol = chainInfo?.nativeCurrency.symbol || "ETH";
-        const nativeName = chainInfo?.nativeCurrency.name || "Native Token";
+        const nativeSymbol = chainInfo?.nativeCurrency.symbol || "ETH"
+        const nativeName = chainInfo?.nativeCurrency.name || "Native Token"
         return (
           nativeSymbol.toLowerCase().includes(query) ||
           nativeName.toLowerCase().includes(query) ||
           chainName.toLowerCase().includes(query)
-        );
+        )
       }
 
       return (
         token.contractInfo?.symbol?.toLowerCase().includes(query) ||
         token.contractInfo?.name?.toLowerCase().includes(query) ||
         chainName.toLowerCase().includes(query)
-      );
-    });
-  }, [sortedTokens, searchQuery]);
+      )
+    })
+  }, [sortedTokens, searchQuery])
 
   return (
     <div className="space-y-6">
@@ -210,7 +210,7 @@ export const TokenList: React.FC<TokenListProps> = ({
         />
       </div>
 
-      {isLoadingBalances && (
+      {isLoadingSortedTokens && (
         <div className="text-center py-4">
           <div
             className={`animate-spin rounded-full h-8 w-8 border-b-2 mx-auto ${
@@ -275,7 +275,7 @@ export const TokenList: React.FC<TokenListProps> = ({
         </div>
       )}
 
-      {!isLoadingBalances && !balanceError && filteredTokens.length === 0 && (
+      {!isLoadingSortedTokens && !balanceError && filteredTokens.length === 0 && (
         <div
           className={`text-center py-4 rounded-lg ${theme === "dark" ? "bg-gray-800" : "bg-gray-50"}`}
         >
@@ -294,29 +294,27 @@ export const TokenList: React.FC<TokenListProps> = ({
         } max-h-[35vh] overflow-y-auto rounded-[16px] ${theme === "dark" ? "bg-gray-800/50" : "bg-white"}`}
       >
         {filteredTokens.map((token: any) => {
-          const isNative = !("contractAddress" in token);
-          const chainInfo = getChainInfo(token.chainId) as any;
-          const nativeSymbol = chainInfo?.nativeCurrency.symbol || "ETH";
+          const isNative = !("contractAddress" in token)
+          const chainInfo = getChainInfo(token.chainId) as any
+          const nativeSymbol = chainInfo?.nativeCurrency.symbol || "ETH"
           const tokenSymbol = isNative
             ? nativeSymbol
-            : token.contractInfo?.symbol || "???";
-          const contractAddress = isNative
-            ? zeroAddress
-            : token.contractAddress;
-          let imageContractAddress = contractAddress;
+            : token.contractInfo?.symbol || "???"
+          const contractAddress = isNative ? zeroAddress : token.contractAddress
+          let imageContractAddress = contractAddress
           if (tokenSymbol === "WETH") {
-            imageContractAddress = zeroAddress;
+            imageContractAddress = zeroAddress
           }
-          const imageUrl = `https://assets.sequence.info/images/tokens/small/${token.chainId}/${imageContractAddress}.webp`;
+          const imageUrl = `https://assets.sequence.info/images/tokens/small/${token.chainId}/${imageContractAddress}.webp`
           const tokenName = isNative
             ? `${nativeSymbol} (${chainInfo?.name || "Unknown Chain"})`
-            : token.contractInfo?.name || "Unknown Token";
+            : token.contractInfo?.name || "Unknown Token"
           const formattedBalance = formatBalance(
             token.balance,
             isNative ? 18 : token.contractInfo?.decimals,
-          );
-          const priceUsd = Number(token.price?.value) ?? 0;
-          const balanceUsdFormatted = token.balanceUsdFormatted ?? "";
+          )
+          const priceUsd = Number(token.price?.value) ?? 0
+          const balanceUsdFormatted = token.balanceUsdFormatted ?? ""
 
           return (
             <div
@@ -389,7 +387,7 @@ export const TokenList: React.FC<TokenListProps> = ({
                 )}
               </div>
             </div>
-          );
+          )
         })}
       </div>
 
@@ -407,7 +405,7 @@ export const TokenList: React.FC<TokenListProps> = ({
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TokenList;
+export default TokenList

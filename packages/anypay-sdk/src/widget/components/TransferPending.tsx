@@ -1,27 +1,27 @@
-import React, { useEffect } from "react";
+import React, { useEffect } from "react"
 
 interface TransactionState {
-  transactionHash: string;
-  explorerUrl: string;
-  chainId: number;
-  state: "pending" | "failed" | "confirmed";
+  transactionHash: string
+  explorerUrl: string
+  chainId: number
+  state: "pending" | "failed" | "confirmed"
 }
 
 interface TransferPendingProps {
-  onComplete: () => void;
-  theme?: "light" | "dark";
-  transactionStates: TransactionState[];
+  onComplete: () => void
+  theme?: "light" | "dark"
+  transactionStates: TransactionState[]
 }
 
 const getStepLabel = (index: number, total: number) => {
-  if (total === 1) return "Transaction";
-  if (total === 2) return index === 0 ? "Transaction" : "Swap";
-  return index === 0 ? "Transfer" : index === 1 ? "Swap & Bridge" : "Execute";
-};
+  if (total === 1) return "Transaction"
+  if (total === 2) return index === 0 ? "Transaction" : "Swap"
+  return index === 0 ? "Transfer" : index === 1 ? "Swap & Bridge" : "Execute"
+}
 
 const _truncateHash = (hash: string) => {
-  return `${hash.slice(0, 6)}...${hash.slice(-4)}`;
-};
+  return `${hash.slice(0, 6)}...${hash.slice(-4)}`
+}
 
 export const TransferPending: React.FC<TransferPendingProps> = ({
   onComplete,
@@ -30,22 +30,22 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
 }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      onComplete();
-    }, 5000);
+      onComplete()
+    }, 5000)
 
-    return () => clearTimeout(timer);
-  }, [onComplete]);
+    return () => clearTimeout(timer)
+  }, [onComplete])
 
   // Find the first pending transaction index
   const activePendingIndex = transactionStates.findIndex(
     (tx) => tx.state === "pending",
-  );
+  )
 
   const renderStep = (tx: TransactionState, index: number) => {
-    const isPending = tx.state === "pending";
-    const isActivePending = index === activePendingIndex;
+    const isPending = tx.state === "pending"
+    const isActivePending = index === activePendingIndex
     const isAfterPending =
-      activePendingIndex !== -1 && index > activePendingIndex;
+      activePendingIndex !== -1 && index > activePendingIndex
 
     const dotClasses = `relative w-3 h-3 rounded-full transition-colors ${
       isAfterPending
@@ -63,7 +63,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
             : theme === "dark"
               ? "bg-blue-500"
               : "bg-blue-600"
-    } ${isActivePending ? "animate-[pulse_1.5s_ease-in-out_infinite]" : ""}`;
+    } ${isActivePending ? "animate-[pulse_1.5s_ease-in-out_infinite]" : ""}`
 
     const labelClasses = `mt-2 text-xs transition-colors text-center whitespace-nowrap ${
       isPending || isAfterPending
@@ -73,7 +73,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
         : theme === "dark"
           ? "text-gray-100 font-semibold group-hover:underline"
           : "text-gray-900 font-semibold group-hover:underline"
-    }`;
+    }`
 
     const content = (
       <>
@@ -94,12 +94,12 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
           </div>
         </div>
       </>
-    );
+    )
 
     if (isPending || isAfterPending) {
       return (
         <div className="flex flex-col items-center relative">{content}</div>
-      );
+      )
     }
 
     return (
@@ -111,11 +111,11 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
       >
         {content}
       </a>
-    );
-  };
+    )
+  }
 
   const renderDots = (index: number) => {
-    const isActiveDots = index === activePendingIndex - 1;
+    const isActiveDots = index === activePendingIndex - 1
 
     return (
       <div className="flex-1 flex items-center justify-center mx-4">
@@ -139,8 +139,8 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
           ))}
         </div>
       </div>
-    );
-  };
+    )
+  }
 
   return (
     <>
@@ -204,7 +204,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
         </p>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default TransferPending;
+export default TransferPending

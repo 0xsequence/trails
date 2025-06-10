@@ -42,5 +42,10 @@
     "clientKind": "git",
     "enabled": true,
     "useIgnoreFile": true
+  },
+  "javascript": {
+    "formatter": {
+      "semicolons": "asNeeded"
+    }
   }
 }

@@ -1,1 +1,1 @@
-export type IntentAction = "pay" | "mock_interaction" | "custom_call";
+export type IntentAction = "pay" | "mock_interaction" | "custom_call"

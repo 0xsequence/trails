@@ -1,13 +1,13 @@
-import { useConfig } from "@0xsequence/hooks";
-import { SequenceIndexerGateway } from "@0xsequence/indexer";
-import { useMemo } from "react";
-import { DEFAULT_INDEXER_GATEWAY_URL } from "./constants.js";
+import { useConfig } from "@0xsequence/hooks"
+import { SequenceIndexerGateway } from "@0xsequence/indexer"
+import { useMemo } from "react"
+import { DEFAULT_INDEXER_GATEWAY_URL } from "./constants.js"
 
 export type IndexerGatewayConfig = {
-  indexerGatewayUrl?: string;
-  projectAccessKey?: string;
-  jwt?: string;
-};
+  indexerGatewayUrl?: string
+  projectAccessKey?: string
+  jwt?: string
+}
 
 export function getIndexerGatewayClient({
   indexerGatewayUrl = DEFAULT_INDEXER_GATEWAY_URL,
@@ -18,19 +18,19 @@ export function getIndexerGatewayClient({
     indexerGatewayUrl as string,
     projectAccessKey,
     jwt,
-  );
+  )
 }
 
 export const useIndexerGatewayClient = (config?: IndexerGatewayConfig) => {
-  const { projectAccessKey, jwt, env } = useConfig();
+  const { projectAccessKey, jwt, env } = useConfig()
 
   const indexerGatewayClient = useMemo(() => {
     return getIndexerGatewayClient({
       indexerGatewayUrl: config?.indexerGatewayUrl ?? env.indexerGatewayUrl,
       projectAccessKey: config?.projectAccessKey ?? projectAccessKey,
       jwt: config?.jwt ?? jwt,
-    });
-  }, [projectAccessKey, jwt, env.indexerGatewayUrl, config]);
+    })
+  }, [projectAccessKey, jwt, env.indexerGatewayUrl, config])
 
-  return indexerGatewayClient;
-};
+  return indexerGatewayClient
+}

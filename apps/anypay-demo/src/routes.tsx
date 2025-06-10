@@ -1,8 +1,8 @@
-import { createBrowserRouter } from "react-router";
-import { ErrorRoute } from "./routes/error";
-import { HomeIndexRoute } from "./routes/home/home-index-route";
-import { RootLayout } from "./routes/root-layout";
-import Widget from "./routes/widget";
+import { createBrowserRouter } from "react-router"
+import { ErrorRoute } from "./routes/error"
+import { HomeIndexRoute } from "./routes/home/home-index-route"
+import { RootLayout } from "./routes/root-layout"
+import Widget from "./routes/widget"
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +20,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+])
 
-export default router;
+export default router

@@ -1,13 +1,13 @@
-import { X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import type React from "react";
-import { useEffect, useRef } from "react";
+import { X } from "lucide-react"
+import { AnimatePresence, motion } from "motion/react"
+import type React from "react"
+import { useEffect, useRef } from "react"
 
 interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  children: React.ReactNode;
-  theme?: "light" | "dark";
+  isOpen: boolean
+  onClose: () => void
+  children: React.ReactNode
+  theme?: "light" | "dark"
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -16,31 +16,31 @@ const Modal: React.FC<ModalProps> = ({
   children,
   theme = "light",
 }) => {
-  const modalRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null)
 
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        onClose();
+        onClose()
       }
-    };
+    }
 
     if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
+      document.addEventListener("keydown", handleEscape)
     }
 
     return () => {
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [isOpen, onClose]);
+      document.removeEventListener("keydown", handleEscape)
+    }
+  }, [isOpen, onClose])
 
   // Handle click outside
   const handleClickOutside = (e: React.MouseEvent<HTMLDivElement>) => {
     if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-      onClose();
+      onClose()
     }
-  };
+  }
 
   return (
     <AnimatePresence>
@@ -89,7 +89,7 @@ const Modal: React.FC<ModalProps> = ({
         </>
       )}
     </AnimatePresence>
-  );
-};
+  )
+}
 
-export default Modal;
+export default Modal

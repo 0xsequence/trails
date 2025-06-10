@@ -1,17 +1,17 @@
-import type { NativeTokenBalance, TokenBalance } from "@0xsequence/anypay-sdk";
-import { NetworkImage, Text } from "@0xsequence/design-system";
-import type React from "react";
-import { type Hex, zeroAddress } from "viem";
-import { SectionHeader } from "@/components/SectionHeader";
-import { formatBalance, getChainInfo } from "@/utils/formatting";
+import type { NativeTokenBalance, TokenBalance } from "@0xsequence/anypay-sdk"
+import { NetworkImage, Text } from "@0xsequence/design-system"
+import type React from "react"
+import { type Hex, zeroAddress } from "viem"
+import { SectionHeader } from "@/components/SectionHeader"
+import { formatBalance, getChainInfo } from "@/utils/formatting"
 
 interface SelectOriginTokenStepProps {
-  isLoadingBalances: boolean;
-  balanceError: Error | null;
-  sortedTokens: (TokenBalance | NativeTokenBalance)[];
-  selectedToken: TokenBalance | null;
-  setSelectedToken: (token: TokenBalance | null) => void;
-  clearIntent: () => void;
+  isLoadingBalances: boolean
+  balanceError: Error | null
+  sortedTokens: (TokenBalance | NativeTokenBalance)[]
+  selectedToken: TokenBalance | null
+  setSelectedToken: (token: TokenBalance | null) => void
+  clearIntent: () => void
 }
 
 export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
@@ -68,10 +68,10 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
       )}
       <div className="max-h-60 overflow-y-auto border border-gray-700/50 rounded-lg p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
         {sortedTokens.map((token) => {
-          const isNative = !("contractAddress" in token);
-          const tokenBalance = isNative ? undefined : (token as TokenBalance);
-          const chainInfo = getChainInfo(token.chainId);
-          const nativeSymbol = chainInfo?.nativeCurrency.symbol || "ETH";
+          const isNative = !("contractAddress" in token)
+          const tokenBalance = isNative ? undefined : (token as TokenBalance)
+          const chainInfo = getChainInfo(token.chainId)
+          const nativeSymbol = chainInfo?.nativeCurrency.symbol || "ETH"
 
           return (
             <div
@@ -82,7 +82,7 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
               }
               onClick={() => {
                 if (isNative) {
-                  const nativeToken = token as NativeTokenBalance;
+                  const nativeToken = token as NativeTokenBalance
                   const nativeAsTokenBalanceShape = {
                     ...nativeToken,
                     contractAddress: zeroAddress as Hex,
@@ -112,14 +112,14 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
                       typeof nativeToken.isSummary === "boolean"
                         ? nativeToken.isSummary
                         : true,
-                  };
+                  }
                   setSelectedToken(
                     nativeAsTokenBalanceShape as unknown as TokenBalance,
-                  );
+                  )
                 } else {
-                  setSelectedToken(token as TokenBalance);
+                  setSelectedToken(token as TokenBalance)
                 }
-                clearIntent();
+                clearIntent()
               }}
               className={`p-3 rounded-lg cursor-pointer transition-all duration-200 flex justify-between items-center ${selectedToken?.chainId === token.chainId && (isNative ? selectedToken?.contractAddress === zeroAddress : selectedToken?.contractAddress === (token as TokenBalance).contractAddress) ? "bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 shadow-lg" : "bg-gray-700/80 hover:bg-gray-600/90 hover:shadow-md"}`}
             >
@@ -175,7 +175,7 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
                 {formatBalance(token)}
               </Text>
             </div>
-          );
+          )
         })}
       </div>
       {selectedToken && (
@@ -205,5 +205,5 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
         </div>
       )}
     </SectionHeader>
-  );
-};
+  )
+}

@@ -1,91 +1,91 @@
-import { SequenceHooksProvider } from "@0xsequence/hooks";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AnimatePresence, motion } from "motion/react";
-import { StrictMode, useContext, useEffect, useState } from "react";
+import { SequenceHooksProvider } from "@0xsequence/hooks"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { AnimatePresence, motion } from "motion/react"
+import { StrictMode, useContext, useEffect, useState } from "react"
 import {
   createWalletClient,
   custom,
   type TransactionReceipt,
   type WalletClient,
-} from "viem";
-import * as chains from "viem/chains";
-import { mainnet } from "viem/chains";
-import { createConfig, type http, useAccount, WagmiProvider } from "wagmi";
-import ConnectWallet from "./components/ConnectWallet.js";
-import Modal from "./components/Modal.js";
-import Receipt from "./components/Receipt.js";
-import SendForm from "./components/SendForm.js";
-import TokenList from "./components/TokenList.js";
-import TransferPending from "./components/TransferPending.js";
-import "@0xsequence/design-system/preset";
-import "./index.css";
-import React from "react";
-import { WagmiContext } from "wagmi";
-import type { TransactionState } from "../anypay.js";
-import { useIndexerGatewayClient } from "../indexerClient.js";
+} from "viem"
+import * as chains from "viem/chains"
+import { mainnet } from "viem/chains"
+import { createConfig, type http, useAccount, WagmiProvider } from "wagmi"
+import ConnectWallet from "./components/ConnectWallet.js"
+import Modal from "./components/Modal.js"
+import Receipt from "./components/Receipt.js"
+import SendForm from "./components/SendForm.js"
+import TokenList from "./components/TokenList.js"
+import TransferPending from "./components/TransferPending.js"
+import "@0xsequence/design-system/preset"
+import "./index.css"
+import React from "react"
+import { WagmiContext } from "wagmi"
+import type { TransactionState } from "../anypay.js"
+import { useIndexerGatewayClient } from "../indexerClient.js"
 
-type Screen = "connect" | "tokens" | "send" | "pending" | "receipt";
-type Theme = "light" | "dark" | "auto";
-type ActiveTheme = "light" | "dark";
+type Screen = "connect" | "tokens" | "send" | "pending" | "receipt"
+type Theme = "light" | "dark" | "auto"
+type ActiveTheme = "light" | "dark"
 
 interface Token {
-  id: number;
-  name: string;
-  symbol: string;
-  balance: string;
-  imageUrl: string;
-  chainId: number;
-  contractAddress: string;
+  id: number
+  name: string
+  symbol: string
+  balance: string
+  imageUrl: string
+  chainId: number
+  contractAddress: string
   contractInfo?: {
-    decimals: number;
-    symbol: string;
-    name: string;
-  };
+    decimals: number
+    symbol: string
+    name: string
+  }
 }
 
 const getChainConfig = (chainId: number) => {
   for (const chain of Object.values(chains) as any[]) {
     // TODO: add proper types
     if (chain.id === chainId) {
-      return chain;
+      return chain
     }
   }
-  throw new Error(`Unsupported chain ID: ${chainId}`);
-};
+  throw new Error(`Unsupported chain ID: ${chainId}`)
+}
 
 export type AnyPayWidgetProps = {
-  sequenceApiKey: string;
-  indexerUrl?: string;
-  apiUrl?: string;
-  env?: "local" | "cors-anywhere" | "dev" | "prod";
-  toRecipient?: string;
-  toAmount?: string;
-  toChainId?: number | string;
-  toToken?: "USDC" | "ETH";
-  toCalldata?: string;
-  provider?: any;
-  children?: React.ReactNode;
-  renderInline?: boolean;
-  theme?: Theme;
-};
+  sequenceApiKey: string
+  indexerUrl?: string
+  apiUrl?: string
+  env?: "local" | "cors-anywhere" | "dev" | "prod"
+  toRecipient?: string
+  toAmount?: string
+  toChainId?: number | string
+  toToken?: "USDC" | "ETH"
+  toCalldata?: string
+  provider?: any
+  children?: React.ReactNode
+  renderInline?: boolean
+  theme?: Theme
+}
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 
 // Function to get system theme preference
 const getSystemTheme = (): ActiveTheme => {
-  if (typeof window === "undefined") return "light";
+  if (typeof window === "undefined") return "light"
   return window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "dark"
-    : "light";
-};
+    : "light"
+}
 
 // Function to get initial theme based on mode
 const getInitialTheme = (mode: Theme): ActiveTheme => {
   if (mode === "auto") {
-    return getSystemTheme();
+    return getSystemTheme()
   }
-  return mode as ActiveTheme;
-};
+  return mode as ActiveTheme
+}
 
 const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   sequenceApiKey,
@@ -102,176 +102,172 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   renderInline,
   theme: initialTheme = "auto",
 }) => {
-  const { address, isConnected, chainId } = useAccount();
-  const [theme, setTheme] = useState<ActiveTheme>(
-    getInitialTheme(initialTheme),
-  );
-  const [themeMode, setThemeMode] = useState<Theme>(initialTheme);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { address, isConnected, chainId } = useAccount()
+  const [theme, setTheme] = useState<ActiveTheme>(getInitialTheme(initialTheme))
+  const [themeMode, setThemeMode] = useState<Theme>(initialTheme)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentScreen, setCurrentScreen] = useState<Screen>(
     isConnected ? "tokens" : "connect",
-  );
-  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
-  const [destinationTxHash, setDestinationTxHash] = useState("");
+  )
+  const [selectedToken, setSelectedToken] = useState<Token | null>(null)
+  const [destinationTxHash, setDestinationTxHash] = useState("")
   const [destinationChainId, setDestinationChainId] = useState<number | null>(
     null,
-  );
-  const [walletClient, setWalletClient] = useState<WalletClient | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  )
+  const [walletClient, setWalletClient] = useState<WalletClient | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [transactionStates, setTransactionStates] = useState<
     TransactionState[]
-  >([]);
+  >([])
 
   // Update theme when system preference changes
   useEffect(() => {
-    if (themeMode !== "auto") return;
+    if (themeMode !== "auto") return
 
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
     const handleChange = (e: MediaQueryListEvent) => {
-      setTheme(e.matches ? "dark" : "light");
-    };
+      setTheme(e.matches ? "dark" : "light")
+    }
 
     // Set initial value
-    setTheme(mediaQuery.matches ? "dark" : "light");
+    setTheme(mediaQuery.matches ? "dark" : "light")
 
     // Add listener for changes
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, [themeMode]);
+    mediaQuery.addEventListener("change", handleChange)
+    return () => mediaQuery.removeEventListener("change", handleChange)
+  }, [themeMode])
 
   // Update theme when prop changes
   useEffect(() => {
-    setThemeMode(initialTheme);
-    setTheme(getInitialTheme(initialTheme));
-  }, [initialTheme]);
+    setThemeMode(initialTheme)
+    setTheme(getInitialTheme(initialTheme))
+  }, [initialTheme])
 
   // Set up wallet client when connected
   useEffect(() => {
     if (provider && address && chainId) {
-      const chain = getChainConfig(chainId);
+      const chain = getChainConfig(chainId)
       const client = createWalletClient({
         account: address,
         chain,
         transport: custom(provider),
-      });
-      setWalletClient(client);
+      })
+      setWalletClient(client)
     }
-  }, [provider, address, chainId]);
+  }, [provider, address, chainId])
 
   // Update screen based on connection state
   useEffect(() => {
     if (isConnected) {
-      setCurrentScreen("tokens");
+      setCurrentScreen("tokens")
     }
-  }, [isConnected]);
+  }, [isConnected])
 
   const indexerGatewayClient = useIndexerGatewayClient({
     indexerGatewayUrl: indexerUrl,
     projectAccessKey: sequenceApiKey,
-  });
+  })
 
   const handleConnect = () => {
     if (walletClient && !isConnected) {
       const connect = async () => {
-        await walletClient.request({ method: "eth_requestAccounts" });
-      };
-      connect();
+        await walletClient.request({ method: "eth_requestAccounts" })
+      }
+      connect()
     } else if (isConnected) {
-      setCurrentScreen("tokens");
+      setCurrentScreen("tokens")
     }
-  };
+  }
 
   const handleTokenSelect = (token: Token) => {
     try {
-      setError(null);
+      setError(null)
       if (window.ethereum && address) {
-        const chain = getChainConfig(token.chainId);
+        const chain = getChainConfig(token.chainId)
         const client = createWalletClient({
           account: address,
           chain,
           transport: custom(window.ethereum),
-        });
-        setWalletClient(client);
+        })
+        setWalletClient(client)
       }
-      setSelectedToken(token);
-      setCurrentScreen("send");
+      setSelectedToken(token)
+      setCurrentScreen("send")
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "An unknown error occurred",
-      );
+      setError(err instanceof Error ? err.message : "An unknown error occurred")
     }
-  };
+  }
 
   const handleOnSend = async (amount: string, recipient: string) => {
-    console.log("handleOnSend", amount, recipient);
-  };
+    console.log("handleOnSend", amount, recipient)
+  }
 
   const handleSendAnother = () => {
-    setCurrentScreen("tokens");
-    resetState();
-  };
+    setCurrentScreen("tokens")
+    resetState()
+  }
 
   function resetState() {
-    setCurrentScreen("connect");
-    setSelectedToken(null);
-    setDestinationTxHash("");
-    setDestinationChainId(null);
-    setTransactionStates([]);
+    setCurrentScreen("connect")
+    setSelectedToken(null)
+    setDestinationTxHash("")
+    setDestinationChainId(null)
+    setTransactionStates([])
   }
 
   const handleCloseModal = () => {
-    setIsModalOpen(false);
-    resetState();
-  };
+    setIsModalOpen(false)
+    resetState()
+  }
 
   const handleBack = () => {
     switch (currentScreen) {
       case "tokens":
-        setCurrentScreen("connect");
-        break;
+        setCurrentScreen("connect")
+        break
       case "send":
-        setCurrentScreen("tokens");
-        setSelectedToken(null);
-        break;
+        setCurrentScreen("tokens")
+        setSelectedToken(null)
+        break
       case "receipt":
-        setCurrentScreen("tokens");
-        setSelectedToken(null);
-        setDestinationTxHash("");
-        setDestinationChainId(null);
-        break;
+        setCurrentScreen("tokens")
+        setSelectedToken(null)
+        setDestinationTxHash("")
+        setDestinationChainId(null)
+        break
       default:
-        break;
+        break
     }
-  };
+  }
 
   function handleTransferComplete(data?: {
-    originChainId: number;
-    destinationChainId: number;
-    originUserTxReceipt: TransactionReceipt;
-    originMetaTxnReceipt: any;
-    destinationMetaTxnReceipt: any;
+    originChainId: number
+    destinationChainId: number
+    originUserTxReceipt: TransactionReceipt
+    originMetaTxnReceipt: any
+    destinationMetaTxnReceipt: any
   }) {
     if (data) {
       setDestinationTxHash(
         data.destinationMetaTxnReceipt?.txnHash ||
           data.originUserTxReceipt.transactionHash,
-      );
-      setDestinationChainId(data.destinationChainId);
-      setCurrentScreen("receipt");
+      )
+      setDestinationChainId(data.destinationChainId)
+      setCurrentScreen("receipt")
     }
   }
 
   function handleTransactionStateChange(
     _transactionStates: TransactionState[],
   ) {
-    console.log("transactionStates from widget", _transactionStates);
-    setTransactionStates([..._transactionStates]);
+    console.log("transactionStates from widget", _transactionStates)
+    setTransactionStates([..._transactionStates])
   }
 
   const renderScreenContent = () => {
     switch (currentScreen) {
       case "connect":
-        return <ConnectWallet onConnect={handleConnect} theme={theme} />;
+        return <ConnectWallet onConnect={handleConnect} theme={theme} />
       case "tokens":
         return (
           <TokenList
@@ -280,7 +276,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             indexerGatewayClient={indexerGatewayClient}
             theme={theme}
           />
-        );
+        )
       case "send":
         return selectedToken && walletClient?.account ? (
           <SendForm
@@ -302,7 +298,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             theme={theme}
             onTransactionStateChange={handleTransactionStateChange}
           />
-        ) : null;
+        ) : null
       case "pending":
         return (
           <TransferPending
@@ -310,7 +306,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             theme={theme}
             transactionStates={transactionStates}
           />
-        );
+        )
       case "receipt":
         return (
           <Receipt
@@ -320,11 +316,11 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             chainId={destinationChainId!}
             theme={theme}
           />
-        );
+        )
       default:
-        return null;
+        return null
     }
-  };
+  }
 
   const renderScreen = () => {
     return (
@@ -400,11 +396,11 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
           </a>
         </motion.div>
       </motion.div>
-    );
-  };
+    )
+  }
 
   if (renderInline) {
-    return renderScreen();
+    return renderScreen()
   }
 
   return (
@@ -441,11 +437,11 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
         )}
       </AnimatePresence>
     </div>
-  );
-};
+  )
+}
 
 export const AnyPayWidget = (props: AnyPayWidgetProps) => {
-  const wagmiContext = useContext(WagmiContext);
+  const wagmiContext = useContext(WagmiContext)
   const config = React.useMemo(
     () =>
       createConfig({
@@ -459,7 +455,7 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
         ) as Record<number, ReturnType<typeof http>>,
       }),
     [props.provider],
-  );
+  )
 
   const content = (
     <QueryClientProvider client={queryClient}>
@@ -476,7 +472,7 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
         <WidgetInner {...props} />
       </SequenceHooksProvider>
     </QueryClientProvider>
-  );
+  )
 
   // If no parent Wagmi context, provide our own
   if (!wagmiContext) {
@@ -484,11 +480,11 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
       <StrictMode>
         <WagmiProvider config={config}>{content}</WagmiProvider>
       </StrictMode>
-    );
+    )
   }
 
   // Otherwise use parent context
-  return <StrictMode>{content}</StrictMode>;
-};
+  return <StrictMode>{content}</StrictMode>
+}
 
-export default AnyPayWidget;
+export default AnyPayWidget

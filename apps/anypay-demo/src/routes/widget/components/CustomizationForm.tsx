@@ -1,13 +1,13 @@
-import { NetworkImage, TokenImage } from "@0xsequence/design-system";
-import { ChevronDown } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { NetworkImage, TokenImage } from "@0xsequence/design-system"
+import { ChevronDown } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 const SUPPORTED_CHAINS = [
   { id: 1, name: "Ethereum", icon: 1 },
   { id: 8453, name: "Base", icon: 8453 },
   { id: 10, name: "Optimism", icon: 10 },
   { id: 42161, name: "Arbitrum", icon: 42161 },
-];
+]
 
 const SUPPORTED_TOKENS = [
   {
@@ -22,25 +22,25 @@ const SUPPORTED_TOKENS = [
     imageUrl:
       "https://assets.sequence.info/images/tokens/small/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
   },
-] as const;
+] as const
 
 interface CustomizationFormProps {
-  toRecipient: string;
-  setToRecipient: (value: string) => void;
-  toAmount: string;
-  setToAmount: (value: string) => void;
-  toChainId: number | undefined;
-  setToChainId: (value: number | undefined) => void;
-  toToken: "ETH" | "USDC" | undefined;
-  setToToken: (value: "ETH" | "USDC" | undefined) => void;
-  toCalldata: string;
-  setToCalldata: (value: string) => void;
-  useCustomButton: boolean;
-  setUseCustomButton: (value: boolean) => void;
-  renderInline: boolean;
-  setRenderInline: (value: boolean) => void;
-  theme: "light" | "dark" | "auto" | null;
-  setTheme: (value: "light" | "dark" | "auto" | null) => void;
+  toRecipient: string
+  setToRecipient: (value: string) => void
+  toAmount: string
+  setToAmount: (value: string) => void
+  toChainId: number | undefined
+  setToChainId: (value: number | undefined) => void
+  toToken: "ETH" | "USDC" | undefined
+  setToToken: (value: "ETH" | "USDC" | undefined) => void
+  toCalldata: string
+  setToCalldata: (value: string) => void
+  useCustomButton: boolean
+  setUseCustomButton: (value: boolean) => void
+  renderInline: boolean
+  setRenderInline: (value: boolean) => void
+  theme: "light" | "dark" | "auto" | null
+  setTheme: (value: "light" | "dark" | "auto" | null) => void
 }
 
 // Local storage keys
@@ -53,7 +53,7 @@ const STORAGE_KEYS = {
   CUSTOM_BUTTON: "anypay_custom_button",
   RENDER_INLINE: "anypay_render_inline",
   THEME: "anypay_theme",
-} as const;
+} as const
 
 export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   toRecipient,
@@ -73,41 +73,41 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   theme,
   setTheme,
 }) => {
-  const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false);
-  const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false);
+  const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
+  const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
 
-  const tokenDropdownRef = useRef<HTMLDivElement>(null);
-  const chainDropdownRef = useRef<HTMLDivElement>(null);
+  const tokenDropdownRef = useRef<HTMLDivElement>(null)
+  const chainDropdownRef = useRef<HTMLDivElement>(null)
 
   // Add state for NFT mint form
-  const [isNftMintFormOpen, setIsNftMintFormOpen] = useState(false);
-  const [nftRecipient, setNftRecipient] = useState("");
+  const [isNftMintFormOpen, setIsNftMintFormOpen] = useState(false)
+  const [nftRecipient, setNftRecipient] = useState("")
 
   // Load saved values from localStorage on mount
   useEffect(() => {
-    const savedRecipient = localStorage.getItem(STORAGE_KEYS.RECIPIENT);
-    const savedAmount = localStorage.getItem(STORAGE_KEYS.AMOUNT);
-    const savedChainId = localStorage.getItem(STORAGE_KEYS.CHAIN_ID);
+    const savedRecipient = localStorage.getItem(STORAGE_KEYS.RECIPIENT)
+    const savedAmount = localStorage.getItem(STORAGE_KEYS.AMOUNT)
+    const savedChainId = localStorage.getItem(STORAGE_KEYS.CHAIN_ID)
     const savedToken = localStorage.getItem(STORAGE_KEYS.TOKEN) as
       | "ETH"
       | "USDC"
-      | undefined;
-    const savedCalldata = localStorage.getItem(STORAGE_KEYS.CALLDATA);
-    const savedCustomButton = localStorage.getItem(STORAGE_KEYS.CUSTOM_BUTTON);
-    const savedRenderInline = localStorage.getItem(STORAGE_KEYS.RENDER_INLINE);
+      | undefined
+    const savedCalldata = localStorage.getItem(STORAGE_KEYS.CALLDATA)
+    const savedCustomButton = localStorage.getItem(STORAGE_KEYS.CUSTOM_BUTTON)
+    const savedRenderInline = localStorage.getItem(STORAGE_KEYS.RENDER_INLINE)
     const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) as
       | "light"
       | "dark"
       | "auto"
-      | null;
-    if (savedRecipient) setToRecipient(savedRecipient);
-    if (savedAmount) setToAmount(savedAmount);
-    if (savedChainId) setToChainId(Number(savedChainId));
-    if (savedToken) setToToken(savedToken);
-    if (savedCalldata) setToCalldata(savedCalldata);
-    if (savedCustomButton) setUseCustomButton(savedCustomButton === "true");
-    if (savedRenderInline) setRenderInline(savedRenderInline === "true");
-    if (savedTheme) setTheme(savedTheme);
+      | null
+    if (savedRecipient) setToRecipient(savedRecipient)
+    if (savedAmount) setToAmount(savedAmount)
+    if (savedChainId) setToChainId(Number(savedChainId))
+    if (savedToken) setToToken(savedToken)
+    if (savedCalldata) setToCalldata(savedCalldata)
+    if (savedCustomButton) setUseCustomButton(savedCustomButton === "true")
+    if (savedRenderInline) setRenderInline(savedRenderInline === "true")
+    if (savedTheme) setTheme(savedTheme)
   }, [
     setToRecipient,
     setToAmount,
@@ -117,52 +117,52 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setUseCustomButton,
     setRenderInline,
     setTheme,
-  ]);
+  ])
 
   // Save values to localStorage whenever they change
   useEffect(() => {
-    if (toRecipient) localStorage.setItem(STORAGE_KEYS.RECIPIENT, toRecipient);
-    else localStorage.removeItem(STORAGE_KEYS.RECIPIENT);
-  }, [toRecipient]);
+    if (toRecipient) localStorage.setItem(STORAGE_KEYS.RECIPIENT, toRecipient)
+    else localStorage.removeItem(STORAGE_KEYS.RECIPIENT)
+  }, [toRecipient])
 
   useEffect(() => {
-    if (toAmount) localStorage.setItem(STORAGE_KEYS.AMOUNT, toAmount);
-    else localStorage.removeItem(STORAGE_KEYS.AMOUNT);
-  }, [toAmount]);
+    if (toAmount) localStorage.setItem(STORAGE_KEYS.AMOUNT, toAmount)
+    else localStorage.removeItem(STORAGE_KEYS.AMOUNT)
+  }, [toAmount])
 
   useEffect(() => {
     if (toChainId)
-      localStorage.setItem(STORAGE_KEYS.CHAIN_ID, toChainId.toString());
-    else localStorage.removeItem(STORAGE_KEYS.CHAIN_ID);
-  }, [toChainId]);
+      localStorage.setItem(STORAGE_KEYS.CHAIN_ID, toChainId.toString())
+    else localStorage.removeItem(STORAGE_KEYS.CHAIN_ID)
+  }, [toChainId])
 
   useEffect(() => {
-    if (toToken) localStorage.setItem(STORAGE_KEYS.TOKEN, toToken);
-    else localStorage.removeItem(STORAGE_KEYS.TOKEN);
-  }, [toToken]);
+    if (toToken) localStorage.setItem(STORAGE_KEYS.TOKEN, toToken)
+    else localStorage.removeItem(STORAGE_KEYS.TOKEN)
+  }, [toToken])
 
   useEffect(() => {
-    if (toCalldata) localStorage.setItem(STORAGE_KEYS.CALLDATA, toCalldata);
-    else localStorage.removeItem(STORAGE_KEYS.CALLDATA);
-  }, [toCalldata]);
+    if (toCalldata) localStorage.setItem(STORAGE_KEYS.CALLDATA, toCalldata)
+    else localStorage.removeItem(STORAGE_KEYS.CALLDATA)
+  }, [toCalldata])
 
   // Save custom button state to localStorage
   useEffect(() => {
     if (useCustomButton)
-      localStorage.setItem(STORAGE_KEYS.CUSTOM_BUTTON, "true");
-    else localStorage.removeItem(STORAGE_KEYS.CUSTOM_BUTTON);
-  }, [useCustomButton]);
+      localStorage.setItem(STORAGE_KEYS.CUSTOM_BUTTON, "true")
+    else localStorage.removeItem(STORAGE_KEYS.CUSTOM_BUTTON)
+  }, [useCustomButton])
 
   // Save theme to localStorage
   useEffect(() => {
-    if (theme) localStorage.setItem(STORAGE_KEYS.THEME, theme);
-    else localStorage.removeItem(STORAGE_KEYS.THEME);
-  }, [theme]);
+    if (theme) localStorage.setItem(STORAGE_KEYS.THEME, theme)
+    else localStorage.removeItem(STORAGE_KEYS.THEME)
+  }, [theme])
 
   useEffect(() => {
-    if (renderInline) localStorage.setItem(STORAGE_KEYS.RENDER_INLINE, "true");
-    else localStorage.removeItem(STORAGE_KEYS.RENDER_INLINE);
-  }, [renderInline]);
+    if (renderInline) localStorage.setItem(STORAGE_KEYS.RENDER_INLINE, "true")
+    else localStorage.removeItem(STORAGE_KEYS.RENDER_INLINE)
+  }, [renderInline])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -170,43 +170,43 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         tokenDropdownRef.current &&
         !tokenDropdownRef.current.contains(event.target as Node)
       ) {
-        setIsTokenDropdownOpen(false);
+        setIsTokenDropdownOpen(false)
       }
       if (
         chainDropdownRef.current &&
         !chainDropdownRef.current.contains(event.target as Node)
       ) {
-        setIsChainDropdownOpen(false);
+        setIsChainDropdownOpen(false)
       }
-    };
+    }
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside)
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
   // Add helper to format address for calldata
   const formatAddressForCalldata = (address: string) => {
     // Remove 0x prefix if present and pad to 40 characters
-    return address.toLowerCase().replace("0x", "").padStart(40, "0");
-  };
+    return address.toLowerCase().replace("0x", "").padStart(40, "0")
+  }
 
   const handleReset = () => {
     // Clear form state
-    setToRecipient("");
-    setToAmount("");
-    setToChainId(undefined);
-    setToToken(undefined);
-    setToCalldata("");
-    setUseCustomButton(false);
-    setRenderInline(false);
-    setTheme("light");
+    setToRecipient("")
+    setToAmount("")
+    setToChainId(undefined)
+    setToToken(undefined)
+    setToCalldata("")
+    setUseCustomButton(false)
+    setRenderInline(false)
+    setTheme("light")
     // Clear localStorage
     Object.values(STORAGE_KEYS).forEach((key) => {
-      localStorage.removeItem(key);
-    });
-  };
+      localStorage.removeItem(key)
+    })
+  }
 
   return (
     <div className="bg-gray-800 rounded-lg p-6 h-full">
@@ -286,8 +286,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       key={token.symbol}
                       type="button"
                       onClick={() => {
-                        setToToken(token.symbol as "ETH" | "USDC");
-                        setIsTokenDropdownOpen(false);
+                        setToToken(token.symbol as "ETH" | "USDC")
+                        setIsTokenDropdownOpen(false)
                       }}
                       className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${
                         toToken === token.symbol
@@ -355,8 +355,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       key={chain.id}
                       type="button"
                       onClick={() => {
-                        setToChainId(chain.id);
-                        setIsChainDropdownOpen(false);
+                        setToChainId(chain.id)
+                        setIsChainDropdownOpen(false)
                       }}
                       className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${
                         toChainId === chain.id
@@ -500,16 +500,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       onClick={() => {
                         const formattedAddress = nftRecipient
                           ? formatAddressForCalldata(nftRecipient)
-                          : "";
+                          : ""
                         setToRecipient(
                           "0xAA3df3c86EdB6aA4D03b75092b4dd0b99515EC83",
-                        );
+                        )
                         setToCalldata(
                           `0x6a627842000000000000000000000000${formattedAddress}`,
-                        );
-                        setToAmount("0.00002");
-                        setToToken("ETH");
-                        setToChainId(42161);
+                        )
+                        setToAmount("0.00002")
+                        setToToken("ETH")
+                        setToChainId(42161)
                       }}
                       disabled={!nftRecipient}
                       className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed"
@@ -524,5 +524,5 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

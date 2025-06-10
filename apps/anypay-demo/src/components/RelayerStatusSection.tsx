@@ -2,34 +2,34 @@ import type {
   MetaTxn,
   MetaTxnStatus,
   OriginCallParams,
-} from "@0xsequence/anypay-sdk";
-import { NetworkImage, Text } from "@0xsequence/design-system";
-import { Box, Layers } from "lucide-react";
-import { SectionHeader } from "@/components/SectionHeader";
+} from "@0xsequence/anypay-sdk"
+import { NetworkImage, Text } from "@0xsequence/design-system"
+import { Box, Layers } from "lucide-react"
+import { SectionHeader } from "@/components/SectionHeader"
 import {
   formatTimeSinceOrigin,
   getChainInfo,
   getExplorerUrlForTransaction,
-} from "@/utils/formatting";
+} from "@/utils/formatting"
 
 interface OriginCallStatusData {
-  txnHash?: string;
-  status?: string;
-  revertReason?: string | null;
-  gasUsed?: number;
-  effectiveGasPrice?: string;
+  txnHash?: string
+  status?: string
+  revertReason?: string | null
+  gasUsed?: number
+  effectiveGasPrice?: string
 }
 
 interface RelayerStatusSectionProps {
-  originCallStatus: OriginCallStatusData | null;
-  isWaitingForReceipt: boolean;
-  metaTxns: MetaTxn[] | null;
-  metaTxnMonitorStatuses: MetaTxnStatus;
-  originBlockTimestamp: number | null;
+  originCallStatus: OriginCallStatusData | null
+  isWaitingForReceipt: boolean
+  metaTxns: MetaTxn[] | null
+  metaTxnMonitorStatuses: MetaTxnStatus
+  originBlockTimestamp: number | null
   metaTxnBlockTimestamps: {
-    [key: string]: { timestamp: number | null; error?: string };
-  };
-  originCallParams: OriginCallParams | null;
+    [key: string]: { timestamp: number | null; error?: string }
+  }
+  originCallParams: OriginCallParams | null
 }
 
 export const RelayerStatusSection = ({
@@ -184,35 +184,35 @@ export const RelayerStatusSection = ({
           </Text>
           <div className="space-y-4">
             {metaTxns?.map((metaTxn: MetaTxn, index: number) => {
-              const operationKey = `${metaTxn.chainId}-${metaTxn.id}`;
-              const monitorStatus = metaTxnMonitorStatuses[operationKey];
+              const operationKey = `${metaTxn.chainId}-${metaTxn.id}`
+              const monitorStatus = metaTxnMonitorStatuses[operationKey]
 
               const getStatusDisplay = () => {
-                if (!monitorStatus) return "Pending";
+                if (!monitorStatus) return "Pending"
                 switch (monitorStatus.status) {
                   case "confirmed":
-                    return "Success";
+                    return "Success"
                   case "failed":
-                    return "Failed";
+                    return "Failed"
                   case "unknown":
-                    return "Unknown";
+                    return "Unknown"
                   default:
-                    return "Pending";
+                    return "Pending"
                 }
-              };
+              }
 
               const getStatusClass = () => {
                 if (!monitorStatus)
-                  return "bg-yellow-900/30 text-yellow-400 border border-yellow-700/30";
+                  return "bg-yellow-900/30 text-yellow-400 border border-yellow-700/30"
                 switch (monitorStatus.status) {
                   case "confirmed":
-                    return "bg-green-900/30 text-green-400 border border-green-700/30";
+                    return "bg-green-900/30 text-green-400 border border-green-700/30"
                   case "failed":
-                    return "bg-red-900/30 text-red-400 border border-red-700/30";
+                    return "bg-red-900/30 text-red-400 border border-red-700/30"
                   default:
-                    return "bg-yellow-900/30 text-yellow-400 border border-yellow-700/30";
+                    return "bg-yellow-900/30 text-yellow-400 border border-yellow-700/30"
                 }
-              };
+              }
 
               return (
                 <div
@@ -363,7 +363,7 @@ export const RelayerStatusSection = ({
                       )}
                   </div>
                 </div>
-              );
+              )
             })}
             {(!metaTxns || metaTxns.length === 0) && (
               <div className="bg-gray-800/70 p-3 rounded-md">
@@ -377,5 +377,5 @@ export const RelayerStatusSection = ({
         </div>
       </div>
     </SectionHeader>
-  );
-};
+  )
+}

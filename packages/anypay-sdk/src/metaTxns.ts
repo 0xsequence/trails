@@ -1,7 +1,7 @@
-import type { IntentPrecondition } from "@0xsequence/api";
-import type { Relayer } from "@0xsequence/wallet-core";
-import type { Hex } from "viem";
-import type { MetaTxn } from "./metaTxnMonitor.js";
+import type { IntentPrecondition } from "@0xsequence/api"
+import type { Relayer } from "@0xsequence/wallet-core"
+import type { Hex } from "viem"
+import type { MetaTxn } from "./metaTxnMonitor.js"
 
 export async function relayerSendMetaTx(
   relayer: Relayer.Rpc.RpcRelayer,
@@ -15,7 +15,7 @@ export async function relayerSendMetaTx(
     BigInt(metaTx.chainId),
     undefined,
     preconditions,
-  );
+  )
 
-  return opHash;
+  return opHash
 }

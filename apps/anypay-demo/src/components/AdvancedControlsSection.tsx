@@ -1,39 +1,39 @@
-import type { MetaTxn } from "@0xsequence/anypay-sdk";
-import type { IntentCallsPayload } from "@0xsequence/api";
-import { Button, NetworkImage, Text } from "@0xsequence/design-system";
-import { Info, Layers, Loader2 } from "lucide-react";
-import type React from "react";
-import * as chains from "viem/chains";
-import type { IntentAction } from "@/types";
-import { getChainInfo, getExplorerUrl } from "@/utils/formatting";
+import type { MetaTxn } from "@0xsequence/anypay-sdk"
+import type { IntentCallsPayload } from "@0xsequence/api"
+import { Button, NetworkImage, Text } from "@0xsequence/design-system"
+import { Info, Layers, Loader2 } from "lucide-react"
+import type React from "react"
+import * as chains from "viem/chains"
+import type { IntentAction } from "@/types"
+import { getChainInfo, getExplorerUrl } from "@/utils/formatting"
 
-const BASE_USDC_DESTINATION_CHAIN_ID = chains.base.id;
-const RECIPIENT_ADDRESS = "0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C";
-const MOCK_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000";
-const MOCK_CHAIN_ID = chains.arbitrum.id;
+const BASE_USDC_DESTINATION_CHAIN_ID = chains.base.id
+const RECIPIENT_ADDRESS = "0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C"
+const MOCK_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"
+const MOCK_CHAIN_ID = chains.arbitrum.id
 
 interface OriginCallParamsData {
-  to: string | null;
+  to: string | null
 }
 
 interface CustomCallDataForExplorer {
-  to: string;
-  chainId: string;
+  to: string
+  chainId: string
 }
 
 interface AdvancedControlsSectionProps {
-  accountAddress: string | undefined;
-  intentCallsPayloads: IntentCallsPayload[] | null;
-  originCallParams: OriginCallParamsData | null;
-  metaTxns: MetaTxn[] | null;
-  intentActionType: IntentAction | null;
-  customCallData: CustomCallDataForExplorer;
-  isManualMetaTxnEnabled: boolean;
-  setIsManualMetaTxnEnabled: (enabled: boolean) => void;
-  selectedMetaTxnId: string | null;
-  setSelectedMetaTxnId: (id: string | null) => void;
-  handleSendMetaTxn: (selectedId: string | null) => void;
-  sendMetaTxnPending: boolean;
+  accountAddress: string | undefined
+  intentCallsPayloads: IntentCallsPayload[] | null
+  originCallParams: OriginCallParamsData | null
+  metaTxns: MetaTxn[] | null
+  intentActionType: IntentAction | null
+  customCallData: CustomCallDataForExplorer
+  isManualMetaTxnEnabled: boolean
+  setIsManualMetaTxnEnabled: (enabled: boolean) => void
+  selectedMetaTxnId: string | null
+  setSelectedMetaTxnId: (id: string | null) => void
+  handleSendMetaTxn: (selectedId: string | null) => void
+  sendMetaTxnPending: boolean
 }
 
 export const AdvancedControlsSection: React.FC<
@@ -53,7 +53,7 @@ export const AdvancedControlsSection: React.FC<
   sendMetaTxnPending,
 }) => {
   if (!accountAddress || !intentCallsPayloads) {
-    return null;
+    return null
   }
 
   return (
@@ -86,9 +86,9 @@ export const AdvancedControlsSection: React.FC<
                   const explorerUrl = getExplorerUrl(
                     chainId,
                     originCallParams.to!,
-                  );
-                  const chainInfo = getChainInfo(chainId);
-                  if (!explorerUrl) return null;
+                  )
+                  const chainInfo = getChainInfo(chainId)
+                  if (!explorerUrl) return null
                   return (
                     <div
                       key={`${chainId}-explorer-link`}
@@ -109,7 +109,7 @@ export const AdvancedControlsSection: React.FC<
                         <span>{explorerUrl}</span>
                       </a>
                     </div>
-                  );
+                  )
                 })}
             </div>
           </div>
@@ -125,39 +125,39 @@ export const AdvancedControlsSection: React.FC<
             </Text>
             <div className="flex flex-col space-y-1">
               {(() => {
-                const currentAction = intentActionType;
-                let finalDestAddress: string | undefined;
-                let finalDestChainId: number | undefined;
-                let labelPrefix = "Final Destination Address";
+                const currentAction = intentActionType
+                let finalDestAddress: string | undefined
+                let finalDestChainId: number | undefined
+                let labelPrefix = "Final Destination Address"
 
                 if (currentAction === "pay") {
-                  finalDestAddress = RECIPIENT_ADDRESS;
-                  finalDestChainId = BASE_USDC_DESTINATION_CHAIN_ID;
-                  labelPrefix = "Final Donation Address";
+                  finalDestAddress = RECIPIENT_ADDRESS
+                  finalDestChainId = BASE_USDC_DESTINATION_CHAIN_ID
+                  labelPrefix = "Final Donation Address"
                 } else if (currentAction === "mock_interaction") {
-                  finalDestAddress = MOCK_CONTRACT_ADDRESS;
-                  finalDestChainId = MOCK_CHAIN_ID;
-                  labelPrefix = "Mock Target Address";
+                  finalDestAddress = MOCK_CONTRACT_ADDRESS
+                  finalDestChainId = MOCK_CHAIN_ID
+                  labelPrefix = "Mock Target Address"
                 } else if (currentAction === "custom_call") {
-                  finalDestAddress = customCallData.to;
+                  finalDestAddress = customCallData.to
                   finalDestChainId = customCallData.chainId
                     ? parseInt(customCallData.chainId)
-                    : undefined;
-                  labelPrefix = "Custom Call Target Address";
+                    : undefined
+                  labelPrefix = "Custom Call Target Address"
                 }
 
                 if (finalDestAddress && finalDestChainId !== undefined) {
                   const explorerUrl = getExplorerUrl(
                     finalDestChainId,
                     finalDestAddress,
-                  );
-                  const chainInfo = getChainInfo(finalDestChainId);
+                  )
+                  const chainInfo = getChainInfo(finalDestChainId)
                   if (!explorerUrl)
                     return (
                       <Text variant="small" color="secondary">
                         Explorer URL not available for this destination.
                       </Text>
-                    );
+                    )
 
                   return (
                     <div className="bg-gray-800/70 p-2 rounded-md">
@@ -176,13 +176,13 @@ export const AdvancedControlsSection: React.FC<
                         <span>{explorerUrl}</span>
                       </a>
                     </div>
-                  );
+                  )
                 }
                 return (
                   <Text variant="small" color="secondary">
                     Final destination details not available for this action.
                   </Text>
-                );
+                )
               })()}
             </div>
           </div>
@@ -294,5 +294,5 @@ export const AdvancedControlsSection: React.FC<
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

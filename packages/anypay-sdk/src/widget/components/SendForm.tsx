@@ -1,7 +1,7 @@
-import { NetworkImage, TokenImage } from "@0xsequence/design-system";
-import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react";
+import { NetworkImage, TokenImage } from "@0xsequence/design-system"
+import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
 // biome-ignore lint/style/useImportType: Need to use React
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import {
   type Account,
   getAddress,
@@ -9,50 +9,50 @@ import {
   parseUnits,
   type WalletClient,
   zeroAddress,
-} from "viem";
-import * as chains from "viem/chains";
-import { mainnet } from "viem/chains";
-import { useEnsAddress } from "wagmi";
-import { prepareSend, type TransactionState } from "../../anypay.js";
-import { useAPIClient } from "../../apiClient.js";
-import { useTokenPrices } from "../../prices.js";
-import { getRelayer } from "../../relayer.js";
-import { formatBalance } from "../../tokenBalances.js";
+} from "viem"
+import * as chains from "viem/chains"
+import { mainnet } from "viem/chains"
+import { useEnsAddress } from "wagmi"
+import { prepareSend, type TransactionState } from "../../anypay.js"
+import { useAPIClient } from "../../apiClient.js"
+import { useTokenPrices } from "../../prices.js"
+import { getRelayer } from "../../relayer.js"
+import { formatBalance } from "../../tokenBalances.js"
 
 interface Token {
-  id: number;
-  name: string;
-  symbol: string;
-  balance: string;
-  imageUrl: string;
-  chainId: number;
-  contractAddress: string;
-  tokenPriceUsd?: number;
+  id: number
+  name: string
+  symbol: string
+  balance: string
+  imageUrl: string
+  chainId: number
+  contractAddress: string
+  tokenPriceUsd?: number
   contractInfo?: {
-    decimals: number;
-    symbol: string;
-    name: string;
-  };
+    decimals: number
+    symbol: string
+    name: string
+  }
 }
 
 interface SendFormProps {
-  selectedToken: Token;
-  onSend: (amount: string, recipient: string) => void;
-  onBack: () => void;
-  onConfirm: () => void;
-  onComplete: (data: any) => void; // TODO: Add proper type
-  account: Account;
-  sequenceApiKey: string;
-  apiUrl?: string;
-  env?: "local" | "cors-anywhere" | "dev" | "prod";
-  toRecipient?: string;
-  toAmount?: string;
-  toChainId?: number;
-  toToken?: "USDC" | "ETH";
-  toCalldata?: string;
-  walletClient?: WalletClient;
-  theme?: "light" | "dark";
-  onTransactionStateChange: (transactionStates: TransactionState[]) => void;
+  selectedToken: Token
+  onSend: (amount: string, recipient: string) => void
+  onBack: () => void
+  onConfirm: () => void
+  onComplete: (data: any) => void // TODO: Add proper type
+  account: Account
+  sequenceApiKey: string
+  apiUrl?: string
+  env?: "local" | "cors-anywhere" | "dev" | "prod"
+  toRecipient?: string
+  toAmount?: string
+  toChainId?: number
+  toToken?: "USDC" | "ETH"
+  toCalldata?: string
+  walletClient?: WalletClient
+  theme?: "light" | "dark"
+  onTransactionStateChange: (transactionStates: TransactionState[]) => void
 }
 
 // Available chains
@@ -62,7 +62,7 @@ const SUPPORTED_CHAINS = [
   { id: 10, name: "Optimism", icon: chains.optimism.id },
   { id: 42161, name: "Arbitrum", icon: chains.arbitrum.id },
   { id: 137, name: "Polygon", icon: chains.polygon.id },
-];
+]
 
 // Available tokens
 const SUPPORTED_TOKENS = [
@@ -78,48 +78,48 @@ const SUPPORTED_TOKENS = [
     imageUrl: `https://assets.sequence.info/images/tokens/small/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp`,
     decimals: 6,
   },
-];
+]
 
 // Helper to get chain info
 const getChainInfo = (chainId: number) => {
   // TODO: Add proper type
   return (
     Object.values(chains).find((chain: any) => chain.id === chainId) || null
-  );
-};
+  )
+}
 
 function getDestTokenAddress(chainId: number, tokenSymbol: string) {
   if (tokenSymbol === "ETH") {
-    return zeroAddress;
+    return zeroAddress
   }
 
   if (chainId === 10) {
     if (tokenSymbol === "USDC") {
-      return "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85";
+      return "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
     }
   }
 
   if (chainId === 42161) {
     if (tokenSymbol === "USDC") {
-      return "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
+      return "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
     }
   }
 
   if (chainId === 8453) {
     if (tokenSymbol === "USDC") {
-      return "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+      return "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
     }
   }
 
   if (chainId === 137) {
     if (tokenSymbol === "USDC") {
-      return "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359";
+      return "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
     }
   }
 
   throw new Error(
     `Unsupported token symbol: ${tokenSymbol} for chainId: ${chainId}`,
-  );
+  )
 }
 
 export const SendForm: React.FC<SendFormProps> = ({
@@ -141,48 +141,48 @@ export const SendForm: React.FC<SendFormProps> = ({
   theme = "light",
   onTransactionStateChange,
 }) => {
-  const [amount, setAmount] = useState(toAmount ?? "");
-  const [recipientInput, setRecipientInput] = useState(toRecipient ?? "");
-  const [recipient, setRecipient] = useState(toRecipient ?? "");
-  const [error, setError] = useState<string | null>(null);
+  const [amount, setAmount] = useState(toAmount ?? "")
+  const [recipientInput, setRecipientInput] = useState(toRecipient ?? "")
+  const [recipient, setRecipient] = useState(toRecipient ?? "")
+  const [error, setError] = useState<string | null>(null)
   const { data: ensAddress } = useEnsAddress({
     name: recipientInput?.endsWith(".eth") ? recipientInput : undefined,
     chainId: mainnet.id,
     query: {
       enabled: !!recipientInput && recipientInput.endsWith(".eth"),
     },
-  });
+  })
 
   useEffect(() => {
     if (ensAddress) {
-      setRecipient(ensAddress);
+      setRecipient(ensAddress)
     } else {
-      setRecipient(recipientInput);
+      setRecipient(recipientInput)
     }
-  }, [ensAddress, recipientInput]);
+  }, [ensAddress, recipientInput])
 
   const handleRecipientInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    setRecipientInput(e.target.value.trim());
-  };
+    setRecipientInput(e.target.value.trim())
+  }
 
   const [selectedChain, setSelectedChain] = useState(
     () =>
       (SUPPORTED_CHAINS.find(
         (chain) => chain.id === (toChainId ?? selectedToken.chainId),
       ) || SUPPORTED_CHAINS[0])!,
-  );
-  const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false);
-  const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false);
+  )
+  const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
+  const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
   const [selectedDestToken, setSelectedDestToken] = useState(() =>
     toToken
       ? SUPPORTED_TOKENS.find((token) => token.symbol === toToken) ||
         SUPPORTED_TOKENS[0]!
       : SUPPORTED_TOKENS[0]!,
-  );
+  )
 
-  const apiClient = useAPIClient({ apiUrl, projectAccessKey: sequenceApiKey });
+  const apiClient = useAPIClient({ apiUrl, projectAccessKey: sequenceApiKey })
 
   const { data: destTokenPrices } = useTokenPrices(
     selectedDestToken
@@ -198,49 +198,49 @@ export const SendForm: React.FC<SendFormProps> = ({
         ]
       : [],
     apiClient,
-  );
+  )
 
   // Update selectedChain when toChainId prop changes
   useEffect(() => {
     if (toChainId) {
-      const newChain = SUPPORTED_CHAINS.find((chain) => chain.id === toChainId);
+      const newChain = SUPPORTED_CHAINS.find((chain) => chain.id === toChainId)
       if (newChain) {
-        setSelectedChain(newChain);
+        setSelectedChain(newChain)
       }
     }
-  }, [toChainId]);
+  }, [toChainId])
 
   // Update selectedDestToken when toToken prop changes
   useEffect(() => {
     if (toToken) {
       const newToken = SUPPORTED_TOKENS.find(
         (token) => token.symbol === toToken,
-      );
+      )
       if (newToken) {
-        setSelectedDestToken(newToken);
+        setSelectedDestToken(newToken)
       }
     }
-  }, [toToken]);
+  }, [toToken])
 
   // Update amount when toAmount prop changes
   useEffect(() => {
-    setAmount(toAmount ?? "");
-  }, [toAmount]);
+    setAmount(toAmount ?? "")
+  }, [toAmount])
 
-  const chainDropdownRef = useRef<HTMLDivElement>(null);
-  const tokenDropdownRef = useRef<HTMLDivElement>(null);
-  const chainInfo = getChainInfo(selectedToken.chainId) as any; // TODO: Add proper type
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const chainDropdownRef = useRef<HTMLDivElement>(null)
+  const tokenDropdownRef = useRef<HTMLDivElement>(null)
+  const chainInfo = getChainInfo(selectedToken.chainId) as any // TODO: Add proper type
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isWaitingForWalletConfirm, setIsWaitingForWalletConfirm] =
-    useState(false);
+    useState(false)
 
   const formattedBalance = formatBalance(
     selectedToken.balance,
     selectedToken.contractInfo?.decimals,
-  );
-  const balanceUsdFormatted = (selectedToken as any).balanceUsdFormatted ?? ""; // TODO: Add proper type
+  )
+  const balanceUsdFormatted = (selectedToken as any).balanceUsdFormatted ?? "" // TODO: Add proper type
 
-  const isValidRecipient = recipient && isAddress(recipient);
+  const isValidRecipient = recipient && isAddress(recipient)
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -248,47 +248,47 @@ export const SendForm: React.FC<SendFormProps> = ({
         chainDropdownRef.current &&
         !chainDropdownRef.current.contains(event.target as Node)
       ) {
-        setIsChainDropdownOpen(false);
+        setIsChainDropdownOpen(false)
       }
       if (
         tokenDropdownRef.current &&
         !tokenDropdownRef.current.contains(event.target as Node)
       ) {
-        setIsTokenDropdownOpen(false);
+        setIsTokenDropdownOpen(false)
       }
-    };
+    }
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   // Calculate USD value
   const amountUsdValue = useMemo(() => {
     const amountUsd =
-      parseFloat(amount) * (destTokenPrices?.[0]?.price?.value ?? 0);
+      parseFloat(amount) * (destTokenPrices?.[0]?.price?.value ?? 0)
     return Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
-    }).format(amountUsd);
-  }, [amount, destTokenPrices]);
+    }).format(amountUsd)
+  }, [amount, destTokenPrices])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+    e.preventDefault()
+    setError(null)
 
     try {
-      setIsSubmitting(true);
-      const decimals = selectedDestToken?.decimals;
-      const parsedAmount = parseUnits(amount, decimals).toString();
+      setIsSubmitting(true)
+      const decimals = selectedDestToken?.decimals
+      const parsedAmount = parseUnits(amount, decimals).toString()
 
       const originRelayer = getRelayer(
         { env, useV3Relayers: true },
         selectedToken.chainId,
-      );
+      )
       const destinationRelayer = getRelayer(
         { env, useV3Relayers: true },
         selectedChain.id,
-      );
+      )
 
       const options = {
         account,
@@ -311,28 +311,28 @@ export const SendForm: React.FC<SendFormProps> = ({
         destinationCalldata: toCalldata,
         dryMode: false, // Set to true to skip the metamask transaction, for testing purposes
         onTransactionStateChange: (transactionStates: TransactionState[]) => {
-          onTransactionStateChange(transactionStates);
+          onTransactionStateChange(transactionStates)
         },
-      };
-
-      console.log("options", options);
-
-      const { intentAddress, send } = await prepareSend(options);
-      console.log("Intent address:", intentAddress?.toString());
-
-      function onOriginSend() {
-        onConfirm();
-        setIsWaitingForWalletConfirm(false);
-        onSend(amount, recipient);
       }
 
-      setIsWaitingForWalletConfirm(true);
+      console.log("options", options)
+
+      const { intentAddress, send } = await prepareSend(options)
+      console.log("Intent address:", intentAddress?.toString())
+
+      function onOriginSend() {
+        onConfirm()
+        setIsWaitingForWalletConfirm(false)
+        onSend(amount, recipient)
+      }
+
+      setIsWaitingForWalletConfirm(true)
       // Wait for full send to complete
       const {
         originUserTxReceipt,
         originMetaTxnReceipt,
         destinationMetaTxnReceipt,
-      } = await send(onOriginSend);
+      } = await send(onOriginSend)
 
       // Move to receipt screen
       onComplete({
@@ -341,38 +341,38 @@ export const SendForm: React.FC<SendFormProps> = ({
         originUserTxReceipt,
         originMetaTxnReceipt,
         destinationMetaTxnReceipt,
-      });
+      })
     } catch (error) {
-      console.error("Error in prepareSend:", error);
+      console.error("Error in prepareSend:", error)
       setError(
         error instanceof Error ? error.message : "An unexpected error occurred",
-      );
+      )
     }
 
-    setIsSubmitting(false);
-    setIsWaitingForWalletConfirm(false);
-  };
+    setIsSubmitting(false)
+    setIsWaitingForWalletConfirm(false)
+  }
 
   // Get button text based on recipient and calldata
   const buttonText = useMemo(() => {
-    if (isWaitingForWalletConfirm) return "Waiting for wallet...";
-    if (isSubmitting) return "Processing...";
-    if (!amount) return "Enter amount";
-    if (!isValidRecipient) return "Enter recipient";
+    if (isWaitingForWalletConfirm) return "Waiting for wallet..."
+    if (isSubmitting) return "Processing..."
+    if (!amount) return "Enter amount"
+    if (!isValidRecipient) return "Enter recipient"
 
     try {
-      const checksummedRecipient = getAddress(recipient);
-      const checksummedAccount = getAddress(account.address);
+      const checksummedRecipient = getAddress(recipient)
+      const checksummedAccount = getAddress(account.address)
 
       if (checksummedRecipient === checksummedAccount) {
-        return `Receive ${amount} ${selectedDestToken.symbol}`;
+        return `Receive ${amount} ${selectedDestToken.symbol}`
       } else if (toCalldata) {
-        return `Spend ${amount} ${selectedDestToken.symbol}`;
+        return `Spend ${amount} ${selectedDestToken.symbol}`
       } else {
-        return `Pay ${amount} ${selectedDestToken.symbol}`;
+        return `Pay ${amount} ${selectedDestToken.symbol}`
       }
     } catch {
-      return `Send ${amount} ${selectedDestToken.symbol}`;
+      return `Send ${amount} ${selectedDestToken.symbol}`
     }
   }, [
     amount,
@@ -383,7 +383,7 @@ export const SendForm: React.FC<SendFormProps> = ({
     toCalldata,
     isWaitingForWalletConfirm,
     isSubmitting,
-  ]);
+  ])
 
   return (
     <div className="space-y-6">
@@ -523,8 +523,8 @@ export const SendForm: React.FC<SendFormProps> = ({
                       key={chain.id}
                       type="button"
                       onClick={() => {
-                        setSelectedChain(chain);
-                        setIsChainDropdownOpen(false);
+                        setSelectedChain(chain)
+                        setIsChainDropdownOpen(false)
                       }}
                       className={`w-full flex items-center px-4 py-3 ${
                         theme === "dark"
@@ -634,8 +634,8 @@ export const SendForm: React.FC<SendFormProps> = ({
                       key={token.symbol}
                       type="button"
                       onClick={() => {
-                        setSelectedDestToken(token);
-                        setIsTokenDropdownOpen(false);
+                        setSelectedDestToken(token)
+                        setIsTokenDropdownOpen(false)
                       }}
                       className={`w-full flex items-center px-4 py-3 cursor-pointer ${
                         theme === "dark"
@@ -841,8 +841,8 @@ export const SendForm: React.FC<SendFormProps> = ({
         </div>
       </form>
     </div>
-  );
-};
+  )
+}
 
 const styles = `
   select {
@@ -887,12 +887,12 @@ const styles = `
     background-color: #eff6ff;
     color: #1d4ed8;
   }
-`;
+`
 
 if (typeof document !== "undefined") {
-  const styleTag = document.createElement("style");
-  styleTag.textContent = styles;
-  document.head.appendChild(styleTag);
+  const styleTag = document.createElement("style")
+  styleTag.textContent = styles
+  document.head.appendChild(styleTag)
 }
 
-export default SendForm;
+export default SendForm

@@ -1,26 +1,26 @@
-import type { IntentCallsPayload, IntentPrecondition } from "@0xsequence/api";
-import { Button, NetworkImage, Text } from "@0xsequence/design-system";
-import { Zap } from "lucide-react";
-import type React from "react";
-import { SectionHeader } from "@/components/SectionHeader";
-import { getChainInfo } from "@/utils/formatting";
+import type { IntentCallsPayload, IntentPrecondition } from "@0xsequence/api"
+import { Button, NetworkImage, Text } from "@0xsequence/design-system"
+import { Zap } from "lucide-react"
+import type React from "react"
+import { SectionHeader } from "@/components/SectionHeader"
+import { getChainInfo } from "@/utils/formatting"
 
 interface OriginCallParamsData {
-  to: string | null;
-  data: string | null;
-  value: bigint | null;
-  chainId: number | null;
-  error?: string;
+  to: string | null
+  data: string | null
+  value: bigint | null
+  chainId: number | null
+  error?: string
 }
 
 interface OriginCallStepProps {
-  intentCallsPayloads: IntentCallsPayload[] | null;
-  intentPreconditions: IntentPrecondition[] | null;
-  accountAddress: string | undefined;
-  originCallParams: OriginCallParamsData | null;
-  isSendButtonDisabled: boolean;
-  sendButtonText: React.ReactNode;
-  handleSendOriginCall: () => void;
+  intentCallsPayloads: IntentCallsPayload[] | null
+  intentPreconditions: IntentPrecondition[] | null
+  accountAddress: string | undefined
+  originCallParams: OriginCallParamsData | null
+  isSendButtonDisabled: boolean
+  sendButtonText: React.ReactNode
+  handleSendOriginCall: () => void
 }
 
 export const OriginCallStep: React.FC<OriginCallStepProps> = ({
@@ -33,7 +33,7 @@ export const OriginCallStep: React.FC<OriginCallStepProps> = ({
   handleSendOriginCall,
 }) => {
   if (!intentCallsPayloads || !intentPreconditions) {
-    return null;
+    return null
   }
 
   return (
@@ -145,5 +145,5 @@ export const OriginCallStep: React.FC<OriginCallStepProps> = ({
         </div>
       </div>
     </SectionHeader>
-  );
-};
+  )
+}

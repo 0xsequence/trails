@@ -1,35 +1,35 @@
 // biome-ignore lint/style/useImportType: Need to use React
-import React from "react";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { injected } from "wagmi/connectors";
+import React from "react"
+import { useAccount, useConnect, useDisconnect } from "wagmi"
+import { injected } from "wagmi/connectors"
 
 // import MetaMaskFox from '../assets/MetaMask_Fox.svg'
 
 interface ConnectWalletProps {
-  onConnect: () => void;
-  theme?: "light" | "dark";
+  onConnect: () => void
+  theme?: "light" | "dark"
 }
 
 export const ConnectWallet: React.FC<ConnectWalletProps> = ({
   onConnect,
   theme = "light",
 }) => {
-  const { connect } = useConnect();
-  const { disconnect } = useDisconnect();
-  const { isConnected, address, connector } = useAccount();
+  const { connect } = useConnect()
+  const { disconnect } = useDisconnect()
+  const { isConnected, address, connector } = useAccount()
 
   const handleConnect = async () => {
     try {
-      await connect({ connector: injected() });
-      console.log("Connected to MetaMask");
+      await connect({ connector: injected() })
+      console.log("Connected to MetaMask")
     } catch (error) {
-      console.error("Failed to connect:", error);
+      console.error("Failed to connect:", error)
     }
-  };
+  }
 
   const handleDisconnect = () => {
-    disconnect();
-  };
+    disconnect()
+  }
 
   return (
     <div className="space-y-6">
@@ -93,7 +93,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
         </button>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default ConnectWallet;
+export default ConnectWallet

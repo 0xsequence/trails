@@ -1,29 +1,29 @@
-import { AnyPayWidget } from "@0xsequence/anypay-sdk/widget";
-import { useCallback, useState } from "react";
-import { CodeSnippet } from "./components/CodeSnippet";
-import { AppKitProvider, ConnectButton } from "./components/ConnectWallet";
-import { CustomizationForm } from "./components/CustomizationForm";
+import { AnyPayWidget } from "@0xsequence/anypay-sdk/widget"
+import { useCallback, useState } from "react"
+import { CodeSnippet } from "./components/CodeSnippet"
+import { AppKitProvider, ConnectButton } from "./components/ConnectWallet"
+import { CustomizationForm } from "./components/CustomizationForm"
 
 export const Widget = () => {
-  const sequenceApiKey = import.meta.env.VITE_PROJECT_ACCESS_KEY;
-  const apiUrl = import.meta.env.VITE_API_URL;
-  const indexerUrl = import.meta.env.VITE_INDEXER_URL;
-  const env = import.meta.env.VITE_ENV;
+  const sequenceApiKey = import.meta.env.VITE_PROJECT_ACCESS_KEY
+  const apiUrl = import.meta.env.VITE_API_URL
+  const indexerUrl = import.meta.env.VITE_INDEXER_URL
+  const env = import.meta.env.VITE_ENV
 
-  const [toRecipient, setToRecipient] = useState("");
-  const [toAmount, setToAmount] = useState("");
-  const [toChainId, setToChainId] = useState<number | undefined>();
-  const [toToken, setToToken] = useState<"ETH" | "USDC" | undefined>();
-  const [toCalldata, setToCalldata] = useState("");
-  const [renderInline, setRenderInline] = useState(false);
-  const [useCustomButton, setUseCustomButton] = useState(false);
-  const [provider, setProvider] = useState<any>(null);
-  const [theme, setTheme] = useState<"light" | "dark" | "auto" | null>(null);
+  const [toRecipient, setToRecipient] = useState("")
+  const [toAmount, setToAmount] = useState("")
+  const [toChainId, setToChainId] = useState<number | undefined>()
+  const [toToken, setToToken] = useState<"ETH" | "USDC" | undefined>()
+  const [toCalldata, setToCalldata] = useState("")
+  const [renderInline, setRenderInline] = useState(false)
+  const [useCustomButton, setUseCustomButton] = useState(false)
+  const [provider, setProvider] = useState<any>(null)
+  const [theme, setTheme] = useState<"light" | "dark" | "auto" | null>(null)
 
   const handleConnect = useCallback((provider: any) => {
-    console.log("provider", provider);
-    setProvider(provider);
-  }, []);
+    console.log("provider", provider)
+    setProvider(provider)
+  }, [])
 
   const content = (
     <div className="flex flex-col items-center justify-center space-y-8 py-12">
@@ -42,9 +42,9 @@ export const Widget = () => {
       </div>
 
       <div className="w-full max-w-6xl px-4">
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex md:flex-row gap-6">
           {/* Left Column - Config Form */}
-          <div className="w-full md:w-1/2">
+          <div className="md:w-1/2">
             <CustomizationForm
               toRecipient={toRecipient}
               setToRecipient={setToRecipient}
@@ -66,7 +66,7 @@ export const Widget = () => {
           </div>
 
           {/* Right Column - Code Snippet */}
-          <div className="w-full md:w-1/2">
+          <div className="md:w-1/2">
             <CodeSnippet
               toRecipient={toRecipient}
               toAmount={toAmount}
@@ -104,9 +104,9 @@ export const Widget = () => {
         </div>
       </div>
     </div>
-  );
+  )
 
-  return <AppKitProvider>{content}</AppKitProvider>;
-};
+  return <AppKitProvider>{content}</AppKitProvider>
+}
 
-export default Widget;
+export default Widget
