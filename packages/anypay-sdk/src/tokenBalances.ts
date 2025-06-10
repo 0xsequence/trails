@@ -319,6 +319,6 @@ export function useTokenBalanceUsdFormat(
   useEffect(() => {
     const formattedBalance = getTokenBalanceUsdFormatted(token, tokenPrice);
     setFormat(formattedBalance);
-  }, [token]);
+  }, [token, tokenPrice]);
   return format;
 }

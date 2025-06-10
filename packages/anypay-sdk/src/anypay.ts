@@ -1,50 +1,54 @@
-import { useState, useEffect, useMemo } from "react";
-import { useSendTransaction, useSwitchChain, useEstimateGas } from "wagmi";
 import type {
-  GetIntentCallsPayloadsReturn,
-  IntentCallsPayload,
-  IntentPrecondition,
-  GetIntentConfigReturn,
   AnypayLifiInfo,
   GetIntentCallsPayloadsArgs,
+  GetIntentCallsPayloadsReturn,
+  GetIntentConfigReturn,
+  IntentCallsPayload,
+  IntentPrecondition,
   SequenceAPIClient,
 } from "@0xsequence/api";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useWaitForTransactionReceipt } from "wagmi";
+import type { Relayer } from "@0xsequence/wallet-core";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Address } from "ox";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  type Account as AccountType,
   createPublicClient,
   type Hex,
   http,
   isAddressEqual,
-  zeroAddress,
-  type Account as AccountType,
-  type WalletClient,
   type TransactionReceipt,
+  type WalletClient,
+  zeroAddress,
 } from "viem";
 import * as chains from "viem/chains";
-import { useAPIClient } from "./apiClient.js";
 import {
-  useMetaTxnsMonitor,
-  type MetaTxn,
+  useEstimateGas,
+  useSendTransaction,
+  useSwitchChain,
+  useWaitForTransactionReceipt,
+} from "wagmi";
+import { useAPIClient } from "./apiClient.js";
+import { getERC20TransferData } from "./encoders.js";
+import {
+  calculateIntentAddress,
+  commitIntentConfig,
+  getIntentCallsPayloads,
+  type OriginCallParams,
+  sendOriginTransaction,
+} from "./intents.js";
+import {
   getMetaTxStatus,
+  type MetaTxn,
+  useMetaTxnsMonitor,
 } from "./metaTxnMonitor.js";
 import { relayerSendMetaTx } from "./metaTxns.js";
-import { useRelayers, getBackupRelayer } from "./relayer.js";
-import { getChainInfo } from "./tokenBalances.js";
 import {
   findFirstPreconditionForChainId,
   findPreconditionAddress,
 } from "./preconditions.js";
-import type { Relayer } from "@0xsequence/wallet-core";
-import {
-  calculateIntentAddress,
-  type OriginCallParams,
-  commitIntentConfig,
-  getIntentCallsPayloads,
-  sendOriginTransaction,
-} from "./intents.js";
-import { getERC20TransferData } from "./encoders.js";
+import { getBackupRelayer, useRelayers } from "./relayer.js";
+import { getChainInfo } from "./tokenBalances.js";
 
 export type Account = {
   address: `0x${string}`;
@@ -397,8 +401,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     onSuccess: (data) => {
       console.log("Intent Config Success:", data);
       if (
-        data &&
-        data.calls &&
+        data?.calls &&
         data.calls.length > 0 &&
         data.preconditions &&
         data.preconditions.length > 0 &&
@@ -450,31 +453,34 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     setHasAutoExecuted(false);
   }
 
-  const updateOriginCallStatus = (
-    hash: Hex | undefined,
-    status: "success" | "reverted" | "pending" | "sending",
-    gasUsed?: bigint,
-    effectiveGasPrice?: bigint,
-    revertReason?: string | null,
-  ) => {
-    setOriginCallStatus({
-      txnHash: hash,
-      status:
-        status === "success"
-          ? "Success"
-          : status === "reverted"
-            ? "Failed"
-            : status === "sending"
-              ? "Sending..."
-              : "Pending",
-      revertReason:
-        status === "reverted"
-          ? revertReason || "Transaction reverted"
-          : undefined,
-      gasUsed: gasUsed ? Number(gasUsed) : undefined,
-      effectiveGasPrice: effectiveGasPrice?.toString(),
-    });
-  };
+  const updateOriginCallStatus = useCallback(
+    (
+      hash: Hex | undefined,
+      status: "success" | "reverted" | "pending" | "sending",
+      gasUsed?: bigint,
+      effectiveGasPrice?: bigint,
+      revertReason?: string | null,
+    ) => {
+      setOriginCallStatus({
+        txnHash: hash,
+        status:
+          status === "success"
+            ? "Success"
+            : status === "reverted"
+              ? "Failed"
+              : status === "sending"
+                ? "Sending..."
+                : "Pending",
+        revertReason:
+          status === "reverted"
+            ? revertReason || "Transaction reverted"
+            : undefined,
+        gasUsed: gasUsed ? Number(gasUsed) : undefined,
+        effectiveGasPrice: effectiveGasPrice?.toString(),
+      });
+    },
+    [],
+  );
 
   const sendOriginTransaction = async () => {
     console.log("Sending origin transaction...");
@@ -628,12 +634,12 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       );
       setIsChainSwitchRequired(false);
     }
-  }, [switchChainError]);
+  }, [switchChainError, updateOriginCallStatus]);
 
   // Reset gas estimation state when parameters change
   useEffect(() => {
     setIsEstimatingGas(false);
-  }, [originCallParams]);
+  }, []);
 
   // Only update chain switch required state when needed
   useEffect(() => {
@@ -779,6 +785,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     sentMetaTxns,
     isAutoExecute,
     originCallParams?.chainId,
+    originCallStatus?.status,
+    originCallStatus?.txnHash,
   ]);
 
   // Modify the auto-execute effect
@@ -934,7 +942,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
 
         try {
           const chainId = parseInt(metaTxn.chainId);
-          if (isNaN(chainId) || chainId <= 0) {
+          if (Number.isNaN(chainId) || chainId <= 0) {
             throw new Error(`Invalid chainId for meta transaction: ${chainId}`);
           }
           const chainRelayer = getRelayer(chainId);
@@ -1013,8 +1021,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       console.error("Error in meta-transaction process:", error);
     },
     retry: 5, // Allow up to 2 retries
-    retryDelay: (attemptIndex) =>
-      Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   const [tokenAddress, setTokenAddress] = useState<string | null>(null);
@@ -1103,7 +1110,6 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     originChainId,
     intentPreconditions,
     account.address,
-    lifiInfos,
   ]);
 
   // const checkPreconditionStatuses = useCallback(async () => {
@@ -1154,7 +1160,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
   );
 
   // Create a stable dependency for the meta timestamp effect
-  const stableMetaTxnStatusesKey = useMemo(() => {
+  const _stableMetaTxnStatusesKey = useMemo(() => {
     if (!metaTxns || Object.keys(metaTxnMonitorStatuses).length === 0) {
       return "no_statuses";
     }
@@ -1184,8 +1190,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
           return; // Already fetched or error recorded
         }
 
-        let validBlockNumberForApi: bigint | undefined ;
-        let transactionHashForReceipt: Hex | undefined ;
+        let validBlockNumberForApi: bigint | undefined;
+        let transactionHashForReceipt: Hex | undefined;
 
         if (monitorStatus?.status === "confirmed") {
           transactionHashForReceipt = monitorStatus.transactionHash as Hex;
@@ -1196,7 +1202,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         if (transactionHashForReceipt) {
           try {
             const chainId = parseInt(metaTxn.chainId);
-            if (isNaN(chainId) || chainId <= 0) {
+            if (Number.isNaN(chainId) || chainId <= 0) {
               console.error(
                 `[AnyPay] MetaTxn ${operationKey}: Invalid chainId:`,
                 metaTxn.chainId,
@@ -1276,7 +1282,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         return {};
       });
     }
-  }, [stableMetaTxnStatusesKey, getRelayer]); // Use stableMetaTxnStatusesKey and getRelayer
+  }, [metaTxnMonitorStatuses, metaTxns, metaTxnBlockTimestamps]); // Use stableMetaTxnStatusesKey and getRelayer
 
   const updateAutoExecute = (enabled: boolean) => {
     setIsAutoExecute(enabled);
@@ -1542,7 +1548,7 @@ export async function prepareSend(options: SendOptions) {
                   BigInt(destinationTokenAmount),
                 )),
           value:
-            originTokenAddress == zeroAddress
+            originTokenAddress === zeroAddress
               ? BigInt(destinationTokenAmount)
               : "0",
           chainId: originChainId,

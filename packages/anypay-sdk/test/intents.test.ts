@@ -21,7 +21,7 @@ import {
 } from "../src/intents.js";
 import "dotenv/config";
 
-const LOCAL_RPC_URL = process.env.LOCAL_RPC_URL || "http://localhost:8545";
+const _LOCAL_RPC_URL = process.env.LOCAL_RPC_URL || "http://localhost:8545";
 const { RPC_URL, PRIVATE_KEY } = process.env;
 const CAN_RUN_LIVE = !!RPC_URL && !!PRIVATE_KEY;
 
@@ -70,7 +70,7 @@ describe("AnyPay Preconditions", () => {
   };
 
   const testWalletAddress = randomAddress();
-  const testIdentityAddress = randomAddress();
+  const _testIdentityAddress = randomAddress();
 
   const requireContractDeployed = async (
     provider: Provider.Provider,

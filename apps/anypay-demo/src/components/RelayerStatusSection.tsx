@@ -264,8 +264,7 @@ export const RelayerStatusSection = ({
                           </Text>
                         </div>
                       )}
-                    {metaTxnBlockTimestamps &&
-                      metaTxnBlockTimestamps[operationKey]?.timestamp && (
+                    {metaTxnBlockTimestamps?.[operationKey]?.timestamp && (
                         <div>
                           <Text variant="small" color="secondary">
                             <strong className="text-blue-300">

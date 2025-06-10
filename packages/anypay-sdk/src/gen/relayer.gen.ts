@@ -54,9 +54,9 @@ function parseWebrpcGenVersions(header: string): WebrpcGenVersions {
     };
   }
 
-  const [_, webrpcGenVersion] = versions[0]!.split("@");
-  const [codeGenName, codeGenVersion] = versions[1]!.split("@");
-  const [schemaName, schemaVersion] = versions[2]!.split("@");
+  const [_, webrpcGenVersion] = versions[0]?.split("@");
+  const [codeGenName, codeGenVersion] = versions[1]?.split("@");
+  const [schemaName, schemaVersion] = versions[2]?.split("@");
 
   return {
     webrpcGenVersion: webrpcGenVersion ?? "",
@@ -2164,7 +2164,7 @@ export enum WebrpcErrorCodes {
 }
 
 export const webrpcErrorByCode: { [code: number]: any } = {
-  [0]: WebrpcEndpointError,
+  0: WebrpcEndpointError,
   [-1]: WebrpcRequestFailedError,
   [-2]: WebrpcBadRouteError,
   [-3]: WebrpcBadMethodError,
@@ -2175,31 +2175,31 @@ export const webrpcErrorByCode: { [code: number]: any } = {
   [-8]: WebrpcClientDisconnectedError,
   [-9]: WebrpcStreamLostError,
   [-10]: WebrpcStreamFinishedError,
-  [1000]: UnauthorizedError,
-  [1001]: PermissionDeniedError,
-  [1002]: SessionExpiredError,
-  [1003]: MethodNotFoundError,
-  [1004]: RequestConflictError,
-  [1005]: AbortedError,
-  [1006]: GeoblockedError,
-  [1007]: RateLimitedError,
-  [1008]: ProjectNotFoundError,
-  [1101]: AccessKeyNotFoundError,
-  [1102]: AccessKeyMismatchError,
-  [1103]: InvalidOriginError,
-  [1104]: InvalidServiceError,
-  [1105]: UnauthorizedUserError,
-  [1200]: QuotaExceededError,
-  [1201]: QuotaRateLimitError,
-  [1300]: NoDefaultKeyError,
-  [1301]: MaxAccessKeysError,
-  [1302]: AtLeastOneKeyError,
-  [1900]: TimeoutError,
-  [2001]: InvalidArgumentError,
-  [2002]: UnavailableError,
-  [2003]: QueryFailedError,
-  [3000]: NotFoundError,
-  [3004]: InsufficientFeeError,
+  1000: UnauthorizedError,
+  1001: PermissionDeniedError,
+  1002: SessionExpiredError,
+  1003: MethodNotFoundError,
+  1004: RequestConflictError,
+  1005: AbortedError,
+  1006: GeoblockedError,
+  1007: RateLimitedError,
+  1008: ProjectNotFoundError,
+  1101: AccessKeyNotFoundError,
+  1102: AccessKeyMismatchError,
+  1103: InvalidOriginError,
+  1104: InvalidServiceError,
+  1105: UnauthorizedUserError,
+  1200: QuotaExceededError,
+  1201: QuotaRateLimitError,
+  1300: NoDefaultKeyError,
+  1301: MaxAccessKeysError,
+  1302: AtLeastOneKeyError,
+  1900: TimeoutError,
+  2001: InvalidArgumentError,
+  2002: UnavailableError,
+  2003: QueryFailedError,
+  3000: NotFoundError,
+  3004: InsufficientFeeError,
 };
 
 export type Fetch = (

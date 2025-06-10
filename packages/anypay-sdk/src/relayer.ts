@@ -1,11 +1,11 @@
 import { Relayer } from "@0xsequence/wallet-core";
-import { useMemo } from "react";
-import * as chains from "viem/chains";
-import type { Chain } from "viem";
 import fetch from "isomorphic-fetch";
+import { useMemo } from "react";
+import type { Chain } from "viem";
+import * as chains from "viem/chains";
 
 export type RelayerOperationStatus = Relayer.OperationStatus;
-export type Relayer = Relayer.Rpc.RpcRelayer;
+export type RpcRelayer = Relayer.Rpc.RpcRelayer;
 
 // Helper to get chain info
 function getChain(chainId: number): Chain {

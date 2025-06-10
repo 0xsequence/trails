@@ -7,6 +7,7 @@
   },
   "linter": {
     "enabled": true,
+    "includes": ["**", "!**/*.gen.ts"],
     "rules": {
       "recommended": true,
       "a11y": {
@@ -15,6 +16,19 @@
         "noStaticElementInteractions": "off",
         "noSvgWithoutTitle": "off",
         "useKeyWithClickEvents": "off"
+      },
+      "correctness": {
+        "noUnsafeOptionalChaining": "off",
+        "useHookAtTopLevel": "off"
+      },
+      "nursery": {
+        "useUniqueElementIds": "off"
+      },
+      "performance": {
+        "noAccumulatingSpread": "off"
+      },
+      "style": {
+        "noNonNullAssertion": "off"
       },
       "suspicious": {
         "noArrayIndexKey": "off",

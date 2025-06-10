@@ -1,24 +1,24 @@
-import { useState, useEffect } from "react";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
-import type { Hex } from "viem";
-import { AbiFunction, type Address } from "ox";
-import * as chains from "viem/chains";
 import {
+  type Account,
+  type TokenBalance,
   useAnyPay,
   useTokenBalances,
-  type TokenBalance,
-  type Account,
 } from "@0xsequence/anypay-sdk";
 import { Loader2 } from "lucide-react";
+import { AbiFunction, type Address } from "ox";
+import { useEffect, useState } from "react";
+import type { Hex } from "viem";
+import * as chains from "viem/chains";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { AccountInfoSection } from "@/components/AccountInfoSection";
-import type { IntentAction } from "@/types";
-import { SelectOriginTokenStep } from "@/components/SelectOriginTokenStep";
-import { ChooseActionStep } from "@/components/ChooseActionStep";
-import { IntentQuoteDisplayStep } from "@/components/IntentQuoteDisplayStep";
-import { CommitIntentStep } from "@/components/CommitIntentStep";
-import { OriginCallStep } from "@/components/OriginCallStep";
 import { AdvancedControlsSection } from "@/components/AdvancedControlsSection";
+import { ChooseActionStep } from "@/components/ChooseActionStep";
+import { CommitIntentStep } from "@/components/CommitIntentStep";
+import { IntentQuoteDisplayStep } from "@/components/IntentQuoteDisplayStep";
+import { OriginCallStep } from "@/components/OriginCallStep";
 import { RelayerStatusSection } from "@/components/RelayerStatusSection";
+import { SelectOriginTokenStep } from "@/components/SelectOriginTokenStep";
+import type { IntentAction } from "@/types";
 
 // Mock Data
 const MOCK_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000";
@@ -233,11 +233,11 @@ function useHook() {
       setSelectedToken(null);
       clearIntent();
     }
-  }, [account.isConnected]);
+  }, [account.isConnected, clearIntent]);
 
   useEffect(() => {
     updateAutoExecute(isAutoExecuteEnabled);
-  }, [isAutoExecuteEnabled]);
+  }, [isAutoExecuteEnabled, updateAutoExecute]);
 
   const handleActionClick = (action: IntentAction) => {
     clearIntent();
@@ -266,7 +266,7 @@ function useHook() {
       originChainId: selectedToken.chainId,
       tokenAddress: selectedToken.contractAddress,
     });
-  }, [selectedToken]);
+  }, [selectedToken, updateOriginCallParams]);
 
   // Update button text and disabled state for commit button
   const commitButtonText = commitIntentConfigPending ? (
@@ -318,7 +318,7 @@ function useHook() {
     if (!account.isConnected) {
       clearIntent();
     }
-  }, [account.isConnected]);
+  }, [account.isConnected, clearIntent]);
 
   // Replace the sendMetaTxn function with a wrapper that uses the mutation
   const handleSendMetaTxn = (selectedId: string | null) => {
