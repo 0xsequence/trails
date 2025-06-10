@@ -30,8 +30,8 @@ importers:
   apps/anypay-demo:
     dependencies:
       '@0xsequence/anypay-sdk':
-        specifier: github:0xsequence/anypay#dists/anypay-sdk
-        version: git+https://git@github.com:0xsequence/anypay.git#cef7f4feea668708c16ee2ddedf06dc60974b954(0xsequence@2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(@0xsequence/metadata@2.3.17)(@0xsequence/network@2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.80.6)(@types/node@22.15.31)(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(bufferutil@4.0.9)(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.57))(vite@6.3.5(@types/node@22.15.31)(jiti@2.4.2)(lightningcss@1.30.1))(zod@3.25.57)
+        specifier: https://github.com/0xsequence/anypay#dists/anypay-sdk
+        version: https://codeload.github.com/0xsequence/anypay/tar.gz/cef7f4feea668708c16ee2ddedf06dc60974b954(0xsequence@2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(@0xsequence/metadata@2.3.17)(@0xsequence/network@2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.80.6)(@types/node@22.15.31)(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(bufferutil@4.0.9)(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.57))(vite@6.3.5(@types/node@22.15.31)(jiti@2.4.2)(lightningcss@1.30.1))(zod@3.25.57)
       '@0xsequence/api':
         specifier: 0.0.0-anypay-20250527101311
         version: 0.0.0-anypay-20250527101311
@@ -283,8 +283,8 @@ packages:
     peerDependencies:
       ethers: '>=6'
 
-  '@0xsequence/anypay-sdk@git+https://git@github.com:0xsequence/anypay.git#cef7f4feea668708c16ee2ddedf06dc60974b954':
-    resolution: {commit: cef7f4feea668708c16ee2ddedf06dc60974b954, repo: git@github.com:0xsequence/anypay.git, type: git}
+  '@0xsequence/anypay-sdk@https://codeload.github.com/0xsequence/anypay/tar.gz/cef7f4feea668708c16ee2ddedf06dc60974b954':
+    resolution: {tarball: https://codeload.github.com/0xsequence/anypay/tar.gz/cef7f4feea668708c16ee2ddedf06dc60974b954}
     version: 0.0.0
     peerDependencies:
       react: ^19.0.0
@@ -4430,7 +4430,7 @@ snapshots:
       '@0xsequence/wallet': 2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       ethers: 6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
 
-  '@0xsequence/anypay-sdk@git+https://git@github.com:0xsequence/anypay.git#cef7f4feea668708c16ee2ddedf06dc60974b954(0xsequence@2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(@0xsequence/metadata@2.3.17)(@0xsequence/network@2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.80.6)(@types/node@22.15.31)(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(bufferutil@4.0.9)(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.57))(vite@6.3.5(@types/node@22.15.31)(jiti@2.4.2)(lightningcss@1.30.1))(zod@3.25.57)':
+  '@0xsequence/anypay-sdk@https://codeload.github.com/0xsequence/anypay/tar.gz/cef7f4feea668708c16ee2ddedf06dc60974b954(0xsequence@2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(@0xsequence/metadata@2.3.17)(@0xsequence/network@2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.80.6)(@types/node@22.15.31)(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(bufferutil@4.0.9)(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.57))(vite@6.3.5(@types/node@22.15.31)(jiti@2.4.2)(lightningcss@1.30.1))(zod@3.25.57)':
     dependencies:
       '@0xsequence/api': 0.0.0-anypay-20250527101311
       '@0xsequence/design-system': 2.1.15(@types/react-dom@19.1.6(@types/react@19.1.7))(@types/react@19.1.7)(motion@12.16.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
