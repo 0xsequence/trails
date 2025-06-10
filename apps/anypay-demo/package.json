@@ -16,7 +16,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@0xsequence/anypay-sdk": "github:0xsequence/anypay#dists/anypay-sdk",
+    "@0xsequence/anypay-sdk": "workspace:*",
     "@0xsequence/api": "0.0.0-anypay-20250527101311",
     "@0xsequence/design-system": "^2.1.14",
     "@0xsequence/hooks": "^5.3.4",

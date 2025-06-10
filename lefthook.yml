@@ -2,7 +2,7 @@ pre-commit:
   commands:
     prettier:
       glob: '**/*.{js,jsx,ts,tsx,json,md,yml,yaml}'
-      run: pnpm format --write {staged_files} && git add {staged_files}
+      run: pnpm format {staged_files} && git add {staged_files}
 
 pre-push:
   commands:
