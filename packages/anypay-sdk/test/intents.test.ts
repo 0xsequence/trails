@@ -1,5 +1,5 @@
-import { Preconditions, Relayer } from "@0xsequence/wallet-core";
-import { type Context, Payload } from "@0xsequence/wallet-primitives";
+import { Preconditions, Relayer } from "@0xsequence/wallet-core"
+import { type Context, Payload } from "@0xsequence/wallet-primitives"
 import {
   AbiFunction,
   Address,
@@ -8,23 +8,23 @@ import {
   Provider,
   RpcTransport,
   Secp256k1,
-} from "ox";
-import { isAddressEqual } from "viem";
-import { describe, expect, it, vi } from "vitest";
+} from "ox"
+import { isAddressEqual } from "viem"
+import { describe, expect, it, vi } from "vitest"
 import {
   type AnypayLifiInfo,
   calculateIntentConfigurationAddress,
   getAnypayLifiInfoHash,
   hashIntentParams,
   type IntentCallsPayload,
-} from "../src/intents.js";
-import "dotenv/config";
+} from "../src/intents.js"
+import "dotenv/config"
 
-const _LOCAL_RPC_URL = process.env.LOCAL_RPC_URL || "http://localhost:8545";
-const { RPC_URL, PRIVATE_KEY } = process.env;
-const CAN_RUN_LIVE = !!RPC_URL && !!PRIVATE_KEY;
+const _LOCAL_RPC_URL = process.env.LOCAL_RPC_URL || "http://localhost:8545"
+const { RPC_URL, PRIVATE_KEY } = process.env
+const CAN_RUN_LIVE = !!RPC_URL && !!PRIVATE_KEY
 
-const LocalRelayer = Relayer.Local.LocalRelayer;
+const LocalRelayer = Relayer.Local.LocalRelayer
 const {
   NativeBalancePrecondition,
   Erc20BalancePrecondition,
@@ -33,27 +33,27 @@ const {
   Erc721ApprovalPrecondition,
   Erc1155BalancePrecondition,
   Erc1155ApprovalPrecondition,
-} = Preconditions;
+} = Preconditions
 
 const ERC20_IMPLICIT_MINT_CONTRACT =
-  "0x041E0CDC028050519C8e6485B2d9840caf63773F";
+  "0x041E0CDC028050519C8e6485B2d9840caf63773F"
 
 function randomAddress(): Address.Address {
   return Address.fromPublicKey(
     Secp256k1.getPublicKey({ privateKey: Secp256k1.randomPrivateKey() }),
-  );
+  )
 }
 
 describe("AnyPay Preconditions", () => {
   const getProvider = async (): Promise<{
-    provider: Provider.Provider;
-    chainId: bigint;
+    provider: Provider.Provider
+    chainId: bigint
   }> => {
-    let provider: Provider.Provider;
-    let chainId = 1n;
+    let provider: Provider.Provider
+    let chainId = 1n
     if (CAN_RUN_LIVE) {
-      provider = Provider.from(RpcTransport.fromHttp(RPC_URL!));
-      chainId = BigInt(await provider.request({ method: "eth_chainId" }));
+      provider = Provider.from(RpcTransport.fromHttp(RPC_URL!))
+      chainId = BigInt(await provider.request({ method: "eth_chainId" }))
     } else {
       provider = {
         request: vi.fn(),
@@ -62,14 +62,14 @@ describe("AnyPay Preconditions", () => {
         call: vi.fn(),
         sendTransaction: vi.fn(),
         getBalance: vi.fn(),
-      } as unknown as Provider.Provider;
+      } as unknown as Provider.Provider
     }
 
-    return { provider: provider!, chainId };
-  };
+    return { provider: provider!, chainId }
+  }
 
-  const testWalletAddress = randomAddress();
-  const _testIdentityAddress = randomAddress();
+  const testWalletAddress = randomAddress()
+  const _testIdentityAddress = randomAddress()
 
   const requireContractDeployed = async (
     provider: Provider.Provider,
@@ -78,21 +78,21 @@ describe("AnyPay Preconditions", () => {
     const code = await provider.request({
       method: "eth_getCode",
       params: [contract, "latest"],
-    });
+    })
     if (code === "0x") {
-      throw new Error(`Contract ${contract} not deployed`);
+      throw new Error(`Contract ${contract} not deployed`)
     }
-  };
+  }
 
   it("should create and check native balance precondition", async () => {
-    const { provider, chainId } = await getProvider();
-    const relayer = new LocalRelayer(provider as any);
+    const { provider, chainId } = await getProvider()
+    const relayer = new LocalRelayer(provider as any)
 
     const precondition = new NativeBalancePrecondition(
       testWalletAddress,
       1000000000000000000n, // 1 ETH min
       2000000000000000000n, // 2 ETH max
-    );
+    )
 
     const intentPrecondition = {
       type: precondition.type(),
@@ -102,28 +102,28 @@ describe("AnyPay Preconditions", () => {
         min: precondition.min?.toString(),
         max: precondition.max?.toString(),
       }),
-    };
+    }
 
     if (!CAN_RUN_LIVE) {
       // Mock the balance check
-      (provider as any).request.mockResolvedValue("0x16345785d8a0000"); // 1.5 ETH in hex
+      ;(provider as any).request.mockResolvedValue("0x16345785d8a0000") // 1.5 ETH in hex
     }
 
-    const isValid = await relayer.checkPrecondition(intentPrecondition);
-    expect(isValid).toBe(true);
-  });
+    const isValid = await relayer.checkPrecondition(intentPrecondition)
+    expect(isValid).toBe(true)
+  })
 
   it("should create and check ERC20 balance precondition", async () => {
-    const { provider, chainId } = await getProvider();
-    const relayer = new LocalRelayer(provider as any);
-    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT);
+    const { provider, chainId } = await getProvider()
+    const relayer = new LocalRelayer(provider as any)
+    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT)
 
     const precondition = new Erc20BalancePrecondition(
       testWalletAddress,
       ERC20_IMPLICIT_MINT_CONTRACT,
       1000000n, // 1 token min
       2000000n, // 2 tokens max
-    );
+    )
 
     const intentPrecondition = {
       type: precondition.type(),
@@ -134,29 +134,29 @@ describe("AnyPay Preconditions", () => {
         min: precondition.min?.toString(),
         max: precondition.max?.toString(),
       }),
-    };
+    }
 
     if (!CAN_RUN_LIVE) {
       // Mock the balanceOf call
-      (provider as any).call.mockResolvedValue("0x1e8480"); // 1.5 tokens in hex
+      ;(provider as any).call.mockResolvedValue("0x1e8480") // 1.5 tokens in hex
     }
 
-    const isValid = await relayer.checkPrecondition(intentPrecondition);
-    expect(isValid).toBe(true);
-  });
+    const isValid = await relayer.checkPrecondition(intentPrecondition)
+    expect(isValid).toBe(true)
+  })
 
   it("should create and check ERC20 approval precondition", async () => {
-    const { provider, chainId } = await getProvider();
-    const relayer = new LocalRelayer(provider as any);
-    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT);
+    const { provider, chainId } = await getProvider()
+    const relayer = new LocalRelayer(provider as any)
+    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT)
 
-    const operator = randomAddress();
+    const operator = randomAddress()
     const precondition = new Erc20ApprovalPrecondition(
       testWalletAddress,
       ERC20_IMPLICIT_MINT_CONTRACT,
       operator,
       1000000n, // 1 token min approval
-    );
+    )
 
     const intentPrecondition = {
       type: precondition.type(),
@@ -167,28 +167,28 @@ describe("AnyPay Preconditions", () => {
         operator: precondition.operator.toString(),
         min: precondition.min.toString(),
       }),
-    };
+    }
 
     if (!CAN_RUN_LIVE) {
       // Mock the allowance call
-      (provider as any).call.mockResolvedValue("0x1e8480"); // 1.5 tokens in hex
+      ;(provider as any).call.mockResolvedValue("0x1e8480") // 1.5 tokens in hex
     }
 
-    const isValid = await relayer.checkPrecondition(intentPrecondition);
-    expect(isValid).toBe(true);
-  });
+    const isValid = await relayer.checkPrecondition(intentPrecondition)
+    expect(isValid).toBe(true)
+  })
 
   it("should create and check ERC721 ownership precondition", async () => {
-    const { provider, chainId } = await getProvider();
-    const relayer = new LocalRelayer(provider as any);
-    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT);
+    const { provider, chainId } = await getProvider()
+    const relayer = new LocalRelayer(provider as any)
+    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT)
 
     const precondition = new Erc721OwnershipPrecondition(
       testWalletAddress,
       ERC20_IMPLICIT_MINT_CONTRACT,
       1n, // tokenId
       true, // must own
-    );
+    )
 
     const intentPrecondition = {
       type: precondition.type(),
@@ -199,32 +199,32 @@ describe("AnyPay Preconditions", () => {
         tokenId: precondition.tokenId.toString(),
         owned: precondition.owned,
       }),
-    };
+    }
 
     if (!CAN_RUN_LIVE) {
       // Mock the ownerOf call
-      (provider as any).call.mockResolvedValue(
+      ;(provider as any).call.mockResolvedValue(
         "0x000000000000000000000000" +
           testWalletAddress.toString().slice(2).toLowerCase(),
-      );
+      )
     }
 
-    const isValid = await relayer.checkPrecondition(intentPrecondition);
-    expect(isValid).toBe(true);
-  });
+    const isValid = await relayer.checkPrecondition(intentPrecondition)
+    expect(isValid).toBe(true)
+  })
 
   it("should create and check ERC721 approval precondition", async () => {
-    const { provider, chainId } = await getProvider();
-    const relayer = new LocalRelayer(provider as any);
-    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT);
+    const { provider, chainId } = await getProvider()
+    const relayer = new LocalRelayer(provider as any)
+    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT)
 
-    const operator = randomAddress();
+    const operator = randomAddress()
     const precondition = new Erc721ApprovalPrecondition(
       testWalletAddress,
       ERC20_IMPLICIT_MINT_CONTRACT,
       1n, // tokenId
       operator,
-    );
+    )
 
     const intentPrecondition = {
       type: precondition.type(),
@@ -235,24 +235,24 @@ describe("AnyPay Preconditions", () => {
         tokenId: precondition.tokenId.toString(),
         operator: precondition.operator.toString(),
       }),
-    };
+    }
 
     if (!CAN_RUN_LIVE) {
       // Mock the getApproved call
-      (provider as any).call.mockResolvedValue(
+      ;(provider as any).call.mockResolvedValue(
         "0x000000000000000000000000" +
           operator.toString().slice(2).toLowerCase(),
-      );
+      )
     }
 
-    const isValid = await relayer.checkPrecondition(intentPrecondition);
-    expect(isValid).toBe(true);
-  });
+    const isValid = await relayer.checkPrecondition(intentPrecondition)
+    expect(isValid).toBe(true)
+  })
 
   it("should create and check ERC1155 balance precondition", async () => {
-    const { provider, chainId } = await getProvider();
-    const relayer = new LocalRelayer(provider as any);
-    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT);
+    const { provider, chainId } = await getProvider()
+    const relayer = new LocalRelayer(provider as any)
+    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT)
 
     const precondition = new Erc1155BalancePrecondition(
       testWalletAddress,
@@ -260,7 +260,7 @@ describe("AnyPay Preconditions", () => {
       1n, // tokenId
       1000000n, // 1 token min
       2000000n, // 2 tokens max
-    );
+    )
 
     const intentPrecondition = {
       type: precondition.type(),
@@ -272,30 +272,30 @@ describe("AnyPay Preconditions", () => {
         min: precondition.min?.toString(),
         max: precondition.max?.toString(),
       }),
-    };
+    }
 
     if (!CAN_RUN_LIVE) {
       // Mock the balanceOf call
-      (provider as any).call.mockResolvedValue("0x1e8480"); // 1.5 tokens in hex
+      ;(provider as any).call.mockResolvedValue("0x1e8480") // 1.5 tokens in hex
     }
 
-    const isValid = await relayer.checkPrecondition(intentPrecondition);
-    expect(isValid).toBe(true);
-  });
+    const isValid = await relayer.checkPrecondition(intentPrecondition)
+    expect(isValid).toBe(true)
+  })
 
   it("should create and check ERC1155 approval precondition", async () => {
-    const { provider, chainId } = await getProvider();
-    const relayer = new LocalRelayer(provider as any);
-    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT);
+    const { provider, chainId } = await getProvider()
+    const relayer = new LocalRelayer(provider as any)
+    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT)
 
-    const operator = randomAddress();
+    const operator = randomAddress()
     const precondition = new Erc1155ApprovalPrecondition(
       testWalletAddress,
       ERC20_IMPLICIT_MINT_CONTRACT,
       1n, // tokenId
       operator,
       1000000n, // 1 token min approval
-    );
+    )
 
     const intentPrecondition = {
       type: precondition.type(),
@@ -307,28 +307,28 @@ describe("AnyPay Preconditions", () => {
         operator: precondition.operator.toString(),
         min: precondition.min.toString(),
       }),
-    };
+    }
 
     if (!CAN_RUN_LIVE) {
       // Mock the isApprovedForAll call
-      (provider as any).call.mockResolvedValue("0x1"); // true
+      ;(provider as any).call.mockResolvedValue("0x1") // true
     }
 
-    const isValid = await relayer.checkPrecondition(intentPrecondition);
-    expect(isValid).toBe(true);
-  });
+    const isValid = await relayer.checkPrecondition(intentPrecondition)
+    expect(isValid).toBe(true)
+  })
 
   it("should wait for preconditions to be met before relaying transaction", async () => {
-    const { provider, chainId } = await getProvider();
-    const relayer = new LocalRelayer(provider as any);
-    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT);
+    const { provider, chainId } = await getProvider()
+    const relayer = new LocalRelayer(provider as any)
+    await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT)
 
     // Create a precondition that initially fails
     const precondition = new Erc20BalancePrecondition(
       testWalletAddress,
       ERC20_IMPLICIT_MINT_CONTRACT,
       1000000n, // 1 token min
-    );
+    )
 
     const intentPrecondition = {
       type: precondition.type(),
@@ -338,14 +338,14 @@ describe("AnyPay Preconditions", () => {
         token: precondition.token.toString(),
         min: precondition.min?.toString(),
       }),
-    };
+    }
 
     // Mock initial balance check to fail
-    let currentBalance = 0n;
+    let currentBalance = 0n
     if (!CAN_RUN_LIVE) {
-      (provider as any).call.mockImplementation(() => {
-        return Bytes.toHex(Bytes.fromNumber(currentBalance));
-      });
+      ;(provider as any).call.mockImplementation(() => {
+        return Bytes.toHex(Bytes.fromNumber(currentBalance))
+      })
     }
 
     // Create a test operation
@@ -365,7 +365,7 @@ describe("AnyPay Preconditions", () => {
           behaviorOnError: "ignore",
         },
       ],
-    };
+    }
 
     // Create context
     const context: Context.Context = {
@@ -373,14 +373,14 @@ describe("AnyPay Preconditions", () => {
       creationCode: "0x" as Hex.Hex,
       stage1: "0x" as Hex.Hex,
       stage2: "0x" as Hex.Hex,
-    };
+    }
 
     // Calculate intent configuration address
     const configAddress = calculateIntentConfigurationAddress(
       testWalletAddress,
       [payload],
       context,
-    );
+    )
 
     // Start the relay operation with a short check interval
     const relayPromise = relayer.relay(
@@ -404,21 +404,21 @@ describe("AnyPay Preconditions", () => {
       undefined,
       [intentPrecondition],
       100, // Short check interval for testing
-    );
+    )
 
     // Simulate ERC20 transfer by updating the mock balance
     if (!CAN_RUN_LIVE) {
-      currentBalance = 1500000n; // Transfer 1.5 tokens
+      currentBalance = 1500000n // Transfer 1.5 tokens
     } else {
       // In live mode, we would need to actually transfer tokens here
-      const transferAmount = 1500000n;
+      const transferAmount = 1500000n
       const erc20Transfer = AbiFunction.from(
         "function transfer(address,uint256) returns (bool)",
-      );
+      )
       const transferData = AbiFunction.encodeData(erc20Transfer, [
         testWalletAddress.toString() as Hex.Hex,
         transferAmount,
-      ]) as Hex.Hex;
+      ]) as Hex.Hex
       await provider.request({
         method: "eth_sendTransaction",
         params: [
@@ -427,14 +427,14 @@ describe("AnyPay Preconditions", () => {
             data: transferData,
           },
         ],
-      });
+      })
     }
 
     // Wait for the relay to complete
-    const { opHash } = await relayPromise;
+    const { opHash } = await relayPromise
 
-    expect(opHash).toBeDefined();
-    expect(opHash).not.toBe("0x");
+    expect(opHash).toBeDefined()
+    expect(opHash).not.toBe("0x")
 
     // Verify the transaction was sent
     if (!CAN_RUN_LIVE) {
@@ -458,15 +458,15 @@ describe("AnyPay Preconditions", () => {
           ),
         },
         1n,
-      );
+      )
     }
-  });
+  })
 
   if (CAN_RUN_LIVE) {
     it("should create intent configuration with preconditions", async () => {
-      const { provider, chainId } = await getProvider();
-      const relayer = new LocalRelayer(provider as any);
-      await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT);
+      const { provider, chainId } = await getProvider()
+      const relayer = new LocalRelayer(provider as any)
+      await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT)
 
       // Create a test operation
       const payload: IntentCallsPayload = {
@@ -485,19 +485,19 @@ describe("AnyPay Preconditions", () => {
             behaviorOnError: "ignore",
           },
         ],
-      };
+      }
 
       // Create preconditions
       const nativePrecondition = new NativeBalancePrecondition(
         testWalletAddress,
         1000000000000000000n, // 1 ETH min
-      );
+      )
 
       const erc20Precondition = new Erc20BalancePrecondition(
         testWalletAddress,
         ERC20_IMPLICIT_MINT_CONTRACT,
         1000000n, // 1 token min
-      );
+      )
 
       const intentPreconditions = [
         {
@@ -517,7 +517,7 @@ describe("AnyPay Preconditions", () => {
             min: erc20Precondition.min?.toString(),
           }),
         },
-      ];
+      ]
 
       // Create context
       const context: Context.Context = {
@@ -525,41 +525,41 @@ describe("AnyPay Preconditions", () => {
         creationCode: Bytes.toHex(Bytes.fromHex("0x")) as Hex.Hex,
         stage1: Bytes.toHex(Bytes.fromHex("0x")) as Hex.Hex,
         stage2: Bytes.toHex(Bytes.fromHex("0x")) as Hex.Hex,
-      };
+      }
 
       // Calculate intent configuration address
       const configAddress = calculateIntentConfigurationAddress(
         testWalletAddress,
         [payload],
         context,
-      );
+      )
 
-      expect(configAddress).toBeDefined();
-      expect(configAddress).not.toBe(testWalletAddress);
+      expect(configAddress).toBeDefined()
+      expect(configAddress).not.toBe(testWalletAddress)
 
       // Check preconditions
       for (const precondition of intentPreconditions) {
-        const isValid = await relayer.checkPrecondition(precondition);
-        expect(isValid).toBe(true);
+        const isValid = await relayer.checkPrecondition(precondition)
+        expect(isValid).toBe(true)
       }
-    });
+    })
 
     it("should relay transaction when preconditions are met", async () => {
-      const { provider, chainId } = await getProvider();
-      const relayer = new LocalRelayer(provider as any);
-      await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT);
+      const { provider, chainId } = await getProvider()
+      const relayer = new LocalRelayer(provider as any)
+      await requireContractDeployed(provider, ERC20_IMPLICIT_MINT_CONTRACT)
 
       // Create preconditions
       const nativePrecondition = new NativeBalancePrecondition(
         testWalletAddress,
         1000000000000000000n, // 1 ETH min
-      );
+      )
 
       const erc20Precondition = new Erc20BalancePrecondition(
         testWalletAddress,
         ERC20_IMPLICIT_MINT_CONTRACT,
         1000000n, // 1 token min
-      );
+      )
 
       const intentPreconditions = [
         {
@@ -579,7 +579,7 @@ describe("AnyPay Preconditions", () => {
             min: erc20Precondition.min?.toString(),
           }),
         },
-      ];
+      ]
 
       // Create a test operation
       const payload: IntentCallsPayload = {
@@ -598,7 +598,7 @@ describe("AnyPay Preconditions", () => {
             behaviorOnError: "ignore",
           },
         ],
-      };
+      }
 
       // Create context
       const context: Context.Context = {
@@ -606,21 +606,21 @@ describe("AnyPay Preconditions", () => {
         creationCode: Bytes.toHex(Bytes.fromHex("0x")) as Hex.Hex,
         stage1: Bytes.toHex(Bytes.fromHex("0x")) as Hex.Hex,
         stage2: Bytes.toHex(Bytes.fromHex("0x")) as Hex.Hex,
-      };
+      }
 
       // Calculate intent configuration address
       const configAddress = calculateIntentConfigurationAddress(
         testWalletAddress,
         [payload],
         context,
-      );
+      )
 
       // Mock the provider responses
       if (!CAN_RUN_LIVE) {
         // Mock native balance check
-        (provider as any).getBalance.mockResolvedValue(1500000000000000000n); // 1.5 ETH
+        ;(provider as any).getBalance.mockResolvedValue(1500000000000000000n) // 1.5 ETH
         // Mock ERC20 balance check
-        (provider as any).call.mockResolvedValue("0x1e8480"); // 1.5 tokens
+        ;(provider as any).call.mockResolvedValue("0x1e8480") // 1.5 tokens
       }
 
       // Relay transaction with preconditions
@@ -631,21 +631,21 @@ describe("AnyPay Preconditions", () => {
         undefined, // fee quote
         intentPreconditions,
         1000, // check interval in ms
-      );
+      )
 
-      expect(opHash).toBeDefined();
-      expect(opHash).not.toBe("0x");
+      expect(opHash).toBeDefined()
+      expect(opHash).not.toBe("0x")
 
       // Verify the transaction was sent
       if (!CAN_RUN_LIVE) {
         expect((provider as any).sendTransaction).toHaveBeenCalledWith({
           to: configAddress,
           data: "0x" as Hex.Hex,
-        });
+        })
       }
-    });
+    })
   }
-});
+})
 
 describe("Intent Configuration Address with LifiInfo", () => {
   const testContext: Context.Context = {
@@ -654,12 +654,12 @@ describe("Intent Configuration Address with LifiInfo", () => {
     stage2: "0x0000000000000000000000000000000000000000" as Hex.Hex, // guestModule
     creationCode:
       "0x603e600e3d39601e805130553df33d3d34601c57363d3d373d363d30545af43d82803e903d91601c57fd5bf3" as Hex.Hex,
-  };
+  }
 
-  const mainSigner = Address.from("0x1111111111111111111111111111111111111111");
+  const mainSigner = Address.from("0x1111111111111111111111111111111111111111")
   const attestationSigner = Address.from(
     "0x0000000000000000000000000000000000000001",
-  );
+  )
 
   const lifiInfos: AnypayLifiInfo[] = [
     {
@@ -668,7 +668,7 @@ describe("Intent Configuration Address with LifiInfo", () => {
       originChainId: 1n,
       destinationChainId: 10n,
     },
-  ];
+  ]
 
   it("should calculate address for single operation with lifiInfo", () => {
     const payload: IntentCallsPayload = {
@@ -687,7 +687,7 @@ describe("Intent Configuration Address with LifiInfo", () => {
           behaviorOnError: "revert" as const,
         },
       ],
-    };
+    }
 
     const address = calculateIntentConfigurationAddress(
       mainSigner,
@@ -695,13 +695,13 @@ describe("Intent Configuration Address with LifiInfo", () => {
       testContext,
       attestationSigner,
       lifiInfos,
-    );
+    )
 
-    console.log("Single Operation with LifiInfo Test Address:", address);
+    console.log("Single Operation with LifiInfo Test Address:", address)
     expect(
       isAddressEqual(address, "0x820B2237906fEEBdB45a6Be43d33137253Eeeac5"),
-    ).toBe(true);
-  });
+    ).toBe(true)
+  })
 
   it("should calculate address for multiple operations with lifiInfo", () => {
     const payload1: IntentCallsPayload = {
@@ -720,7 +720,7 @@ describe("Intent Configuration Address with LifiInfo", () => {
           behaviorOnError: "revert" as const,
         },
       ],
-    };
+    }
 
     const payload2: IntentCallsPayload = {
       chainId: 1n,
@@ -738,7 +738,7 @@ describe("Intent Configuration Address with LifiInfo", () => {
           behaviorOnError: "revert" as const,
         },
       ],
-    };
+    }
 
     const address = calculateIntentConfigurationAddress(
       mainSigner,
@@ -746,14 +746,14 @@ describe("Intent Configuration Address with LifiInfo", () => {
       testContext,
       attestationSigner,
       lifiInfos,
-    );
+    )
 
-    console.log("Multiple Operations with LifiInfo Test Address:", address);
+    console.log("Multiple Operations with LifiInfo Test Address:", address)
     expect(
       isAddressEqual(address, "0x807f90d703db799F810a43DBcf81B09d7053e8e6"),
-    ).toBe(true);
-  });
-});
+    ).toBe(true)
+  })
+})
 
 describe("Intent Configuration Address", () => {
   it("should calculate address for single operation", () => {
@@ -764,12 +764,12 @@ describe("Intent Configuration Address", () => {
       stage2: "0x0000000000000000000000000000000000000000" as Hex.Hex,
       creationCode:
         "0x603e600e3d39601e805130553df33d3d34601c57363d3d373d363d30545af43d82803e903d91601c57fd5bf3" as Hex.Hex,
-    };
+    }
 
     // Main signer matching Go test
     const mainSigner = Address.from(
       "0x1111111111111111111111111111111111111111",
-    );
+    )
 
     // Create a single operation matching Go test
     const payload: IntentCallsPayload = {
@@ -788,22 +788,22 @@ describe("Intent Configuration Address", () => {
           behaviorOnError: "ignore" as const,
         },
       ],
-    };
+    }
 
     // Calculate intent configuration address
     const address = calculateIntentConfigurationAddress(
       mainSigner,
       [payload],
       context,
-    );
+    )
 
-    console.log("address", address);
+    console.log("address", address)
 
     // Verify the address matches Go test
     expect(
       isAddressEqual(address, "0x95b51097940ed0f7ed5758bbd828b48e7891ec94"),
-    ).toBe(true);
-  });
+    ).toBe(true)
+  })
 
   it("should calculate address for multiple operations", () => {
     // Create context matching Go test
@@ -813,12 +813,12 @@ describe("Intent Configuration Address", () => {
       stage2: "0x0000000000000000000000000000000000000000" as Hex.Hex,
       creationCode:
         "0x603e600e3d39601e805130553df33d3d34601c57363d3d373d363d30545af43d82803e903d91601c57fd5bf3" as Hex.Hex,
-    };
+    }
 
     // Main signer matching Go test
     const mainSigner = Address.from(
       "0x1111111111111111111111111111111111111111",
-    );
+    )
 
     // Create multiple operations matching Go test
     const payload1: IntentCallsPayload = {
@@ -837,7 +837,7 @@ describe("Intent Configuration Address", () => {
           behaviorOnError: "ignore" as const,
         },
       ],
-    };
+    }
 
     const payload2: IntentCallsPayload = {
       chainId: 1n,
@@ -855,22 +855,22 @@ describe("Intent Configuration Address", () => {
           behaviorOnError: "ignore" as const,
         },
       ],
-    };
+    }
 
     // Calculate intent configuration address
     const address = calculateIntentConfigurationAddress(
       mainSigner,
       [payload1, payload2],
       context,
-    );
+    )
 
-    console.log("address", address);
+    console.log("address", address)
 
     // Verify the address matches Go test
     expect(
       isAddressEqual(address, "0xdb59510c80765bcc1b70e36b2583786ecb990476"),
-    ).toBe(true);
-  });
+    ).toBe(true)
+  })
 
   it("should calculate address for multi-chain intent operations", () => {
     // Create context
@@ -880,12 +880,12 @@ describe("Intent Configuration Address", () => {
       stage2: "0xa29874c88b8Fd557e42219B04b0CeC693e1712f5" as `0x${string}`,
       creationCode:
         "0x603e600e3d39601e805130553df33d3d34601c57363d3d373d363d30545af43d82803e903d91601c57fd5bf3" as `0x${string}`,
-    };
+    }
 
     // Main signer
     const mainSigner = Address.from(
       "0x8456195dd0793c621c7f9245edF0fEf85b1B879C",
-    );
+    )
 
     // Create multi-chain operations
     const arbitrumPayload: IntentCallsPayload = {
@@ -904,7 +904,7 @@ describe("Intent Configuration Address", () => {
           behaviorOnError: "ignore" as const,
         },
       ],
-    };
+    }
 
     const basePayload: IntentCallsPayload = {
       chainId: 8453n,
@@ -922,24 +922,24 @@ describe("Intent Configuration Address", () => {
           behaviorOnError: "ignore" as const,
         },
       ],
-    };
+    }
 
     // Calculate intent configuration address
     const address = calculateIntentConfigurationAddress(
       mainSigner,
       [arbitrumPayload, basePayload],
       context,
-    );
+    )
 
     // Log the address
-    console.log("address", address);
+    console.log("address", address)
 
     // Verify the address matches the expected value
     expect(
       isAddressEqual(address, "0x5bd7f0269f4aa805f5a13b3104d596c151d8ec76"),
-    ).toBe(true);
-  });
-});
+    ).toBe(true)
+  })
+})
 
 describe("HashIntentParams", () => {
   it("should error on empty fields", () => {
@@ -951,8 +951,8 @@ describe("HashIntentParams", () => {
         destinationCalls: [],
         destinationTokens: [],
       }),
-    ).toThrow();
-  });
+    ).toThrow()
+  })
 
   it("should match hash for single call", () => {
     const call = {
@@ -963,14 +963,14 @@ describe("HashIntentParams", () => {
       delegateCall: false,
       onlyFallback: false,
       behaviorOnError: "ignore" as const,
-    };
+    }
     const payload: IntentCallsPayload = {
       chainId: 1n,
       type: "call",
       space: 0n,
       nonce: 0n,
       calls: [call],
-    };
+    }
     const params = {
       userAddress: Address.from("0x3333333333333333333333333333333333333333"),
       nonce: 0n,
@@ -988,13 +988,13 @@ describe("HashIntentParams", () => {
           amount: 123n,
         },
       ],
-    };
-    const hash = hashIntentParams(params);
+    }
+    const hash = hashIntentParams(params)
 
     expect(hash.toLowerCase()).toBe(
       "0x4479e1ed63b1cf70ed13228bec79f2a1d2ffa0e9372e2afc7d82263cd8107451",
-    );
-  });
+    )
+  })
 
   it("should match hash for multiple calls", () => {
     const call1 = {
@@ -1005,7 +1005,7 @@ describe("HashIntentParams", () => {
       delegateCall: false,
       onlyFallback: false,
       behaviorOnError: "ignore" as const,
-    };
+    }
     const call2 = {
       to: Address.from("0x5555555555555555555555555555555555555555"),
       value: 456n,
@@ -1014,21 +1014,21 @@ describe("HashIntentParams", () => {
       delegateCall: false,
       onlyFallback: false,
       behaviorOnError: "ignore" as const,
-    };
+    }
     const payload1: IntentCallsPayload = {
       chainId: 1n,
       type: "call",
       space: 0n,
       nonce: 0n,
       calls: [call1],
-    };
+    }
     const payload2: IntentCallsPayload = {
       chainId: 1n,
       type: "call",
       space: 0n,
       nonce: 0n,
       calls: [call2],
-    };
+    }
     const params = {
       userAddress: Address.from("0x3333333333333333333333333333333333333333"),
       nonce: 0n,
@@ -1046,13 +1046,13 @@ describe("HashIntentParams", () => {
           amount: 123n,
         },
       ],
-    };
-    const hash = hashIntentParams(params);
+    }
+    const hash = hashIntentParams(params)
     expect(hash.toLowerCase()).toBe(
       "0x64631a48bc218cd8196dca22437223d90dc9caa8208284cdcea4b7f32bfc7cec",
-    );
-  });
-});
+    )
+  })
+})
 
 describe("GetAnypayLifiInfoHash", () => {
   it("should match hash for single AnypayLifiInfo", () => {
@@ -1063,16 +1063,16 @@ describe("GetAnypayLifiInfoHash", () => {
         originChainId: 1n,
         destinationChainId: 10n,
       },
-    ];
+    ]
     const attestationAddress = Address.from(
       "0xaAaAaAaaAaAaAaaAaAAAAAAAAaaaAaAaAaaAaaAa",
-    );
+    )
 
-    const hash = getAnypayLifiInfoHash(lifiInfos, attestationAddress);
+    const hash = getAnypayLifiInfoHash(lifiInfos, attestationAddress)
     expect(hash.toLowerCase()).toBe(
       "0x21872bd6b64711c4a5aecba95829c612f0b50c63f1a26991c2f76cf4a754aede",
-    );
-  });
+    )
+  })
 
   it("should match hash for multiple AnypayLifiInfo", () => {
     const lifiInfos: AnypayLifiInfo[] = [
@@ -1088,25 +1088,25 @@ describe("GetAnypayLifiInfoHash", () => {
         originChainId: 137n,
         destinationChainId: 42161n,
       },
-    ];
+    ]
     const attestationAddress = Address.from(
       "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB",
-    );
+    )
 
-    const hash = getAnypayLifiInfoHash(lifiInfos, attestationAddress);
+    const hash = getAnypayLifiInfoHash(lifiInfos, attestationAddress)
     expect(hash.toLowerCase()).toBe(
       "0xd18e54455db64ba31b9f9a447e181f83977cb70b136228d64ac85d64a6aefe71",
-    );
-  });
+    )
+  })
 
   it("should error on empty lifiInfos", () => {
     const attestationAddress = Address.from(
       "0xaAaAaAaaAaAaAaaAaAAAAAAAAaaaAaAaAaaAaaAa",
-    );
+    )
     expect(() => getAnypayLifiInfoHash([], attestationAddress)).toThrow(
       "lifiInfos is empty",
-    );
-  });
+    )
+  })
 
   it("should error on zero attestationAddress", () => {
     const lifiInfos: AnypayLifiInfo[] = [
@@ -1116,12 +1116,12 @@ describe("GetAnypayLifiInfoHash", () => {
         originChainId: 1n,
         destinationChainId: 10n,
       },
-    ];
+    ]
     const attestationAddress = Address.from(
       "0x0000000000000000000000000000000000000000",
-    );
+    )
     expect(() => getAnypayLifiInfoHash(lifiInfos, attestationAddress)).toThrow(
       "attestationAddress is zero",
-    );
-  });
-});
+    )
+  })
+})

@@ -237,7 +237,8 @@ export function useTokenBalances(
     tokenBalancesData,
     isLoadingBalances,
     isLoadingPrices,
-    isLoadingSortedTokens: isLoadingSortedTokens || isLoadingBalances || isLoadingPrices,
+    isLoadingSortedTokens:
+      isLoadingSortedTokens || isLoadingBalances || isLoadingPrices,
     balanceError,
     sortedTokens,
   }

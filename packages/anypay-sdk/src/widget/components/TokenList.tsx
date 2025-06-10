@@ -275,17 +275,19 @@ export const TokenList: React.FC<TokenListProps> = ({
         </div>
       )}
 
-      {!isLoadingSortedTokens && !balanceError && filteredTokens.length === 0 && (
-        <div
-          className={`text-center py-4 rounded-lg ${theme === "dark" ? "bg-gray-800" : "bg-gray-50"}`}
-        >
-          <p className={theme === "dark" ? "text-gray-400" : "text-gray-500"}>
-            {searchQuery.trim()
-              ? "No tokens found matching your search."
-              : "No tokens found with balance greater than 0."}
-          </p>
-        </div>
-      )}
+      {!isLoadingSortedTokens &&
+        !balanceError &&
+        filteredTokens.length === 0 && (
+          <div
+            className={`text-center py-4 rounded-lg ${theme === "dark" ? "bg-gray-800" : "bg-gray-50"}`}
+          >
+            <p className={theme === "dark" ? "text-gray-400" : "text-gray-500"}>
+              {searchQuery.trim()
+                ? "No tokens found matching your search."
+                : "No tokens found with balance greater than 0."}
+            </p>
+          </div>
+        )}
 
       {/* Token List */}
       <div
