@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
-import type { MetaTxn } from "../src/metaTxnMonitor.js";
+import { describe, expect, it, vi } from "vitest";
 import * as hooks from "../src/index.js";
+import type { MetaTxn } from "../src/metaTxnMonitor.js";
 
 // Mock the hooks module
 vi.mock("../src/index.js", () => ({

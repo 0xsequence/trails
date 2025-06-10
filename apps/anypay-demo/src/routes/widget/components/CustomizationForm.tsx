@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
 import { NetworkImage, TokenImage } from "@0xsequence/design-system";
+import { ChevronDown } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 const SUPPORTED_CHAINS = [
   { id: 1, name: "Ethereum", icon: 1 },

@@ -1,19 +1,19 @@
+import type { Page, Price, SequenceAPIClient } from "@0xsequence/api";
 import {
   ContractVerificationStatus,
-  type NativeTokenBalance,
-  type TokenBalance,
   type GetTokenBalancesSummaryReturn,
+  type NativeTokenBalance,
   type SequenceIndexerGateway,
+  type TokenBalance,
 } from "@0xsequence/indexer";
 import { useQuery } from "@tanstack/react-query";
 import type { Address } from "ox";
-import { useEffect, useState, useMemo } from "react";
-import { useIndexerGatewayClient } from "./indexerClient.js";
-import { useTokenPrices } from "./prices.js";
-import type { SequenceAPIClient, Price, Page } from "@0xsequence/api";
-import { useAPIClient } from "./apiClient.js";
+import { useEffect, useMemo, useState } from "react";
 import { type Chain, formatUnits, zeroAddress } from "viem";
 import * as chains from "viem/chains";
+import { useAPIClient } from "./apiClient.js";
+import { useIndexerGatewayClient } from "./indexerClient.js";
+import { useTokenPrices } from "./prices.js";
 
 export type { NativeTokenBalance, TokenBalance };
 

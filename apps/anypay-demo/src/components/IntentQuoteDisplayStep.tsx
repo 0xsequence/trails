@@ -1,29 +1,29 @@
-import type React from "react";
-import { Text, NetworkImage } from "@0xsequence/design-system";
-import type { Account, TokenBalance, MetaTxn } from "@0xsequence/anypay-sdk";
+import type { Account, MetaTxn, TokenBalance } from "@0xsequence/anypay-sdk";
 import type {
-  IntentPrecondition,
   AnypayLifiInfo,
   IntentCallsPayload,
+  IntentPrecondition,
 } from "@0xsequence/api";
+import { NetworkImage, Text } from "@0xsequence/design-system";
 import {
-  Loader2,
   AlertCircle,
   AlertTriangle,
-  Zap,
-  Info,
-  Clipboard,
-  Layers,
   Box,
+  Clipboard,
+  Info,
+  Layers,
+  Loader2,
   PenSquare,
   ShieldCheck,
+  Zap,
 } from "lucide-react";
-import { SectionHeader } from "@/components/SectionHeader";
-import { getChainInfo } from "@/utils/formatting";
-import type { IntentAction } from "@/types";
-import { type Hex, formatUnits, isAddressEqual, zeroAddress } from "viem";
 import { Address as OxAddress } from "ox";
+import type React from "react";
+import { formatUnits, type Hex, isAddressEqual, zeroAddress } from "viem";
 import * as chains from "viem/chains";
+import { SectionHeader } from "@/components/SectionHeader";
+import type { IntentAction } from "@/types";
+import { getChainInfo } from "@/utils/formatting";
 
 // Mock Data
 const BASE_USDC_DESTINATION_CHAIN_ID = chains.base.id;
@@ -232,8 +232,8 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
       let amountToSendFormatted = "[Amount Error]";
 
       const isNativeEquivalent = selectedToken.contractAddress === zeroAddress;
-      let amountBigInt: bigint | undefined ;
-      let decimals: number | undefined ;
+      let amountBigInt: bigint | undefined;
+      let decimals: number | undefined;
 
       if (isNativeEquivalent) {
         const nativePrecondition = intentPreconditions.find(

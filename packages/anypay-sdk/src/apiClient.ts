@@ -1,6 +1,6 @@
 import { SequenceAPIClient } from "@0xsequence/api";
-import { useMemo } from "react";
 import { useConfig } from "@0xsequence/hooks";
+import { useMemo } from "react";
 import { DEFAULT_API_URL } from "./constants.js";
 
 export type APIClientConfig = {

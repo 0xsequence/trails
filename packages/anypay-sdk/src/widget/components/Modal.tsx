@@ -1,7 +1,7 @@
+import { X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import type React from "react";
 import { useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { X } from "lucide-react";
 
 interface ModalProps {
   isOpen: boolean;

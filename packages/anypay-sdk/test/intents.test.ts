@@ -1,23 +1,22 @@
+import { Preconditions, Relayer } from "@0xsequence/wallet-core";
+import { type Context, Payload } from "@0xsequence/wallet-primitives";
 import {
+  AbiFunction,
   Address,
   Bytes,
-  Provider,
   type Hex,
+  Provider,
   RpcTransport,
   Secp256k1,
-  AbiFunction,
 } from "ox";
-import { type Context, Payload } from "@0xsequence/wallet-primitives";
-import { Relayer } from "@0xsequence/wallet-core";
-import { describe, it, expect, vi } from "vitest";
 import { isAddressEqual } from "viem";
-import { Preconditions } from "@0xsequence/wallet-core";
+import { describe, expect, it, vi } from "vitest";
 import {
+  type AnypayLifiInfo,
   calculateIntentConfigurationAddress,
+  getAnypayLifiInfoHash,
   hashIntentParams,
   type IntentCallsPayload,
-  type AnypayLifiInfo,
-  getAnypayLifiInfoHash,
 } from "../src/intents.js";
 import "dotenv/config";
 

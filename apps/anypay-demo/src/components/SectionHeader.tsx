@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { type ReactNode, useState } from "react";
 
 interface SectionHeaderProps {
   title: ReactNode;

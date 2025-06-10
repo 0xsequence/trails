@@ -1,15 +1,27 @@
-import type { SequenceAPIClient } from "@0xsequence/api";
 import type {
-  IntentPrecondition,
+  CommitIntentConfigReturn,
   GetIntentCallsPayloadsArgs,
   GetIntentCallsPayloadsReturn,
-  CommitIntentConfigReturn,
+  IntentPrecondition,
+  SequenceAPIClient,
 } from "@0xsequence/api";
 import type { Context as ContextLike } from "@0xsequence/wallet-primitives";
-import { AbiParameters, Address, Bytes, ContractAddress, Hash, type Hex } from "ox";
-import { type Context, Config, Payload } from "@0xsequence/wallet-primitives";
+import { Config, type Context, Payload } from "@0xsequence/wallet-primitives";
+import {
+  AbiParameters,
+  Address,
+  Bytes,
+  ContractAddress,
+  Hash,
+  type Hex,
+} from "ox";
+import {
+  type Account,
+  type Chain,
+  isAddressEqual,
+  type WalletClient,
+} from "viem";
 import { ANYPAY_LIFI_SAPIENT_SIGNER_LITE_ADDRESS } from "./constants.js";
-import { isAddressEqual, type WalletClient, type Chain, type Account } from "viem";
 import { findPreconditionAddress } from "./preconditions.js";
 
 export interface AnypayLifiInfo {

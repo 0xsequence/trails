@@ -1,9 +1,8 @@
-import type { Connector, useConnect } from "wagmi";
-import type { UseAccountReturnType } from "wagmi";
-import { Button, Text, NetworkImage } from "@0xsequence/design-system";
+import { Button, NetworkImage, Text } from "@0xsequence/design-system";
 import { AlertTriangle } from "lucide-react";
-import { SectionHeader } from "@/components/SectionHeader";
 import type { Address } from "viem";
+import type { Connector, UseAccountReturnType, useConnect } from "wagmi";
+import { SectionHeader } from "@/components/SectionHeader";
 
 interface AccountInfoSectionProps {
   account: {

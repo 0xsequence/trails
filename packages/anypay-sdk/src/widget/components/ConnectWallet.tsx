@@ -1,6 +1,8 @@
-import type React from "react";
+// biome-ignore lint/style/useImportType: Need to use React
+import React from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { injected } from "wagmi/connectors";
+
 // import MetaMaskFox from '../assets/MetaMask_Fox.svg'
 
 interface ConnectWalletProps {

@@ -1,9 +1,9 @@
+import type { NativeTokenBalance, TokenBalance } from "@0xsequence/anypay-sdk";
+import { NetworkImage, Text } from "@0xsequence/design-system";
 import type React from "react";
-import { Text, NetworkImage } from "@0xsequence/design-system";
 import { type Hex, zeroAddress } from "viem";
-import type { TokenBalance, NativeTokenBalance } from "@0xsequence/anypay-sdk";
 import { SectionHeader } from "@/components/SectionHeader";
-import { getChainInfo, formatBalance } from "@/utils/formatting";
+import { formatBalance, getChainInfo } from "@/utils/formatting";
 
 interface SelectOriginTokenStepProps {
   isLoadingBalances: boolean;

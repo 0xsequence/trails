@@ -1,16 +1,16 @@
-import { useEffect } from "react";
 import {
   createAppKit,
   useAppKitAccount,
+  useAppKitEvents,
   useWalletInfo,
 } from "@reown/appkit/react";
-import { WagmiProvider, injected, useConnect } from "wagmi";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { reconnect } from "@wagmi/core";
+import { useEffect } from "react";
 import type { Chain } from "viem";
 import * as chains from "viem/chains";
-import { useAppKitEvents } from "@reown/appkit/react";
-import { reconnect } from "@wagmi/core";
+import { injected, useConnect, WagmiProvider } from "wagmi";
 
 // Setup queryClient
 const queryClient = new QueryClient();

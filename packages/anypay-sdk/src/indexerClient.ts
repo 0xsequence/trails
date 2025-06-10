@@ -1,6 +1,6 @@
+import { useConfig } from "@0xsequence/hooks";
 import { SequenceIndexerGateway } from "@0xsequence/indexer";
 import { useMemo } from "react";
-import { useConfig } from "@0xsequence/hooks";
 import { DEFAULT_INDEXER_GATEWAY_URL } from "./constants.js";
 
 export type IndexerGatewayConfig = {
