@@ -36,7 +36,7 @@
   "dependencies": {
     "@0xsequence/api": "0.0.0-anypay-20250527101311",
     "@0xsequence/design-system": "^2.1.6",
-    "@0xsequence/hooks": "^5.1.0",
+    "@0xsequence/hooks": "^5.3.4",
     "@0xsequence/indexer": "^2.3.9",
     "@0xsequence/wagmi-connector": "^4.0.1",
     "@0xsequence/wallet-core": "github:0xsequence/sequence.js#dists/wallet/core",
@@ -54,7 +54,15 @@
   },
   "peerDependencies": {
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "wagmi": "^2.15.5",
+    "@0xsequence/api": "0.0.0-anypay-20250527101311",
+    "@0xsequence/design-system": "^2.1.6",
+    "@0xsequence/hooks": "^5.3.4",
+    "@0xsequence/indexer": "^2.3.9",
+    "@0xsequence/wagmi-connector": "^4.0.1",
+    "@0xsequence/wallet-core": "github:0xsequence/sequence.js#dists/wallet/core",
+    "@0xsequence/wallet-primitives": "github:0xsequence/sequence.js#dists/wallet/primitives"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.8",

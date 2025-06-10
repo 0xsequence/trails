@@ -10,6 +10,7 @@ export default defineConfig({
     // TODO: This shouldn't be needed, fix sdk build
     include: [
       "@0xsequence/api",
+      "@0xsequence/hooks",
       "@0xsequence/wallet-core",
       "@0xsequence/wallet-primitives",
       "@0xsequence/wallet-wdk",
@@ -19,5 +20,6 @@ export default defineConfig({
     alias: {
       "@": "/src",
     },
+    dedupe: ["@0xsequence/hooks", "wagmi", "react", "react-dom"], // this helps avoid duplicate React context instances
   },
 })

@@ -108,5 +108,3 @@ export const Widget = () => {
 
   return <AppKitProvider>{content}</AppKitProvider>
 }
-
-export default Widget
