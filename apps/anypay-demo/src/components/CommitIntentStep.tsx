@@ -1,6 +1,6 @@
-import React from "react";
+import type React from "react";
 import { Button, Text } from "@0xsequence/design-system";
-import {
+import type {
   IntentCallsPayload,
   IntentPrecondition,
   AnypayLifiInfo,

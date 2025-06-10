@@ -2,14 +2,12 @@ import {
   Address,
   Bytes,
   Provider,
-  Hex,
+  type Hex,
   RpcTransport,
   Secp256k1,
   AbiFunction,
-  AbiParameters,
-  Hash,
 } from "ox";
-import { Context, Payload } from "@0xsequence/wallet-primitives";
+import { type Context, Payload } from "@0xsequence/wallet-primitives";
 import { Relayer } from "@0xsequence/wallet-core";
 import { describe, it, expect, vi } from "vitest";
 import { isAddressEqual } from "viem";
@@ -17,13 +15,13 @@ import { Preconditions } from "@0xsequence/wallet-core";
 import {
   calculateIntentConfigurationAddress,
   hashIntentParams,
-  IntentCallsPayload,
-  AnypayLifiInfo,
+  type IntentCallsPayload,
+  type AnypayLifiInfo,
   getAnypayLifiInfoHash,
 } from "../src/intents.js";
 import "dotenv/config";
 
-const LOCAL_RPC_URL = process.env.LOCAL_RPC_URL || "http://localhost:8545";
+const _LOCAL_RPC_URL = process.env.LOCAL_RPC_URL || "http://localhost:8545";
 const { RPC_URL, PRIVATE_KEY } = process.env;
 const CAN_RUN_LIVE = !!RPC_URL && !!PRIVATE_KEY;
 
@@ -72,7 +70,7 @@ describe("AnyPay Preconditions", () => {
   };
 
   const testWalletAddress = randomAddress();
-  const testIdentityAddress = randomAddress();
+  const _testIdentityAddress = randomAddress();
 
   const requireContractDeployed = async (
     provider: Provider.Provider,

@@ -1,10 +1,10 @@
-import React from "react";
+import type React from "react";
 import { Button, Text, NetworkImage } from "@0xsequence/design-system";
 import { Layers, Info, Loader2 } from "lucide-react";
 import { getChainInfo, getExplorerUrl } from "@/utils/formatting";
-import { IntentAction } from "@/types";
-import { IntentCallsPayload } from "@0xsequence/api";
-import { MetaTxn } from "@0xsequence/anypay-sdk";
+import type { IntentAction } from "@/types";
+import type { IntentCallsPayload } from "@0xsequence/api";
+import type { MetaTxn } from "@0xsequence/anypay-sdk";
 import * as chains from "viem/chains";
 
 const BASE_USDC_DESTINATION_CHAIN_ID = chains.base.id;
@@ -126,8 +126,8 @@ export const AdvancedControlsSection: React.FC<
             <div className="flex flex-col space-y-1">
               {(() => {
                 const currentAction = intentActionType;
-                let finalDestAddress: string | undefined = undefined;
-                let finalDestChainId: number | undefined = undefined;
+                let finalDestAddress: string | undefined ;
+                let finalDestChainId: number | undefined ;
                 let labelPrefix = "Final Destination Address";
 
                 if (currentAction === "pay") {

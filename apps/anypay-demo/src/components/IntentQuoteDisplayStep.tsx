@@ -1,7 +1,7 @@
-import React from "react";
+import type React from "react";
 import { Text, NetworkImage } from "@0xsequence/design-system";
-import { Account, TokenBalance, MetaTxn } from "@0xsequence/anypay-sdk";
-import {
+import type { Account, TokenBalance, MetaTxn } from "@0xsequence/anypay-sdk";
+import type {
   IntentPrecondition,
   AnypayLifiInfo,
   IntentCallsPayload,
@@ -20,8 +20,8 @@ import {
 } from "lucide-react";
 import { SectionHeader } from "@/components/SectionHeader";
 import { getChainInfo } from "@/utils/formatting";
-import { IntentAction } from "@/types";
-import { Hex, formatUnits, isAddressEqual, zeroAddress } from "viem";
+import type { IntentAction } from "@/types";
+import { type Hex, formatUnits, isAddressEqual, zeroAddress } from "viem";
 import { Address as OxAddress } from "ox";
 import * as chains from "viem/chains";
 
@@ -232,8 +232,8 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
       let amountToSendFormatted = "[Amount Error]";
 
       const isNativeEquivalent = selectedToken.contractAddress === zeroAddress;
-      let amountBigInt: bigint | undefined = undefined;
-      let decimals: number | undefined = undefined;
+      let amountBigInt: bigint | undefined ;
+      let decimals: number | undefined ;
 
       if (isNativeEquivalent) {
         const nativePrecondition = intentPreconditions.find(

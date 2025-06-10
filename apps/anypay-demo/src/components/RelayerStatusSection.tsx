@@ -1,7 +1,7 @@
 import { Text, NetworkImage } from "@0xsequence/design-system";
 import { Box, Layers } from "lucide-react";
 import { SectionHeader } from "@/components/SectionHeader";
-import {
+import type {
   MetaTxn,
   MetaTxnStatus,
   OriginCallParams,
@@ -264,8 +264,7 @@ export const RelayerStatusSection = ({
                           </Text>
                         </div>
                       )}
-                    {metaTxnBlockTimestamps &&
-                      metaTxnBlockTimestamps[operationKey]?.timestamp && (
+                    {metaTxnBlockTimestamps?.[operationKey]?.timestamp && (
                         <div>
                           <Text variant="small" color="secondary">
                             <strong className="text-blue-300">

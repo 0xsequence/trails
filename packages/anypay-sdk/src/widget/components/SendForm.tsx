@@ -1,17 +1,17 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import type React from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { NetworkImage, TokenImage } from "@0xsequence/design-system";
 import * as chains from "viem/chains";
 import {
-  formatUnits,
   parseUnits,
   type Account,
   isAddress,
   getAddress,
-  WalletClient,
+  type WalletClient,
 } from "viem";
 import { ChevronDown, Loader2, ChevronLeft } from "lucide-react";
-import { prepareSend, TransactionState } from "../../anypay.js";
-import { getAPIClient, useAPIClient } from "../../apiClient.js";
+import { prepareSend, type TransactionState } from "../../anypay.js";
+import { useAPIClient } from "../../apiClient.js";
 import { getRelayer } from "../../relayer.js";
 import { zeroAddress } from "viem";
 import { useEnsAddress } from "wagmi";

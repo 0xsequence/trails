@@ -1,6 +1,6 @@
 import { formatUnits } from "viem";
 import * as chains from "viem/chains";
-import { TokenBalance, NativeTokenBalance } from "@0xsequence/anypay-sdk";
+import type { TokenBalance, NativeTokenBalance } from "@0xsequence/anypay-sdk";
 
 // Helper to get chain info
 export const getChainInfo = (chainId: number) => {
@@ -98,7 +98,7 @@ export const getExplorerUrl = (
   address: string,
 ): string | null => {
   const chainInfo = getChainInfo(chainId);
-  if (chainInfo && chainInfo.blockExplorers?.default?.url) {
+  if (chainInfo?.blockExplorers?.default?.url) {
     return `${chainInfo.blockExplorers.default.url}/address/${address}`;
   }
   return null;
@@ -109,7 +109,7 @@ export const getExplorerUrlForTransaction = (
   transactionHash: string,
 ): string | null => {
   const chainInfo = getChainInfo(chainId);
-  if (chainInfo && chainInfo.blockExplorers?.default?.url) {
+  if (chainInfo?.blockExplorers?.default?.url) {
     return `${chainInfo.blockExplorers.default.url}/tx/${transactionHash}`;
   }
   return null;

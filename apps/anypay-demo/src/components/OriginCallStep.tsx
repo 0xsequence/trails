@@ -1,9 +1,9 @@
-import React from "react";
+import type React from "react";
 import { Button, Text, NetworkImage } from "@0xsequence/design-system";
 import { Zap } from "lucide-react";
 import { SectionHeader } from "@/components/SectionHeader";
 import { getChainInfo } from "@/utils/formatting";
-import { IntentCallsPayload, IntentPrecondition } from "@0xsequence/api";
+import type { IntentCallsPayload, IntentPrecondition } from "@0xsequence/api";
 
 interface OriginCallParamsData {
   to: string | null;

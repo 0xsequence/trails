@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import type React from "react";
+import { useState, useMemo } from "react";
 import { useAccount } from "wagmi";
 import { useSourceTokenList, useTokenBalances } from "../../tokenBalances.js";
 import { Address } from "ox";
@@ -6,7 +7,7 @@ import { formatUnits, isAddressEqual, zeroAddress } from "viem";
 import { NetworkImage, TokenImage } from "@0xsequence/design-system";
 import * as chains from "viem/chains";
 import { Search, ChevronLeft } from "lucide-react";
-import { SequenceIndexerGateway } from "@0xsequence/indexer";
+import type { SequenceIndexerGateway } from "@0xsequence/indexer";
 
 interface Token {
   id: number;

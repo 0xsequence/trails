@@ -1,21 +1,21 @@
 import {
   ContractVerificationStatus,
-  NativeTokenBalance,
-  TokenBalance,
-  GetTokenBalancesSummaryReturn,
-  SequenceIndexerGateway,
+  type NativeTokenBalance,
+  type TokenBalance,
+  type GetTokenBalancesSummaryReturn,
+  type SequenceIndexerGateway,
 } from "@0xsequence/indexer";
 import { useQuery } from "@tanstack/react-query";
-import { Address } from "ox";
+import type { Address } from "ox";
 import { useEffect, useState, useMemo } from "react";
 import { useIndexerGatewayClient } from "./indexerClient.js";
 import { useTokenPrices } from "./prices.js";
-import { SequenceAPIClient, Price, Page } from "@0xsequence/api";
+import type { SequenceAPIClient, Price, Page } from "@0xsequence/api";
 import { useAPIClient } from "./apiClient.js";
-import { Chain, formatUnits, zeroAddress } from "viem";
+import { type Chain, formatUnits, zeroAddress } from "viem";
 import * as chains from "viem/chains";
 
-export { type NativeTokenBalance, type TokenBalance };
+export type { NativeTokenBalance, TokenBalance };
 
 // Default empty page info for query fallback
 const defaultPage = { page: 1, pageSize: 10, more: false };
@@ -319,6 +319,6 @@ export function useTokenBalanceUsdFormat(
   useEffect(() => {
     const formattedBalance = getTokenBalanceUsdFormatted(token, tokenPrice);
     setFormat(formattedBalance);
-  }, [token]);
+  }, [token, tokenPrice]);
   return format;
 }

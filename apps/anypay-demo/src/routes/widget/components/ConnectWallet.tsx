@@ -119,7 +119,7 @@ export function ConnectButton({ onConnect }: ConnectButtonProps) {
       console.log("disconnect");
       localStorage.removeItem("anypay-connected");
     }
-  }, [onConnect, events.data, walletInfo]);
+  }, [onConnect, events.data, walletInfo, account, connectors]);
 
   return (
     <div className="flex justify-center">

@@ -1,15 +1,15 @@
-import { SequenceAPIClient } from "@0xsequence/api";
-import {
+import type { SequenceAPIClient } from "@0xsequence/api";
+import type {
   IntentPrecondition,
   GetIntentCallsPayloadsArgs,
   GetIntentCallsPayloadsReturn,
   CommitIntentConfigReturn,
 } from "@0xsequence/api";
-import { Context as ContextLike } from "@0xsequence/wallet-primitives";
-import { AbiParameters, Address, Bytes, ContractAddress, Hash, Hex } from "ox";
-import { Context, Config, Payload } from "@0xsequence/wallet-primitives";
+import type { Context as ContextLike } from "@0xsequence/wallet-primitives";
+import { AbiParameters, Address, Bytes, ContractAddress, Hash, type Hex } from "ox";
+import { type Context, Config, Payload } from "@0xsequence/wallet-primitives";
 import { ANYPAY_LIFI_SAPIENT_SIGNER_LITE_ADDRESS } from "./constants.js";
-import { isAddressEqual, WalletClient, Chain, Account } from "viem";
+import { isAddressEqual, type WalletClient, type Chain, type Account } from "viem";
 import { findPreconditionAddress } from "./preconditions.js";
 
 export interface AnypayLifiInfo {
@@ -23,7 +23,7 @@ export interface IntentCallsPayload extends Payload.Calls {
   chainId: bigint;
 }
 
-export { type GetIntentCallsPayloadsReturn };
+export type { GetIntentCallsPayloadsReturn };
 
 export type OriginCallParams = {
   to: `0x${string}` | null;

@@ -1,10 +1,10 @@
-import React from "react";
+import type React from "react";
 import { Button, Text, NetworkImage } from "@0xsequence/design-system";
 import { AlertTriangle, Zap, PenSquare } from "lucide-react";
 import * as chains from "viem/chains";
 import { SectionHeader } from "@/components/SectionHeader";
-import { TokenBalance } from "@0xsequence/anypay-sdk";
-import { IntentAction } from "@/types";
+import type { TokenBalance } from "@0xsequence/anypay-sdk";
+import type { IntentAction } from "@/types";
 
 interface ChooseActionStepProps {
   isAutoExecuteEnabled: boolean;

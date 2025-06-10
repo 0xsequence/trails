@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { NetworkImage } from "@0xsequence/design-system";
 
 interface TransactionState {
   transactionHash: string;
@@ -20,7 +19,7 @@ const getStepLabel = (index: number, total: number) => {
   return index === 0 ? "Transfer" : index === 1 ? "Swap & Bridge" : "Execute";
 };
 
-const truncateHash = (hash: string) => {
+const _truncateHash = (hash: string) => {
   return `${hash.slice(0, 6)}...${hash.slice(-4)}`;
 };
 
