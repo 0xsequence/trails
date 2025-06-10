@@ -126,8 +126,8 @@ export const AdvancedControlsSection: React.FC<
             <div className="flex flex-col space-y-1">
               {(() => {
                 const currentAction = intentActionType;
-                let finalDestAddress: string | undefined ;
-                let finalDestChainId: number | undefined ;
+                let finalDestAddress: string | undefined;
+                let finalDestChainId: number | undefined;
                 let labelPrefix = "Final Destination Address";
 
                 if (currentAction === "pay") {

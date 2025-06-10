@@ -232,8 +232,8 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
       let amountToSendFormatted = "[Amount Error]";
 
       const isNativeEquivalent = selectedToken.contractAddress === zeroAddress;
-      let amountBigInt: bigint | undefined ;
-      let decimals: number | undefined ;
+      let amountBigInt: bigint | undefined;
+      let decimals: number | undefined;
 
       if (isNativeEquivalent) {
         const nativePrecondition = intentPreconditions.find(

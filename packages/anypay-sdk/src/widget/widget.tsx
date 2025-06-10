@@ -16,7 +16,7 @@ import {
   type TransactionReceipt,
   type WalletClient,
 } from "viem";
-import { mainnet, } from "viem/chains";
+import { mainnet } from "viem/chains";
 import * as chains from "viem/chains";
 import "@0xsequence/design-system/preset";
 import "./index.css";
