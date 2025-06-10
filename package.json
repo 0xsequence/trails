@@ -7,9 +7,9 @@
     "build:packages": "turbo build --filter=\"./packages/**/*\"",
     "dev": "turbo dev",
     "test": "turbo test --concurrency=1",
-    "check": "biome check .",
-    "format": "biome format --write .",
-    "lint": "biome lint --write .",
+    "check": "biome check",
+    "format": "biome format --write",
+    "lint": "biome lint --write",
     "typecheck": "turbo typecheck",
     "postinstall": "lefthook install",
     "clean": "turbo clean"

@@ -1,17 +1,17 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { RouterProvider } from "react-router";
 import { SequenceHooksProvider } from "@0xsequence/hooks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Provider as JotaiProvider } from "jotai";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { RouterProvider } from "react-router";
 import { router } from "./routes";
 
 import { globalStore } from "./store";
 
 import "./index.css";
 import { ThemeProvider } from "@0xsequence/design-system";
-import { config } from "./wagmi.config";
 import { WagmiProvider } from "wagmi";
+import { config } from "./wagmi.config";
 
 const queryClient = new QueryClient();
 const apiUrl = import.meta.env.VITE_API_URL || "https://v3-api.sequence.app";

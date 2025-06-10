@@ -1,29 +1,28 @@
-import { useState, useEffect, useContext } from "react";
-import { useAccount, type http, createConfig, WagmiProvider } from "wagmi";
 import { SequenceHooksProvider } from "@0xsequence/hooks";
-import { StrictMode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "motion/react";
-import Modal from "./components/Modal.js";
-import ConnectWallet from "./components/ConnectWallet.js";
-import TokenList from "./components/TokenList.js";
-import SendForm from "./components/SendForm.js";
-import TransferPending from "./components/TransferPending.js";
-import Receipt from "./components/Receipt.js";
+import { AnimatePresence, motion } from "motion/react";
+import { StrictMode, useContext, useEffect, useState } from "react";
 import {
   createWalletClient,
   custom,
   type TransactionReceipt,
   type WalletClient,
 } from "viem";
-import { mainnet } from "viem/chains";
 import * as chains from "viem/chains";
+import { mainnet } from "viem/chains";
+import { createConfig, type http, useAccount, WagmiProvider } from "wagmi";
+import ConnectWallet from "./components/ConnectWallet.js";
+import Modal from "./components/Modal.js";
+import Receipt from "./components/Receipt.js";
+import SendForm from "./components/SendForm.js";
+import TokenList from "./components/TokenList.js";
+import TransferPending from "./components/TransferPending.js";
 import "@0xsequence/design-system/preset";
 import "./index.css";
 import React from "react";
-import { useIndexerGatewayClient } from "../indexerClient.js";
 import { WagmiContext } from "wagmi";
 import type { TransactionState } from "../anypay.js";
+import { useIndexerGatewayClient } from "../indexerClient.js";
 
 type Screen = "connect" | "tokens" | "send" | "pending" | "receipt";
 type Theme = "light" | "dark" | "auto";

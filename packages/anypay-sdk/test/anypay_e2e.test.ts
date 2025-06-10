@@ -1,18 +1,18 @@
+import { createPublicClient, createWalletClient, http } from "viem";
+import { privateKeyToAccount } from "viem/accounts";
+import { arbitrum, base, optimism } from "viem/chains";
 import { describe, it, vi } from "vitest";
 import {
-  getAPIClient,
-  getRelayer,
-  getIntentCallsPayloads,
   calculateIntentAddress,
   commitIntentConfig,
-  sendOriginTransaction,
+  getAPIClient,
   getERC20TransferData,
-  relayerSendMetaTx,
+  getIntentCallsPayloads,
   getMetaTxnReceipt,
+  getRelayer,
+  relayerSendMetaTx,
+  sendOriginTransaction,
 } from "../src/index.js";
-import { privateKeyToAccount } from "viem/accounts";
-import { createWalletClient, createPublicClient, http } from "viem";
-import { arbitrum, base, optimism } from "viem/chains";
 import "dotenv/config";
 
 // Mock the hooks

@@ -1,7 +1,7 @@
-import { useState, type ReactNode } from "react";
+import { Check, Copy } from "lucide-react";
+import { type ReactNode, useState } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
-import { Copy, Check } from "lucide-react";
 
 interface CodeSnippetProps {
   toRecipient: string;

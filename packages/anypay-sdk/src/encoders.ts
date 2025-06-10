@@ -1,4 +1,4 @@
-import { type Address, AbiFunction } from "ox";
+import { AbiFunction, type Address } from "ox";
 import type { Hex } from "viem";
 
 export function getERC20TransferData(recipient: string, amount: bigint): Hex {

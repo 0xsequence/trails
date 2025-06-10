@@ -1,12 +1,12 @@
-import type React from "react";
-import { Button, Text } from "@0xsequence/design-system";
 import type {
-  IntentCallsPayload,
-  IntentPrecondition,
   AnypayLifiInfo,
   GetIntentConfigReturn,
+  IntentCallsPayload,
+  IntentPrecondition,
 } from "@0xsequence/api";
-import { Loader2, AlertCircle, Zap } from "lucide-react";
+import { Button, Text } from "@0xsequence/design-system";
+import { AlertCircle, Loader2, Zap } from "lucide-react";
+import type React from "react";
 import { SectionHeader } from "@/components/SectionHeader";
 
 interface CommitIntentStepProps {

@@ -1,15 +1,15 @@
-import { Text, NetworkImage } from "@0xsequence/design-system";
-import { Box, Layers } from "lucide-react";
-import { SectionHeader } from "@/components/SectionHeader";
 import type {
   MetaTxn,
   MetaTxnStatus,
   OriginCallParams,
 } from "@0xsequence/anypay-sdk";
+import { NetworkImage, Text } from "@0xsequence/design-system";
+import { Box, Layers } from "lucide-react";
+import { SectionHeader } from "@/components/SectionHeader";
 import {
+  formatTimeSinceOrigin,
   getChainInfo,
   getExplorerUrlForTransaction,
-  formatTimeSinceOrigin,
 } from "@/utils/formatting";
 
 interface OriginCallStatusData {

@@ -1,23 +1,23 @@
-import type React from "react";
-import { useState, useRef, useEffect, useMemo } from "react";
 import { NetworkImage, TokenImage } from "@0xsequence/design-system";
-import * as chains from "viem/chains";
+import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react";
+// biome-ignore lint/style/useImportType: Need to use React
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  parseUnits,
   type Account,
-  isAddress,
   getAddress,
+  isAddress,
+  parseUnits,
   type WalletClient,
+  zeroAddress,
 } from "viem";
-import { ChevronDown, Loader2, ChevronLeft } from "lucide-react";
+import * as chains from "viem/chains";
+import { mainnet } from "viem/chains";
+import { useEnsAddress } from "wagmi";
 import { prepareSend, type TransactionState } from "../../anypay.js";
 import { useAPIClient } from "../../apiClient.js";
-import { getRelayer } from "../../relayer.js";
-import { zeroAddress } from "viem";
-import { useEnsAddress } from "wagmi";
-import { mainnet } from "viem/chains";
-import { formatBalance } from "../../tokenBalances.js";
 import { useTokenPrices } from "../../prices.js";
+import { getRelayer } from "../../relayer.js";
+import { formatBalance } from "../../tokenBalances.js";
 
 interface Token {
   id: number;

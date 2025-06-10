@@ -1,8 +1,8 @@
-import { useState, useCallback } from "react";
 import { AnyPayWidget } from "@0xsequence/anypay-sdk/widget";
-import { CustomizationForm } from "./components/CustomizationForm";
+import { useCallback, useState } from "react";
 import { CodeSnippet } from "./components/CodeSnippet";
 import { AppKitProvider, ConnectButton } from "./components/ConnectWallet";
+import { CustomizationForm } from "./components/CustomizationForm";
 
 export const Widget = () => {
   const sequenceApiKey = import.meta.env.VITE_PROJECT_ACCESS_KEY;
