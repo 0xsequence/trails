@@ -3,9 +3,8 @@
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
-    "build:all": "turbo build",
+    "build": "turbo build",
     "build:packages": "turbo build --filter=\"./packages/**/*\"",
-    "build": "pnpm build:packages",
     "dev": "turbo dev",
     "test": "turbo test --concurrency=1",
     "format": "biome format --write .",
