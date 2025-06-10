@@ -6,7 +6,7 @@ import {
 } from "@0xsequence/anypay-sdk"
 import { Loader2 } from "lucide-react"
 import { AbiFunction, type Address } from "ox"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import type { Hex } from "viem"
 import * as chains from "viem/chains"
 import { useAccount, useConnect, useDisconnect } from "wagmi"
@@ -228,12 +228,13 @@ function useHook() {
     createIntent(args)
   }
 
+  // Remove disconnectCleanup and simplify account disconnection handling
   useEffect(() => {
     if (!account.isConnected) {
       setSelectedToken(null)
       clearIntent()
     }
-  }, [account.isConnected, clearIntent])
+  }, [account.isConnected]) // clearIntent is stable now, no need to include it
 
   useEffect(() => {
     updateAutoExecute(isAutoExecuteEnabled)
@@ -312,13 +313,6 @@ function useHook() {
     !!originCallParams.error ||
     isSwitchingChain ||
     (isAutoExecuteEnabled && commitIntentConfigSuccess) // Disable if auto-execute is on and commit was successful
-
-  // Effect to cleanup when account disconnects
-  useEffect(() => {
-    if (!account.isConnected) {
-      clearIntent()
-    }
-  }, [account.isConnected, clearIntent])
 
   // Replace the sendMetaTxn function with a wrapper that uses the mutation
   const handleSendMetaTxn = (selectedId: string | null) => {

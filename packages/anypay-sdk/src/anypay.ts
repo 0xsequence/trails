@@ -10,7 +10,7 @@ import type {
 import type { Relayer } from "@0xsequence/wallet-core"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Address } from "ox"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   type Account as AccountType,
   createPublicClient,
@@ -430,17 +430,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     createIntentMutation.mutate(args)
   }
 
-  useEffect(() => {
-    if (!account.isConnected) {
-      setIntentCallsPayloads(null)
-      setIntentPreconditions(null)
-      setMetaTxns(null)
-      setCommittedIntentAddress(null)
-      setVerificationStatus(null)
-    }
-  }, [account.isConnected])
-
-  function clearIntent() {
+  const clearIntent = useCallback(() => {
+    console.log("[AnyPay] Clearing intent state")
     setIntentCallsPayloads(null)
     setIntentPreconditions(null)
     setMetaTxns(null)
@@ -448,7 +439,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     setVerificationStatus(null)
     setOperationHashes({})
     setHasAutoExecuted(false)
-  }
+    setMetaTxnBlockTimestamps({})
+  }, []) // Empty deps array since these setters are stable
 
   const updateOriginCallStatus = useCallback(
     (
@@ -1173,113 +1165,118 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       .join(",")
   }, [metaTxns, metaTxnMonitorStatuses])
 
+  const processedTxns = useRef(new Set<string>())
+
   // Effect to fetch meta-transaction block timestamps
   useEffect(() => {
-    if (metaTxns && Object.keys(metaTxnMonitorStatuses).length > 0) {
-      metaTxns.forEach(async (metaTxn) => {
-        const operationKey = `${metaTxn.chainId}-${metaTxn.id}`
-        const monitorStatus = metaTxnMonitorStatuses[operationKey]
+    console.log("[AnyPay] Running meta-transaction block timestamp effect:", {
+      metaTxnsLength: metaTxns?.length,
+      monitorStatusesLength: Object.keys(metaTxnMonitorStatuses).length,
+    })
 
-        if (
-          metaTxnBlockTimestamps[operationKey]?.timestamp ||
-          metaTxnBlockTimestamps[operationKey]?.error
-        ) {
-          return // Already fetched or error recorded
-        }
+    if (!metaTxns || metaTxns.length === 0) {
+      console.log("[AnyPay] No meta transactions, clearing timestamps")
+      processedTxns.current.clear()
+      if (Object.keys(metaTxnBlockTimestamps).length > 0) {
+        setMetaTxnBlockTimestamps({})
+      }
+      return
+    }
 
-        let validBlockNumberForApi: bigint | undefined
-        let transactionHashForReceipt: Hex | undefined
+    if (!Object.keys(metaTxnMonitorStatuses).length) {
+      console.log("[AnyPay] No monitor statuses yet, waiting...")
+      return
+    }
 
-        if (monitorStatus?.status === "confirmed") {
-          transactionHashForReceipt = monitorStatus.transactionHash as Hex
-        } else if (monitorStatus) {
-          // Potential place for a log if status is neither confirmed nor undefined, but usually not needed
-        }
+    metaTxns.forEach(async (metaTxn) => {
+      const operationKey = `${metaTxn.chainId}-${metaTxn.id}`
 
-        if (transactionHashForReceipt) {
-          try {
-            const chainId = parseInt(metaTxn.chainId)
-            if (Number.isNaN(chainId) || chainId <= 0) {
-              console.error(
-                `[AnyPay] MetaTxn ${operationKey}: Invalid chainId:`,
-                metaTxn.chainId,
-              )
-              throw new Error(
-                `Invalid chainId for meta transaction: ${metaTxn.chainId}`,
-              )
-            }
+      // Skip if already processed
+      if (processedTxns.current.has(operationKey)) {
+        console.log(
+          `[AnyPay] MetaTxn ${operationKey}: Already processed, skipping`,
+        )
+        return
+      }
 
-            const chainConfig = getChainInfo(chainId)!
-            const client = createPublicClient({
-              chain: chainConfig,
-              transport: http(),
-            })
+      const monitorStatus = metaTxnMonitorStatuses[operationKey]
+      if (!monitorStatus || monitorStatus.status !== "confirmed") {
+        console.log(
+          `[AnyPay] MetaTxn ${operationKey}: Status not confirmed, skipping`,
+        )
+        return
+      }
 
-            const receipt = await client.getTransactionReceipt({
-              hash: transactionHashForReceipt,
-            })
+      // Type assertion since we know it exists when status is "confirmed"
+      const transactionHash = monitorStatus.transactionHash as Hex | undefined
+      if (!transactionHash) {
+        console.log(
+          `[AnyPay] MetaTxn ${operationKey}: No transaction hash, skipping`,
+        )
+        return
+      }
 
-            if (receipt && typeof receipt.blockNumber === "bigint") {
-              validBlockNumberForApi = receipt.blockNumber
-            } else {
-              console.warn(
-                `[AnyPay] MetaTxn ${operationKey}: Block number not found or invalid in fetched receipt:`,
-                receipt,
-              )
-              setMetaTxnBlockTimestamps((prev) => ({
-                ...prev,
-                [operationKey]: {
-                  timestamp: null,
-                  error: "Block number not found in receipt",
-                },
-              }))
-              return
-            }
+      console.log(
+        `[AnyPay] MetaTxn ${operationKey}: Processing transaction ${transactionHash}`,
+      )
+      processedTxns.current.add(operationKey)
 
-            if (validBlockNumberForApi !== undefined) {
-              const block = await client.getBlock({
-                blockNumber: validBlockNumberForApi,
-              })
-              setMetaTxnBlockTimestamps((prev) => ({
-                ...prev,
-                [operationKey]: {
-                  timestamp: Number(block.timestamp),
-                  error: undefined,
-                },
-              }))
-            }
-          } catch (error: any) {
-            console.error(
-              `[AnyPay] MetaTxn ${operationKey}: Error fetching transaction receipt or block timestamp:`,
-              error,
-            )
-            setMetaTxnBlockTimestamps((prev) => ({
-              ...prev,
-              [operationKey]: {
-                timestamp: null,
-                error: error.message || "Failed to fetch receipt/timestamp",
-              },
-            }))
-          }
-        } else if (monitorStatus?.status === "confirmed") {
-          console.log(
-            `[AnyPay] MetaTxn ${operationKey}: Status is confirmed, but transactionHashForReceipt is undefined. Not fetching timestamp.`,
+      try {
+        const chainId = parseInt(metaTxn.chainId)
+        if (Number.isNaN(chainId) || chainId <= 0) {
+          throw new Error(
+            `Invalid chainId for meta transaction: ${metaTxn.chainId}`,
           )
         }
-      })
-    }
-    if (!metaTxns || metaTxns.length === 0) {
-      // Check if it's already empty to prevent unnecessary setState
-      setMetaTxnBlockTimestamps((prevTimestamps) => {
-        if (Object.keys(prevTimestamps).length === 0) {
-          // console.log('[AnyPay] MetaTxnBlockTimestamps already empty, not setting state.');
-          return prevTimestamps
+
+        const chainConfig = getChainInfo(chainId)!
+        const client = createPublicClient({
+          chain: chainConfig,
+          transport: http(),
+        })
+
+        const receipt = await client.getTransactionReceipt({
+          hash: transactionHash,
+        })
+
+        if (receipt && typeof receipt.blockNumber === "bigint") {
+          const block = await client.getBlock({
+            blockNumber: receipt.blockNumber,
+          })
+          console.log(
+            `[AnyPay] MetaTxn ${operationKey}: Got block timestamp ${block.timestamp}`,
+          )
+          setMetaTxnBlockTimestamps((prev) => ({
+            ...prev,
+            [operationKey]: {
+              timestamp: Number(block.timestamp),
+              error: undefined,
+            },
+          }))
+        } else {
+          console.warn(
+            `[AnyPay] MetaTxn ${operationKey}: No block number in receipt`,
+          )
+          setMetaTxnBlockTimestamps((prev) => ({
+            ...prev,
+            [operationKey]: {
+              timestamp: null,
+              error: "Block number not found in receipt",
+            },
+          }))
         }
-        // console.log('[AnyPay] Clearing MetaTxnBlockTimestamps.');
-        return {}
-      })
-    }
-  }, [metaTxnMonitorStatuses, metaTxns, metaTxnBlockTimestamps]) // Use stableMetaTxnStatusesKey and getRelayer
+      } catch (error: any) {
+        console.error(`[AnyPay] MetaTxn ${operationKey}: Error:`, error)
+        setMetaTxnBlockTimestamps((prev) => ({
+          ...prev,
+          [operationKey]: {
+            timestamp: null,
+            error: error.message || "Failed to fetch receipt/timestamp",
+          },
+        }))
+      }
+    })
+  }, [metaTxns, metaTxnMonitorStatuses])
 
   const updateAutoExecute = (enabled: boolean) => {
     setIsAutoExecute(enabled)
