@@ -9,9 +9,9 @@ interface CodeSnippetProps {
   toChainId: number | undefined
   toToken: "ETH" | "USDC" | undefined
   toCalldata: string
-  useCustomButton: boolean
+  useCustomButton: boolean | null
   children?: ReactNode
-  renderInline?: boolean
+  renderInline?: boolean | null
   theme: "light" | "dark" | "auto" | null
 }
 

@@ -101,7 +101,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   toCalldata,
   provider,
   children,
-  renderInline,
+  renderInline = true,
   theme: initialTheme = "auto",
   onOriginConfirmation,
   onDestinationConfirmation,

@@ -1,8 +1,8 @@
 import { AnyPayWidget } from "@0xsequence/anypay-sdk/widget"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { CodeSnippet } from "./components/CodeSnippet"
 import { AppKitProvider, ConnectButton } from "./components/ConnectWallet"
-import { CustomizationForm } from "./components/CustomizationForm"
+import { CustomizationForm, STORAGE_KEYS } from "./components/CustomizationForm"
 
 export const Widget = () => {
   const sequenceApiKey = import.meta.env.VITE_PROJECT_ACCESS_KEY
@@ -15,14 +15,23 @@ export const Widget = () => {
   const [toChainId, setToChainId] = useState<number | undefined>()
   const [toToken, setToToken] = useState<"ETH" | "USDC" | undefined>()
   const [toCalldata, setToCalldata] = useState("")
-  const [renderInline, setRenderInline] = useState(false)
-  const [useCustomButton, setUseCustomButton] = useState(false)
+  const [renderInline, setRenderInline] = useState<boolean | null>(null)
+  const [useCustomButton, setUseCustomButton] = useState<boolean | null>(null)
   const [provider, setProvider] = useState<any>(null)
   const [theme, setTheme] = useState<"light" | "dark" | "auto" | null>(null)
 
   const handleConnect = useCallback((provider: any) => {
     console.log("provider", provider)
     setProvider(provider)
+  }, [])
+
+  useEffect(() => {
+    if (!localStorage.getItem(STORAGE_KEYS.RENDER_INLINE)) {
+      setRenderInline(true)
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.THEME)) {
+      setTheme("light")
+    }
   }, [])
 
   const content = (

@@ -35,16 +35,16 @@ interface CustomizationFormProps {
   setToToken: (value: "ETH" | "USDC" | undefined) => void
   toCalldata: string
   setToCalldata: (value: string) => void
-  useCustomButton: boolean
-  setUseCustomButton: (value: boolean) => void
-  renderInline: boolean
-  setRenderInline: (value: boolean) => void
+  useCustomButton: boolean | null
+  setUseCustomButton: (value: boolean | null) => void
+  renderInline: boolean | null
+  setRenderInline: (value: boolean | null) => void
   theme: "light" | "dark" | "auto" | null
   setTheme: (value: "light" | "dark" | "auto" | null) => void
 }
 
 // Local storage keys
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
   RECIPIENT: "anypay_recipient",
   AMOUNT: "anypay_amount",
   CHAIN_ID: "anypay_chain_id",
@@ -100,6 +100,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       | "dark"
       | "auto"
       | null
+
     if (savedRecipient) setToRecipient(savedRecipient)
     if (savedAmount) setToAmount(savedAmount)
     if (savedChainId) setToChainId(Number(savedChainId))
@@ -122,46 +123,44 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   // Save values to localStorage whenever they change
   useEffect(() => {
     if (toRecipient) localStorage.setItem(STORAGE_KEYS.RECIPIENT, toRecipient)
-    else localStorage.removeItem(STORAGE_KEYS.RECIPIENT)
   }, [toRecipient])
 
   useEffect(() => {
     if (toAmount) localStorage.setItem(STORAGE_KEYS.AMOUNT, toAmount)
-    else localStorage.removeItem(STORAGE_KEYS.AMOUNT)
   }, [toAmount])
 
   useEffect(() => {
     if (toChainId)
       localStorage.setItem(STORAGE_KEYS.CHAIN_ID, toChainId.toString())
-    else localStorage.removeItem(STORAGE_KEYS.CHAIN_ID)
   }, [toChainId])
 
   useEffect(() => {
     if (toToken) localStorage.setItem(STORAGE_KEYS.TOKEN, toToken)
-    else localStorage.removeItem(STORAGE_KEYS.TOKEN)
   }, [toToken])
 
   useEffect(() => {
     if (toCalldata) localStorage.setItem(STORAGE_KEYS.CALLDATA, toCalldata)
-    else localStorage.removeItem(STORAGE_KEYS.CALLDATA)
   }, [toCalldata])
 
   // Save custom button state to localStorage
   useEffect(() => {
-    if (useCustomButton)
-      localStorage.setItem(STORAGE_KEYS.CUSTOM_BUTTON, "true")
-    else localStorage.removeItem(STORAGE_KEYS.CUSTOM_BUTTON)
+    if (typeof useCustomButton === "boolean") {
+      localStorage.setItem(
+        STORAGE_KEYS.CUSTOM_BUTTON,
+        useCustomButton.toString(),
+      )
+    }
   }, [useCustomButton])
 
   // Save theme to localStorage
   useEffect(() => {
     if (theme) localStorage.setItem(STORAGE_KEYS.THEME, theme)
-    else localStorage.removeItem(STORAGE_KEYS.THEME)
   }, [theme])
 
   useEffect(() => {
-    if (renderInline) localStorage.setItem(STORAGE_KEYS.RENDER_INLINE, "true")
-    else localStorage.removeItem(STORAGE_KEYS.RENDER_INLINE)
+    if (typeof renderInline === "boolean") {
+      localStorage.setItem(STORAGE_KEYS.RENDER_INLINE, renderInline.toString())
+    }
   }, [renderInline])
 
   useEffect(() => {
@@ -200,8 +199,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setToToken(undefined)
     setToCalldata("")
     setUseCustomButton(false)
-    setRenderInline(false)
-    setTheme("light")
+    setRenderInline(true) // Reset to default true
+    setTheme("light") // Reset to default light
     // Clear localStorage
     Object.values(STORAGE_KEYS).forEach((key) => {
       localStorage.removeItem(key)
