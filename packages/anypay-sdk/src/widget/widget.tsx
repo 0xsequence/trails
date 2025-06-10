@@ -67,6 +67,8 @@ export type AnyPayWidgetProps = {
   children?: React.ReactNode
   renderInline?: boolean
   theme?: Theme
+  onOriginConfirmation?: (txHash: string) => void
+  onDestinationConfirmation?: (txHash: string) => void
 }
 
 const queryClient = new QueryClient()
@@ -101,6 +103,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   children,
   renderInline,
   theme: initialTheme = "auto",
+  onOriginConfirmation,
+  onDestinationConfirmation,
 }) => {
   const { address, isConnected, chainId } = useAccount()
   const [theme, setTheme] = useState<ActiveTheme>(getInitialTheme(initialTheme))
@@ -110,6 +114,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     isConnected ? "tokens" : "connect",
   )
   const [selectedToken, setSelectedToken] = useState<Token | null>(null)
+  const [originTxHash, setOriginTxHash] = useState("")
   const [destinationTxHash, setDestinationTxHash] = useState("")
   const [destinationChainId, setDestinationChainId] = useState<number | null>(
     null,
@@ -240,6 +245,18 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     }
   }
 
+  useEffect(() => {
+    if (onOriginConfirmation && originTxHash) {
+      onOriginConfirmation(originTxHash)
+    }
+  }, [originTxHash])
+
+  useEffect(() => {
+    if (onDestinationConfirmation && destinationTxHash) {
+      onDestinationConfirmation(destinationTxHash)
+    }
+  }, [destinationTxHash])
+
   function handleTransferComplete(data?: {
     originChainId: number
     destinationChainId: number
@@ -248,11 +265,21 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     destinationMetaTxnReceipt: any
   }) {
     if (data) {
-      setDestinationTxHash(
-        data.destinationMetaTxnReceipt?.txnHash ||
-          data.originUserTxReceipt.transactionHash,
-      )
-      setDestinationChainId(data.destinationChainId)
+      if (data.originUserTxReceipt) {
+        setOriginTxHash(data.originUserTxReceipt.transactionHash)
+      }
+
+      if (data.destinationMetaTxnReceipt || data.originUserTxReceipt) {
+        setDestinationTxHash(
+          data.destinationMetaTxnReceipt?.txnHash ||
+            data.originUserTxReceipt.transactionHash,
+        )
+      }
+
+      if (data.destinationChainId) {
+        setDestinationChainId(data.destinationChainId)
+      }
+
       setCurrentScreen("receipt")
     }
   }

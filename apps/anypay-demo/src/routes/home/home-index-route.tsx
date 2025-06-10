@@ -6,7 +6,7 @@ import {
 } from "@0xsequence/anypay-sdk"
 import { Loader2 } from "lucide-react"
 import { AbiFunction, type Address } from "ox"
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import type { Hex } from "viem"
 import * as chains from "viem/chains"
 import { useAccount, useConnect, useDisconnect } from "wagmi"
