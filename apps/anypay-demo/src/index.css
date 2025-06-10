@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import '@0xsequence/design-system/preset';
+@import "tailwindcss";
+@import "@0xsequence/design-system/preset";
 
 :root {
   font-synthesis: none;
@@ -8,7 +8,8 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-html, body {
+html,
+body {
   @apply bg-gray-950;
   margin: 0;
   padding: 0;

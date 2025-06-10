@@ -1,1 +1,1 @@
-declare module '@0xsequence/anypay-sdk/widget'
+declare module "@0xsequence/anypay-sdk/widget";

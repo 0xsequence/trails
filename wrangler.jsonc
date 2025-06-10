@@ -1,7 +1,7 @@
 {
-    "name": "anypay-demo",
-    "compatibility_date": "2025-06-05",
-    "assets": {
-        "directory": "./apps/anypay-demo/dist"
-    }
+  "name": "anypay-demo",
+  "compatibility_date": "2025-06-05",
+  "assets": {
+    "directory": "./apps/anypay-demo/dist"
+  }
 }
