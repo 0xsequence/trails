@@ -1,7 +1,11 @@
-import React from 'react'
-import { Text, NetworkImage } from '@0xsequence/design-system'
-import { Account, TokenBalance, MetaTxn } from '@0xsequence/anypay-sdk'
-import { IntentPrecondition, AnypayLifiInfo, IntentCallsPayload } from '@0xsequence/api'
+import React from "react";
+import { Text, NetworkImage } from "@0xsequence/design-system";
+import { Account, TokenBalance, MetaTxn } from "@0xsequence/anypay-sdk";
+import {
+  IntentPrecondition,
+  AnypayLifiInfo,
+  IntentCallsPayload,
+} from "@0xsequence/api";
 import {
   Loader2,
   AlertCircle,
@@ -13,40 +17,40 @@ import {
   Box,
   PenSquare,
   ShieldCheck,
-} from 'lucide-react'
-import { SectionHeader } from '@/components/SectionHeader'
-import { getChainInfo } from '@/utils/formatting'
-import { IntentAction } from '@/types'
-import { Hex, formatUnits, isAddressEqual, zeroAddress } from 'viem'
-import { Address as OxAddress } from 'ox'
-import * as chains from 'viem/chains'
+} from "lucide-react";
+import { SectionHeader } from "@/components/SectionHeader";
+import { getChainInfo } from "@/utils/formatting";
+import { IntentAction } from "@/types";
+import { Hex, formatUnits, isAddressEqual, zeroAddress } from "viem";
+import { Address as OxAddress } from "ox";
+import * as chains from "viem/chains";
 
 // Mock Data
-const BASE_USDC_DESTINATION_CHAIN_ID = chains.base.id
-const RECIPIENT_ADDRESS = '0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C'
-const AMOUNT = 300000n
-const MOCK_CONTRACT_ADDRESS = '0x0000000000000000000000000000000000000000'
-const MOCK_CHAIN_ID = chains.arbitrum.id
-const MOCK_TOKEN_ADDRESS = '0x0000000000000000000000000000000000000000'
-const MOCK_TOKEN_AMOUNT = '3000000'
+const BASE_USDC_DESTINATION_CHAIN_ID = chains.base.id;
+const RECIPIENT_ADDRESS = "0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C";
+const AMOUNT = 300000n;
+const MOCK_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000";
+const MOCK_CHAIN_ID = chains.arbitrum.id;
+const MOCK_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000";
+const MOCK_TOKEN_AMOUNT = "3000000";
 
 interface IntentQuoteDisplayStepProps {
-  createIntentPending: boolean
-  createIntentError: Error | null
-  intentCallsPayloads: IntentCallsPayload[] | null
-  intentPreconditions: IntentPrecondition[] | null
-  metaTxns: MetaTxn[] | null
-  lifiInfos: AnypayLifiInfo[] | null
-  intentActionType: IntentAction | null
-  selectedToken: TokenBalance | null
-  account: Account | undefined
-  calculatedIntentAddress: string | null
+  createIntentPending: boolean;
+  createIntentError: Error | null;
+  intentCallsPayloads: IntentCallsPayload[] | null;
+  intentPreconditions: IntentPrecondition[] | null;
+  metaTxns: MetaTxn[] | null;
+  lifiInfos: AnypayLifiInfo[] | null;
+  intentActionType: IntentAction | null;
+  selectedToken: TokenBalance | null;
+  account: Account | undefined;
+  calculatedIntentAddress: string | null;
   customCallData: {
-    to: string
-    value: string
-    chainId: string
-    data: string
-  }
+    to: string;
+    value: string;
+    chainId: string;
+    data: string;
+  };
 }
 
 export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
@@ -74,98 +78,125 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (createIntentError) {
     return (
       <div className="px-6 pb-6">
         <div className="bg-red-900/20 border border-red-700/30 rounded-lg p-3">
-          <Text variant="small" color="negative" className="break-words flex items-center text-center">
+          <Text
+            variant="small"
+            color="negative"
+            className="break-words flex items-center text-center"
+          >
             <AlertCircle className="h-4 w-4 mr-1 flex-shrink-0" />
             <span>Error: {createIntentError.message}</span>
           </Text>
         </div>
       </div>
-    )
+    );
   }
 
   if (!intentCallsPayloads) {
     return (
       <div className="px-6 pb-6">
         <div className="bg-gray-800/50 border border-gray-700/30 rounded-lg p-4 flex items-center justify-center">
-          <Text variant="small" color="secondary" className="flex flex-col items-center text-center">
+          <Text
+            variant="small"
+            color="secondary"
+            className="flex flex-col items-center text-center"
+          >
             <ShieldCheck className="h-10 w-10 text-gray-600 mb-2" />
-            Select a token and click an action above to generate the intent quote.
+            Select a token and click an action above to generate the intent
+            quote.
           </Text>
         </div>
       </div>
-    )
+    );
   }
 
   const primarySubtitleNode = (() => {
-    if (!intentCallsPayloads || !intentActionType || !selectedToken) return null
+    if (!intentCallsPayloads || !intentActionType || !selectedToken)
+      return null;
 
-    if (intentActionType === 'pay') {
-      const baseChainInfo = getChainInfo(BASE_USDC_DESTINATION_CHAIN_ID)
-      const baseChainName = baseChainInfo?.name || `Chain ID ${BASE_USDC_DESTINATION_CHAIN_ID}`
+    if (intentActionType === "pay") {
+      const baseChainInfo = getChainInfo(BASE_USDC_DESTINATION_CHAIN_ID);
+      const baseChainName =
+        baseChainInfo?.name || `Chain ID ${BASE_USDC_DESTINATION_CHAIN_ID}`;
       return (
         <>
           <Zap className="h-3.5 w-3.5 mr-1.5 text-purple-400 flex-shrink-0" />
-          Intent: Send <strong className="text-gray-200 mx-1">{formatUnits(AMOUNT, 6)} USDC</strong>
-          to{' '}
-          <strong className="text-gray-200 font-mono mx-1 truncate max-w-[100px]" title={RECIPIENT_ADDRESS}>
+          Intent: Send{" "}
+          <strong className="text-gray-200 mx-1">
+            {formatUnits(AMOUNT, 6)} USDC
+          </strong>
+          to{" "}
+          <strong
+            className="text-gray-200 font-mono mx-1 truncate max-w-[100px]"
+            title={RECIPIENT_ADDRESS}
+          >
             {RECIPIENT_ADDRESS}
           </strong>
           on <strong className="text-gray-200 mx-1">{baseChainName}</strong>
         </>
-      )
-    } else if (intentActionType === 'mock_interaction') {
-      const mockChainInfo = getChainInfo(MOCK_CHAIN_ID)
-      const mockChainName = mockChainInfo?.name || `Chain ID ${MOCK_CHAIN_ID}`
+      );
+    } else if (intentActionType === "mock_interaction") {
+      const mockChainInfo = getChainInfo(MOCK_CHAIN_ID);
+      const mockChainName = mockChainInfo?.name || `Chain ID ${MOCK_CHAIN_ID}`;
       return (
         <>
           <ShieldCheck className="h-3.5 w-3.5 mr-1.5 text-yellow-400 flex-shrink-0" />
-          Intent: Target{' '}
-          <strong className="text-gray-200 font-mono mx-1 truncate max-w-[70px]" title={MOCK_CONTRACT_ADDRESS}>
+          Intent: Target{" "}
+          <strong
+            className="text-gray-200 font-mono mx-1 truncate max-w-[70px]"
+            title={MOCK_CONTRACT_ADDRESS}
+          >
             {MOCK_CONTRACT_ADDRESS}
           </strong>
           on <strong className="text-gray-200 mx-1">{mockChainName}</strong>.
           {(MOCK_TOKEN_ADDRESS || MOCK_TOKEN_AMOUNT) && (
             <span className="ml-1">
-              (Token:{' '}
+              (Token:{" "}
               <strong
                 className="text-gray-200 font-mono mx-1 truncate max-w-[70px]"
-                title={MOCK_TOKEN_ADDRESS || 'N/A'}
+                title={MOCK_TOKEN_ADDRESS || "N/A"}
               >
-                {MOCK_TOKEN_ADDRESS || 'N/A'}
+                {MOCK_TOKEN_ADDRESS || "N/A"}
               </strong>
-              , Amount: <strong className="text-gray-200 mx-1">{MOCK_TOKEN_AMOUNT || 'N/A'} wei</strong>)
+              , Amount:{" "}
+              <strong className="text-gray-200 mx-1">
+                {MOCK_TOKEN_AMOUNT || "N/A"} wei
+              </strong>
+              )
             </span>
           )}
         </>
-      )
-    } else if (intentActionType === 'custom_call') {
-      const destChainId = parseInt(customCallData.chainId)
-      const destChainInfo = getChainInfo(destChainId)
-      const destChainName = destChainInfo?.name || `Chain ID ${destChainId}`
+      );
+    } else if (intentActionType === "custom_call") {
+      const destChainId = parseInt(customCallData.chainId);
+      const destChainInfo = getChainInfo(destChainId);
+      const destChainName = destChainInfo?.name || `Chain ID ${destChainId}`;
       const formattedVal = formatUnits(
-        BigInt(customCallData.value || '0'),
+        BigInt(customCallData.value || "0"),
         destChainInfo?.nativeCurrency.decimals || 18,
-      )
-      const nativeSymbol = destChainInfo?.nativeCurrency.symbol || 'ETH'
+      );
+      const nativeSymbol = destChainInfo?.nativeCurrency.symbol || "ETH";
 
       return (
         <>
           <PenSquare className="h-3.5 w-3.5 mr-1.5 text-green-400 flex-shrink-0" />
-          Intent: Call{' '}
-          <strong className="text-gray-200 font-mono mx-1 truncate max-w-[70px]" title={customCallData.to}>
+          Intent: Call{" "}
+          <strong
+            className="text-gray-200 font-mono mx-1 truncate max-w-[70px]"
+            title={customCallData.to}
+          >
             {customCallData.to}
           </strong>
           on <strong className="text-gray-200 mx-1">{destChainName}</strong>.
-          {BigInt(customCallData.value || '0') > 0 && (
+          {BigInt(customCallData.value || "0") > 0 && (
             <span className="ml-1">
-              (Value:{' '}
+              (Value:{" "}
               <strong className="text-gray-200 mx-1">
                 {formattedVal} {nativeSymbol}
               </strong>
@@ -173,10 +204,10 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             </span>
           )}
         </>
-      )
+      );
     }
-    return null
-  })()
+    return null;
+  })();
 
   const routeSubtitleNode = (() => {
     if (
@@ -187,79 +218,91 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
       !lifiInfos ||
       !intentPreconditions
     )
-      return null
+      return null;
 
     try {
-      const tokenName = selectedToken.contractInfo?.symbol || selectedToken.contractInfo?.name || 'Token'
-      const selectedTokenChainIdStr = selectedToken.chainId.toString()
-      const originChainInfo = getChainInfo(selectedToken.chainId)
-      const originChainName = originChainInfo?.name || `Chain ID ${selectedToken.chainId}`
-      let amountToSendFormatted = '[Amount Error]'
+      const tokenName =
+        selectedToken.contractInfo?.symbol ||
+        selectedToken.contractInfo?.name ||
+        "Token";
+      const selectedTokenChainIdStr = selectedToken.chainId.toString();
+      const originChainInfo = getChainInfo(selectedToken.chainId);
+      const originChainName =
+        originChainInfo?.name || `Chain ID ${selectedToken.chainId}`;
+      let amountToSendFormatted = "[Amount Error]";
 
-      const isNativeEquivalent = selectedToken.contractAddress === zeroAddress
-      let amountBigInt: bigint | undefined = undefined
-      let decimals: number | undefined = undefined
+      const isNativeEquivalent = selectedToken.contractAddress === zeroAddress;
+      let amountBigInt: bigint | undefined = undefined;
+      let decimals: number | undefined = undefined;
 
       if (isNativeEquivalent) {
         const nativePrecondition = intentPreconditions.find(
           (p: IntentPrecondition) =>
-            (p.type === 'transfer-native' || p.type === 'native-balance') && p.chainId === selectedTokenChainIdStr,
-        )
-        const nativeMinAmount = nativePrecondition?.data?.minAmount ?? nativePrecondition?.data?.min
+            (p.type === "transfer-native" || p.type === "native-balance") &&
+            p.chainId === selectedTokenChainIdStr,
+        );
+        const nativeMinAmount =
+          nativePrecondition?.data?.minAmount ?? nativePrecondition?.data?.min;
         if (nativeMinAmount !== undefined) {
-          amountBigInt = BigInt(nativeMinAmount)
-          decimals = selectedToken.contractInfo?.decimals || 18
+          amountBigInt = BigInt(nativeMinAmount);
+          decimals = selectedToken.contractInfo?.decimals || 18;
         }
       } else {
         const erc20Precondition = intentPreconditions.find(
           (p: IntentPrecondition) =>
-            p.type === 'erc20-balance' &&
+            p.type === "erc20-balance" &&
             p.chainId === selectedTokenChainIdStr &&
             p.data?.token &&
-            isAddressEqual(OxAddress.from(p.data.token), OxAddress.from(selectedToken.contractAddress as Hex)),
-        )
-        const erc20MinAmount = erc20Precondition?.data?.min
+            isAddressEqual(
+              OxAddress.from(p.data.token),
+              OxAddress.from(selectedToken.contractAddress as Hex),
+            ),
+        );
+        const erc20MinAmount = erc20Precondition?.data?.min;
         if (erc20MinAmount !== undefined) {
-          amountBigInt = BigInt(erc20MinAmount)
-          decimals = selectedToken.contractInfo?.decimals
+          amountBigInt = BigInt(erc20MinAmount);
+          decimals = selectedToken.contractInfo?.decimals;
         }
       }
 
       if (amountBigInt !== undefined && decimals !== undefined) {
-        amountToSendFormatted = formatUnits(amountBigInt, decimals)
+        amountToSendFormatted = formatUnits(amountBigInt, decimals);
       } else {
-        console.warn('Could not determine amount to send from preconditions for subtitle.')
-        amountToSendFormatted = '[Unknown Amount]'
+        console.warn(
+          "Could not determine amount to send from preconditions for subtitle.",
+        );
+        amountToSendFormatted = "[Unknown Amount]";
       }
 
       return (
         <>
           <Info className="h-3.5 w-3.5 mr-1.5 text-sky-400 flex-shrink-0" />
           <span>
-            Via route: Sending{' '}
+            Via route: Sending{" "}
             <strong className="text-gray-200 mx-1">
               {amountToSendFormatted} {tokenName}
             </strong>
-            on <strong className="text-gray-200 mx-1">{originChainName}</strong> to intent addr:
+            on <strong className="text-gray-200 mx-1">{originChainName}</strong>{" "}
+            to intent addr:
             <strong
               className="text-gray-200 font-mono mx-1 truncate max-w-[70px] sm:max-w-[100px] inline-block align-bottom"
-              title={calculatedIntentAddress || 'N/A'}
+              title={calculatedIntentAddress || "N/A"}
             >
-              {calculatedIntentAddress || 'N/A'}
+              {calculatedIntentAddress || "N/A"}
             </strong>
           </span>
         </>
-      )
+      );
     } catch (routeError) {
-      console.error('Error processing route subtitle data:', routeError)
+      console.error("Error processing route subtitle data:", routeError);
       return (
         <span className="flex items-center text-red-400">
           <AlertTriangle className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
           Error generating route summary.
         </span>
-      )
+      );
     }
-  })()
+  })();
 
   return (
     <SectionHeader
@@ -280,7 +323,11 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
       subtitle={routeSubtitleNode}
     >
       <div className="text-xs text-gray-300 bg-gray-900/90 p-4 mt-2 rounded-lg border-t border-gray-700/70 overflow-x-auto space-y-2 shadow-inner animate-fadeIn">
-        <Text variant="medium" color="primary" className="mb-2 pb-1 border-b border-gray-700/50 flex items-center">
+        <Text
+          variant="medium"
+          color="primary"
+          className="mb-2 pb-1 border-b border-gray-700/50 flex items-center"
+        >
           <Zap className="h-4 w-4 mr-1" />
           Intent all payloads
           <Text variant="small" color="secondary" className="ml-1">
@@ -292,7 +339,11 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
           <div className="space-y-2">
             <div className="bg-gray-800/70 p-3 rounded-md mb-4">
               <div className="flex items-center justify-between mb-2">
-                <Text variant="small" color="primary" className="font-semibold flex items-center">
+                <Text
+                  variant="small"
+                  color="primary"
+                  className="font-semibold flex items-center"
+                >
                   <Clipboard className="h-4 w-4 mr-2" />
                   Raw JSON Data
                 </Text>
@@ -302,26 +353,38 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
               </pre>
             </div>
             {intentCallsPayloads.map((operation, index) => (
-              <div key={`operation-${index}`} className="bg-gray-800/50 p-4 rounded-lg border border-gray-700/50">
+              <div
+                key={`operation-${index}`}
+                className="bg-gray-800/50 p-4 rounded-lg border border-gray-700/50"
+              >
                 <div className="pb-2">
-                  <Text variant="small" color="primary" className="font-semibold">
+                  <Text
+                    variant="small"
+                    color="primary"
+                    className="font-semibold"
+                  >
                     Payload #{index + 1}
                   </Text>
                 </div>
                 {operation.calls &&
                   operation.calls.length > 0 &&
                   operation.calls.map((call, callIndex) => (
-                    <div key={`call-${index}-${callIndex}`} className="space-y-2">
+                    <div
+                      key={`call-${index}-${callIndex}`}
+                      className="space-y-2"
+                    >
                       <div className="bg-gray-800/70 p-2 rounded-md mb-1">
                         <Text variant="small" color="secondary">
-                          <strong className="text-blue-300">To: </strong>{' '}
-                          <span className="text-yellow-300 break-all font-mono">{call.to}</span>
+                          <strong className="text-blue-300">To: </strong>{" "}
+                          <span className="text-yellow-300 break-all font-mono">
+                            {call.to}
+                          </span>
                         </Text>
                       </div>
                       <div className="bg-gray-800/70 p-2 rounded-md mb-1">
                         <Text variant="small" color="secondary">
                           <strong className="text-blue-300">Value: </strong>
-                          <span className="font-mono">{call.value || '0'}</span>
+                          <span className="font-mono">{call.value || "0"}</span>
                         </Text>
                       </div>
                       <div className="bg-gray-800/70 p-2 rounded-md mb-1">
@@ -329,7 +392,9 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                           <div className="break-all">
                             <strong className="text-blue-300">Data: </strong>
                             <div className="max-h-24 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-                              <span className="font-mono text-green-300">{call.data || '0x'}</span>
+                              <span className="font-mono text-green-300">
+                                {call.data || "0x"}
+                              </span>
                             </div>
                           </div>
                         </Text>
@@ -346,8 +411,13 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                           size="sm"
                           className="w-4 h-4 ml-1"
                         />
-                        <Text variant="small" color="secondary" className="ml-1">
-                          {getChainInfo(parseInt(operation.chainId.toString()))?.name || 'Unknown Chain'}
+                        <Text
+                          variant="small"
+                          color="secondary"
+                          className="ml-1"
+                        >
+                          {getChainInfo(parseInt(operation.chainId.toString()))
+                            ?.name || "Unknown Chain"}
                         </Text>
                       </div>
                     </div>
@@ -365,7 +435,11 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
 
         {metaTxns && metaTxns.length > 0 && (
           <div className="mt-4">
-            <Text variant="medium" color="primary" className="mb-2 pb-1 border-b border-gray-700/50 flex items-center">
+            <Text
+              variant="medium"
+              color="primary"
+              className="mb-2 pb-1 border-b border-gray-700/50 flex items-center"
+            >
               <Layers className="h-4 w-4 mr-1" />
               Meta-transactions
               <Text variant="small" color="secondary" className="ml-1">
@@ -375,7 +449,11 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             <div className="space-y-2">
               <div className="bg-gray-800/70 p-3 rounded-md mb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <Text variant="small" color="primary" className="font-semibold flex items-center">
+                  <Text
+                    variant="small"
+                    color="primary"
+                    className="font-semibold flex items-center"
+                  >
                     <Clipboard className="h-4 w-4 mr-2" />
                     Raw JSON Data
                   </Text>
@@ -385,18 +463,25 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                 </pre>
               </div>
               {metaTxns.map((tx, index) => (
-                <div key={`metatx-${index}`} className="bg-gray-800/50 p-4 rounded-lg border border-gray-700/50">
+                <div
+                  key={`metatx-${index}`}
+                  className="bg-gray-800/50 p-4 rounded-lg border border-gray-700/50"
+                >
                   <div className="space-y-2">
                     <div className="bg-gray-800/70 p-2 rounded-md mb-1">
                       <Text variant="small" color="secondary">
                         <strong className="text-blue-300">ID: </strong>
-                        <span className="font-mono text-yellow-300 break-all">{tx.id || 'N/A'}</span>
+                        <span className="font-mono text-yellow-300 break-all">
+                          {tx.id || "N/A"}
+                        </span>
                       </Text>
                     </div>
                     <div className="bg-gray-800/70 p-2 rounded-md mb-1">
                       <Text variant="small" color="secondary">
                         <strong className="text-blue-300">Contract: </strong>
-                        <span className="font-mono text-yellow-300 break-all">{tx.contract || 'N/A'}</span>
+                        <span className="font-mono text-yellow-300 break-all">
+                          {tx.contract || "N/A"}
+                        </span>
                       </Text>
                     </div>
                     <div className="bg-gray-800/70 p-2 rounded-md mb-1">
@@ -411,16 +496,21 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                           className="w-4 h-4 ml-1 inline-block"
                         />
                         <span className="ml-1">
-                          {getChainInfo(parseInt(tx.chainId.toString()))?.name || 'Unknown Chain'}
+                          {getChainInfo(parseInt(tx.chainId.toString()))
+                            ?.name || "Unknown Chain"}
                         </span>
                       </Text>
                     </div>
                     <div className="bg-gray-800/70 p-2 rounded-md mb-1">
                       <Text variant="small" color="secondary">
                         <div className="break-all">
-                          <strong className="text-blue-300">Input Data: </strong>
+                          <strong className="text-blue-300">
+                            Input Data:{" "}
+                          </strong>
                           <div className="max-h-24 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-                            <span className="font-mono text-green-300">{tx.input || '0x'}</span>
+                            <span className="font-mono text-green-300">
+                              {tx.input || "0x"}
+                            </span>
                           </div>
                         </div>
                       </Text>
@@ -434,7 +524,11 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
 
         {lifiInfos && lifiInfos.length > 0 && (
           <div className="mt-4">
-            <Text variant="medium" color="primary" className="mb-2 pb-1 border-b border-gray-700/50 flex items-center">
+            <Text
+              variant="medium"
+              color="primary"
+              className="mb-2 pb-1 border-b border-gray-700/50 flex items-center"
+            >
               <Info className="h-4 w-4 mr-1" />
               Lifi Infos
               <Text variant="small" color="secondary" className="ml-1">
@@ -444,7 +538,11 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             <div className="space-y-2">
               <div className="bg-gray-800/70 p-3 rounded-md mb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <Text variant="small" color="primary" className="font-semibold flex items-center">
+                  <Text
+                    variant="small"
+                    color="primary"
+                    className="font-semibold flex items-center"
+                  >
                     <Clipboard className="h-4 w-4 mr-2" />
                     Raw JSON Data
                   </Text>
@@ -472,9 +570,17 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             </Text>
             <ul className="space-y-2 pl-2">
               {intentPreconditions.map((cond, index) => (
-                <li key={index} className="break-all bg-gray-800/70 p-2 rounded-md border-l-2 border-purple-500">
+                <li
+                  key={index}
+                  className="break-all bg-gray-800/70 p-2 rounded-md border-l-2 border-purple-500"
+                >
                   <pre className="font-mono text-xs overflow-x-auto whitespace-pre-wrap">
-                    {JSON.stringify(cond, (_, value) => (typeof value === 'bigint' ? value.toString() : value), 2)}
+                    {JSON.stringify(
+                      cond,
+                      (_, value) =>
+                        typeof value === "bigint" ? value.toString() : value,
+                      2,
+                    )}
                   </pre>
                 </li>
               ))}
@@ -483,7 +589,11 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
         )}
         {!intentPreconditions?.length && (
           <div className="bg-gray-800/70 p-3 rounded-md border border-gray-700/50 mt-3">
-            <Text variant="small" color="secondary" className="flex items-center text-center">
+            <Text
+              variant="small"
+              color="secondary"
+              className="flex items-center text-center"
+            >
               <Info className="h-4 w-4 mr-1 text-gray-500" />
               No specific preconditions returned for this intent.
             </Text>
@@ -491,5 +601,5 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
         )}
       </div>
     </SectionHeader>
-  )
-}
+  );
+};

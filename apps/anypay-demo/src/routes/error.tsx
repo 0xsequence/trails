@@ -1,4 +1,4 @@
-import { Text } from '@0xsequence/design-system'
+import { Text } from "@0xsequence/design-system";
 
 export const ErrorRoute = () => {
   return (
@@ -7,5 +7,5 @@ export const ErrorRoute = () => {
         Error Boundry
       </Text>
     </div>
-  )
-}
+  );
+};

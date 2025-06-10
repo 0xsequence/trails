@@ -1,21 +1,21 @@
-import { Connector, useConnect } from 'wagmi'
-import type { UseAccountReturnType } from 'wagmi'
-import { Button, Text, NetworkImage } from '@0xsequence/design-system'
-import { AlertTriangle } from 'lucide-react'
-import { SectionHeader } from '@/components/SectionHeader'
-import { Address } from 'viem'
+import { Connector, useConnect } from "wagmi";
+import type { UseAccountReturnType } from "wagmi";
+import { Button, Text, NetworkImage } from "@0xsequence/design-system";
+import { AlertTriangle } from "lucide-react";
+import { SectionHeader } from "@/components/SectionHeader";
+import { Address } from "viem";
 
 interface AccountInfoSectionProps {
   account: {
-    address?: Address
-    chainId?: number
-    status: UseAccountReturnType['status']
-  }
-  connectors: readonly Connector[]
-  connect: (args: { connector: Connector; chainId?: number }) => void
-  disconnect: () => void
-  connectStatus: ReturnType<typeof useConnect>['status']
-  connectError?: Error | null
+    address?: Address;
+    chainId?: number;
+    status: UseAccountReturnType["status"];
+  };
+  connectors: readonly Connector[];
+  connect: (args: { connector: Connector; chainId?: number }) => void;
+  disconnect: () => void;
+  connectStatus: ReturnType<typeof useConnect>["status"];
+  connectError?: Error | null;
 }
 
 export const AccountInfoSection = ({
@@ -42,32 +42,57 @@ export const AccountInfoSection = ({
       statusPill={
         <div className="px-3 py-1 rounded-full bg-gray-700/50 text-gray-300 text-sm flex items-center">
           <span
-            className={`w-2 h-2 rounded-full ${account.status === 'connected' ? 'bg-green-400' : 'bg-yellow-400'} mr-2 animate-pulse`}
+            className={`w-2 h-2 rounded-full ${account.status === "connected" ? "bg-green-400" : "bg-yellow-400"} mr-2 animate-pulse`}
           ></span>
-          {account.status === 'connected' ? 'Connected' : 'Disconnected'}
+          {account.status === "connected" ? "Connected" : "Disconnected"}
         </div>
       }
     >
-      {account.status === 'connected' ? (
+      {account.status === "connected" ? (
         <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700/30 space-y-2 mt-4">
           <div className="flex items-center justify-between">
-            <Text variant="small" color="secondary" className="flex items-center">
+            <Text
+              variant="small"
+              color="secondary"
+              className="flex items-center"
+            >
               <span className="text-blue-300 font-semibold mr-2">Address:</span>
-              <span className="font-mono bg-gray-800/70 px-3 py-1 rounded-full">{account.address}</span>
+              <span className="font-mono bg-gray-800/70 px-3 py-1 rounded-full">
+                {account.address}
+              </span>
             </Text>
-            <Button variant="danger" size="sm" onClick={() => disconnect()} className="px-5 py-2">
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => disconnect()}
+              className="px-5 py-2"
+            >
               Disconnect
             </Button>
           </div>
           <div className="flex items-center space-x-4">
-            <Text variant="small" color="secondary" className="flex items-center">
+            <Text
+              variant="small"
+              color="secondary"
+              className="flex items-center"
+            >
               <span className="text-blue-300 font-semibold mr-2">Chain:</span>
               <div className="flex items-center">
-                <NetworkImage chainId={Number(account.chainId)} size="sm" className="w-4 h-4 mr-1" />
-                <span className="font-mono bg-gray-800/70 px-3 py-1 rounded-full">{account.chainId}</span>
+                <NetworkImage
+                  chainId={Number(account.chainId)}
+                  size="sm"
+                  className="w-4 h-4 mr-1"
+                />
+                <span className="font-mono bg-gray-800/70 px-3 py-1 rounded-full">
+                  {account.chainId}
+                </span>
               </div>
             </Text>
-            <Text variant="small" color="secondary" className="flex items-center">
+            <Text
+              variant="small"
+              color="secondary"
+              className="flex items-center"
+            >
               <span className="text-blue-300 font-semibold mr-2">Status:</span>
               <span className="text-green-400 font-mono bg-green-900/20 px-3 py-1 rounded-full border border-green-700/30">
                 {account.status}
@@ -94,15 +119,25 @@ export const AccountInfoSection = ({
             ))}
           </div>
           <div className="mt-3 bg-gray-800/70 p-2 rounded-lg flex items-center justify-between">
-            <Text variant="small" color="secondary" className="flex items-center">
+            <Text
+              variant="small"
+              color="secondary"
+              className="flex items-center"
+            >
               <span className="text-blue-300 font-semibold mr-2">Status:</span>
               <span className="text-yellow-400 font-mono">
                 {account.status}
-                {connectStatus === 'pending' && <span className="ml-1">(Connecting...)</span>}
+                {connectStatus === "pending" && (
+                  <span className="ml-1">(Connecting...)</span>
+                )}
               </span>
             </Text>
             {connectError && (
-              <Text variant="small" color="negative" className="flex items-center">
+              <Text
+                variant="small"
+                color="negative"
+                className="flex items-center"
+              >
                 <AlertTriangle className="h-4 w-4 mr-1" />
                 {connectError.message}
               </Text>
@@ -111,5 +146,5 @@ export const AccountInfoSection = ({
         </div>
       )}
     </SectionHeader>
-  )
-}
+  );
+};

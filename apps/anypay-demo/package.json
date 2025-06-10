@@ -6,11 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "lint:fix": "eslint --fix .",
-    "prettier": "prettier --list-different './src/**/*.{ts,tsx}'",
-    "prettier:fix": "prettier --list-different --write './src/**/*.{ts,tsx}'",
-    "format": "pnpm run lint:fix && pnpm run prettier:fix",
+    "lint": "biome lint ./src",
+    "lint:fix": "biome lint --write ./src",
+    "format": "biome format --write ./src",
     "preview": "vite preview",
     "test": "echo tests are not implemented.",
     "typecheck": "tsc --noEmit",
@@ -52,20 +50,14 @@
     "wagmi": "^2.15.5"
   },
   "devDependencies": {
-    "@eslint/js": "^9.28.0",
     "@tailwindcss/vite": "^4.1.8",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.5.1",
-    "eslint": "^9.28.0",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
     "husky": "^9.1.7",
-    "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
     "typescript": "~5.7.3",
-    "typescript-eslint": "^8.33.1",
     "vite": "^6.3.5",
     "zod": "^3.25.51"
   }

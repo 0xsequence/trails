@@ -19,10 +19,7 @@
     },
     "test": {
       "dependsOn": ["^build"],
-      "inputs": [
-        "packages/**/*.tsx",
-        "packages/**/*.ts"
-      ],
+      "inputs": ["packages/**/*.tsx", "packages/**/*.ts"],
       "outputs": []
     },
     "clean": {

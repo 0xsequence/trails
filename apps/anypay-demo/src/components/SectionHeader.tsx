@@ -1,18 +1,18 @@
-import { useState, ReactNode } from 'react'
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { useState, ReactNode } from "react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 interface SectionHeaderProps {
-  title: ReactNode
-  children?: ReactNode
-  defaultOpen?: boolean
-  isCollapsible?: boolean
-  statusPill?: ReactNode
-  noFrame?: boolean
-  className?: string
-  titleContainerClassName?: string
-  contentContainerClassName?: string
-  actionSubtitle?: ReactNode
-  subtitle?: ReactNode
+  title: ReactNode;
+  children?: ReactNode;
+  defaultOpen?: boolean;
+  isCollapsible?: boolean;
+  statusPill?: ReactNode;
+  noFrame?: boolean;
+  className?: string;
+  titleContainerClassName?: string;
+  contentContainerClassName?: string;
+  actionSubtitle?: ReactNode;
+  subtitle?: ReactNode;
 }
 
 export const SectionHeader: React.FC<SectionHeaderProps> = ({
@@ -22,53 +22,61 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
   isCollapsible = false,
   statusPill,
   noFrame = false,
-  className = '',
-  titleContainerClassName = '',
-  contentContainerClassName = '',
+  className = "",
+  titleContainerClassName = "",
+  contentContainerClassName = "",
   actionSubtitle,
   subtitle,
 }) => {
-  const [isOpen, setIsOpen] = useState(defaultOpen && isCollapsible)
+  const [isOpen, setIsOpen] = useState(defaultOpen && isCollapsible);
 
   const handleHeaderClick = () => {
     if (isCollapsible) {
-      setIsOpen(!isOpen)
+      setIsOpen(!isOpen);
     }
-  }
+  };
 
-  const rootClasses = `${noFrame ? '' : 'border border-gray-700/50 rounded-lg'} ${className}`
+  const rootClasses = `${noFrame ? "" : "border border-gray-700/50 rounded-lg"} ${className}`;
 
-  let titleEffectiveClasses = `w-full flex items-center justify-between ${titleContainerClassName}`
+  let titleEffectiveClasses = `w-full flex items-center justify-between ${titleContainerClassName}`;
   if (isCollapsible) {
-    titleEffectiveClasses += ' cursor-pointer transition-colors duration-200'
+    titleEffectiveClasses += " cursor-pointer transition-colors duration-200";
     if (!noFrame) {
-      titleEffectiveClasses += ' hover:bg-gray-700/90'
+      titleEffectiveClasses += " hover:bg-gray-700/90";
     }
   }
 
   if (!noFrame) {
     if (isCollapsible && isOpen) {
-      titleEffectiveClasses += ' rounded-t-lg'
+      titleEffectiveClasses += " rounded-t-lg";
     } else {
-      titleEffectiveClasses += ' rounded-lg'
+      titleEffectiveClasses += " rounded-lg";
     }
   }
 
-  const contentEffectiveClasses = `${contentContainerClassName} ${!noFrame && isCollapsible && isOpen ? 'rounded-b-lg' : ''}`
+  const contentEffectiveClasses = `${contentContainerClassName} ${!noFrame && isCollapsible && isOpen ? "rounded-b-lg" : ""}`;
 
   return (
     <div className={rootClasses}>
       <div onClick={handleHeaderClick} className={titleEffectiveClasses}>
         <div className="flex-grow">
-          {typeof title === 'string' ? (
-            <div className="flex items-center text-white font-semibold">{title}</div>
+          {typeof title === "string" ? (
+            <div className="flex items-center text-white font-semibold">
+              {title}
+            </div>
           ) : (
             title
           )}
           {actionSubtitle && (
-            <div className="text-sm text-gray-300 mt-2 ml-1.5 flex items-center">{actionSubtitle}</div>
+            <div className="text-sm text-gray-300 mt-2 ml-1.5 flex items-center">
+              {actionSubtitle}
+            </div>
           )}
-          {subtitle && <div className="text-sm text-gray-400 mt-1 ml-1.5 flex items-center">{subtitle}</div>}
+          {subtitle && (
+            <div className="text-sm text-gray-400 mt-1 ml-1.5 flex items-center">
+              {subtitle}
+            </div>
+          )}
         </div>
         {statusPill ? (
           statusPill
@@ -81,8 +89,12 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
         ) : null}
       </div>
 
-      {isCollapsible && isOpen && children && <div className={contentEffectiveClasses}>{children}</div>}
-      {!isCollapsible && children && <div className={contentContainerClassName}>{children}</div>}
+      {isCollapsible && isOpen && children && (
+        <div className={contentEffectiveClasses}>{children}</div>
+      )}
+      {!isCollapsible && children && (
+        <div className={contentContainerClassName}>{children}</div>
+      )}
     </div>
-  )
-}
+  );
+};

@@ -1,12 +1,12 @@
-import React from 'react'
-import { Link, useLocation } from 'react-router'
+import React from "react";
+import { Link, useLocation } from "react-router";
 
 export const Header: React.FC = () => {
-  const location = useLocation()
+  const location = useLocation();
 
   const isActive = (path: string) => {
-    return location.pathname === path
-  }
+    return location.pathname === path;
+  };
 
   return (
     <header className="bg-gray-900">
@@ -16,9 +16,9 @@ export const Header: React.FC = () => {
             <Link
               to="/"
               className={`px-8 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                isActive('/')
-                  ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
-                  : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                isActive("/")
+                  ? "bg-blue-500 text-white shadow-md shadow-blue-500/20"
+                  : "text-gray-300 hover:text-white hover:bg-gray-800"
               }`}
             >
               Demo
@@ -26,9 +26,9 @@ export const Header: React.FC = () => {
             <Link
               to="/widget"
               className={`px-8 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                isActive('/widget')
-                  ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
-                  : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                isActive("/widget")
+                  ? "bg-blue-500 text-white shadow-md shadow-blue-500/20"
+                  : "text-gray-300 hover:text-white hover:bg-gray-800"
               }`}
             >
               Widget
@@ -37,7 +37,7 @@ export const Header: React.FC = () => {
         </div>
       </nav>
     </header>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

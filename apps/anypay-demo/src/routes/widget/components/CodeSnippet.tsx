@@ -1,18 +1,18 @@
-import { useState, ReactNode } from 'react'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { Copy, Check } from 'lucide-react'
+import { useState, ReactNode } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Copy, Check } from "lucide-react";
 
 interface CodeSnippetProps {
-  toRecipient: string
-  toAmount: string
-  toChainId: number | undefined
-  toToken: 'ETH' | 'USDC' | undefined
-  toCalldata: string
-  useCustomButton: boolean
-  children?: ReactNode
-  renderInline?: boolean
-  theme: 'light' | 'dark' | 'auto' | null
+  toRecipient: string;
+  toAmount: string;
+  toChainId: number | undefined;
+  toToken: "ETH" | "USDC" | undefined;
+  toCalldata: string;
+  useCustomButton: boolean;
+  children?: ReactNode;
+  renderInline?: boolean;
+  theme: "light" | "dark" | "auto" | null;
 }
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = ({
@@ -26,17 +26,17 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   renderInline,
   theme,
 }) => {
-  const [isCopied, setIsCopied] = useState(false)
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(codeExample)
-      setIsCopied(true)
-      setTimeout(() => setIsCopied(false), 2000)
+      await navigator.clipboard.writeText(codeExample);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err)
+      console.error("Failed to copy text: ", err);
     }
-  }
+  };
 
   const codeExample = `import { AnyPayWidget } from '@0xsequence/anypay-sdk/widget'
 
@@ -45,12 +45,12 @@ export const App = () => {
     useCustomButton
       ? `
     <AnyPayWidget
-      sequenceApiKey={'key_123...'}${toRecipient ? `\n      toRecipient="${toRecipient}"` : ''}${
-        toAmount ? `\n      toAmount="${toAmount}"` : ''
-      }${toChainId ? `\n      toChainId={${toChainId}}` : ''}${
-        toToken ? `\n      toToken="${toToken}"` : ''
-      }${toCalldata ? `\n      toCalldata="${toCalldata}"` : ''}${renderInline ? `\n      renderInline={true}` : ''}${
-        theme ? `\n      theme="${theme}"` : ''
+      sequenceApiKey={'key_123...'}${toRecipient ? `\n      toRecipient="${toRecipient}"` : ""}${
+        toAmount ? `\n      toAmount="${toAmount}"` : ""
+      }${toChainId ? `\n      toChainId={${toChainId}}` : ""}${
+        toToken ? `\n      toToken="${toToken}"` : ""
+      }${toCalldata ? `\n      toCalldata="${toCalldata}"` : ""}${renderInline ? `\n      renderInline={true}` : ""}${
+        theme ? `\n      theme="${theme}"` : ""
       }
     >
       <button className="custom-button-styles">
@@ -59,24 +59,28 @@ export const App = () => {
     </AnyPayWidget>`
       : `
     <AnyPayWidget
-      sequenceApiKey={'key_123...'}${toRecipient ? `\n      toRecipient="${toRecipient}"` : ''}${
-        toAmount ? `\n      toAmount="${toAmount}"` : ''
-      }${toChainId ? `\n      toChainId={${toChainId}}` : ''}${
-        toToken ? `\n      toToken="${toToken}"` : ''
-      }${toCalldata ? `\n      toCalldata="${toCalldata}"` : ''}${renderInline ? `\n      renderInline={true}` : ''}${
-        theme ? `\n      theme="${theme}"` : ''
+      sequenceApiKey={'key_123...'}${toRecipient ? `\n      toRecipient="${toRecipient}"` : ""}${
+        toAmount ? `\n      toAmount="${toAmount}"` : ""
+      }${toChainId ? `\n      toChainId={${toChainId}}` : ""}${
+        toToken ? `\n      toToken="${toToken}"` : ""
+      }${toCalldata ? `\n      toCalldata="${toCalldata}"` : ""}${renderInline ? `\n      renderInline={true}` : ""}${
+        theme ? `\n      theme="${theme}"` : ""
       }
     />`
   }
   )
-}`
+}`;
 
   return (
     <div className="bg-gray-800 rounded-lg p-6 h-full">
       <div className="flex justify-between items-start mb-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-200">Integration Example</h2>
-          <p className="text-sm text-gray-400 mt-1">Import and use the widget in your React application.</p>
+          <h2 className="text-2xl font-bold text-gray-200">
+            Integration Example
+          </h2>
+          <p className="text-sm text-gray-400 mt-1">
+            Import and use the widget in your React application.
+          </p>
         </div>
         <button
           onClick={handleCopy}
@@ -101,9 +105,9 @@ export const App = () => {
           style={vscDarkPlus}
           customStyle={{
             margin: 0,
-            borderRadius: '0.5rem',
-            background: '#1a1a1a',
-            height: '100%',
+            borderRadius: "0.5rem",
+            background: "#1a1a1a",
+            height: "100%",
           }}
         >
           {codeExample}
@@ -111,5 +115,5 @@ export const App = () => {
       </div>
       {children}
     </div>
-  )
-}
+  );
+};

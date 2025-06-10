@@ -1,17 +1,23 @@
-import React from 'react'
-import { getExplorerUrl } from '../../anypay.js'
+import React from "react";
+import { getExplorerUrl } from "../../anypay.js";
 
 interface ReceiptProps {
-  txHash?: string
-  chainId?: number
-  onSendAnother: () => void
-  onClose: () => void
-  theme?: 'light' | 'dark'
+  txHash?: string;
+  chainId?: number;
+  onSendAnother: () => void;
+  onClose: () => void;
+  theme?: "light" | "dark";
 }
 
-export const Receipt: React.FC<ReceiptProps> = ({ txHash, chainId, onSendAnother, onClose, theme = 'light' }) => {
+export const Receipt: React.FC<ReceiptProps> = ({
+  txHash,
+  chainId,
+  onSendAnother,
+  onClose,
+  theme = "light",
+}) => {
   if (!txHash || !chainId) {
-    return null
+    return null;
   }
 
   return (
@@ -19,19 +25,26 @@ export const Receipt: React.FC<ReceiptProps> = ({ txHash, chainId, onSendAnother
       <div className="text-center">
         <div
           className={`mx-auto flex items-center justify-center h-12 w-12 rounded-full ${
-            theme === 'dark' ? 'bg-green-900/20' : 'bg-green-100'
+            theme === "dark" ? "bg-green-900/20" : "bg-green-100"
           }`}
         >
           <svg
-            className={`h-6 w-6 ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}
+            className={`h-6 w-6 ${theme === "dark" ? "text-green-400" : "text-green-600"}`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 13l4 4L19 7"
+            />
           </svg>
         </div>
-        <h2 className={`mt-4 text-2xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
+        <h2
+          className={`mt-4 text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+        >
           Transaction Confirmed
         </h2>
       </div>
@@ -42,7 +55,9 @@ export const Receipt: React.FC<ReceiptProps> = ({ txHash, chainId, onSendAnother
           target="_blank"
           rel="noopener noreferrer"
           className={`underline transition-colors ${
-            theme === 'dark' ? 'text-blue-400 hover:text-blue-300' : 'text-black hover:text-gray-900'
+            theme === "dark"
+              ? "text-blue-400 hover:text-blue-300"
+              : "text-black hover:text-gray-900"
           }`}
         >
           View on Explorer
@@ -53,7 +68,9 @@ export const Receipt: React.FC<ReceiptProps> = ({ txHash, chainId, onSendAnother
         <button
           onClick={onSendAnother}
           className={`w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${
-            theme === 'dark' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-blue-500 hover:bg-blue-600 text-white'
+            theme === "dark"
+              ? "bg-blue-600 hover:bg-blue-700 text-white"
+              : "bg-blue-500 hover:bg-blue-600 text-white"
           }`}
         >
           Start Another Transaction
@@ -61,16 +78,16 @@ export const Receipt: React.FC<ReceiptProps> = ({ txHash, chainId, onSendAnother
         <button
           onClick={onClose}
           className={`w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${
-            theme === 'dark'
-              ? 'bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white'
-              : 'bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900'
+            theme === "dark"
+              ? "bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white"
+              : "bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900"
           }`}
         >
           Close
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Receipt
+export default Receipt;

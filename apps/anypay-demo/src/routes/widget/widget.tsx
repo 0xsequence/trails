@@ -1,38 +1,41 @@
-import { useState, useCallback } from 'react'
-import { AnyPayWidget } from '@0xsequence/anypay-sdk/widget'
-import { CustomizationForm } from './components/CustomizationForm'
-import { CodeSnippet } from './components/CodeSnippet'
-import { AppKitProvider, ConnectButton } from './components/ConnectWallet'
+import { useState, useCallback } from "react";
+import { AnyPayWidget } from "@0xsequence/anypay-sdk/widget";
+import { CustomizationForm } from "./components/CustomizationForm";
+import { CodeSnippet } from "./components/CodeSnippet";
+import { AppKitProvider, ConnectButton } from "./components/ConnectWallet";
 
 export const Widget = () => {
-  const sequenceApiKey = import.meta.env.VITE_PROJECT_ACCESS_KEY
-  const apiUrl = import.meta.env.VITE_API_URL
-  const indexerUrl = import.meta.env.VITE_INDEXER_URL
-  const env = import.meta.env.VITE_ENV
+  const sequenceApiKey = import.meta.env.VITE_PROJECT_ACCESS_KEY;
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const indexerUrl = import.meta.env.VITE_INDEXER_URL;
+  const env = import.meta.env.VITE_ENV;
 
-  const [toRecipient, setToRecipient] = useState('')
-  const [toAmount, setToAmount] = useState('')
-  const [toChainId, setToChainId] = useState<number | undefined>()
-  const [toToken, setToToken] = useState<'ETH' | 'USDC' | undefined>()
-  const [toCalldata, setToCalldata] = useState('')
-  const [renderInline, setRenderInline] = useState(false)
-  const [useCustomButton, setUseCustomButton] = useState(false)
-  const [provider, setProvider] = useState<any>(null)
-  const [theme, setTheme] = useState<'light' | 'dark' | 'auto' | null>(null)
+  const [toRecipient, setToRecipient] = useState("");
+  const [toAmount, setToAmount] = useState("");
+  const [toChainId, setToChainId] = useState<number | undefined>();
+  const [toToken, setToToken] = useState<"ETH" | "USDC" | undefined>();
+  const [toCalldata, setToCalldata] = useState("");
+  const [renderInline, setRenderInline] = useState(false);
+  const [useCustomButton, setUseCustomButton] = useState(false);
+  const [provider, setProvider] = useState<any>(null);
+  const [theme, setTheme] = useState<"light" | "dark" | "auto" | null>(null);
 
   const handleConnect = useCallback((provider: any) => {
-    console.log('provider', provider)
-    setProvider(provider)
-  }, [])
+    console.log("provider", provider);
+    setProvider(provider);
+  }, []);
 
   const content = (
     <div className="flex flex-col items-center justify-center space-y-8 py-12">
       <div className="text-center space-y-6 max-w-6xl px-4">
-        <h1 className="text-3xl font-extrabold text-white mb-4">AnyPay Widget Demo</h1>
+        <h1 className="text-3xl font-extrabold text-white mb-4">
+          AnyPay Widget Demo
+        </h1>
         <p className="text-sm text-white leading-relaxed max-w-3xl mx-auto font-light">
-          This demo showcases a multi-step transfer flow using the <span className="font-medium">AnyPay SDK</span>.
-          Connect your wallet, select a token, specify the amount and recipient, and see the transaction confirmation
-          process in action.
+          This demo showcases a multi-step transfer flow using the{" "}
+          <span className="font-medium">AnyPay SDK</span>. Connect your wallet,
+          select a token, specify the amount and recipient, and see the
+          transaction confirmation process in action.
         </p>
 
         <ConnectButton onConnect={handleConnect} />
@@ -101,9 +104,9 @@ export const Widget = () => {
         </div>
       </div>
     </div>
-  )
+  );
 
-  return <AppKitProvider>{content}</AppKitProvider>
-}
+  return <AppKitProvider>{content}</AppKitProvider>;
+};
 
-export default Widget
+export default Widget;
