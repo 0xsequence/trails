@@ -2,14 +2,12 @@ import {
   Address,
   Bytes,
   Provider,
-  Hex,
+  type Hex,
   RpcTransport,
   Secp256k1,
   AbiFunction,
-  AbiParameters,
-  Hash,
 } from "ox";
-import { Context, Payload } from "@0xsequence/wallet-primitives";
+import { type Context, Payload } from "@0xsequence/wallet-primitives";
 import { Relayer } from "@0xsequence/wallet-core";
 import { describe, it, expect, vi } from "vitest";
 import { isAddressEqual } from "viem";
@@ -17,8 +15,8 @@ import { Preconditions } from "@0xsequence/wallet-core";
 import {
   calculateIntentConfigurationAddress,
   hashIntentParams,
-  IntentCallsPayload,
-  AnypayLifiInfo,
+  type IntentCallsPayload,
+  type AnypayLifiInfo,
   getAnypayLifiInfoHash,
 } from "../src/intents.js";
 import "dotenv/config";

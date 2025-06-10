@@ -129,7 +129,7 @@ export interface SenderStatus {
   active: boolean;
 }
 
-export interface RuntimeChecks {}
+export type RuntimeChecks = {}
 
 export interface SequenceContext {
   factory: string;
@@ -473,27 +473,27 @@ export interface Relayer {
   ): Promise<AdjustProjectBalanceReturn>;
 }
 
-export interface PingArgs {}
+export type PingArgs = {}
 
 export interface PingReturn {
   status: boolean;
 }
-export interface VersionArgs {}
+export type VersionArgs = {}
 
 export interface VersionReturn {
   version: Version;
 }
-export interface RuntimeStatusArgs {}
+export type RuntimeStatusArgs = {}
 
 export interface RuntimeStatusReturn {
   status: RuntimeStatus;
 }
-export interface GetSequenceContextArgs {}
+export type GetSequenceContextArgs = {}
 
 export interface GetSequenceContextReturn {
   data: SequenceContext;
 }
-export interface GetChainIDArgs {}
+export type GetChainIDArgs = {}
 
 export interface GetChainIDReturn {
   chainID: number;
@@ -541,7 +541,7 @@ export interface UpdateMetaTxnGasLimitsArgs {
 export interface UpdateMetaTxnGasLimitsReturn {
   payload: string;
 }
-export interface FeeTokensArgs {}
+export type FeeTokensArgs = {}
 
 export interface FeeTokensReturn {
   isFeeRequired: boolean;
@@ -1603,7 +1603,7 @@ export class WebrpcError extends Error {
   }
 
   static new(payload: any): WebrpcError {
-    return new this(
+    return new WebrpcError(
       payload.error,
       payload.code,
       payload.message || payload.msg,

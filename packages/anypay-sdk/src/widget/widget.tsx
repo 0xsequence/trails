@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { useAccount, http, createConfig, WagmiProvider } from "wagmi";
+import { useAccount, type http, createConfig, WagmiProvider } from "wagmi";
 import { SequenceHooksProvider } from "@0xsequence/hooks";
 import { StrictMode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -13,17 +13,17 @@ import Receipt from "./components/Receipt.js";
 import {
   createWalletClient,
   custom,
-  TransactionReceipt,
+  type TransactionReceipt,
   type WalletClient,
 } from "viem";
-import { mainnet, base, optimism, arbitrum } from "viem/chains";
+import { mainnet, } from "viem/chains";
 import * as chains from "viem/chains";
 import "@0xsequence/design-system/preset";
 import "./index.css";
 import React from "react";
 import { useIndexerGatewayClient } from "../indexerClient.js";
 import { WagmiContext } from "wagmi";
-import { TransactionState } from "../anypay.js";
+import type { TransactionState } from "../anypay.js";
 
 type Screen = "connect" | "tokens" | "send" | "pending" | "receipt";
 type Theme = "light" | "dark" | "auto";

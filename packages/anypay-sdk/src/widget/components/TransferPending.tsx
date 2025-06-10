@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { NetworkImage } from "@0xsequence/design-system";
 
 interface TransactionState {
   transactionHash: string;

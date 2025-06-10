@@ -1,7 +1,7 @@
 import { Relayer } from "@0xsequence/wallet-core";
 import { useMemo } from "react";
 import * as chains from "viem/chains";
-import { Chain } from "viem";
+import type { Chain } from "viem";
 import fetch from "isomorphic-fetch";
 
 export type RelayerOperationStatus = Relayer.OperationStatus;

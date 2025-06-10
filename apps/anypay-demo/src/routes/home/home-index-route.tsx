@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { Hex } from "viem";
-import { AbiFunction, Address } from "ox";
+import type { Hex } from "viem";
+import { AbiFunction, type Address } from "ox";
 import * as chains from "viem/chains";
 import {
   useAnyPay,
   useTokenBalances,
-  TokenBalance,
-  Account,
+  type TokenBalance,
+  type Account,
 } from "@0xsequence/anypay-sdk";
 import { Loader2 } from "lucide-react";
 import { AccountInfoSection } from "@/components/AccountInfoSection";
-import { IntentAction } from "@/types";
+import type { IntentAction } from "@/types";
 import { SelectOriginTokenStep } from "@/components/SelectOriginTokenStep";
 import { ChooseActionStep } from "@/components/ChooseActionStep";
 import { IntentQuoteDisplayStep } from "@/components/IntentQuoteDisplayStep";

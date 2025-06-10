@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSendTransaction, useSwitchChain, useEstimateGas } from "wagmi";
-import {
+import type {
   GetIntentCallsPayloadsReturn,
   IntentCallsPayload,
   IntentPrecondition,
@@ -14,20 +14,19 @@ import { useWaitForTransactionReceipt } from "wagmi";
 import { Address } from "ox";
 import {
   createPublicClient,
-  Hex,
+  type Hex,
   http,
   isAddressEqual,
   zeroAddress,
-  Chain,
-  Account as AccountType,
-  WalletClient,
-  TransactionReceipt,
+  type Account as AccountType,
+  type WalletClient,
+  type TransactionReceipt,
 } from "viem";
 import * as chains from "viem/chains";
 import { useAPIClient } from "./apiClient.js";
 import {
   useMetaTxnsMonitor,
-  MetaTxn,
+  type MetaTxn,
   getMetaTxStatus,
 } from "./metaTxnMonitor.js";
 import { relayerSendMetaTx } from "./metaTxns.js";
@@ -37,10 +36,10 @@ import {
   findFirstPreconditionForChainId,
   findPreconditionAddress,
 } from "./preconditions.js";
-import { Relayer } from "@0xsequence/wallet-core";
+import type { Relayer } from "@0xsequence/wallet-core";
 import {
   calculateIntentAddress,
-  OriginCallParams,
+  type OriginCallParams,
   commitIntentConfig,
   getIntentCallsPayloads,
   sendOriginTransaction,
@@ -1015,7 +1014,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     },
     retry: 5, // Allow up to 2 retries
     retryDelay: (attemptIndex) =>
-      Math.min(1000 * Math.pow(2, attemptIndex), 30000), // Exponential backoff
+      Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   const [tokenAddress, setTokenAddress] = useState<string | null>(null);
@@ -1185,8 +1184,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
           return; // Already fetched or error recorded
         }
 
-        let validBlockNumberForApi: bigint | undefined = undefined;
-        let transactionHashForReceipt: Hex | undefined = undefined;
+        let validBlockNumberForApi: bigint | undefined ;
+        let transactionHashForReceipt: Hex | undefined ;
 
         if (monitorStatus?.status === "confirmed") {
           transactionHashForReceipt = monitorStatus.transactionHash as Hex;
@@ -1553,8 +1552,8 @@ export async function prepareSend(options: SendOptions) {
         console.log("origin call params", originCallParams);
 
         let originUserTxReceipt: TransactionReceipt | null = null;
-        let originMetaTxnReceipt: any = null; // TODO: Add proper type
-        let destinationMetaTxnReceipt: any = null; // TODO: Add proper type
+        const originMetaTxnReceipt: any = null; // TODO: Add proper type
+        const destinationMetaTxnReceipt: any = null; // TODO: Add proper type
 
         await walletClient.switchChain({ id: originChainId });
         if (!dryMode) {

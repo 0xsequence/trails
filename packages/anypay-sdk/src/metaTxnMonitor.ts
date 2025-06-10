@@ -1,6 +1,6 @@
-import { Relayer } from "@0xsequence/wallet-core";
-import { Hex } from "viem";
-import { Query, useQueries } from "@tanstack/react-query";
+import type { Relayer } from "@0xsequence/wallet-core";
+import type { Hex } from "viem";
+import { type Query, useQueries } from "@tanstack/react-query";
 import { useMemo } from "react";
 
 export type MetaTxn = {

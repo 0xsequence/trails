@@ -1,7 +1,7 @@
 import { Text, NetworkImage } from "@0xsequence/design-system";
 import { Box, Layers } from "lucide-react";
 import { SectionHeader } from "@/components/SectionHeader";
-import {
+import type {
   MetaTxn,
   MetaTxnStatus,
   OriginCallParams,

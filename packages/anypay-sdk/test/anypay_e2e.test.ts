@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, vi } from "vitest";
 import {
   getAPIClient,
   getRelayer,
@@ -9,7 +9,6 @@ import {
   getERC20TransferData,
   relayerSendMetaTx,
   getMetaTxnReceipt,
-  type GetIntentCallsPayloadsReturn,
 } from "../src/index.js";
 import { privateKeyToAccount } from "viem/accounts";
 import { createWalletClient, createPublicClient, http } from "viem";
