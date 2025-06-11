@@ -48,7 +48,7 @@ interface SendFormProps {
   toRecipient?: string
   toAmount?: string
   toChainId?: number
-  toToken?: "USDC" | "ETH"
+  toToken?: string
   toCalldata?: string
   walletClient?: WalletClient
   theme?: "light" | "dark"
@@ -65,6 +65,7 @@ const SUPPORTED_CHAINS = [
 ]
 
 // Available tokens
+// TODO: make this dynamic
 const SUPPORTED_TOKENS = [
   {
     symbol: "ETH",
@@ -77,6 +78,24 @@ const SUPPORTED_TOKENS = [
     name: "USD Coin",
     imageUrl: `https://assets.sequence.info/images/tokens/small/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp`,
     decimals: 6,
+  },
+  {
+    symbol: "USDT",
+    name: "Tether",
+    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0xdac17f958d2ee523a2206206994597c13d831ec7.webp`,
+    decimals: 6,
+  },
+  {
+    symbol: "BAT",
+    name: "Basic Attention Token",
+    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp`,
+    decimals: 18,
+  },
+  {
+    symbol: "ARB",
+    name: "Arbitrum",
+    imageUrl: `https://assets.sequence.info/images/tokens/small/42161/0x912ce59144191c1204e64559fe8253a0e49e6548.webp`,
+    decimals: 18,
   },
 ]
 
@@ -93,9 +112,27 @@ function getDestTokenAddress(chainId: number, tokenSymbol: string) {
     return zeroAddress
   }
 
+  if (chainId === 1) {
+    if (tokenSymbol === "USDC") {
+      return "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+    }
+    if (tokenSymbol === "USDT") {
+      return "0xdac17f958d2ee523a2206206994597c13d831ec7"
+    }
+    if (tokenSymbol === "BAT") {
+      return "0x0d8775f648430679a709e98d2b0cb6250d2887ef"
+    }
+    if (tokenSymbol === "ARB") {
+      return "0xb50721bcf8d664c30412cfbc6cf7a15145234ad1"
+    }
+  }
+
   if (chainId === 10) {
     if (tokenSymbol === "USDC") {
       return "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85"
+    }
+    if (tokenSymbol === "USDT") {
+      return "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58"
     }
   }
 
@@ -103,17 +140,32 @@ function getDestTokenAddress(chainId: number, tokenSymbol: string) {
     if (tokenSymbol === "USDC") {
       return "0xaf88d065e77c8cC2239327C5EDb3A432268e5831"
     }
+    if (tokenSymbol === "USDT") {
+      return "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9"
+    }
+    if (tokenSymbol === "ARB") {
+      return "0x912ce59144191c1204e64559fe8253a0e49e6548"
+    }
   }
 
   if (chainId === 8453) {
     if (tokenSymbol === "USDC") {
       return "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
     }
+    if (tokenSymbol === "USDT") {
+      return "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2"
+    }
   }
 
   if (chainId === 137) {
     if (tokenSymbol === "USDC") {
       return "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
+    }
+    if (tokenSymbol === "USDT") {
+      return "0xc2132d05d31c914a87c6611c10748aeb04b58e8f"
+    }
+    if (tokenSymbol === "BAT") {
+      return "0x3cef98bb43d732e2f285ee605a8158cde967d219"
     }
   }
 
@@ -186,16 +238,23 @@ export const SendForm: React.FC<SendFormProps> = ({
 
   const { data: destTokenPrices } = useTokenPrices(
     selectedDestToken
-      ? [
-          {
-            tokenId: selectedDestToken.symbol,
-            contractAddress: getDestTokenAddress(
+      ? (() => {
+          try {
+            const contractAddress = getDestTokenAddress(
               selectedChain.id,
               selectedDestToken.symbol,
-            ),
-            chainId: selectedChain.id,
-          },
-        ]
+            )
+            return [
+              {
+                tokenId: selectedDestToken.symbol,
+                contractAddress,
+                chainId: selectedChain.id,
+              },
+            ]
+          } catch (error) {
+            return []
+          }
+        })()
       : [],
     apiClient,
   )
@@ -281,6 +340,20 @@ export const SendForm: React.FC<SendFormProps> = ({
       const decimals = selectedDestToken?.decimals
       const parsedAmount = parseUnits(amount, decimals).toString()
 
+      let destinationTokenAddress: string
+      try {
+        destinationTokenAddress =
+          selectedDestToken.symbol === "ETH"
+            ? zeroAddress
+            : getDestTokenAddress(selectedChain.id, selectedDestToken.symbol)
+      } catch (error) {
+        setError(
+          `${selectedDestToken.symbol} is not available on ${selectedChain.name}`,
+        )
+        setIsSubmitting(false)
+        return
+      }
+
       const originRelayer = getRelayer(
         { env, useV3Relayers: true },
         selectedToken.chainId,
@@ -297,10 +370,7 @@ export const SendForm: React.FC<SendFormProps> = ({
         originTokenAmount: selectedToken.balance,
         destinationChainId: selectedChain.id,
         recipient,
-        destinationTokenAddress:
-          selectedDestToken.symbol === "ETH"
-            ? zeroAddress
-            : getDestTokenAddress(selectedChain.id, selectedDestToken.symbol),
+        destinationTokenAddress,
         destinationTokenAmount: parsedAmount,
         destinationTokenSymbol: selectedDestToken.symbol,
         sequenceApiKey,
@@ -587,7 +657,7 @@ export const SendForm: React.FC<SendFormProps> = ({
               <span
                 className={`ml-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
               >
-                {selectedDestToken.name}
+                {selectedDestToken.name} ({selectedDestToken.symbol})
               </span>
             </div>
           ) : (
@@ -613,7 +683,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                   />
                 </div>
                 <span className="ml-2 flex-1 text-left">
-                  {selectedDestToken.name}
+                  {selectedDestToken.name} ({selectedDestToken.symbol})
                 </span>
                 <ChevronDown
                   className={`h-5 w-5 ${theme === "dark" ? "text-gray-400" : "text-gray-400"} transition-transform ${
@@ -659,7 +729,9 @@ export const SendForm: React.FC<SendFormProps> = ({
                           size="sm"
                         />
                       </div>
-                      <span className="ml-2">{token.name}</span>
+                      <span className="ml-2">
+                        {token.name} ({token.symbol})
+                      </span>
                       {selectedDestToken.symbol === token.symbol && (
                         <span
                           className={`ml-auto ${theme === "dark" ? "text-white" : "text-gray-900"}`}
@@ -735,12 +807,28 @@ export const SendForm: React.FC<SendFormProps> = ({
 
         {/* Recipient Input */}
         <div className="space-y-2">
-          <label
-            htmlFor="recipient"
-            className={`block text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
-          >
-            Recipient Address
-          </label>
+          <div className="flex justify-between items-center">
+            <label
+              htmlFor="recipient"
+              className={`block text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+            >
+              Recipient Address
+            </label>
+            <button
+              onClick={(event) => {
+                event.preventDefault()
+                setRecipientInput(account.address)
+                setRecipient(account.address)
+              }}
+              className={`px-3 py-1 text-xs cursor-pointer ${
+                theme === "dark"
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-blue-500 hover:bg-blue-600"
+              } text-white rounded-lg transition-colors`}
+            >
+              Use Account
+            </button>
+          </div>
           {toRecipient ? (
             <div
               className={`px-4 py-3 border rounded-lg font-mono text-sm ${

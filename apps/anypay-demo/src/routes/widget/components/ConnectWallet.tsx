@@ -7,7 +7,7 @@ import {
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { reconnect } from "@wagmi/core"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import type { Chain } from "viem"
 import * as chains from "viem/chains"
 import { injected, useConnect, WagmiProvider } from "wagmi"
@@ -68,9 +68,16 @@ export function ConnectButton({ onConnect }: ConnectButtonProps) {
   const events = useAppKitEvents()
   const { connectors } = useConnect()
   const account = useAppKitAccount()
+  const [lastEvent, setLastEvent] = useState<string | null>(null)
   const { walletInfo } = useWalletInfo()
 
   useEffect(() => {
+    if (events.data?.event === lastEvent) {
+      return
+    } else {
+      setLastEvent(events.data?.event)
+    }
+
     // Check if already connected on mount
     if (events.data?.event === "INITIALIZE") {
       const checkConnection = async () => {
@@ -116,7 +123,7 @@ export function ConnectButton({ onConnect }: ConnectButtonProps) {
       console.log("disconnect")
       localStorage.removeItem("anypay-connected")
     }
-  }, [onConnect, events.data, walletInfo, account, connectors])
+  }, [onConnect, events.data?.event, walletInfo, account, connectors])
 
   return (
     <div className="flex justify-center">

@@ -61,7 +61,7 @@ export type AnyPayWidgetProps = {
   toRecipient?: string
   toAmount?: string
   toChainId?: number | string
-  toToken?: "USDC" | "ETH"
+  toToken?: string
   toCalldata?: string
   provider?: any
   children?: React.ReactNode

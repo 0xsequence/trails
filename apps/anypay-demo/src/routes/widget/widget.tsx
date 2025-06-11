@@ -13,7 +13,7 @@ export const Widget = () => {
   const [toRecipient, setToRecipient] = useState("")
   const [toAmount, setToAmount] = useState("")
   const [toChainId, setToChainId] = useState<number | undefined>()
-  const [toToken, setToToken] = useState<"ETH" | "USDC" | undefined>()
+  const [toToken, setToToken] = useState<string | undefined>()
   const [toCalldata, setToCalldata] = useState("")
   const [renderInline, setRenderInline] = useState<boolean | null>(null)
   const [useCustomButton, setUseCustomButton] = useState<boolean | null>(null)

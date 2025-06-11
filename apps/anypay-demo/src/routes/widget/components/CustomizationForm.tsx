@@ -8,6 +8,7 @@ const SUPPORTED_CHAINS = [
   { id: 8453, name: "Base", icon: 8453 },
   { id: 10, name: "Optimism", icon: 10 },
   { id: 42161, name: "Arbitrum", icon: 42161 },
+  { id: 137, name: "Polygon", icon: 137 },
 ]
 
 const SUPPORTED_TOKENS = [
@@ -23,6 +24,24 @@ const SUPPORTED_TOKENS = [
     imageUrl:
       "https://assets.sequence.info/images/tokens/small/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
   },
+  {
+    symbol: "USDT",
+    name: "Tether",
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/small/1/0xdac17f958d2ee523a2206206994597c13d831ec7.webp",
+  },
+  {
+    symbol: "BAT",
+    name: "Basic Attention Token",
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/small/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp",
+  },
+  {
+    symbol: "ARB",
+    name: "Arbitrum",
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/small/42161/0x912ce59144191c1204e64559fe8253a0e49e6548.webp",
+  },
 ] as const
 
 interface CustomizationFormProps {
@@ -32,8 +51,8 @@ interface CustomizationFormProps {
   setToAmount: (value: string) => void
   toChainId: number | undefined
   setToChainId: (value: number | undefined) => void
-  toToken: "ETH" | "USDC" | undefined
-  setToToken: (value: "ETH" | "USDC" | undefined) => void
+  toToken: string | undefined
+  setToToken: (value: string | undefined) => void
   toCalldata: string
   setToCalldata: (value: string) => void
   useCustomButton: boolean | null
@@ -80,7 +99,7 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
   return (
     <button
       onClick={() => onAddressSelect(address)}
-      className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+      className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 cursor-pointer text-white rounded-lg transition-colors"
     >
       Use Account
     </button>

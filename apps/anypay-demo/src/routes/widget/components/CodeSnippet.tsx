@@ -7,7 +7,7 @@ interface CodeSnippetProps {
   toRecipient: string
   toAmount: string
   toChainId: number | undefined
-  toToken: "ETH" | "USDC" | undefined
+  toToken: string | undefined
   toCalldata: string
   useCustomButton: boolean | null
   children?: ReactNode

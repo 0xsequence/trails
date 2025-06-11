@@ -244,6 +244,7 @@ export function useTokenBalances(
   }
 }
 
+// TODO: make this dynamic
 export async function getSourceTokenList(): Promise<string[]> {
   const allowedTokens = [
     "ETH",
@@ -258,6 +259,8 @@ export async function getSourceTokenList(): Promise<string[]> {
     "AVAX",
     "BNB",
     "OKB",
+    "BAT",
+    "ARB",
   ]
   return allowedTokens
 }
