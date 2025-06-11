@@ -19,6 +19,7 @@ export const Widget = () => {
   const [useCustomButton, setUseCustomButton] = useState<boolean | null>(null)
   const [provider, setProvider] = useState<any>(null)
   const [theme, setTheme] = useState<"light" | "dark" | "auto" | null>(null)
+  const [walletOptions, setWalletOptions] = useState<string[] | null>(null)
 
   const handleConnect = useCallback((provider: any) => {
     console.log("provider", provider)
@@ -31,6 +32,9 @@ export const Widget = () => {
     }
     if (!localStorage.getItem(STORAGE_KEYS.THEME)) {
       setTheme("light")
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.WALLET_OPTIONS)) {
+      setWalletOptions(["metamask"])
     }
   }, [])
 
@@ -47,7 +51,10 @@ export const Widget = () => {
           transaction confirmation process in action.
         </p>
 
-        <ConnectButton onConnect={handleConnect} />
+        <ConnectButton
+          onConnect={handleConnect}
+          walletOptions={walletOptions}
+        />
       </div>
 
       <div className="w-full max-w-6xl px-4">
@@ -71,6 +78,8 @@ export const Widget = () => {
               renderInline={renderInline}
               theme={theme}
               setTheme={setTheme}
+              walletOptions={walletOptions}
+              setWalletOptions={setWalletOptions}
             />
           </div>
 
@@ -85,6 +94,7 @@ export const Widget = () => {
               useCustomButton={useCustomButton}
               renderInline={renderInline}
               theme={theme}
+              walletOptions={walletOptions}
             >
               <div className="mt-6 w-full max-w-md mx-auto">
                 <AnyPayWidget
@@ -100,6 +110,7 @@ export const Widget = () => {
                   provider={provider}
                   renderInline={renderInline}
                   theme={theme}
+                  walletOptions={walletOptions}
                 >
                   {useCustomButton ? (
                     <button className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-lg hover:from-green-600 hover:to-emerald-600 cursor-pointer transition duration-300">

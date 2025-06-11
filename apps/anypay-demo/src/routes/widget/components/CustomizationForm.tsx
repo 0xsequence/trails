@@ -61,6 +61,8 @@ interface CustomizationFormProps {
   setRenderInline: (value: boolean | null) => void
   theme: "light" | "dark" | "auto" | null
   setTheme: (value: "light" | "dark" | "auto" | null) => void
+  walletOptions: string[] | null
+  setWalletOptions: (value: string[] | null) => void
 }
 
 // Local storage keys
@@ -73,6 +75,7 @@ export const STORAGE_KEYS = {
   CUSTOM_BUTTON: "anypay_custom_button",
   RENDER_INLINE: "anypay_render_inline",
   THEME: "anypay_theme",
+  WALLET_OPTIONS: "anypay_wallet_options",
 } as const
 
 interface UseAccountButtonProps {
@@ -123,6 +126,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   setRenderInline,
   theme,
   setTheme,
+  walletOptions,
+  setWalletOptions,
 }) => {
   const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
   const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
@@ -154,6 +159,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       | "dark"
       | "auto"
       | null
+    const savedWalletOptions = localStorage.getItem(STORAGE_KEYS.WALLET_OPTIONS)
 
     if (savedRecipient) setToRecipient(savedRecipient)
     if (savedAmount) setToAmount(savedAmount)
@@ -163,6 +169,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     if (savedCustomButton) setUseCustomButton(savedCustomButton === "true")
     if (savedRenderInline) setRenderInline(savedRenderInline === "true")
     if (savedTheme) setTheme(savedTheme)
+    if (savedWalletOptions) setWalletOptions(JSON.parse(savedWalletOptions))
   }, [
     setToRecipient,
     setToAmount,
@@ -172,6 +179,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setUseCustomButton,
     setRenderInline,
     setTheme,
+    setWalletOptions,
   ])
 
   // Save values to localStorage whenever they change
@@ -217,6 +225,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
   }, [renderInline])
 
+  // Save wallet options to localStorage
+  useEffect(() => {
+    if (walletOptions) {
+      localStorage.setItem(
+        STORAGE_KEYS.WALLET_OPTIONS,
+        JSON.stringify(walletOptions),
+      )
+    }
+  }, [walletOptions])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -259,6 +277,20 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     Object.values(STORAGE_KEYS).forEach((key) => {
       localStorage.removeItem(key)
     })
+  }
+
+  const handleWalletOptionToggle = (wallet: string) => {
+    if (!walletOptions) {
+      setWalletOptions([wallet])
+      return
+    }
+
+    if (walletOptions.includes(wallet)) {
+      const newOptions = walletOptions.filter((w) => w !== wallet)
+      setWalletOptions(newOptions)
+    } else {
+      setWalletOptions([...walletOptions, wallet])
+    }
   }
 
   return (
@@ -500,6 +532,27 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   }`}
                 >
                   {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between py-2">
+            <label className="block text-sm font-medium text-gray-200">
+              Wallet Options
+            </label>
+            <div className="flex rounded-lg overflow-hidden border border-gray-600">
+              {(["metamask"] as const).map((wallet) => (
+                <button
+                  key={wallet}
+                  onClick={() => handleWalletOptionToggle(wallet)}
+                  className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                    walletOptions?.includes(wallet)
+                      ? "bg-blue-500 text-white"
+                      : "text-gray-300 hover:text-white hover:bg-gray-700"
+                  }`}
+                >
+                  {wallet.charAt(0).toUpperCase() + wallet.slice(1)}
                 </button>
               ))}
             </div>

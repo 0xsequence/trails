@@ -1,30 +1,32 @@
 import { Check, Copy } from "lucide-react"
-import { type ReactNode, useState } from "react"
+import { useState } from "react"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"
 
 interface CodeSnippetProps {
+  children: React.ReactNode
   toRecipient: string
   toAmount: string
   toChainId: number | undefined
   toToken: string | undefined
   toCalldata: string
   useCustomButton: boolean | null
-  children?: ReactNode
-  renderInline?: boolean | null
+  renderInline: boolean | null
   theme: "light" | "dark" | "auto" | null
+  walletOptions: string[] | null
 }
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = ({
+  children,
   toRecipient,
   toAmount,
   toChainId,
   toToken,
   toCalldata,
   useCustomButton,
-  children,
   renderInline,
   theme,
+  walletOptions,
 }) => {
   const [isCopied, setIsCopied] = useState(false)
 
@@ -38,20 +40,26 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
     }
   }
 
-  const codeExample = `import { AnyPayWidget } from '@0xsequence/anypay-sdk/widget'
+  const getCode = () => {
+    const props = [
+      toRecipient && `toRecipient="${toRecipient}"`,
+      toAmount && `toAmount="${toAmount}"`,
+      toChainId && `toChainId={${toChainId}}`,
+      toToken && `toToken="${toToken}"`,
+      toCalldata && `toCalldata="${toCalldata}"`,
+      renderInline !== null && `renderInline={${renderInline}}`,
+      theme && `theme="${theme}"`,
+      walletOptions && `walletOptions={${JSON.stringify(walletOptions)}}`,
+    ].filter(Boolean)
+
+    return `import { AnyPayWidget } from '@0xsequence/anypay-sdk/widget'
 
 export const App = () => {
   return (${
     useCustomButton
       ? `
     <AnyPayWidget
-      sequenceApiKey={'key_123...'}${toRecipient ? `\n      toRecipient="${toRecipient}"` : ""}${
-        toAmount ? `\n      toAmount="${toAmount}"` : ""
-      }${toChainId ? `\n      toChainId={${toChainId}}` : ""}${
-        toToken ? `\n      toToken="${toToken}"` : ""
-      }${toCalldata ? `\n      toCalldata="${toCalldata}"` : ""}${renderInline ? `\n      renderInline={true}` : ""}${
-        theme ? `\n      theme="${theme}"` : ""
-      }
+      sequenceApiKey={'key_123...'}${props.join("\n      ")}
     >
       <button className="custom-button-styles">
         Pay with AnyPay
@@ -59,17 +67,14 @@ export const App = () => {
     </AnyPayWidget>`
       : `
     <AnyPayWidget
-      sequenceApiKey={'key_123...'}${toRecipient ? `\n      toRecipient="${toRecipient}"` : ""}${
-        toAmount ? `\n      toAmount="${toAmount}"` : ""
-      }${toChainId ? `\n      toChainId={${toChainId}}` : ""}${
-        toToken ? `\n      toToken="${toToken}"` : ""
-      }${toCalldata ? `\n      toCalldata="${toCalldata}"` : ""}${renderInline ? `\n      renderInline={true}` : ""}${
-        theme ? `\n      theme="${theme}"` : ""
-      }
+      sequenceApiKey={'key_123...'}${props.join("\n      ")}
     />`
   }
   )
 }`
+  }
+
+  const codeExample = getCode()
 
   return (
     <div className="bg-gray-800 rounded-lg p-6 h-full">

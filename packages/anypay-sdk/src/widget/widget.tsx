@@ -67,6 +67,7 @@ export type AnyPayWidgetProps = {
   children?: React.ReactNode
   renderInline?: boolean
   theme?: Theme
+  walletOptions?: string[]
   onOriginConfirmation?: (txHash: string) => void
   onDestinationConfirmation?: (txHash: string) => void
 }
@@ -103,6 +104,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   children,
   renderInline = true,
   theme: initialTheme = "auto",
+  walletOptions,
   onOriginConfirmation,
   onDestinationConfirmation,
 }) => {
@@ -294,7 +296,13 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   const renderScreenContent = () => {
     switch (currentScreen) {
       case "connect":
-        return <ConnectWallet onConnect={handleConnect} theme={theme} />
+        return (
+          <ConnectWallet
+            onConnect={handleConnect}
+            theme={theme}
+            walletOptions={walletOptions}
+          />
+        )
       case "tokens":
         return (
           <TokenList
