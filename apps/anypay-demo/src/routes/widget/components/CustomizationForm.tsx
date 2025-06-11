@@ -130,8 +130,11 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   const tokenDropdownRef = useRef<HTMLDivElement>(null)
   const chainDropdownRef = useRef<HTMLDivElement>(null)
 
-  // Add state for NFT mint form
-  const [isNftMintFormOpen, setIsNftMintFormOpen] = useState(false)
+  // Add state for NFT mint forms
+  const [isArbitrumNftMintFormOpen, setIsArbitrumNftMintFormOpen] =
+    useState(false)
+  const [isPolygonNftMintFormOpen, setIsPolygonNftMintFormOpen] =
+    useState(false)
   const [nftRecipient, setNftRecipient] = useState("")
 
   // Load saved values from localStorage on mount
@@ -516,23 +519,25 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             <div className="space-y-2">
               <div className="rounded-lg border border-gray-600 overflow-hidden">
                 <button
-                  onClick={() => setIsNftMintFormOpen(!isNftMintFormOpen)}
+                  onClick={() =>
+                    setIsArbitrumNftMintFormOpen(!isArbitrumNftMintFormOpen)
+                  }
                   className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors duration-200 text-sm font-medium cursor-pointer text-left flex justify-between items-center"
                 >
                   <div>
-                    <div>Cross-chain NFT Mint</div>
+                    <div>Arbitrum NFT Mint</div>
                     <div className="text-xs text-gray-400 mt-1">
-                      Mint an NFT on another chain
+                      Mint an NFT on Arbitrum with ETH
                     </div>
                   </div>
                   <ChevronDown
                     className={`h-5 w-5 text-gray-400 transition-transform ${
-                      isNftMintFormOpen ? "transform rotate-180" : ""
+                      isArbitrumNftMintFormOpen ? "transform rotate-180" : ""
                     }`}
                   />
                 </button>
 
-                {isNftMintFormOpen && (
+                {isArbitrumNftMintFormOpen && (
                   <div className="p-4 bg-gray-800 space-y-4">
                     <div>
                       <div className="flex justify-between items-center mb-2">
@@ -563,6 +568,68 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         setToAmount("0.00002")
                         setToToken("ETH")
                         setToChainId(42161)
+                      }}
+                      disabled={!nftRecipient}
+                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed"
+                    >
+                      Apply Example
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Polygon NFT Mint Example */}
+              <div className="rounded-lg border border-gray-600 overflow-hidden">
+                <button
+                  onClick={() =>
+                    setIsPolygonNftMintFormOpen(!isPolygonNftMintFormOpen)
+                  }
+                  className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors duration-200 text-sm font-medium cursor-pointer text-left flex justify-between items-center"
+                >
+                  <div>
+                    <div>Polygon NFT Mint</div>
+                    <div className="text-xs text-gray-400 mt-1">
+                      Mint an NFT on Polygon with BAT
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`h-5 w-5 text-gray-400 transition-transform ${
+                      isPolygonNftMintFormOpen ? "transform rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {isPolygonNftMintFormOpen && (
+                  <div className="p-4 bg-gray-800 space-y-4">
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="block text-sm font-medium text-gray-200">
+                          NFT Recipient
+                        </label>
+                        <UseAccountButton onAddressSelect={setNftRecipient} />
+                      </div>
+                      <input
+                        type="text"
+                        value={nftRecipient}
+                        onChange={(e) => setNftRecipient(e.target.value.trim())}
+                        placeholder="0x..."
+                        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        const formattedAddress = nftRecipient
+                          ? formatAddressForCalldata(nftRecipient)
+                          : ""
+                        setToRecipient(
+                          "0x15e68e3Cdf84ea8bB2CeF2c3b49976903543F708",
+                        )
+                        setToCalldata(
+                          `0x6a627842000000000000000000000000${formattedAddress}`,
+                        )
+                        setToAmount("0.5")
+                        setToToken("BAT")
+                        setToChainId(137)
                       }}
                       disabled={!nftRecipient}
                       className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed"

@@ -814,20 +814,22 @@ export const SendForm: React.FC<SendFormProps> = ({
             >
               Recipient Address
             </label>
-            <button
-              onClick={(event) => {
-                event.preventDefault()
-                setRecipientInput(account.address)
-                setRecipient(account.address)
-              }}
-              className={`px-3 py-1 text-xs cursor-pointer ${
-                theme === "dark"
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-blue-500 hover:bg-blue-600"
-              } text-white rounded-lg transition-colors`}
-            >
-              Use Account
-            </button>
+            {!toRecipient && (
+              <button
+                onClick={(event) => {
+                  event.preventDefault()
+                  setRecipientInput(account.address)
+                  setRecipient(account.address)
+                }}
+                className={`px-3 py-1 text-xs cursor-pointer ${
+                  theme === "dark"
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : "bg-blue-500 hover:bg-blue-600"
+                } text-white rounded-lg transition-colors`}
+              >
+                Use Account
+              </button>
+            )}
           </div>
           {toRecipient ? (
             <div
