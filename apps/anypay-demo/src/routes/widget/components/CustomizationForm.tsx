@@ -1,6 +1,7 @@
 import { NetworkImage, TokenImage } from "@0xsequence/design-system"
 import { ChevronDown } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { useAccount } from "wagmi"
 
 const SUPPORTED_CHAINS = [
   { id: 1, name: "Ethereum", icon: 1 },
@@ -54,6 +55,37 @@ export const STORAGE_KEYS = {
   RENDER_INLINE: "anypay_render_inline",
   THEME: "anypay_theme",
 } as const
+
+interface UseAccountButtonProps {
+  onAddressSelect: (address: string) => void
+}
+
+const UseAccountButton: React.FC<UseAccountButtonProps> = ({
+  onAddressSelect,
+}) => {
+  const { address, isConnected } = useAccount()
+
+  if (!isConnected || !address) {
+    return (
+      <button
+        disabled
+        className="px-3 py-1 text-xs bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed"
+        title="Connect your wallet first"
+      >
+        Use Account
+      </button>
+    )
+  }
+
+  return (
+    <button
+      onClick={() => onAddressSelect(address)}
+      className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+    >
+      Use Account
+    </button>
+  )
+}
 
 export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   toRecipient,
@@ -484,9 +516,12 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                 {isNftMintFormOpen && (
                   <div className="p-4 bg-gray-800 space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-200 mb-2">
-                        NFT Recipient
-                      </label>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="block text-sm font-medium text-gray-200">
+                          NFT Recipient
+                        </label>
+                        <UseAccountButton onAddressSelect={setNftRecipient} />
+                      </div>
                       <input
                         type="text"
                         value={nftRecipient}
