@@ -249,13 +249,13 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     if (onOriginConfirmation && originTxHash) {
       onOriginConfirmation(originTxHash)
     }
-  }, [originTxHash])
+  }, [originTxHash, onOriginConfirmation])
 
   useEffect(() => {
     if (onDestinationConfirmation && destinationTxHash) {
       onDestinationConfirmation(destinationTxHash)
     }
-  }, [destinationTxHash])
+  }, [destinationTxHash, onDestinationConfirmation])
 
   function handleTransferComplete(data?: {
     originChainId: number
