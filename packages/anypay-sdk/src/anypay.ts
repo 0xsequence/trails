@@ -17,6 +17,7 @@ import {
   type Hex,
   http,
   isAddressEqual,
+  parseUnits,
   type TransactionReceipt,
   type WalletClient,
   zeroAddress,
@@ -1681,6 +1682,8 @@ export async function prepareSend(options: SendOptions) {
       const firstPreconditionAddress = firstPrecondition?.data?.address
       const firstPreconditionMin = firstPrecondition?.data?.min
 
+      const buffer = BigInt(100) // wei to account for rounding errors
+
       const originCallParams = {
         to:
           originTokenAddress === zeroAddress
@@ -1695,7 +1698,7 @@ export async function prepareSend(options: SendOptions) {
               ),
         value:
           originTokenAddress === zeroAddress
-            ? BigInt(firstPreconditionMin) + BigInt(fee)
+            ? BigInt(firstPreconditionMin) + BigInt(fee) + buffer
             : "0",
         chainId: originChainId,
         chain,

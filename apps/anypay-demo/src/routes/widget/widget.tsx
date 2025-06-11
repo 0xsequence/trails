@@ -51,10 +51,7 @@ export const Widget = () => {
           transaction confirmation process in action.
         </p>
 
-        <ConnectButton
-          onConnect={handleConnect}
-          walletOptions={walletOptions}
-        />
+        <ConnectButton onConnect={handleConnect} />
       </div>
 
       <div className="w-full max-w-6xl px-4">
