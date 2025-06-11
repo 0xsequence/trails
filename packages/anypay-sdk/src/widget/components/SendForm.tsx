@@ -302,6 +302,7 @@ export const SendForm: React.FC<SendFormProps> = ({
             ? zeroAddress
             : getDestTokenAddress(selectedChain.id, selectedDestToken.symbol),
         destinationTokenAmount: parsedAmount,
+        destinationTokenSymbol: selectedDestToken.symbol,
         sequenceApiKey,
         fee: "0",
         client: walletClient!,

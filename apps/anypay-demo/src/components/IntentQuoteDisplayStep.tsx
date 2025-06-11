@@ -20,19 +20,20 @@ import {
 import { Address as OxAddress } from "ox"
 import type React from "react"
 import { formatUnits, type Hex, isAddressEqual, zeroAddress } from "viem"
-import * as chains from "viem/chains"
 import { SectionHeader } from "@/components/SectionHeader"
+import {
+  MOCK_CHAIN_ID,
+  MOCK_CONTRACT_ADDRESS,
+  MOCK_TOKEN_ADDRESS,
+  MOCK_TOKEN_AMOUNT,
+  PAY_AMOUNT,
+  PAY_CHAIN_ID,
+  PAY_RECIPIENT_ADDRESS,
+  PAY_TOKEN_DECIMALS,
+  PAY_TOKEN_SYMBOL,
+} from "@/config"
 import type { IntentAction } from "@/types"
 import { getChainInfo } from "@/utils/formatting"
-
-// Mock Data
-const BASE_USDC_DESTINATION_CHAIN_ID = chains.base.id
-const RECIPIENT_ADDRESS = "0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C"
-const AMOUNT = 300000n
-const MOCK_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"
-const MOCK_CHAIN_ID = chains.arbitrum.id
-const MOCK_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000"
-const MOCK_TOKEN_AMOUNT = "3000000"
 
 interface IntentQuoteDisplayStepProps {
   createIntentPending: boolean
@@ -120,22 +121,21 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
     if (!intentCallsPayloads || !intentActionType || !selectedToken) return null
 
     if (intentActionType === "pay") {
-      const baseChainInfo = getChainInfo(BASE_USDC_DESTINATION_CHAIN_ID)
-      const baseChainName =
-        baseChainInfo?.name || `Chain ID ${BASE_USDC_DESTINATION_CHAIN_ID}`
+      const baseChainInfo = getChainInfo(PAY_CHAIN_ID)
+      const baseChainName = baseChainInfo?.name || `Chain ID ${PAY_CHAIN_ID}`
       return (
         <>
           <Zap className="h-3.5 w-3.5 mr-1.5 text-purple-400 flex-shrink-0" />
           Intent: Send{" "}
           <strong className="text-gray-200 mx-1">
-            {formatUnits(AMOUNT, 6)} USDC
+            {formatUnits(PAY_AMOUNT, PAY_TOKEN_DECIMALS)} {PAY_TOKEN_SYMBOL}
           </strong>
           to{" "}
           <strong
             className="text-gray-200 font-mono mx-1 truncate max-w-[100px]"
-            title={RECIPIENT_ADDRESS}
+            title={PAY_RECIPIENT_ADDRESS}
           >
-            {RECIPIENT_ADDRESS}
+            {PAY_RECIPIENT_ADDRESS}
           </strong>
           on <strong className="text-gray-200 mx-1">{baseChainName}</strong>
         </>

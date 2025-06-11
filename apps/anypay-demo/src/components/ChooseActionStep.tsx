@@ -4,6 +4,7 @@ import { AlertTriangle, PenSquare, Zap } from "lucide-react"
 import type React from "react"
 import * as chains from "viem/chains"
 import { SectionHeader } from "@/components/SectionHeader"
+import { PAY_CHAIN_ID, PAY_DISPLAY_TEXT } from "@/config"
 import type { IntentAction } from "@/types"
 
 interface ChooseActionStepProps {
@@ -104,11 +105,15 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
             "Processing..."
           ) : (
             <>
-              <NetworkImage chainId={8453} size="sm" className="w-5 h-5" />
+              <NetworkImage
+                chainId={PAY_CHAIN_ID}
+                size="sm"
+                className="w-5 h-5"
+              />
               <span>
                 Pay Action{" "}
                 <Text variant="small" color="secondary">
-                  (Donate 0.03 $USDC)
+                  {PAY_DISPLAY_TEXT}
                 </Text>
               </span>
             </>

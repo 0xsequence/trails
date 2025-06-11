@@ -377,6 +377,17 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     GetIntentCallsPayloadsArgs
   >({
     mutationFn: async (args: GetIntentCallsPayloadsArgs) => {
+      if (
+        args.originChainId === args.destinationChainId &&
+        isAddressEqual(
+          Address.from(args.originTokenAddress),
+          Address.from(args.destinationTokenAddress),
+        )
+      ) {
+        throw new Error(
+          "The same token cannot be used as both the source and destination token.",
+        )
+      }
       if (!account.address) {
         throw new Error("Missing selected token or account address")
       }
@@ -1276,7 +1287,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         }))
       }
     })
-  }, [metaTxns, metaTxnMonitorStatuses])
+  }, [metaTxns, metaTxnMonitorStatuses, metaTxnBlockTimestamps])
 
   const updateAutoExecute = (enabled: boolean) => {
     setIsAutoExecute(enabled)
@@ -1420,9 +1431,10 @@ export type SendOptions = {
   recipient: string
   destinationTokenAddress: string
   destinationTokenAmount: string
+  destinationTokenSymbol: string
   sequenceApiKey: string
   fee: string
-  client: WalletClient
+  client?: WalletClient
   dryMode?: boolean
   apiClient: SequenceAPIClient
   originRelayer: Relayer.Rpc.RpcRelayer
@@ -1448,6 +1460,7 @@ export async function prepareSend(options: SendOptions) {
     recipient,
     destinationTokenAddress,
     destinationTokenAmount,
+    destinationTokenSymbol,
     fee,
     client: walletClient,
     dryMode,
@@ -1457,6 +1470,11 @@ export async function prepareSend(options: SendOptions) {
     destinationCalldata,
     onTransactionStateChange,
   } = options
+
+  if (!walletClient) {
+    throw new Error("Wallet client not provided")
+  }
+
   const chain = getChainInfo(originChainId)!
   const isToSameChain = originChainId === destinationChainId
   const isToSameToken = originTokenAddress === destinationTokenAddress
@@ -1485,11 +1503,15 @@ export async function prepareSend(options: SendOptions) {
     userAddress: mainSigner,
     originChainId,
     originTokenAddress,
-    originTokenAmount, // max amount
+    originTokenAmount:
+      originTokenAddress === destinationTokenAddress
+        ? destinationTokenAmount
+        : originTokenAmount, // max amount
     destinationChainId,
     destinationToAddress: _destinationToAddress,
     destinationTokenAddress: destinationTokenAddress,
     destinationTokenAmount: destinationTokenAmount,
+    destinationTokenSymbol: destinationTokenSymbol,
     destinationCallData: _destinationCalldata,
     destinationCallValue: _destinationCallValue,
   }
