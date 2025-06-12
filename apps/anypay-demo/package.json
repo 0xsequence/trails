@@ -13,7 +13,7 @@
     "test": "echo tests are not implemented.",
     "typecheck": "tsc --noEmit",
     "reinstall": "rimraf -g ./node_modules && pnpm install",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist node_modules/.vite"
   },
   "dependencies": {
     "@0xsequence/anypay-sdk": "workspace:*",
