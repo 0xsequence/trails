@@ -13,6 +13,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   type Account as AccountType,
   createPublicClient,
+  createWalletClient,
+  custom,
   type Hex,
   http,
   isAddressEqual,
@@ -22,6 +24,7 @@ import {
 } from "viem"
 import * as chains from "viem/chains"
 import {
+  type Connector,
   useEstimateGas,
   useSendTransaction,
   useSwitchChain,
@@ -55,6 +58,7 @@ export type Account = {
   address: `0x${string}`
   isConnected: boolean
   chainId: number
+  connector?: Connector
 }
 
 export type UseAnyPayConfig = {
@@ -409,7 +413,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       setIntentCallsPayloads(data.calls)
       setIntentPreconditions(data.preconditions)
       setLifiInfos(data.lifiInfos)
-      setAnypayFee(data.anypayFee)
+      setAnypayFee(data.anypayFee!)
       setCommittedIntentAddress(null)
 
       setVerificationStatus(null)
@@ -541,16 +545,17 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         `Switching to chain ${originCallParams.chainId}...`,
       )
 
+      const walletClient = createWalletClient({
+        chain: getChainInfo(originCallParams.chainId)!,
+        transport: custom((await account.connector!.getProvider()) as any), // TODO: Add proper type
+      })
+
       try {
-        console.log("Switching to chain:", originCallParams.chainId)
-        await switchChain({ chainId: originCallParams.chainId })
+        await attemptSwitchChain(walletClient, originCallParams.chainId)
+        setIsChainSwitchRequired(false)
       } catch (error: unknown) {
-        console.error("Failed to switch chain:", error)
-        if (
-          error instanceof Error &&
-          (error.message.includes("User rejected") ||
-            error.message.includes("user rejected"))
-        ) {
+        console.error("Chain switch failed:", error)
+        if (error instanceof Error && error.message.includes("User rejected")) {
           setIsAutoExecute(false)
         }
         updateOriginCallStatus(
@@ -558,11 +563,13 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
           "reverted",
           undefined,
           undefined,
-          `Failed to switch chain: ${error instanceof Error ? error.message : "Unknown error"}`,
+          error instanceof Error
+            ? error.message
+            : "Unknown error switching chain",
         )
         setIsChainSwitchRequired(false)
+        return // Stop execution on switch failure
       }
-      return // Stop execution here whether switch succeeded or failed.
     }
 
     // Ensure only one transaction is sent at a time
@@ -661,9 +668,32 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       originCallParams?.chainId &&
       account.chainId === originCallParams.chainId
     ) {
+      console.log("No chain switch required")
       setIsChainSwitchRequired(false)
     }
   }, [account.chainId, originCallParams?.chainId])
+
+  // Effect to handle chain switching
+  useEffect(() => {
+    if (
+      originCallParams?.chainId &&
+      account.chainId !== originCallParams.chainId
+    ) {
+      async function check() {
+        try {
+          const chainId = originCallParams!.chainId!
+          const walletClient = createWalletClient({
+            chain: getChainInfo(chainId)!,
+            transport: custom((await account.connector!.getProvider()) as any), // TODO: Add proper type
+          })
+          await attemptSwitchChain(walletClient, chainId)
+        } catch (error) {
+          console.error("Chain switch failed:", error)
+        }
+      }
+      check().catch(console.error)
+    }
+  }, [account, originCallParams])
 
   // Hook to wait for transaction receipt
   const {
@@ -1592,7 +1622,7 @@ export async function prepareSend(options: SendOptions) {
         const originMetaTxnReceipt: any = null // TODO: Add proper type
         const destinationMetaTxnReceipt: any = null // TODO: Add proper type
 
-        await walletClient.switchChain({ id: originChainId })
+        await attemptSwitchChain(walletClient, originChainId)
         if (!dryMode) {
           onTransactionStateChange([
             {
@@ -1726,7 +1756,7 @@ export async function prepareSend(options: SendOptions) {
       let destinationMetaTxnReceipt: any = null // TODO: Add proper type
 
       onTransactionStateChange(transactionStates)
-      await walletClient.switchChain({ id: originChainId })
+      await attemptSwitchChain(walletClient, originChainId)
 
       const capabilities = await walletClient.request({
         method: "wallet_getCapabilities",
@@ -1983,4 +2013,25 @@ export function getExplorerUrl(txHash: string, chainId: number) {
     }
   }
   return ""
+}
+
+async function attemptSwitchChain(
+  walletClient: WalletClient,
+  desiredChainId: number,
+): Promise<void> {
+  try {
+    console.log("Switching to chain:", desiredChainId)
+    await walletClient.switchChain({ id: desiredChainId })
+
+    // Check if the chain was switched successfully
+    const currentChainId = await walletClient.getChainId()
+    if (currentChainId !== desiredChainId) {
+      throw new Error("Failed to switch chain")
+    }
+  } catch (error: unknown) {
+    console.error("Chain switch failed:", error)
+    throw new Error(
+      `Failed to switch chain: ${error instanceof Error ? error.message : "Unknown error"}`,
+    )
+  }
 }

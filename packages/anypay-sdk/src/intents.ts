@@ -74,7 +74,7 @@ export interface AnypayFee {
 
 export type GetIntentCallsPayloadsReturn =
   GetIntentCallsPayloadsReturnFromAPI & {
-    fee?: AnypayFee
+    anypayFee?: AnypayFee
   }
 
 export type OriginCallParams = {
