@@ -680,7 +680,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         setToCalldata(
                           `0x6a627842000000000000000000000000${formattedAddress}`,
                         )
-                        setToAmount("0.5")
+                        setToAmount("1")
                         setToToken("BAT")
                         setToChainId(137)
                       }}

@@ -513,10 +513,8 @@ export const SendForm: React.FC<SendFormProps> = ({
             From: {selectedToken.name}
           </h3>
           <p className={theme === "dark" ? "text-gray-400" : "text-gray-500"}>
-            on {chainInfo?.name || "Unknown Chain"}
-          </p>
-          <p className={theme === "dark" ? "text-gray-400" : "text-gray-500"}>
-            Balance: {formattedBalance} {selectedToken.symbol}
+            on {chainInfo?.name || "Unknown Chain"} • Balance:{" "}
+            {formattedBalance} {selectedToken.symbol}
             {balanceUsdFormatted && (
               <span
                 className={`ml-1 text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
@@ -528,22 +526,16 @@ export const SendForm: React.FC<SendFormProps> = ({
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Chain Selection */}
-        <div className="space-y-2">
+      <form onSubmit={handleSubmit} className="space-y-2">
+        {/* Chain Selection - More Compact */}
+        <div>
           <label
-            className={`block text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+            className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
           >
             Destination Chain
           </label>
           {toChainId ? (
-            <div
-              className={`flex items-center px-4 py-3 border rounded-lg ${
-                theme === "dark"
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-gray-50 border-gray-200"
-              }`}
-            >
+            <div className="flex items-center px-2 py-1">
               <NetworkImage
                 chainId={selectedChain.icon}
                 size="sm"
@@ -628,32 +620,20 @@ export const SendForm: React.FC<SendFormProps> = ({
           )}
         </div>
 
-        {/* Token Selection */}
-        <div className="space-y-2">
+        {/* Token Selection - More Compact */}
+        <div>
           <label
-            className={`block text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+            className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
           >
             Receive Token
           </label>
           {toToken ? (
-            <div
-              className={`flex items-center px-4 py-3 border rounded-lg ${
-                theme === "dark"
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-gray-50 border-gray-200"
-              }`}
-            >
-              <div
-                className={`w-5 h-5 rounded-full flex items-center justify-center text-sm ${
-                  theme === "dark" ? "bg-gray-700" : "bg-gray-100"
-                }`}
-              >
-                <TokenImage
-                  symbol={selectedDestToken.symbol}
-                  src={selectedDestToken.imageUrl}
-                  size="sm"
-                />
-              </div>
+            <div className="flex items-center px-2 py-1">
+              <TokenImage
+                symbol={selectedDestToken.symbol}
+                src={selectedDestToken.imageUrl}
+                size="sm"
+              />
               <span
                 className={`ml-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
               >
@@ -747,28 +727,24 @@ export const SendForm: React.FC<SendFormProps> = ({
           )}
         </div>
 
-        {/* Amount Input */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <label
-              htmlFor="amount"
-              className={`block text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
-            >
-              Amount to Receive
-            </label>
-          </div>
+        {/* Amount Input - More Compact */}
+        <div>
+          <label
+            className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+          >
+            Amount to Receive
+          </label>
           {toAmount ? (
-            <div
-              className={`px-4 py-3 border rounded-lg ${
-                theme === "dark"
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-gray-50 border-gray-200"
-              }`}
-            >
+            <div className="flex items-center justify-between px-2 py-1">
               <span
-                className={`break-all ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                className={`${theme === "dark" ? "text-white" : "text-gray-900"}`}
               >
                 {toAmount} {selectedDestToken.symbol}
+              </span>
+              <span
+                className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+              >
+                ≈ {amountUsdValue}
               </span>
             </div>
           ) : (
@@ -796,21 +772,13 @@ export const SendForm: React.FC<SendFormProps> = ({
               </div>
             </div>
           )}
-          {amount && selectedDestToken.symbol && (
-            <div
-              className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
-            >
-              ≈ {amountUsdValue}
-            </div>
-          )}
         </div>
 
-        {/* Recipient Input */}
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
+        {/* Recipient Input - More Compact */}
+        <div>
+          <div className="flex justify-between items-center mb-1">
             <label
-              htmlFor="recipient"
-              className={`block text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+              className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
             >
               Recipient Address
             </label>
@@ -821,28 +789,20 @@ export const SendForm: React.FC<SendFormProps> = ({
                   setRecipientInput(account.address)
                   setRecipient(account.address)
                 }}
-                className={`px-3 py-1 text-xs cursor-pointer ${
+                className={`px-2 py-1 text-xs ${
                   theme === "dark"
                     ? "bg-blue-600 hover:bg-blue-700"
                     : "bg-blue-500 hover:bg-blue-600"
-                } text-white rounded-lg transition-colors`}
+                } text-white rounded transition-colors`}
               >
                 Use Account
               </button>
             )}
           </div>
           {toRecipient ? (
-            <div
-              className={`px-4 py-3 border rounded-lg font-mono text-sm ${
-                theme === "dark"
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-gray-50 border-gray-200"
-              }`}
-            >
+            <div className="px-2 py-1 font-mono text-sm">
               <span
-                className={`break-all overflow-hidden text-ellipsis ${
-                  theme === "dark" ? "text-white" : "text-gray-900"
-                }`}
+                className={`break-all ${theme === "dark" ? "text-white" : "text-gray-900"}`}
               >
                 {recipient}
               </span>
@@ -876,34 +836,27 @@ export const SendForm: React.FC<SendFormProps> = ({
           )}
         </div>
 
-        {/* Custom Calldata Message */}
+        {/* Custom Calldata - More Compact */}
         {toCalldata && (
-          <div
-            className={`px-4 py-3 border rounded-lg ${
-              theme === "dark"
-                ? "bg-gray-800 border-gray-700"
-                : "bg-gray-50 border-gray-200"
-            }`}
-          >
+          <div className="px-2 py-1">
             <p
-              className={`text-sm break-words ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
+              className={`text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
             >
               This transaction includes custom calldata for contract interaction
             </p>
           </div>
         )}
 
-        <div className="flex flex-col space-y-3">
+        {/* Error and Submit Button */}
+        <div className="flex flex-col space-y-3 pt-2">
           {error && (
             <div
-              className={`border rounded-lg p-4 ${
-                theme === "dark"
-                  ? "bg-red-900/20 border-red-800"
-                  : "bg-red-50 border-red-200"
+              className={`px-3 py-2 rounded-lg ${
+                theme === "dark" ? "bg-red-900/20" : "bg-red-50"
               }`}
             >
               <p
-                className={`text-sm break-words ${theme === "dark" ? "text-red-200" : "text-red-600"}`}
+                className={`text-sm ${theme === "dark" ? "text-red-200" : "text-red-600"}`}
               >
                 {error}
               </p>
