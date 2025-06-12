@@ -18,6 +18,7 @@ export default defineConfig({
     rollupOptions: {
       external: [
         "react",
+        "react/jsx-runtime",
         "react-dom",
         "@0xsequence/design-system",
         "wagmi",

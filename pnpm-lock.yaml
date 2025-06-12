@@ -33,14 +33,14 @@ importers:
         specifier: workspace:*
         version: link:../../packages/anypay-sdk
       '@0xsequence/api':
-        specifier: 0.0.0-anypay-20250527101311
-        version: 0.0.0-anypay-20250527101311
+        specifier: workspace:*
+        version: link:../../packages/api
       '@0xsequence/design-system':
         specifier: ^2.1.14
         version: 2.1.15(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(motion@12.17.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@0xsequence/hooks':
         specifier: ^5.3.4
-        version: 5.3.5(@0xsequence/api@0.0.0-anypay-20250527101311)(@0xsequence/indexer@2.3.17)(@0xsequence/metadata@2.3.17)(@0xsequence/network@2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(@tanstack/react-query@5.80.7(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(viem@2.31.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.63))
+        version: 5.3.5(@0xsequence/api@packages+api)(@0xsequence/indexer@2.3.17)(@0xsequence/metadata@2.3.17)(@0xsequence/network@2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(@tanstack/react-query@5.80.7(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(viem@2.31.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.63))
       '@0xsequence/indexer':
         specifier: ^2.3.17
         version: 2.3.17
@@ -309,9 +309,6 @@ packages:
     resolution: {integrity: sha512-fEM0TXdBGXeKA4ooSuVRubhN8xe1O40d4FcTIGvrhj8VahUjcxjjf1ln3eCuF/3IrWna077EiELHXQHsSBlHYQ==}
     peerDependencies:
       ethers: '>=6'
-
-  '@0xsequence/api@0.0.0-anypay-20250527101311':
-    resolution: {integrity: sha512-7MYG5Sr7Wl6GLpYLGJjK6VjODtwmbF/ydKcSR9IBPbhDF6om3ydwEgtvkkg6NhQ7kFr+n2Vmz8BE2vElRPWC3A==}
 
   '@0xsequence/api@2.3.17':
     resolution: {integrity: sha512-FC65y3VjIl7/stTK9Iy5804aqn0EUteBkYCW3ehbhksk7P46YyGPtNmaKMxTh7cHYuw1+Cmb0w7kffkyn2G3kw==}
@@ -4524,8 +4521,6 @@ snapshots:
       '@0xsequence/wallet': 2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       ethers: 6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
 
-  '@0xsequence/api@0.0.0-anypay-20250527101311': {}
-
   '@0xsequence/api@2.3.17': {}
 
   '@0xsequence/auth@2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
@@ -4591,9 +4586,9 @@ snapshots:
       '@0xsequence/utils': 2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       ethers: 6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
 
-  '@0xsequence/hooks@5.3.5(@0xsequence/api@0.0.0-anypay-20250527101311)(@0xsequence/indexer@2.3.17)(@0xsequence/metadata@2.3.17)(@0xsequence/network@2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(@tanstack/react-query@5.80.7(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(viem@2.31.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.63))':
+  '@0xsequence/hooks@5.3.5(@0xsequence/api@packages+api)(@0xsequence/indexer@2.3.17)(@0xsequence/metadata@2.3.17)(@0xsequence/network@2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(@tanstack/react-query@5.80.7(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(viem@2.31.0(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.63))':
     dependencies:
-      '@0xsequence/api': 0.0.0-anypay-20250527101311
+      '@0xsequence/api': link:packages/api
       '@0xsequence/indexer': 2.3.17
       '@0xsequence/metadata': 2.3.17
       '@0xsequence/network': 2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
