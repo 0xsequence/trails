@@ -93,6 +93,7 @@ function useHook() {
     originCallParams,
     originBlockTimestamp,
     metaTxnBlockTimestamps,
+    anypayFee,
   } = useAnyPay({
     account: account as Account,
     env: import.meta.env.VITE_ENV,
@@ -338,6 +339,7 @@ function useHook() {
     committedIntentConfig,
     verificationStatus,
     intentActionType,
+    anypayFee,
 
     // Transaction State
     originCallParams,
@@ -432,6 +434,7 @@ export const HomeIndexRoute = () => {
     committedIntentConfig,
     verificationStatus,
     intentActionType,
+    anypayFee,
 
     // Transaction State
     originCallParams,
@@ -546,6 +549,7 @@ export const HomeIndexRoute = () => {
             intentPreconditions={intentPreconditions}
             metaTxns={metaTxns}
             lifiInfos={lifiInfos}
+            anypayFee={anypayFee}
             intentActionType={intentActionType}
             selectedToken={selectedToken}
             account={account as any}

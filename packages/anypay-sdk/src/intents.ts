@@ -1,7 +1,7 @@
 import type {
   CommitIntentConfigReturn,
   GetIntentCallsPayloadsArgs,
-  GetIntentCallsPayloadsReturn,
+  GetIntentCallsPayloadsReturn as GetIntentCallsPayloadsReturnFromAPI,
   IntentPrecondition,
   SequenceAPIClient,
 } from "@0xsequence/api"
@@ -35,7 +35,47 @@ export interface IntentCallsPayload extends Payload.Calls {
   chainId: bigint
 }
 
-export type { GetIntentCallsPayloadsReturn }
+export interface MetaTxnFeeDetail {
+  metaTxnID: string
+  estimatedGasLimit: string
+  feeNative: string
+}
+
+export interface ChainExecuteQuote {
+  chainId: string
+  totalGasLimit: string
+  gasPrice: string
+  totalFeeAmount: string
+  nativeTokenSymbol: string
+  nativeTokenPrice?: string
+  metaTxnFeeDetails: Array<MetaTxnFeeDetail>
+  totalFeeUSD?: string
+}
+
+export interface ExecuteQuote {
+  chainQuotes: Array<ChainExecuteQuote>
+}
+
+export interface CrossChainFee {
+  swapFee: string
+  gasFee: string
+  totalFeeAmount: string
+  feeToken: string
+  totalFeeUSD: string
+}
+
+export interface AnypayFee {
+  executeQuote: ExecuteQuote
+  crossChainFee?: CrossChainFee
+  originTokenTotalAmount?: string
+  totalFeeAmount?: string
+  totalFeeUSD?: string
+}
+
+export type GetIntentCallsPayloadsReturn =
+  GetIntentCallsPayloadsReturnFromAPI & {
+    fee?: AnypayFee
+  }
 
 export type OriginCallParams = {
   to: `0x${string}` | null

@@ -1,7 +1,6 @@
 import type {
   AnypayLifiInfo,
   GetIntentCallsPayloadsArgs,
-  GetIntentCallsPayloadsReturn,
   GetIntentConfigReturn,
   IntentCallsPayload,
   IntentPrecondition,
@@ -31,8 +30,10 @@ import {
 import { useAPIClient } from "./apiClient.js"
 import { getERC20TransferData } from "./encoders.js"
 import {
+  type AnypayFee,
   calculateIntentAddress,
   commitIntentConfig,
+  type GetIntentCallsPayloadsReturn,
   getIntentCallsPayloads,
   type OriginCallParams,
   sendOriginTransaction,
@@ -70,6 +71,7 @@ export type UseAnyPayReturn = {
   intentCallsPayloads: GetIntentCallsPayloadsReturn["calls"] | null
   intentPreconditions: GetIntentCallsPayloadsReturn["preconditions"] | null
   lifiInfos: GetIntentCallsPayloadsReturn["lifiInfos"] | null
+  anypayFee: AnypayFee | null
   txnHash: Hex | undefined
   committedIntentAddress: string | null
   verificationStatus: {
@@ -183,6 +185,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
   const [lifiInfos, setLifiInfos] = useState<
     GetIntentCallsPayloadsReturn["lifiInfos"] | null
   >(null)
+  const [anypayFee, setAnypayFee] = useState<AnypayFee | null>(null)
   const [txnHash, setTxnHash] = useState<Hex | undefined>()
   const [committedIntentAddress, setCommittedIntentAddress] = useState<
     string | null
@@ -394,6 +397,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       // Reset commit state when generating a new intent
       setCommittedIntentAddress(null)
       setVerificationStatus(null)
+      setAnypayFee(null)
 
       const data = await getIntentCallsPayloads(args)
 
@@ -401,6 +405,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       setIntentCallsPayloads(data.calls)
       setIntentPreconditions(data.preconditions)
       setLifiInfos(data.lifiInfos) // Ensure lifiInfos is set here
+      setAnypayFee(data.fee || null)
       setCommittedIntentAddress(null)
 
       setVerificationStatus(null)
@@ -420,12 +425,14 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         setIntentPreconditions(data.preconditions)
         setMetaTxns(data.metaTxns)
         setLifiInfos(data.lifiInfos)
+        setAnypayFee(data.fee || null)
       } else {
         console.warn("API returned success but no operations found.")
         setIntentCallsPayloads(null)
         setIntentPreconditions(null)
         setMetaTxns(null)
         setLifiInfos(null)
+        setAnypayFee(null)
       }
     },
     onError: (error) => {
@@ -434,6 +441,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       setIntentPreconditions(null)
       setMetaTxns(null)
       setLifiInfos(null)
+      setAnypayFee(null)
     },
   })
 
@@ -446,6 +454,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     setIntentCallsPayloads(null)
     setIntentPreconditions(null)
     setMetaTxns(null)
+    setLifiInfos(null)
+    setAnypayFee(null)
     setCommittedIntentAddress(null)
     setVerificationStatus(null)
     setOperationHashes({})
@@ -1356,6 +1366,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     intentCallsPayloads,
     intentPreconditions,
     lifiInfos,
+    anypayFee,
     txnHash,
     committedIntentAddress,
     verificationStatus,

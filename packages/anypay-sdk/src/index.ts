@@ -7,6 +7,7 @@ export * from "./constants.js"
 export * from "./encoders.js"
 export * from "./indexerClient.js"
 export type {
+  AnypayFee,
   GetIntentCallsPayloadsReturn,
   OriginCallParams,
   SendOriginCallTxArgs,
