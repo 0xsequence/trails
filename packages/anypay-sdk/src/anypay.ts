@@ -17,7 +17,6 @@ import {
   type Hex,
   http,
   isAddressEqual,
-  parseUnits,
   type TransactionReceipt,
   type WalletClient,
   zeroAddress,

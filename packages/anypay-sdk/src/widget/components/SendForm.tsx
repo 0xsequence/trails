@@ -251,7 +251,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                 chainId: selectedChain.id,
               },
             ]
-          } catch (error) {
+          } catch (_error) {
             return []
           }
         })()
@@ -346,7 +346,7 @@ export const SendForm: React.FC<SendFormProps> = ({
           selectedDestToken.symbol === "ETH"
             ? zeroAddress
             : getDestTokenAddress(selectedChain.id, selectedDestToken.symbol)
-      } catch (error) {
+      } catch (_error) {
         setError(
           `${selectedDestToken.symbol} is not available on ${selectedChain.name}`,
         )
