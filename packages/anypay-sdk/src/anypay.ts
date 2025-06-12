@@ -34,7 +34,7 @@ import {
   calculateIntentAddress,
   commitIntentConfig,
   type GetIntentCallsPayloadsReturn,
-  getIntentCallsPayloads,
+  getIntentCallsPayloads as getIntentCallsPayloadsFromIntents,
   type OriginCallParams,
   sendOriginTransaction,
 } from "./intents.js"
@@ -370,7 +370,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
   })
 
   async function getIntentCallsPayloads(args: GetIntentCallsPayloadsArgs) {
-    return apiClient.getIntentCallsPayloads(args)
+    return getIntentCallsPayloadsFromIntents(apiClient, args)
   }
 
   // TODO: Add type for args
@@ -398,14 +398,18 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       setCommittedIntentAddress(null)
       setVerificationStatus(null)
       setAnypayFee(null)
+      setMetaTxns(null)
+      setIntentCallsPayloads(null)
+      setIntentPreconditions(null)
+      setLifiInfos(null)
 
       const data = await getIntentCallsPayloads(args)
 
       setMetaTxns(data.metaTxns)
       setIntentCallsPayloads(data.calls)
       setIntentPreconditions(data.preconditions)
-      setLifiInfos(data.lifiInfos) // Ensure lifiInfos is set here
-      setAnypayFee(data.fee || null)
+      setLifiInfos(data.lifiInfos)
+      setAnypayFee(data.anypayFee)
       setCommittedIntentAddress(null)
 
       setVerificationStatus(null)
@@ -413,6 +417,10 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     },
     onSuccess: (data) => {
       console.log("Intent Config Success:", data)
+
+      setAnypayFee(data.anypayFee || null)
+      setLifiInfos(data.lifiInfos || null)
+
       if (
         data?.calls &&
         data.calls.length > 0 &&
@@ -424,15 +432,11 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         setIntentCallsPayloads(data.calls)
         setIntentPreconditions(data.preconditions)
         setMetaTxns(data.metaTxns)
-        setLifiInfos(data.lifiInfos)
-        setAnypayFee(data.fee || null)
       } else {
         console.warn("API returned success but no operations found.")
         setIntentCallsPayloads(null)
         setIntentPreconditions(null)
         setMetaTxns(null)
-        setLifiInfos(null)
-        setAnypayFee(null)
       }
     },
     onError: (error) => {
@@ -1643,7 +1647,10 @@ export async function prepareSend(options: SendOptions) {
   }
 
   console.log("Creating intent with args:", intentArgs)
-  const intent = await getIntentCallsPayloads(apiClient, intentArgs as any) // TODO: Add proper type
+  const intent = await getIntentCallsPayloadsFromIntents(
+    apiClient,
+    intentArgs as any,
+  ) // TODO: Add proper type
   console.log("Got intent:", intent)
 
   if (!intent) {

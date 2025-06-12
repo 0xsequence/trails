@@ -539,6 +539,139 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
               Anypay Fee
             </Text>
             <div className="space-y-2">
+              <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700/50 space-y-4">
+                {anypayFee.totalFeeUSD && (
+                  <div className="text-lg font-semibold text-white">
+                    Total Estimated Fee:{" "}
+                    <span className="text-green-400">
+                      $
+                      {Number(anypayFee.totalFeeUSD).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 5,
+                      })}
+                    </span>
+                  </div>
+                )}
+
+                {anypayFee.crossChainFee && (
+                  <div>
+                    <h4 className="font-semibold text-blue-300 mb-2">
+                      Cross-Chain Fees
+                    </h4>
+                    <div className="space-y-1 text-sm pl-2">
+                      <p>
+                        <span className="font-medium text-gray-400">
+                          Swap Fee:
+                        </span>{" "}
+                        ${Number(anypayFee.crossChainFee.swapFee).toFixed(2)}
+                      </p>
+                      <p>
+                        <span className="font-medium text-gray-400">
+                          Gas Fee:
+                        </span>{" "}
+                        ${Number(anypayFee.crossChainFee.gasFee).toFixed(2)}
+                      </p>
+                      <p>
+                        <span className="font-medium text-gray-400">
+                          Total Fee:
+                        </span>{" "}
+                        {anypayFee.crossChainFee.totalFeeAmount} (
+                        {anypayFee.crossChainFee.feeToken})
+                      </p>
+                      <p>
+                        <span className="font-medium text-gray-400">
+                          Total Fee (USD):
+                        </span>{" "}
+                        $
+                        {Number(
+                          anypayFee.crossChainFee.totalFeeUSD,
+                        ).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 5,
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {anypayFee.executeQuote &&
+                  anypayFee.executeQuote.chainQuotes.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-blue-300 mb-2">
+                        Execution Fees
+                      </h4>
+                      {anypayFee.executeQuote.chainQuotes.map(
+                        (quote, index) => {
+                          const chainInfo = getChainInfo(
+                            parseInt(quote.chainId),
+                          )
+                          return (
+                            <div
+                              key={index}
+                              className="bg-gray-800/70 p-3 rounded-md mb-2"
+                            >
+                              <div className="flex items-center mb-2">
+                                <NetworkImage
+                                  chainId={parseInt(quote.chainId)}
+                                  size="sm"
+                                  className="w-4 h-4 mr-2"
+                                />
+                                <strong className="text-gray-300">
+                                  {chainInfo?.name ||
+                                    `Chain ID: ${quote.chainId}`}
+                                </strong>
+                              </div>
+                              <div className="space-y-1 text-sm pl-2">
+                                <p>
+                                  <span className="font-medium text-gray-400">
+                                    Total Fee:
+                                  </span>{" "}
+                                  {formatUnits(
+                                    BigInt(quote.totalFeeAmount),
+                                    chainInfo?.nativeCurrency.decimals ?? 18,
+                                  )}{" "}
+                                  {quote.nativeTokenSymbol ||
+                                    chainInfo?.nativeCurrency.symbol}
+                                  {quote.totalFeeUSD &&
+                                    ` ($${Number(quote.totalFeeUSD).toFixed(
+                                      5,
+                                    )})`}
+                                </p>
+                                {quote.metaTxnFeeDetails.map(
+                                  (detail, detailIndex) => (
+                                    <div
+                                      key={detailIndex}
+                                      className="pl-2 border-l border-gray-600 mt-1"
+                                    >
+                                      <p>
+                                        <span className="font-medium text-gray-500">
+                                          MetaTxn ID:
+                                        </span>{" "}
+                                        {detail.metaTxnID}
+                                      </p>
+                                      <p>
+                                        <span className="font-medium text-gray-500">
+                                          Fee:
+                                        </span>{" "}
+                                        {formatUnits(
+                                          BigInt(detail.feeNative),
+                                          chainInfo?.nativeCurrency.decimals ??
+                                            18,
+                                        )}{" "}
+                                        {quote.nativeTokenSymbol ||
+                                          chainInfo?.nativeCurrency.symbol}
+                                      </p>
+                                    </div>
+                                  ),
+                                )}
+                              </div>
+                            </div>
+                          )
+                        },
+                      )}
+                    </div>
+                  )}
+              </div>
               <div className="bg-gray-800/70 p-3 rounded-md mb-4">
                 <div className="flex items-center justify-between mb-2">
                   <Text
