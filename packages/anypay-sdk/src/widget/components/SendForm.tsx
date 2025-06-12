@@ -528,7 +528,7 @@ export const SendForm: React.FC<SendFormProps> = ({
 
       <form onSubmit={handleSubmit} className="space-y-2">
         {/* Chain Selection - More Compact */}
-        <div>
+        <div className={!toChainId ? "mb-4" : undefined}>
           <label
             className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
           >
@@ -621,7 +621,7 @@ export const SendForm: React.FC<SendFormProps> = ({
         </div>
 
         {/* Token Selection - More Compact */}
-        <div>
+        <div className={!toToken ? "mb-4" : undefined}>
           <label
             className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
           >
@@ -728,7 +728,7 @@ export const SendForm: React.FC<SendFormProps> = ({
         </div>
 
         {/* Amount Input - More Compact */}
-        <div>
+        <div className={!toAmount ? "mb-2" : undefined}>
           <label
             className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
           >
@@ -748,34 +748,45 @@ export const SendForm: React.FC<SendFormProps> = ({
               </span>
             </div>
           ) : (
-            <div className="relative rounded-lg">
-              <input
-                id="amount"
-                type="text"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="0.00"
-                className={`block w-full pl-4 pr-12 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg ${
-                  theme === "dark"
-                    ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
-                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
-                }`}
-              />
-              <div className="absolute inset-y-0 right-0 flex items-center pr-4">
-                <span
-                  className={
-                    theme === "dark" ? "text-gray-400" : "text-gray-500"
-                  }
-                >
-                  {selectedDestToken.symbol}
-                </span>
+            <>
+              <div className="relative rounded-lg">
+                <input
+                  id="amount"
+                  type="text"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  className={`block w-full pl-4 pr-12 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg ${
+                    theme === "dark"
+                      ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
+                      : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+                  }`}
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                  <span
+                    className={
+                      theme === "dark" ? "text-gray-400" : "text-gray-500"
+                    }
+                  >
+                    {selectedDestToken.symbol}
+                  </span>
+                </div>
               </div>
-            </div>
+              <div className="h-6 mt-1">
+                {amount && selectedDestToken.symbol && (
+                  <div
+                    className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                  >
+                    ≈ {amountUsdValue}
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
 
         {/* Recipient Input - More Compact */}
-        <div>
+        <div className={!toRecipient ? "mb-4" : undefined}>
           <div className="flex justify-between items-center mb-1">
             <label
               className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
@@ -789,11 +800,11 @@ export const SendForm: React.FC<SendFormProps> = ({
                   setRecipientInput(account.address)
                   setRecipient(account.address)
                 }}
-                className={`px-2 py-1 text-xs ${
+                className={`px-2 py-1 text-xs cursor-pointer ${
                   theme === "dark"
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : "bg-blue-500 hover:bg-blue-600"
-                } text-white rounded transition-colors`}
+                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                } rounded-[24px] transition-colors`}
               >
                 Use Account
               </button>
@@ -851,12 +862,12 @@ export const SendForm: React.FC<SendFormProps> = ({
         <div className="flex flex-col space-y-3 pt-2">
           {error && (
             <div
-              className={`px-3 py-2 rounded-lg ${
+              className={`px-3 py-2 rounded-lg max-h-80 overflow-y-auto ${
                 theme === "dark" ? "bg-red-900/20" : "bg-red-50"
               }`}
             >
               <p
-                className={`text-sm ${theme === "dark" ? "text-red-200" : "text-red-600"}`}
+                className={`text-sm break-words ${theme === "dark" ? "text-red-200" : "text-red-600"}`}
               >
                 {error}
               </p>

@@ -366,6 +366,19 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
               {isTokenDropdownOpen && (
                 <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setToToken(undefined)
+                      setIsTokenDropdownOpen(false)
+                    }}
+                    className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${!toToken ? "bg-gray-600 text-blue-400" : "text-gray-200"}`}
+                  >
+                    <span className="ml-2">Select Token</span>
+                    {!toToken && (
+                      <span className="ml-auto text-blue-400">•</span>
+                    )}
+                  </button>
                   {SUPPORTED_TOKENS.map((token) => (
                     <button
                       key={token.symbol}
@@ -435,6 +448,19 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
               {isChainDropdownOpen && (
                 <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setToChainId(undefined)
+                      setIsChainDropdownOpen(false)
+                    }}
+                    className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${!toChainId ? "bg-gray-600 text-blue-400" : "text-gray-200"}`}
+                  >
+                    <span className="ml-2">Select Chain</span>
+                    {!toChainId && (
+                      <span className="ml-auto text-blue-400">•</span>
+                    )}
+                  </button>
                   {SUPPORTED_CHAINS.map((chain) => (
                     <button
                       key={chain.id}
