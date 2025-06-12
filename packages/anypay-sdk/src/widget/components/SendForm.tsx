@@ -791,7 +791,7 @@ export const SendForm: React.FC<SendFormProps> = ({
             <label
               className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
             >
-              Recipient Address
+              {toCalldata ? "Destination Address" : "Recipient Address"}
             </label>
             {!toRecipient && (
               <button
@@ -851,9 +851,10 @@ export const SendForm: React.FC<SendFormProps> = ({
         {toCalldata && (
           <div className="px-2 py-1">
             <p
-              className={`text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
+              className={`text-xs ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
             >
               This transaction includes custom calldata for contract interaction
+              at the destination address
             </p>
           </div>
         )}
