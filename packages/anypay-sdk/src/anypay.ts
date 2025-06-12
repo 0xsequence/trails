@@ -1012,22 +1012,25 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
             relevantPreconditions,
           )
 
-          try {
-            // Fire and forget send tx to backup relayer
-            const backupRelayer = getBackupRelayer(chainId)
+          const useBackupRelayer = false // Disable backup relayer for now
+          if (useBackupRelayer) {
+            try {
+              // Fire and forget send tx to backup relayer
+              const backupRelayer = getBackupRelayer(chainId)
 
-            backupRelayer
-              ?.sendMetaTxn(
-                metaTxn.walletAddress as Address.Address,
-                metaTxn.contract as Address.Address,
-                metaTxn.input as Hex,
-                BigInt(metaTxn.chainId),
-                undefined,
-                relevantPreconditions,
-              )
-              .then(() => {})
-              .catch(() => {})
-          } catch {}
+              backupRelayer
+                ?.sendMetaTxn(
+                  metaTxn.walletAddress as Address.Address,
+                  metaTxn.contract as Address.Address,
+                  metaTxn.input as Hex,
+                  BigInt(metaTxn.chainId),
+                  undefined,
+                  relevantPreconditions,
+                )
+                .then(() => {})
+                .catch(() => {})
+            } catch {}
+          }
 
           results.push({
             operationKey,
