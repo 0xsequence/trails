@@ -57,11 +57,13 @@ export interface ExecuteQuote {
 }
 
 export interface CrossChainFee {
-  swapFee: string
-  gasFee: string
+  lifiFee: string
+  anypayFee: string
+  lifiFeeUSD: number
+  anypayFeeUSD: number
   totalFeeAmount: string
   feeToken: string
-  totalFeeUSD: string
+  totalFeeUSD: number
 }
 
 export interface AnypayFee {

@@ -561,15 +561,29 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                     <div className="space-y-1 text-sm pl-2">
                       <p>
                         <span className="font-medium text-gray-400">
-                          Swap Fee:
+                          LIFI Fee:
                         </span>{" "}
-                        ${Number(anypayFee.crossChainFee.swapFee).toFixed(2)}
+                        $
+                        {anypayFee.crossChainFee.lifiFeeUSD.toLocaleString(
+                          undefined,
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 5,
+                          },
+                        )}
                       </p>
                       <p>
                         <span className="font-medium text-gray-400">
-                          Gas Fee:
+                          Anypay Fee:
                         </span>{" "}
-                        ${Number(anypayFee.crossChainFee.gasFee).toFixed(2)}
+                        $
+                        {anypayFee.crossChainFee.anypayFeeUSD.toLocaleString(
+                          undefined,
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 5,
+                          },
+                        )}
                       </p>
                       <p>
                         <span className="font-medium text-gray-400">
@@ -583,12 +597,13 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                           Total Fee (USD):
                         </span>{" "}
                         $
-                        {Number(
-                          anypayFee.crossChainFee.totalFeeUSD,
-                        ).toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 5,
-                        })}
+                        {anypayFee.crossChainFee.totalFeeUSD.toLocaleString(
+                          undefined,
+                          {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 5,
+                          },
+                        )}
                       </p>
                     </div>
                   </div>
