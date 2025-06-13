@@ -140,7 +140,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     useState(false)
   const [isPolygonNftMintFormOpen, setIsPolygonNftMintFormOpen] =
     useState(false)
+  const [isSendUsdcFormOpen, setIsSendUsdcFormOpen] = useState(false)
   const [nftRecipient, setNftRecipient] = useState("")
+  const [usdcRecipient, setUsdcRecipient] = useState("")
 
   // Load saved values from localStorage on mount
   useEffect(() => {
@@ -596,6 +598,59 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           <div className="pt-6 space-y-3">
             <h3 className="text-lg font-medium text-gray-200">Examples</h3>
             <div className="space-y-2">
+              {/* Send USDC Example */}
+              <div className="rounded-lg border border-gray-600 overflow-hidden">
+                <button
+                  onClick={() => setIsSendUsdcFormOpen(!isSendUsdcFormOpen)}
+                  className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors duration-200 text-sm font-medium cursor-pointer text-left flex justify-between items-center"
+                >
+                  <div>
+                    <div>Pay USDC on Base</div>
+                    <div className="text-xs text-gray-400 mt-1">
+                      Pay 0.1 USDC on Base to a recipient
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`h-5 w-5 text-gray-400 transition-transform ${
+                      isSendUsdcFormOpen ? "transform rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {isSendUsdcFormOpen && (
+                  <div className="p-4 bg-gray-800 space-y-4">
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="block text-sm font-medium text-gray-200">
+                          Recipient
+                        </label>
+                        <UseAccountButton onAddressSelect={setUsdcRecipient} />
+                      </div>
+                      <input
+                        type="text"
+                        value={usdcRecipient}
+                        onChange={(e) => setUsdcRecipient(e.target.value.trim())}
+                        placeholder="0x..."
+                        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        setToRecipient(usdcRecipient)
+                        setToAmount("0.1")
+                        setToToken("USDC")
+                        setToChainId(8453)
+                        setToCalldata("")
+                      }}
+                      disabled={!usdcRecipient}
+                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed"
+                    >
+                      Apply Example
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div className="rounded-lg border border-gray-600 overflow-hidden">
                 <button
                   onClick={() =>
@@ -604,7 +659,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors duration-200 text-sm font-medium cursor-pointer text-left flex justify-between items-center"
                 >
                   <div>
-                    <div>Arbitrum NFT Mint</div>
+                    <div>NFT Mint on Arbitrum</div>
                     <div className="text-xs text-gray-400 mt-1">
                       Mint an NFT on Arbitrum with ETH
                     </div>
@@ -666,7 +721,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors duration-200 text-sm font-medium cursor-pointer text-left flex justify-between items-center"
                 >
                   <div>
-                    <div>Polygon NFT Mint</div>
+                    <div>NFT Mint on Polygon</div>
                     <div className="text-xs text-gray-400 mt-1">
                       Mint an NFT on Polygon with BAT
                     </div>
