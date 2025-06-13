@@ -53,6 +53,7 @@ import {
 } from "./preconditions.js"
 import { getBackupRelayer, useRelayers } from "./relayer.js"
 import { getChainInfo } from "./tokenBalances.js"
+import { requestWithTimeout } from "./utils.js"
 
 export type Account = {
   address: `0x${string}`
@@ -1761,19 +1762,35 @@ export async function prepareSend(options: SendOptions) {
       onTransactionStateChange(transactionStates)
       await attemptSwitchChain(walletClient, originChainId)
 
-      const capabilities = await walletClient.request({
-        method: "wallet_getCapabilities",
-        params: [account.address],
-      })
+      let useSendCalls = false
 
-      console.log("capabilities", capabilities)
+      try {
+        const capabilities = await requestWithTimeout<Record<string, any>>(walletClient, [{
+          method: "wallet_getCapabilities",
+          params: [account.address],
+        }], 10000)
 
-      // Check if the chain supports atomic transactions
-      const chainHex = `0x${originChainId.toString(16)}` as const
-      const chainCapabilities = capabilities[chainHex]
-      const moreThan1Tx = false // TODO: check if we need to do more than 1 tx
-      const useSendCalls =
-        chainCapabilities?.atomic?.status === "supported" && moreThan1Tx
+        console.log("capabilities", capabilities)
+
+        // Check if the chain supports atomic transactions
+        const chainHex = `0x${originChainId.toString(16)}` as const
+        const chainCapabilities = capabilities[chainHex]
+        const moreThan1Tx = false // TODO: check if we need to do more than 1 tx
+      useSendCalls =
+          chainCapabilities?.atomic?.status === "supported" && moreThan1Tx
+      } catch (error) {
+        console.error("Error getting capabilities", error)
+      }
+
+      if (dryMode) {
+        console.log("dry mode, skipping send calls")
+      }
+
+      if (useSendCalls) {
+        console.log("using sendCalls")
+      } else {
+        console.log("using sendTransaction")
+      }
 
       if (useSendCalls) {
         if (!dryMode) {

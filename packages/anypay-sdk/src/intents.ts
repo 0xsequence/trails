@@ -208,8 +208,19 @@ export async function sendOriginTransaction(
   originParams: SendOriginCallTxArgs,
 ): Promise<`0x${string}`> {
   const chainId = await client.getChainId()
-  if (chainId !== originParams.chain.id) {
+  if (chainId.toString() !== originParams.chain.id.toString()) {
+    console.log(
+      "sendOriginTransaction: switching chain",
+      "want:",
+      originParams.chain.id,
+      "current:",
+      chainId,
+    )
     await client.switchChain({ id: originParams.chain.id })
+    console.log(
+      "sendOriginTransaction: switched chain to",
+      originParams.chain.id,
+    )
   }
 
   const hash = await client.sendTransaction({
