@@ -788,27 +788,32 @@ export const SendForm: React.FC<SendFormProps> = ({
         {/* Recipient Input - More Compact */}
         <div className={!toRecipient ? "mb-4" : undefined}>
           <div className="flex justify-between items-center mb-1">
-            <label
-              className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
-            >
-              {toCalldata ? "Destination Address" : "Recipient Address"}
-            </label>
-            {!toRecipient && (
-              <button
-                onClick={(event) => {
-                  event.preventDefault()
-                  setRecipientInput(account.address)
-                  setRecipient(account.address)
-                }}
-                className={`px-2 py-1 text-xs cursor-pointer ${
-                  theme === "dark"
-                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
-                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                } rounded-[24px] transition-colors`}
+            <div>
+              <label
+                className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
               >
-                Use Account
-              </button>
-            )}
+                {toCalldata ? "Destination Address" : "Recipient Address"}
+              </label>
+              {recipient && isAddress(recipient) && recipient.toLowerCase() === account.address.toLowerCase() && (
+                <div className={`text-xs mt-0.5 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
+                  Same as sender
+                </div>
+              )}
+            </div>
+            <div className="h-7 flex items-center">
+              {!toRecipient && recipient !== account.address ? (
+                <button
+                  onClick={(event) => {
+                    event.preventDefault()
+                    setRecipientInput(account.address)
+                    setRecipient(account.address)
+                  }}
+                  className={`px-2 py-1 text-xs cursor-pointer rounded-[24px] transition-colors bg-blue-500 hover:bg-blue-600 text-white`}
+                >
+                  Use Account
+                </button>
+              ) : null}
+            </div>
           </div>
           {toRecipient ? (
             <div className="px-2 py-1 font-mono text-sm">

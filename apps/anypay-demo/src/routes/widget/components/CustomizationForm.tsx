@@ -553,7 +553,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                 <button
                   key={mode}
                   onClick={() => setTheme(mode)}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                  className={`px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
                     theme === mode
                       ? "bg-blue-500 text-white"
                       : "text-gray-300 hover:text-white hover:bg-gray-700"
@@ -574,7 +574,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                 <button
                   key={wallet}
                   onClick={() => handleWalletOptionToggle(wallet)}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors ${
+                  className={`px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
                     walletOptions?.includes(wallet)
                       ? "bg-blue-500 text-white"
                       : "text-gray-300 hover:text-white hover:bg-gray-700"

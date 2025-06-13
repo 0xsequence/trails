@@ -1765,6 +1765,8 @@ export async function prepareSend(options: SendOptions) {
       let useSendCalls = false
 
       try {
+        // the reason for the timeout is some users experience this call to hang indefinitely on metamask on all chains.
+        // not sure why this is happening, but it happens.
         const capabilities = await requestWithTimeout<Record<string, any>>(walletClient, [{
           method: "wallet_getCapabilities",
           params: [account.address],
