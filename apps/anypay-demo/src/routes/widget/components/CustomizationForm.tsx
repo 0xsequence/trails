@@ -570,7 +570,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               Wallet Options
             </label>
             <div className="flex rounded-lg overflow-hidden border border-gray-600">
-              {(["metamask"] as const).map((wallet) => (
+              {(["metamask"] as const).map((wallet: string) => (
                 <button
                   key={wallet}
                   onClick={() => handleWalletOptionToggle(wallet)}
@@ -580,7 +580,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       : "text-gray-300 hover:text-white hover:bg-gray-700"
                   }`}
                 >
-                  {wallet.charAt(0).toUpperCase() + wallet.slice(1)}
+                  {wallet === "metamask"
+                    ? "MetaMask"
+                    : wallet.charAt(0).toUpperCase() + wallet.slice(1)}
                 </button>
               ))}
             </div>
@@ -629,7 +631,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       <input
                         type="text"
                         value={usdcRecipient}
-                        onChange={(e) => setUsdcRecipient(e.target.value.trim())}
+                        onChange={(e) =>
+                          setUsdcRecipient(e.target.value.trim())
+                        }
                         placeholder="0x..."
                         className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />

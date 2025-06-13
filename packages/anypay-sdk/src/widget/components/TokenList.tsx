@@ -201,7 +201,7 @@ export const TokenList: React.FC<TokenListProps> = ({
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by token name, symbol, or chain..."
+          placeholder="Search tokens and chains"
           className={`block w-full pl-10 pr-3 py-2 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
             theme === "dark"
               ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"

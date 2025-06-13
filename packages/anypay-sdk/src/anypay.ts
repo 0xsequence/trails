@@ -1767,10 +1767,16 @@ export async function prepareSend(options: SendOptions) {
       try {
         // the reason for the timeout is some users experience this call to hang indefinitely on metamask on all chains.
         // not sure why this is happening, but it happens.
-        const capabilities = await requestWithTimeout<Record<string, any>>(walletClient, [{
-          method: "wallet_getCapabilities",
-          params: [account.address],
-        }], 10000)
+        const capabilities = await requestWithTimeout<Record<string, any>>(
+          walletClient,
+          [
+            {
+              method: "wallet_getCapabilities",
+              params: [account.address],
+            },
+          ],
+          10000,
+        )
 
         console.log("capabilities", capabilities)
 
@@ -1778,7 +1784,7 @@ export async function prepareSend(options: SendOptions) {
         const chainHex = `0x${originChainId.toString(16)}` as const
         const chainCapabilities = capabilities[chainHex]
         const moreThan1Tx = false // TODO: check if we need to do more than 1 tx
-      useSendCalls =
+        useSendCalls =
           chainCapabilities?.atomic?.status === "supported" && moreThan1Tx
       } catch (error) {
         console.error("Error getting capabilities", error)
@@ -2049,7 +2055,12 @@ async function attemptSwitchChain(
       return
     }
 
-    console.log("Switching to chain:", desiredChainId, "currentChainId", currentChainId)
+    console.log(
+      "Switching to chain:",
+      desiredChainId,
+      "currentChainId",
+      currentChainId,
+    )
     await walletClient.switchChain({ id: desiredChainId })
 
     // Check if the chain was switched successfully

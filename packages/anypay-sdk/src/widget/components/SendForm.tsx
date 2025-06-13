@@ -18,6 +18,7 @@ import { useAPIClient } from "../../apiClient.js"
 import { useTokenPrices } from "../../prices.js"
 import { getRelayer } from "../../relayer.js"
 import { formatBalance } from "../../tokenBalances.js"
+import { FeeOptions } from "./FeeOptions.js"
 
 interface Token {
   id: number
@@ -96,6 +97,20 @@ const SUPPORTED_TOKENS = [
     name: "Arbitrum",
     imageUrl: `https://assets.sequence.info/images/tokens/small/42161/0x912ce59144191c1204e64559fe8253a0e49e6548.webp`,
     decimals: 18,
+  },
+]
+
+// Add FEE_TOKENS constant after SUPPORTED_TOKENS
+const FEE_TOKENS = [
+  {
+    symbol: "ETH",
+    name: "Ethereum",
+    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0x0000000000000000000000000000000000000000.webp`,
+  },
+  {
+    symbol: "USDC",
+    name: "USD Coin",
+    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp`,
   },
 ]
 
@@ -330,6 +345,10 @@ export const SendForm: React.FC<SendFormProps> = ({
       currency: "USD",
     }).format(amountUsd)
   }, [amount, destTokenPrices])
+
+  const [selectedFeeToken, setSelectedFeeToken] = useState<
+    (typeof FEE_TOKENS)[number] | undefined
+  >()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -794,11 +813,15 @@ export const SendForm: React.FC<SendFormProps> = ({
               >
                 {toCalldata ? "Destination Address" : "Recipient Address"}
               </label>
-              {recipient && isAddress(recipient) && recipient.toLowerCase() === account.address.toLowerCase() && (
-                <div className={`text-xs mt-0.5 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
-                  Same as sender
-                </div>
-              )}
+              {recipient &&
+                isAddress(recipient) &&
+                recipient.toLowerCase() === account.address.toLowerCase() && (
+                  <div
+                    className={`text-xs mt-0.5 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                  >
+                    Same as sender
+                  </div>
+                )}
             </div>
             <div className="h-7 flex items-center">
               {!toRecipient && recipient !== account.address ? (
@@ -863,6 +886,14 @@ export const SendForm: React.FC<SendFormProps> = ({
             </p>
           </div>
         )}
+
+        {/* Fee Options */}
+        <FeeOptions
+          options={FEE_TOKENS}
+          selectedOption={selectedFeeToken}
+          onSelect={setSelectedFeeToken}
+          theme={theme}
+        />
 
         {/* Error and Submit Button */}
         <div className="flex flex-col space-y-3 pt-2">

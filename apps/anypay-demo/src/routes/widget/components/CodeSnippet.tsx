@@ -59,7 +59,7 @@ export const App = () => {
     useCustomButton
       ? `
     <AnyPayWidget
-      sequenceApiKey={'key_123...'}${props.join("\n      ")}
+      sequenceApiKey={'key_123...'}${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
     >
       <button className="custom-button-styles">
         Pay with AnyPay
@@ -67,7 +67,7 @@ export const App = () => {
     </AnyPayWidget>`
       : `
     <AnyPayWidget
-      sequenceApiKey={'key_123...'}${props.join("\n      ")}
+      sequenceApiKey={'key_123...'}${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
     />`
   }
   )
