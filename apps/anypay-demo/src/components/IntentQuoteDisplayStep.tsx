@@ -540,8 +540,8 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             </Text>
             <div className="space-y-2">
               <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700/50 space-y-4">
-                {anypayFee.totalFeeUSD && (
-                  <div className="text-lg font-semibold text-white">
+                {anypayFee.totalFeeUSD && anypayFee.totalFeeAmount && (
+                  <div className="text-lg font-semibold text-white flex items-center">
                     Total Estimated Fee:{" "}
                     <span className="text-green-400">
                       $
@@ -549,7 +549,15 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 5,
                       })}
+                    </span>{" "}
+                    <span className="font-medium text-gray-400 text-sm">
+                      (Total Fee Amount: {anypayFee.totalFeeAmount})
                     </span>
+                  </div>
+                )}
+                {anypayFee.feeToken && (
+                  <div className="text-lg font-semibold text-white">
+                    Fee Token: {anypayFee.feeToken}
                   </div>
                 )}
 
@@ -570,7 +578,10 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 5,
                           },
-                        )}
+                        )}{" "}
+                        <span className="font-medium text-gray-400">
+                          (Excluded from total fee)
+                        </span>
                       </p>
                       <p>
                         <span className="font-medium text-gray-400">
