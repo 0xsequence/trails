@@ -72,10 +72,7 @@ export interface AnypayFee {
   totalFeeUSD?: string
 }
 
-export type GetIntentCallsPayloadsReturn =
-  GetIntentCallsPayloadsReturnFromAPI & {
-    anypayFee?: AnypayFee
-  }
+export type GetIntentCallsPayloadsReturn = GetIntentCallsPayloadsReturnFromAPI
 
 export type OriginCallParams = {
   to: `0x${string}` | null
