@@ -591,8 +591,8 @@ export const HomeIndexRoute = () => {
           <AdvancedControlsSection
             accountAddress={account?.address}
             intentCallsPayloads={intentCallsPayloads}
-            originCallParams={originCallParams}
             metaTxns={metaTxns}
+            calculatedIntentAddress={calculatedIntentAddress}
             intentActionType={intentActionType}
             customCallData={customCallData}
             isManualMetaTxnEnabled={isManualMetaTxnEnabled}

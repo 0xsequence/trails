@@ -12,10 +12,6 @@ const RECIPIENT_ADDRESS = "0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C"
 const MOCK_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"
 const MOCK_CHAIN_ID = chains.arbitrum.id
 
-interface OriginCallParamsData {
-  to: string | null
-}
-
 interface CustomCallDataForExplorer {
   to: string
   chainId: string
@@ -24,8 +20,8 @@ interface CustomCallDataForExplorer {
 interface AdvancedControlsSectionProps {
   accountAddress: string | undefined
   intentCallsPayloads: IntentCallsPayload[] | null
-  originCallParams: OriginCallParamsData | null
   metaTxns: MetaTxn[] | null
+  calculatedIntentAddress?: string | null
   intentActionType: IntentAction | null
   customCallData: CustomCallDataForExplorer
   isManualMetaTxnEnabled: boolean
@@ -41,8 +37,8 @@ export const AdvancedControlsSection: React.FC<
 > = ({
   accountAddress,
   intentCallsPayloads,
-  originCallParams,
   metaTxns,
+  calculatedIntentAddress,
   intentActionType,
   customCallData,
   isManualMetaTxnEnabled,
@@ -61,14 +57,12 @@ export const AdvancedControlsSection: React.FC<
       {/* Preview calculated address */}
       <div className="bg-gray-900/90 p-4 rounded-lg border border-gray-700/70 shadow-inner space-y-3">
         <Text variant="small" color="secondary">
-          <strong className="text-blue-300">
-            Calculated Intent Address (used as recipient for origin call):{" "}
-          </strong>
+          <strong className="text-blue-300">Calculated Intent Address: </strong>
           <span className="font-mono text-xs break-all bg-gray-800/70 p-1 rounded block mt-1">
-            {originCallParams?.to?.toString() || "N/A"}
+            {calculatedIntentAddress || "N/A"}
           </span>
         </Text>
-        {originCallParams?.to && metaTxns && metaTxns.length > 0 && (
+        {calculatedIntentAddress && metaTxns && metaTxns.length > 0 && (
           <div className="mt-2 pt-2 border-t border-gray-700/50 space-y-2">
             <Text
               variant="small"
@@ -85,7 +79,7 @@ export const AdvancedControlsSection: React.FC<
                 .map((chainId: number) => {
                   const explorerUrl = getExplorerUrl(
                     chainId,
-                    originCallParams.to!,
+                    calculatedIntentAddress,
                   )
                   const chainInfo = getChainInfo(chainId)
                   if (!explorerUrl) return null
@@ -98,7 +92,7 @@ export const AdvancedControlsSection: React.FC<
                         href={explorerUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title={`Open ${originCallParams.to} on ${chainInfo?.name || "explorer"}`}
+                        title={`Open ${calculatedIntentAddress} on ${chainInfo?.name || "explorer"}`}
                         className="text-gray-300 flex items-center space-x-1 hover:underline text-xs break-all"
                       >
                         <NetworkImage
