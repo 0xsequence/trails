@@ -1,4 +1,5 @@
 import React, { useEffect } from "react"
+import { ExternalLink } from "lucide-react"
 
 interface TransactionState {
   transactionHash: string
@@ -65,14 +66,14 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
               : "bg-blue-600"
     } ${isActivePending ? "animate-[pulse_1.5s_ease-in-out_infinite]" : ""}`
 
-    const labelClasses = `mt-2 text-xs transition-colors text-center whitespace-nowrap ${
+    const labelClasses = `mt-2 text-xs transition-colors text-center whitespace-nowrap flex items-center gap-1 ${
       isPending || isAfterPending
         ? theme === "dark"
           ? "text-gray-400 font-medium"
           : "text-gray-500 font-medium"
         : theme === "dark"
-          ? "text-gray-100 font-semibold group-hover:underline"
-          : "text-gray-900 font-semibold group-hover:underline"
+          ? "text-gray-100 font-semibold hover:underline"
+          : "text-gray-900 font-semibold hover:underline"
     }`
 
     const content = (
@@ -91,6 +92,9 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
         <div className="absolute top-full pt-2 left-1/2 -translate-x-1/2">
           <div className={labelClasses}>
             {getStepLabel(index, transactionStates.length)}
+            {!isPending && !isAfterPending && (
+              <ExternalLink className="w-3 h-3" />
+            )}
           </div>
         </div>
       </>
@@ -107,7 +111,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
         href={tx.explorerUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="group flex flex-col items-center relative"
+        className="flex flex-col items-center relative"
       >
         {content}
       </a>

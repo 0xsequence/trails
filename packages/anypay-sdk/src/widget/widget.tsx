@@ -17,6 +17,7 @@ import Receipt from "./components/Receipt.js"
 import SendForm from "./components/SendForm.js"
 import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPending.js"
+import DebugScreensDropdown from "./components/DebugScreensDropdown.js"
 import "@0xsequence/design-system/preset"
 import "./index.css"
 import React from "react"
@@ -89,6 +90,8 @@ const getInitialTheme = (mode: Theme): ActiveTheme => {
   }
   return mode as ActiveTheme
 }
+
+const SCREENS = ["connect", "tokens", "send", "pending", "receipt"] as const
 
 const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   sequenceApiKey,
@@ -293,6 +296,84 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     setTransactionStates([..._transactionStates])
   }
 
+  const handleDebugScreenSelect = (screen: string) => {
+    // Reset necessary state based on the target screen
+    setError(null)
+
+    switch (screen.toLowerCase()) {
+      case "connect":
+        setCurrentScreen("connect")
+        setSelectedToken(null)
+        setTransactionStates([])
+        break
+      case "tokens":
+        if (isConnected) {
+          setCurrentScreen("tokens")
+          setSelectedToken(null)
+          setTransactionStates([])
+        }
+        break
+      case "send":
+        // Set dummy USDC token for debug mode
+        setSelectedToken({
+          id: 1,
+          name: "USD Coin",
+          symbol: "USDC",
+          balance: "1000000000",
+          imageUrl:
+            "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+          chainId: 1,
+          contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          contractInfo: {
+            decimals: 6,
+            symbol: "USDC",
+            name: "USD Coin",
+          },
+        })
+        setCurrentScreen("send")
+        setTransactionStates([])
+        break
+      case "pending":
+        // Set dummy transaction states for debug mode - showing all steps
+        setTransactionStates([
+          {
+            transactionHash:
+              "0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            chainId: 137,
+            state: "confirmed",
+          },
+          {
+            transactionHash:
+              "0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            chainId: 137,
+            state: "confirmed",
+          },
+          {
+            transactionHash:
+              "0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
+            explorerUrl:
+              "https://arbiscan.io/tx/0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
+            chainId: 42161,
+            state: "pending",
+          },
+        ])
+        setCurrentScreen("pending")
+        break
+      case "receipt":
+        // Set dummy transaction data for debug mode
+        setDestinationTxHash(
+          "0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
+        )
+        setDestinationChainId(42161)
+        setCurrentScreen("receipt")
+        break
+    }
+  }
+
   const renderScreenContent = () => {
     switch (currentScreen) {
       case "connect":
@@ -413,9 +494,15 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15 }}
-          className={`mt-auto pt-4 text-center text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+          className={`mt-auto pt-4 text-center text-sm relative flex items-center justify-center ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
           layout
         >
+          <div className="absolute right-0 flex items-center h-full">
+            <DebugScreensDropdown
+              onScreenSelect={handleDebugScreenSelect}
+              theme={theme}
+            />
+          </div>
           Powered by{" "}
           <a
             href="https://anypay.pages.dev/"

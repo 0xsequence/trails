@@ -40,6 +40,12 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
     }
   }
 
+  const handleDebugMode = () => {
+    const url = new URL(window.location.href)
+    url.searchParams.set("debug", "true")
+    window.history.pushState({}, "", url.toString())
+  }
+
   const getCode = () => {
     const props = [
       toRecipient && `toRecipient="${toRecipient}"`,
@@ -77,7 +83,7 @@ export const App = () => {
   const codeExample = getCode()
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6 h-full">
+    <div className="bg-gray-800 rounded-lg p-6 h-full relative">
       <div className="flex justify-between items-start mb-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-200">
@@ -119,6 +125,12 @@ export const App = () => {
         </SyntaxHighlighter>
       </div>
       {children}
+      <button
+        onClick={handleDebugMode}
+        className="absolute bottom-2 right-2 text-xs text-gray-500 hover:text-gray-300 cursor-pointer transition-colors"
+      >
+        Debug
+      </button>
     </div>
   )
 }
