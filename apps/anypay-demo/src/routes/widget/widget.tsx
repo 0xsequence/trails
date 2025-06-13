@@ -31,7 +31,7 @@ export const Widget = () => {
       setRenderInline(true)
     }
     if (!localStorage.getItem(STORAGE_KEYS.THEME)) {
-      setTheme("light")
+      setTheme("auto")
     }
     if (!localStorage.getItem(STORAGE_KEYS.WALLET_OPTIONS)) {
       setWalletOptions(["metamask"])

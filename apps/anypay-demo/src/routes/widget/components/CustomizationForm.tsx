@@ -272,7 +272,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setToCalldata("")
     setUseCustomButton(false)
     setRenderInline(true) // Reset to default true
-    setTheme("light") // Reset to default light
+    setTheme("auto") // Reset to default light
     // Clear localStorage
     Object.values(STORAGE_KEYS).forEach((key) => {
       localStorage.removeItem(key)

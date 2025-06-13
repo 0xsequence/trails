@@ -2023,14 +2023,23 @@ async function attemptSwitchChain(
   desiredChainId: number,
 ): Promise<void> {
   try {
-    console.log("Switching to chain:", desiredChainId)
+    // Check if the chain was switched successfully
+    let currentChainId = await walletClient.getChainId()
+    if (currentChainId === desiredChainId) {
+      console.log("Chain already switched to:", desiredChainId)
+      return
+    }
+
+    console.log("Switching to chain:", desiredChainId, "currentChainId", currentChainId)
     await walletClient.switchChain({ id: desiredChainId })
 
     // Check if the chain was switched successfully
-    const currentChainId = await walletClient.getChainId()
+    currentChainId = await walletClient.getChainId()
     if (currentChainId !== desiredChainId) {
       throw new Error("Failed to switch chain")
     }
+
+    console.log("Chain switched to:", desiredChainId)
   } catch (error: unknown) {
     console.error("Chain switch failed:", error)
     throw new Error(
