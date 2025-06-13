@@ -590,7 +590,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                           Total Fee:
                         </span>{" "}
                         {anypayFee.crossChainFee.totalFeeAmount} (
-                        {anypayFee.crossChainFee.feeToken})
+                        {anypayFee.feeToken})
                       </p>
                       <p>
                         <span className="font-medium text-gray-400">
