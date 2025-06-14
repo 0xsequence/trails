@@ -1,5 +1,6 @@
 import { TokenImage } from "@0xsequence/design-system"
 import { ChevronDown } from "lucide-react"
+// biome-ignore lint/style/useImportType: False positive
 import React, { useEffect, useMemo, useRef, useState } from "react"
 
 // Constants for fee display

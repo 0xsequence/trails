@@ -1,5 +1,5 @@
-import React, { useEffect } from "react"
 import { ExternalLink } from "lucide-react"
+import React, { useEffect } from "react"
 
 interface TransactionState {
   transactionHash: string

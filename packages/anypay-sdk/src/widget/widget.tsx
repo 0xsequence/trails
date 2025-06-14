@@ -12,12 +12,12 @@ import * as chains from "viem/chains"
 import { mainnet } from "viem/chains"
 import { createConfig, type http, useAccount, WagmiProvider } from "wagmi"
 import ConnectWallet from "./components/ConnectWallet.js"
+import DebugScreensDropdown from "./components/DebugScreensDropdown.js"
 import Modal from "./components/Modal.js"
 import Receipt from "./components/Receipt.js"
 import SendForm from "./components/SendForm.js"
 import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPending.js"
-import DebugScreensDropdown from "./components/DebugScreensDropdown.js"
 import "@0xsequence/design-system/preset"
 import "./index.css"
 import React from "react"
@@ -91,7 +91,7 @@ const getInitialTheme = (mode: Theme): ActiveTheme => {
   return mode as ActiveTheme
 }
 
-const SCREENS = ["connect", "tokens", "send", "pending", "receipt"] as const
+const _SCREENS = ["connect", "tokens", "send", "pending", "receipt"] as const
 
 const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   sequenceApiKey,

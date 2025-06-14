@@ -1,4 +1,4 @@
-import { ChevronDown } from "lucide-react"
+import { ChevronDown } from "lucide-react" // biome-ignore lint/style/useImportType: False positive
 import React, { useEffect, useRef, useState } from "react"
 
 interface DebugScreensDropdownProps {
@@ -42,11 +42,13 @@ export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
     const originalReplaceState = window.history.replaceState
 
     window.history.pushState = function () {
+      // biome-ignore lint/complexity/noArguments: TODO: To fix
       originalPushState.apply(this, arguments as any)
       handleUrlChange()
     }
 
     window.history.replaceState = function () {
+      // biome-ignore lint/complexity/noArguments: TODO: To fix
       originalReplaceState.apply(this, arguments as any)
       handleUrlChange()
     }
