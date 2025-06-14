@@ -2,15 +2,17 @@ import { SequenceHooksProvider } from "@0xsequence/hooks"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AnimatePresence, motion } from "motion/react"
 import { StrictMode, useContext, useEffect, useState } from "react"
+import type { Config } from '@wagmi/core'
 import {
   createWalletClient,
   custom,
+  http,
   type TransactionReceipt,
   type WalletClient,
 } from "viem"
 import * as chains from "viem/chains"
 import { mainnet } from "viem/chains"
-import { createConfig, type http, useAccount, WagmiProvider } from "wagmi"
+import { createConfig, useAccount, useConnect, WagmiProvider } from "wagmi"
 import ConnectWallet from "./components/ConnectWallet.js"
 import Modal from "./components/Modal.js"
 import Receipt from "./components/Receipt.js"
@@ -24,6 +26,7 @@ import React from "react"
 import { WagmiContext } from "wagmi"
 import type { TransactionState } from "../anypay.js"
 import { useIndexerGatewayClient } from "../indexerClient.js"
+import { injected } from 'wagmi/connectors'
 
 type Screen = "connect" | "tokens" | "send" | "pending" | "receipt"
 type Theme = "light" | "dark" | "auto"
@@ -91,7 +94,13 @@ const getInitialTheme = (mode: Theme): ActiveTheme => {
   return mode as ActiveTheme
 }
 
-const SCREENS = ["connect", "tokens", "send", "pending", "receipt"] as const
+const WALLET_CONFIGS = {
+  metamask: {
+    id: "metamask",
+    name: "MetaMask",
+    connector: injected
+  }
+} as const
 
 const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   sequenceApiKey,
@@ -111,7 +120,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   onOriginConfirmation,
   onDestinationConfirmation,
 }) => {
-  const { address, isConnected, chainId } = useAccount()
+  const { address, isConnected, chainId, connector } = useAccount()
   const [theme, setTheme] = useState<ActiveTheme>(getInitialTheme(initialTheme))
   const [themeMode, setThemeMode] = useState<Theme>(initialTheme)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -129,6 +138,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   const [transactionStates, setTransactionStates] = useState<
     TransactionState[]
   >([])
+  const { connect } = useConnect()
 
   // Update theme when system preference changes
   useEffect(() => {
@@ -155,16 +165,21 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 
   // Set up wallet client when connected
   useEffect(() => {
-    if (provider && address && chainId) {
-      const chain = getChainConfig(chainId)
-      const client = createWalletClient({
-        account: address,
-        chain,
-        transport: custom(provider),
-      })
-      setWalletClient(client)
+    const connect = async () => {
+      const activeProvider = provider || await connector?.getProvider()
+
+      if (activeProvider && address && chainId) {
+        const chain = getChainConfig(chainId)
+        const client = createWalletClient({
+          account: address,
+          chain,
+          transport: custom(activeProvider),
+        })
+        setWalletClient(client)
+      }
     }
-  }, [provider, address, chainId])
+    connect().catch(console.error)
+  }, [provider, address, chainId, connector])
 
   // Update screen based on connection state
   useEffect(() => {
@@ -178,29 +193,49 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     projectAccessKey: sequenceApiKey,
   })
 
-  const handleConnect = () => {
-    if (walletClient && !isConnected) {
-      const connect = async () => {
-        await walletClient.request({ method: "eth_requestAccounts" })
+  const handleWalletConnect = async (walletId: string) => {
+    try {
+      setError(null)
+      const config = WALLET_CONFIGS[walletId as keyof typeof WALLET_CONFIGS]
+      if (!config) {
+        setError(`No configuration found for wallet: ${walletId}`)
+        return
       }
-      connect()
-    } else if (isConnected) {
-      setCurrentScreen("tokens")
+      await connect({ connector: config.connector() })
+      console.log(`Connected to ${config.name}`)
+    } catch (error) {
+      console.error("Failed to connect:", error)
+      setError(
+        error instanceof Error ? error.message : "Failed to connect wallet"
+      )
     }
+  }
+
+  const handleWalletDisconnect = () => {
+    setError(null)
+    setCurrentScreen("connect")
+  }
+
+  const handleContinue = () => {
+    setCurrentScreen("tokens")
+  }
+
+  const getAvailableWallets = () => {
+    const requestedWallets = walletOptions || ["metamask"]
+    return requestedWallets
+      .filter(id => WALLET_CONFIGS[id as keyof typeof WALLET_CONFIGS])
+      .map(id => {
+        const config = WALLET_CONFIGS[id as keyof typeof WALLET_CONFIGS]
+        return {
+          id: config.id,
+          name: config.name
+        }
+      })
   }
 
   const handleTokenSelect = (token: Token) => {
     try {
       setError(null)
-      if (window.ethereum && address) {
-        const chain = getChainConfig(token.chainId)
-        const client = createWalletClient({
-          account: address,
-          chain,
-          transport: custom(window.ethereum),
-        })
-        setWalletClient(client)
-      }
       setSelectedToken(token)
       setCurrentScreen("send")
     } catch (err) {
@@ -330,8 +365,13 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             name: "USD Coin",
           },
         })
-        setCurrentScreen("send")
-        setTransactionStates([])
+
+        new Promise((resolve) => {
+          setCurrentScreen("send")
+          setTransactionStates([])
+          resolve(true)
+        })
+        
         break
       case "pending":
         // Set dummy transaction states for debug mode - showing all steps
@@ -379,9 +419,11 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
       case "connect":
         return (
           <ConnectWallet
-            onConnect={handleConnect}
+            onConnect={handleWalletConnect}
+            onDisconnect={handleWalletDisconnect}
+            onContinue={handleContinue}
             theme={theme}
-            walletOptions={walletOptions}
+            walletOptions={getAvailableWallets()}
           />
         )
       case "tokens":
@@ -414,7 +456,17 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             theme={theme}
             onTransactionStateChange={handleTransactionStateChange}
           />
-        ) : null
+        ) : (
+          <div
+          className={`text-center p-4 rounded-lg ${
+            theme === "dark"
+              ? "text-gray-300 bg-gray-800"
+              : "text-gray-600 bg-gray-50"
+          }`}
+        >
+          Please connect wallet
+        </div>
+        )
       case "pending":
         return (
           <TransferPending
@@ -503,7 +555,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
               theme={theme}
             />
           </div>
-          Powered by{" "}
+          Powered by&nbsp;
           <a
             href="https://anypay.pages.dev/"
             target="_blank"
@@ -564,19 +616,19 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 
 export const AnyPayWidget = (props: AnyPayWidgetProps) => {
   const wagmiContext = useContext(WagmiContext)
-  const config = React.useMemo(
+  const wagmiConfig = React.useMemo(
     () =>
       createConfig({
         chains: [mainnet],
         transports: Object.values(chains as unknown as any[]).reduce(
           (acc, chain) => ({
             ...acc,
-            [chain.id]: custom(props.provider),
+            [chain.id]: http(),
           }),
           {},
         ) as Record<number, ReturnType<typeof http>>,
       }),
-    [props.provider],
+    [],
   )
 
   const content = (
@@ -600,7 +652,7 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
   if (!wagmiContext) {
     return (
       <StrictMode>
-        <WagmiProvider config={config}>{content}</WagmiProvider>
+        <WagmiProvider config={wagmiConfig}>{content}</WagmiProvider>
       </StrictMode>
     )
   }

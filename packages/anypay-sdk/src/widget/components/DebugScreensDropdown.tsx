@@ -1,5 +1,6 @@
 import { ChevronDown } from "lucide-react"
-import React, { useEffect, useRef, useState } from "react"
+import type React from "react"
+import { useEffect, useRef, useState } from "react"
 
 interface DebugScreensDropdownProps {
   onScreenSelect: (screen: string) => void
