@@ -1,63 +1,36 @@
 // biome-ignore lint/style/useImportType: Need to use React
 import React, { useState } from "react"
-import { useAccount, useConnect, useDisconnect } from "wagmi"
-import { injected } from "wagmi/connectors"
+import { useAccount, useDisconnect } from "wagmi"
 
-// import MetaMaskFox from '../assets/MetaMask_Fox.svg'
-
-interface WalletConfig {
+interface WalletOption {
+  id: string
   name: string
-  connector: () => any
 }
-
-const WALLET_CONFIGS: Record<string, WalletConfig> = {
-  metamask: {
-    name: "MetaMask",
-    connector: injected,
-  },
-  // Add more wallet configurations here as needed
-}
-
-const DEFAULT_WALLET_OPTIONS = ["metamask"]
 
 interface ConnectWalletProps {
-  onConnect: () => void
+  onConnect: (walletId: string) => void
+  onDisconnect: () => void
+  onContinue: () => void
   theme?: "light" | "dark"
-  walletOptions?: string[] // Array of wallet IDs like ['metamask', 'coinbase', etc]
+  walletOptions: WalletOption[]
 }
 
 export const ConnectWallet: React.FC<ConnectWalletProps> = ({
   onConnect,
+  onDisconnect,
+  onContinue,
   theme = "light",
-  walletOptions = DEFAULT_WALLET_OPTIONS,
+  walletOptions,
 }) => {
-  const { connect } = useConnect()
-  const { disconnect } = useDisconnect()
   const { isConnected, address, connector } = useAccount()
+  const { disconnect } = useDisconnect()
   const [error, setError] = useState<string | null>(null)
-
-  const handleConnect = async (walletId: string) => {
-    try {
-      setError(null)
-      const config = WALLET_CONFIGS[walletId]
-      if (!config) {
-        setError(`No configuration found for wallet: ${walletId}`)
-        return
-      }
-      await connect({ connector: config.connector() })
-      console.log(`Connected to ${config.name}`)
-    } catch (error) {
-      console.error("Failed to connect:", error)
-      setError(
-        error instanceof Error ? error.message : "Failed to connect wallet",
-      )
-    }
-  }
 
   const handleDisconnect = () => {
     try {
       setError(null)
       disconnect()
+      onDisconnect()
     } catch (error) {
       console.error("Failed to disconnect:", error)
       setError(
@@ -66,13 +39,19 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
     }
   }
 
-  // Filter out any invalid wallet IDs and use defaults if none provided
-  const availableWallets = (walletOptions || DEFAULT_WALLET_OPTIONS).filter(
-    (id) => WALLET_CONFIGS[id],
-  )
+  const getWalletButtonStyle = (walletId: string) => {
+    switch (walletId) {
+      case "metamask":
+        return "bg-orange-500 hover:bg-orange-600"
+      default:
+        return theme === "dark"
+          ? "bg-blue-600 hover:bg-blue-700"
+          : "bg-blue-500 hover:bg-blue-600"
+    }
+  }
 
   // If no valid wallet options are available, show a simple message
-  if (!availableWallets.length) {
+  if (!walletOptions.length) {
     return (
       <div className="space-y-6">
         <div className="flex items-center relative">
@@ -93,18 +72,6 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
         </div>
       </div>
     )
-  }
-
-  const getWalletButtonStyle = (walletId: string) => {
-    switch (walletId) {
-      case "metamask":
-        return "bg-orange-500 hover:bg-orange-600"
-      // Add more cases for other wallets here
-      default:
-        return theme === "dark"
-          ? "bg-blue-600 hover:bg-blue-700"
-          : "bg-blue-500 hover:bg-blue-600"
-    }
   }
 
   return (
@@ -149,7 +116,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
               </div>
             )}
             <button
-              onClick={onConnect}
+              onClick={onContinue}
               className={`w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${
                 theme === "dark"
                   ? "bg-blue-600 hover:bg-blue-700 text-white"
@@ -187,21 +154,15 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
               </p>
             </div>
           )}
-          {availableWallets.map((walletId) => {
-            const config = WALLET_CONFIGS[walletId]
-            if (!config) {
-              return null
-            }
-            return (
-              <button
-                key={walletId}
-                onClick={() => handleConnect(walletId)}
-                className={`w-full flex items-center justify-center space-x-2 cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${getWalletButtonStyle(walletId)} text-white`}
-              >
-                <span>{config.name}</span>
-              </button>
-            )
-          })}
+          {walletOptions.map((wallet) => (
+            <button
+              key={wallet.id}
+              onClick={() => onConnect(wallet.id)}
+              className={`w-full flex items-center justify-center space-x-2 cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${getWalletButtonStyle(wallet.id)} text-white`}
+            >
+              <span>{wallet.name}</span>
+            </button>
+          ))}
         </div>
       )}
     </div>

@@ -51,7 +51,7 @@ interface SendFormProps {
   toChainId?: number
   toToken?: string
   toCalldata?: string
-  walletClient?: WalletClient
+  walletClient: WalletClient
   theme?: "light" | "dark"
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
 }
@@ -394,7 +394,7 @@ export const SendForm: React.FC<SendFormProps> = ({
         destinationTokenSymbol: selectedDestToken.symbol,
         sequenceApiKey,
         fee: "0",
-        client: walletClient!,
+        client: walletClient,
         apiClient,
         originRelayer,
         destinationRelayer,

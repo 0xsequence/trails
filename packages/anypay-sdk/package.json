@@ -44,6 +44,7 @@
     "@0xsequence/wallet-primitives": "github:0xsequence/sequence.js#dists/wallet/primitives",
     "@reown/appkit-common": "^1.7.8",
     "@tanstack/react-query": "^5.80.5",
+    "@wagmi/core": "^2.17.3",
     "buffer": "^6.0.3",
     "framer-motion": "^12.16.0",
     "isomorphic-fetch": "^3.0.0",
@@ -54,15 +55,15 @@
     "wagmi": "^2.15.5"
   },
   "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "wagmi": "^2.15.5",
     "@0xsequence/api": "workspace:*",
-    "@0xsequence/relayer": "workspace:*",
     "@0xsequence/design-system": "^2.1.6",
     "@0xsequence/hooks": "^5.3.4",
     "@0xsequence/indexer": "^2.3.9",
-    "@0xsequence/wagmi-connector": "^4.0.1"
+    "@0xsequence/relayer": "workspace:*",
+    "@0xsequence/wagmi-connector": "^4.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "wagmi": "^2.15.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.8",
