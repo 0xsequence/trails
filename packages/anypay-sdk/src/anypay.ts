@@ -1,5 +1,5 @@
 import type {
-  AnypayLifiInfo,
+  AnypayExecutionInfo,
   GetIntentCallsPayloadsArgs,
   GetIntentConfigReturn,
   IntentCallsPayload,
@@ -75,7 +75,7 @@ export type UseAnyPayReturn = {
   metaTxns: GetIntentCallsPayloadsReturn["metaTxns"] | null
   intentCallsPayloads: GetIntentCallsPayloadsReturn["calls"] | null
   intentPreconditions: GetIntentCallsPayloadsReturn["preconditions"] | null
-  lifiInfos: GetIntentCallsPayloadsReturn["lifiInfos"] | null
+  anypayInfos: GetIntentCallsPayloadsReturn["anypayInfos"] | null
   anypayFee: AnypayFee | null
   txnHash: Hex | undefined
   committedIntentAddress: string | null
@@ -187,8 +187,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
   const [intentPreconditions, setIntentPreconditions] = useState<
     GetIntentCallsPayloadsReturn["preconditions"] | null
   >(null)
-  const [lifiInfos, setLifiInfos] = useState<
-    GetIntentCallsPayloadsReturn["lifiInfos"] | null
+  const [anypayInfos, setAnypayInfos] = useState<
+    GetIntentCallsPayloadsReturn["anypayInfos"] | null
   >(null)
   const [anypayFee, setAnypayFee] = useState<AnypayFee | null>(null)
   const [txnHash, setTxnHash] = useState<Hex | undefined>()
@@ -261,21 +261,21 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       mainSigner: string
       calls: IntentCallsPayload[]
       preconditions: IntentPrecondition[]
-      lifiInfos: AnypayLifiInfo[]
+      anypayInfos: AnypayExecutionInfo[]
     }) => {
       if (!apiClient) throw new Error("API client not available")
-      if (!args.lifiInfos) throw new Error("LifiInfos not available")
+      if (!args.anypayInfos) throw new Error("AnypayInfos not available")
 
       try {
         console.log("Calculating intent address...")
         console.log("Main signer:", args.mainSigner)
         console.log("Calls:", args.calls)
-        console.log("LifiInfos:", args.lifiInfos)
+        console.log("AnypayInfos:", args.anypayInfos)
 
         const calculatedAddress = calculateIntentAddress(
           args.mainSigner,
           args.calls as any[], // TODO: Add proper type
-          args.lifiInfos as any[], // TODO: Add proper type
+          args.anypayInfos as any[], // TODO: Add proper type
         )
         const receivedAddress = findPreconditionAddress(args.preconditions)
 
@@ -304,7 +304,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
           mainSigner: args.mainSigner,
           calls: args.calls,
           preconditions: args.preconditions,
-          lifiInfos: args.lifiInfos,
+          anypayInfos: args.anypayInfos,
         })
         console.log("API Commit Response:", response)
         return { calculatedAddress: calculatedAddress.toString(), response }
@@ -318,7 +318,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
             const calculatedAddress = calculateIntentAddress(
               args.mainSigner,
               args.calls as any[], // TODO: Add proper type
-              args.lifiInfos as any[], // TODO: Add proper type
+              args.anypayInfos as any[], // TODO: Add proper type
             )
             const receivedAddress = findPreconditionAddress(args.preconditions)
             setVerificationStatus({
@@ -406,14 +406,14 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       setMetaTxns(null)
       setIntentCallsPayloads(null)
       setIntentPreconditions(null)
-      setLifiInfos(null)
+      setAnypayInfos(null)
 
       const data = await getIntentCallsPayloads(args)
 
       setMetaTxns(data.metaTxns)
       setIntentCallsPayloads(data.calls)
       setIntentPreconditions(data.preconditions)
-      setLifiInfos(data.lifiInfos)
+      setAnypayInfos(data.anypayInfos)
       setAnypayFee(data.anypayFee!)
       setCommittedIntentAddress(null)
 
@@ -424,7 +424,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       console.log("Intent Config Success:", data)
 
       setAnypayFee(data.anypayFee || null)
-      setLifiInfos(data.lifiInfos || null)
+      setAnypayInfos(data.anypayInfos || null)
 
       if (
         data?.calls &&
@@ -449,7 +449,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       setIntentCallsPayloads(null)
       setIntentPreconditions(null)
       setMetaTxns(null)
-      setLifiInfos(null)
+      setAnypayInfos(null)
       setAnypayFee(null)
     },
   })
@@ -463,7 +463,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     setIntentCallsPayloads(null)
     setIntentPreconditions(null)
     setMetaTxns(null)
-    setLifiInfos(null)
+    setAnypayInfos(null)
     setAnypayFee(null)
     setCommittedIntentAddress(null)
     setVerificationStatus(null)
@@ -912,7 +912,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       isAutoExecute &&
       intentCallsPayloads &&
       intentPreconditions &&
-      lifiInfos &&
+      anypayInfos &&
       account.address &&
       calculatedIntentAddress &&
       !commitIntentConfigMutation.isPending &&
@@ -924,14 +924,14 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         mainSigner: account.address,
         calls: intentCallsPayloads,
         preconditions: intentPreconditions,
-        lifiInfos: lifiInfos,
+        anypayInfos: anypayInfos,
       })
     }
   }, [
     isAutoExecute,
     intentCallsPayloads,
     intentPreconditions,
-    lifiInfos, // Add lifiInfos dependency
+    anypayInfos, // Add lifiInfos dependency
     account.address,
     commitIntentConfigMutation,
     commitIntentConfigMutation.isPending,
@@ -946,7 +946,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         !intentPreconditions ||
         !metaTxns ||
         !account.address ||
-        !lifiInfos
+        !anypayInfos
       ) {
         throw new Error("Missing required data for meta-transaction")
       }
@@ -954,7 +954,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       const intentAddress = calculateIntentAddress(
         account.address,
         intentCallsPayloads as any[],
-        lifiInfos as any[],
+        anypayInfos as any[],
       ) // TODO: Add proper type
 
       // If no specific ID is selected, send all meta transactions
@@ -1346,15 +1346,15 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
   }
 
   const calculatedIntentAddress = useMemo(() => {
-    if (!account.address || !intentCallsPayloads || !lifiInfos) {
+    if (!account.address || !intentCallsPayloads || !anypayInfos) {
       return null
     }
     return calculateIntentAddress(
       account.address,
       intentCallsPayloads as any[],
-      lifiInfos as any[],
+      anypayInfos as any[],
     ) // TODO: Add proper type
-  }, [account.address, intentCallsPayloads, lifiInfos])
+  }, [account.address, intentCallsPayloads, anypayInfos])
 
   const createIntentPending = createIntentMutation.isPending
   const createIntentSuccess = createIntentMutation.isSuccess
@@ -1366,7 +1366,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     mainSigner: string
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
-    lifiInfos: AnypayLifiInfo[]
+    anypayInfos: AnypayExecutionInfo[]
   }) {
     console.log("commitIntentConfig", args)
     commitIntentConfigMutation.mutate(args)
@@ -1403,7 +1403,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     metaTxns,
     intentCallsPayloads,
     intentPreconditions,
-    lifiInfos,
+    anypayInfos,
     anypayFee,
     txnHash,
     committedIntentAddress,
@@ -1694,7 +1694,7 @@ export async function prepareSend(options: SendOptions) {
   if (
     !intent.preconditions?.length ||
     !intent.calls?.length ||
-    !intent.lifiInfos?.length
+    !intent.anypayInfos?.length
   ) {
     throw new Error("Invalid intent")
   }
@@ -1702,7 +1702,7 @@ export async function prepareSend(options: SendOptions) {
   const intentAddress = calculateIntentAddress(
     mainSigner,
     intent.calls as any[],
-    intent.lifiInfos as any[],
+    intent.anypayInfos as any[],
   ) // TODO: Add proper type
   console.log("Calculated intent address:", intentAddress.toString())
 
@@ -1711,7 +1711,7 @@ export async function prepareSend(options: SendOptions) {
     mainSigner,
     intent.calls as any[],
     intent.preconditions as any[],
-    intent.lifiInfos as any[],
+    intent.anypayInfos as any[],
   )
 
   console.log("Committed intent config")

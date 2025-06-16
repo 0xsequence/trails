@@ -1,5 +1,5 @@
 import type {
-  AnypayLifiInfo,
+  AnypayExecutionInfo,
   GetIntentConfigReturn,
   IntentCallsPayload,
   IntentPrecondition,
@@ -12,7 +12,7 @@ import { SectionHeader } from "@/components/SectionHeader"
 interface CommitIntentStepProps {
   intentCallsPayloads: IntentCallsPayload[] | null
   intentPreconditions: IntentPrecondition[] | null
-  lifiInfos: AnypayLifiInfo[] | null
+  anypayInfos: AnypayExecutionInfo[] | null
   verificationStatus: {
     success: boolean
     receivedAddress?: string
@@ -29,7 +29,7 @@ interface CommitIntentStepProps {
     mainSigner: string
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
-    lifiInfos: AnypayLifiInfo[]
+    anypayInfos: AnypayExecutionInfo[]
   }) => void
   isCommitButtonDisabled: boolean
   commitButtonText: React.ReactNode
@@ -40,7 +40,7 @@ interface CommitIntentStepProps {
 export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
   intentCallsPayloads,
   intentPreconditions,
-  lifiInfos,
+  anypayInfos,
   verificationStatus,
   commitIntentConfigError,
   commitIntentConfigSuccess,
@@ -196,7 +196,7 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   !accountAddress ||
                   !intentCallsPayloads ||
                   !intentPreconditions ||
-                  !lifiInfos
+                  !anypayInfos
                 )
                   return
                 commitIntentConfig({
@@ -204,7 +204,7 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   mainSigner: accountAddress,
                   calls: intentCallsPayloads,
                   preconditions: intentPreconditions,
-                  lifiInfos: lifiInfos,
+                  anypayInfos: anypayInfos,
                 })
               }}
               disabled={isCommitButtonDisabled}

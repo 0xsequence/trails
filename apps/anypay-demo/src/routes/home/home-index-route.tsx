@@ -55,7 +55,7 @@ function useHook() {
     metaTxns,
     intentCallsPayloads,
     intentPreconditions,
-    lifiInfos,
+    anypayInfos,
     committedIntentAddress,
     verificationStatus,
     committedIntentConfig,
@@ -334,7 +334,7 @@ function useHook() {
     intentCallsPayloads,
     intentPreconditions,
     metaTxns,
-    lifiInfos,
+    anypayInfos,
     committedIntentAddress,
     committedIntentConfig,
     verificationStatus,
@@ -429,7 +429,7 @@ export const HomeIndexRoute = () => {
     intentCallsPayloads,
     intentPreconditions,
     metaTxns,
-    lifiInfos,
+    anypayInfos,
     committedIntentAddress,
     committedIntentConfig,
     verificationStatus,
@@ -548,7 +548,7 @@ export const HomeIndexRoute = () => {
             intentCallsPayloads={intentCallsPayloads}
             intentPreconditions={intentPreconditions}
             metaTxns={metaTxns}
-            lifiInfos={lifiInfos}
+            anypayInfos={anypayInfos}
             anypayFee={anypayFee}
             intentActionType={intentActionType}
             selectedToken={selectedToken}
@@ -561,7 +561,7 @@ export const HomeIndexRoute = () => {
           <CommitIntentStep
             intentCallsPayloads={intentCallsPayloads}
             intentPreconditions={intentPreconditions}
-            lifiInfos={lifiInfos}
+            anypayInfos={anypayInfos}
             verificationStatus={verificationStatus}
             commitIntentConfigError={commitIntentConfigError}
             commitIntentConfigSuccess={commitIntentConfigSuccess}

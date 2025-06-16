@@ -5,7 +5,7 @@ import type {
   TokenBalance,
 } from "@0xsequence/anypay-sdk"
 import type {
-  AnypayLifiInfo,
+  AnypayExecutionInfo,
   IntentCallsPayload,
   IntentPrecondition,
 } from "@0xsequence/api"
@@ -46,7 +46,7 @@ interface IntentQuoteDisplayStepProps {
   intentCallsPayloads: IntentCallsPayload[] | null
   intentPreconditions: IntentPrecondition[] | null
   metaTxns: MetaTxn[] | null
-  lifiInfos: AnypayLifiInfo[] | null
+  anypayInfos: AnypayExecutionInfo[] | null
   anypayFee: AnypayFee | null
   intentActionType: IntentAction | null
   selectedToken: TokenBalance | null
@@ -66,7 +66,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
   intentCallsPayloads,
   intentPreconditions,
   metaTxns,
-  lifiInfos,
+  anypayInfos,
   anypayFee,
   intentActionType,
   selectedToken,
@@ -221,7 +221,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
       !intentActionType ||
       !selectedToken ||
       !account?.address ||
-      !lifiInfos ||
+      !anypayInfos ||
       !intentPreconditions
     )
       return null
@@ -728,7 +728,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
           </div>
         )}
 
-        {lifiInfos && lifiInfos.length > 0 && (
+        {anypayInfos && anypayInfos.length > 0 && (
           <div className="mt-4">
             <Text
               variant="medium"
@@ -754,7 +754,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                   </Text>
                 </div>
                 <pre className="text-xs overflow-x-auto whitespace-pre-wrap bg-gray-900/50 p-2 rounded border border-gray-700/50 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-                  {JSON.stringify(lifiInfos, null, 2)}
+                  {JSON.stringify(anypayInfos, null, 2)}
                 </pre>
               </div>
             </div>
