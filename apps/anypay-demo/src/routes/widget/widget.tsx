@@ -108,6 +108,7 @@ export const Widget = () => {
                   renderInline={renderInline}
                   theme={theme}
                   walletOptions={walletOptions}
+                  useSourceTokenForButtonText={true}
                 >
                   {useCustomButton ? (
                     <button className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-lg hover:from-green-600 hover:to-emerald-600 cursor-pointer transition duration-300">
