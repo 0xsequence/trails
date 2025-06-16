@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "pnpm run clean && vite",
     "build": "tsc -b && vite build",
     "lint": "biome lint ./src",
     "lint:fix": "biome lint --write ./src",
