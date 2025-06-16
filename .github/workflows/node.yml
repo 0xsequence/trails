@@ -18,8 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies
-        run: pnpm install
-      - uses: ./.github/actions/install-dependencies
+        uses: ./.github/actions/install-dependencies
       - name: Build
         run: pnpm run build
   node-test:
@@ -28,8 +27,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies
-        run: pnpm install
-      - uses: ./.github/actions/install-dependencies
+        uses: ./.github/actions/install-dependencies
       - name: Test
         run: pnpm run test
   node-lint:
@@ -38,8 +36,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Install dependencies
-        run: pnpm install
-      - uses: ./.github/actions/install-dependencies
+        uses: ./.github/actions/install-dependencies
       - name: Check
         run: pnpm run check
       - name: Format
