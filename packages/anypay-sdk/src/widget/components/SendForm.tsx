@@ -54,6 +54,7 @@ interface SendFormProps {
   walletClient: WalletClient
   theme?: "light" | "dark"
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
+  useSourceTokenForButtonText?: boolean
 }
 
 // Available chains
@@ -207,6 +208,7 @@ export const SendForm: React.FC<SendFormProps> = ({
   walletClient,
   theme = "light",
   onTransactionStateChange,
+  useSourceTokenForButtonText = false,
 }) => {
   const [amount, setAmount] = useState(toAmount ?? "")
   const [recipientInput, setRecipientInput] = useState(toRecipient ?? "")
@@ -456,11 +458,27 @@ export const SendForm: React.FC<SendFormProps> = ({
 
       if (checksummedRecipient === checksummedAccount) {
         return `Receive ${amount} ${selectedDestToken.symbol}`
-      } else if (toCalldata) {
-        return `Spend ${amount} ${selectedDestToken.symbol}`
-      } else {
-        return `Pay ${amount} ${selectedDestToken.symbol}`
       }
+      if (toCalldata) {
+        if (useSourceTokenForButtonText) {
+          const destPrice = destTokenPrices?.[0]?.price?.value ?? 0
+          const sourcePrice = selectedToken.tokenPriceUsd ?? 0
+          if (destPrice > 0 && sourcePrice > 0) {
+            const destAmountUsd = parseFloat(amount) * destPrice
+            const sourceAmount = destAmountUsd / sourcePrice
+            const formattedSourceAmount = sourceAmount.toLocaleString(
+              undefined,
+              {
+                maximumFractionDigits: 5,
+                minimumFractionDigits: 2,
+              },
+            )
+            return `Spend ~${formattedSourceAmount} ${selectedToken.symbol}`
+          }
+        }
+        return `Spend ${amount} ${selectedDestToken.symbol}`
+      }
+      return `Pay ${amount} ${selectedDestToken.symbol}`
     } catch {
       return `Send ${amount} ${selectedDestToken.symbol}`
     }
@@ -473,6 +491,9 @@ export const SendForm: React.FC<SendFormProps> = ({
     toCalldata,
     isWaitingForWalletConfirm,
     isSubmitting,
+    useSourceTokenForButtonText,
+    destTokenPrices,
+    selectedToken,
   ])
 
   return (
