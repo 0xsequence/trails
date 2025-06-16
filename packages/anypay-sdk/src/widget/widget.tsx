@@ -73,6 +73,7 @@ export type AnyPayWidgetProps = {
   walletOptions?: string[]
   onOriginConfirmation?: (txHash: string) => void
   onDestinationConfirmation?: (txHash: string) => void
+  useSourceTokenForButtonText?: boolean
 }
 
 const queryClient = new QueryClient()
@@ -118,6 +119,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   walletOptions,
   onOriginConfirmation,
   onDestinationConfirmation,
+  useSourceTokenForButtonText,
 }) => {
   const { address, isConnected, chainId, connector } = useAccount()
   const [theme, setTheme] = useState<ActiveTheme>(getInitialTheme(initialTheme))
@@ -451,6 +453,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             walletClient={walletClient}
             theme={theme}
             onTransactionStateChange={handleTransactionStateChange}
+            useSourceTokenForButtonText={useSourceTokenForButtonText}
           />
         ) : (
           <div
