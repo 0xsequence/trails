@@ -86,6 +86,7 @@ export type AnyPayWidgetProps = {
   onDestinationConfirmation?: (txHash: string) => void
   privyAppId?: string
   privyClientId?: string
+  useSourceTokenForButtonText?: boolean
 }
 
 const queryClient = new QueryClient()
@@ -232,6 +233,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   walletOptions,
   onOriginConfirmation,
   onDestinationConfirmation,
+  useSourceTokenForButtonText,
 }) => {
   const { address, isConnected, chainId, connector } = useAccount()
   const { disconnectAsync } = useDisconnect()
@@ -592,6 +594,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             walletClient={walletClient}
             theme={theme}
             onTransactionStateChange={handleTransactionStateChange}
+            useSourceTokenForButtonText={useSourceTokenForButtonText}
           />
         ) : (
           <div
