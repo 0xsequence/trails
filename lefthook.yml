@@ -1,15 +1,14 @@
 pre-commit:
   commands:
     prettier:
-      glob: '**/*.{js,jsx,ts,tsx,json,md,yml,yaml}'
+      glob: '**/*.{js,jsx,ts,tsx,json}'
       run: pnpm run format {staged_files} && git add {staged_files}
     lint:
-      glob: '**/*.{js,jsx,ts,tsx,json,md,yml,yaml}'
+      glob: '**/*.{js,jsx,ts,tsx,json}'
       run: pnpm run lint {staged_files} && git add {staged_files}
     check:
-      glob: '**/*.{js,jsx,ts,tsx,json,md,yml,yaml}'
+      glob: '**/*.{js,jsx,ts,tsx,json}'
       run: pnpm run check {staged_files}
-
 pre-push:
   commands:
     build:
