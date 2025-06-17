@@ -84,7 +84,6 @@ export type AnyPayWidgetProps = {
   walletOptions?: string[]
   onOriginConfirmation?: (txHash: string) => void
   onDestinationConfirmation?: (txHash: string) => void
-  useSourceTokenForButtonText?: boolean
   privyAppId?: string
   privyClientId?: string
   useSourceTokenForButtonText?: boolean
