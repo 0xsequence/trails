@@ -623,6 +623,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             txHash={destinationTxHash}
             chainId={destinationChainId!}
             theme={theme}
+            renderInline={renderInline}
           />
         )
       default:
