@@ -9,8 +9,10 @@ export const Widget = () => {
   const apiUrl = import.meta.env.VITE_API_URL
   const indexerUrl = import.meta.env.VITE_INDEXER_URL
   const env = import.meta.env.VITE_ENV
+  const privyAppId = import.meta.env.VITE_PRIVY_APP_ID
+  const privyClientId = import.meta.env.VITE_PRIVY_CLIENT_ID
 
-  const [toRecipient, setToRecipient] = useState("")
+  const [toAddress, setToAddress] = useState("")
   const [toAmount, setToAmount] = useState("")
   const [toChainId, setToChainId] = useState<number | undefined>()
   const [toToken, setToToken] = useState<string | undefined>()
@@ -18,7 +20,7 @@ export const Widget = () => {
   const [renderInline, setRenderInline] = useState<boolean | null>(null)
   const [useCustomButton, setUseCustomButton] = useState<boolean | null>(null)
   const [provider, setProvider] = useState<any>(null)
-  const [theme, setTheme] = useState<"light" | "dark" | "auto" | null>(null)
+  const [theme, setTheme] = useState<string | null>(null)
   const [walletOptions, setWalletOptions] = useState<string[] | null>(null)
 
   const handleConnect = useCallback((provider: any) => {
@@ -34,7 +36,7 @@ export const Widget = () => {
       setTheme("auto")
     }
     if (!localStorage.getItem(STORAGE_KEYS.WALLET_OPTIONS)) {
-      setWalletOptions(["metamask"])
+      setWalletOptions([])
     }
   }, [])
 
@@ -59,8 +61,8 @@ export const Widget = () => {
           {/* Left Column - Config Form */}
           <div className="md:w-1/2">
             <CustomizationForm
-              toRecipient={toRecipient}
-              setToRecipient={setToRecipient}
+              toAddress={toAddress}
+              setToAddress={setToAddress}
               toAmount={toAmount}
               setToAmount={setToAmount}
               toChainId={toChainId}
@@ -83,7 +85,7 @@ export const Widget = () => {
           {/* Right Column - Code Snippet */}
           <div className="md:w-1/2">
             <CodeSnippet
-              toRecipient={toRecipient}
+              toAddress={toAddress}
               toAmount={toAmount}
               toChainId={toChainId}
               toToken={toToken}
@@ -96,10 +98,10 @@ export const Widget = () => {
               <div className="mt-6 w-full max-w-md mx-auto">
                 <AnyPayWidget
                   sequenceApiKey={sequenceApiKey}
-                  apiUrl={apiUrl}
-                  indexerUrl={indexerUrl}
-                  env={env}
-                  toRecipient={toRecipient || undefined}
+                  sequenceApiUrl={apiUrl}
+                  sequenceIndexerUrl={indexerUrl}
+                  sequenceEnv={env}
+                  toAddress={toAddress || undefined}
                   toAmount={toAmount || undefined}
                   toChainId={toChainId}
                   toToken={toToken}
@@ -108,6 +110,9 @@ export const Widget = () => {
                   renderInline={renderInline}
                   theme={theme}
                   walletOptions={walletOptions}
+                  useSourceTokenForButtonText={true}
+                  privyAppId={privyAppId}
+                  privyClientId={privyClientId}
                 >
                   {useCustomButton ? (
                     <button className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-lg hover:from-green-600 hover:to-emerald-600 cursor-pointer transition duration-300">

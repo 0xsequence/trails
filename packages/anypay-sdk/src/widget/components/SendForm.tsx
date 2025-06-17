@@ -57,7 +57,7 @@ interface SendFormProps {
 }
 
 // Available chains
-const SUPPORTED_CHAINS = [
+export const SUPPORTED_TO_CHAINS = [
   { id: 1, name: "Ethereum", icon: chains.mainnet.id },
   { id: 8453, name: "Base", icon: chains.base.id },
   { id: 10, name: "Optimism", icon: chains.optimism.id },
@@ -67,7 +67,7 @@ const SUPPORTED_CHAINS = [
 
 // Available tokens
 // TODO: make this dynamic
-const SUPPORTED_TOKENS = [
+export const SUPPORTED_TO_TOKENS = [
   {
     symbol: "ETH",
     name: "Ethereum",
@@ -236,17 +236,17 @@ export const SendForm: React.FC<SendFormProps> = ({
 
   const [selectedChain, setSelectedChain] = useState(
     () =>
-      (SUPPORTED_CHAINS.find(
+      (SUPPORTED_TO_CHAINS.find(
         (chain) => chain.id === (toChainId ?? selectedToken.chainId),
-      ) || SUPPORTED_CHAINS[0])!,
+      ) || SUPPORTED_TO_CHAINS[0])!,
   )
   const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
   const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
   const [selectedDestToken, setSelectedDestToken] = useState(() =>
     toToken
-      ? SUPPORTED_TOKENS.find((token) => token.symbol === toToken) ||
-        SUPPORTED_TOKENS[0]!
-      : SUPPORTED_TOKENS[0]!,
+      ? SUPPORTED_TO_TOKENS.find((token) => token.symbol === toToken) ||
+        SUPPORTED_TO_TOKENS[0]!
+      : SUPPORTED_TO_TOKENS[0]!,
   )
 
   const apiClient = useAPIClient({ apiUrl, projectAccessKey: sequenceApiKey })
@@ -277,7 +277,9 @@ export const SendForm: React.FC<SendFormProps> = ({
   // Update selectedChain when toChainId prop changes
   useEffect(() => {
     if (toChainId) {
-      const newChain = SUPPORTED_CHAINS.find((chain) => chain.id === toChainId)
+      const newChain = SUPPORTED_TO_CHAINS.find(
+        (chain) => chain.id === toChainId,
+      )
       if (newChain) {
         setSelectedChain(newChain)
       }
@@ -287,7 +289,7 @@ export const SendForm: React.FC<SendFormProps> = ({
   // Update selectedDestToken when toToken prop changes
   useEffect(() => {
     if (toToken) {
-      const newToken = SUPPORTED_TOKENS.find(
+      const newToken = SUPPORTED_TO_TOKENS.find(
         (token) => token.symbol === toToken,
       )
       if (newToken) {
@@ -600,7 +602,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                       : "bg-white border-gray-200"
                   }`}
                 >
-                  {SUPPORTED_CHAINS.map((chain) => (
+                  {SUPPORTED_TO_CHAINS.map((chain) => (
                     <button
                       key={chain.id}
                       type="button"
@@ -699,7 +701,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                       : "bg-white border-gray-200"
                   }`}
                 >
-                  {SUPPORTED_TOKENS.map((token) => (
+                  {SUPPORTED_TO_TOKENS.map((token) => (
                     <button
                       key={token.symbol}
                       type="button"
