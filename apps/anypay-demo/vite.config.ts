@@ -20,6 +20,12 @@ export default defineConfig({
     alias: {
       "@": "/src",
     },
-    dedupe: ["@0xsequence/hooks", "wagmi", "react", "react-dom"], // this helps avoid duplicate React context instances
+    dedupe: [
+      "@0xsequence/hooks",
+      "wagmi",
+      "@privy-io/wagmi",
+      "react",
+      "react-dom",
+    ], // this helps avoid duplicate React context instances
   },
 })
