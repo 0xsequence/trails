@@ -87,6 +87,7 @@ export type AnyPayWidgetProps = {
   useSourceTokenForButtonText?: boolean
   privyAppId?: string
   privyClientId?: string
+  useSourceTokenForButtonText?: boolean
 }
 
 const queryClient = new QueryClient()
@@ -543,11 +544,40 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
         setCurrentScreen("pending")
         break
       case "receipt":
-        // Set dummy transaction data for debug mode
+        // Set dummy final transaction data for debug mode
         setDestinationTxHash(
           "0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
         )
         setDestinationChainId(42161)
+
+        // Set dummy transaction states data for debug mode
+        setTransactionStates([
+          {
+            transactionHash:
+              "0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            chainId: 137,
+            state: "confirmed",
+          },
+          {
+            transactionHash:
+              "0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            chainId: 137,
+            state: "confirmed",
+          },
+          {
+            transactionHash:
+              "0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
+            explorerUrl:
+              "https://arbiscan.io/tx/0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
+            chainId: 42161,
+            state: "confirmed",
+          },
+        ])
+
         setCurrentScreen("receipt")
         break
     }
@@ -623,6 +653,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             txHash={destinationTxHash}
             chainId={destinationChainId!}
             theme={theme}
+            renderInline={renderInline}
+            transactionStates={transactionStates}
           />
         )
       default:
