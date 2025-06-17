@@ -5,7 +5,11 @@ import {
   usePrivy,
   useWallets as usePrivyWallets,
 } from "@privy-io/react-auth"
-import { createConfig, useSetActiveWallet } from "@privy-io/wagmi"
+import {
+  createConfig,
+  useSetActiveWallet,
+  WagmiProvider,
+} from "@privy-io/wagmi"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AnimatePresence, motion } from "motion/react"
 import React, { StrictMode, useContext, useEffect, useState } from "react"
@@ -18,13 +22,7 @@ import {
 } from "viem"
 import * as chains from "viem/chains"
 import { mainnet } from "viem/chains"
-import {
-  useAccount,
-  useConnect,
-  useDisconnect,
-  WagmiContext,
-  WagmiProvider,
-} from "wagmi"
+import { useAccount, useConnect, useDisconnect, WagmiContext } from "wagmi"
 import { injected } from "wagmi/connectors"
 import type { TransactionState } from "../anypay.js"
 import { useIndexerGatewayClient } from "../indexerClient.js"
@@ -86,7 +84,6 @@ export type AnyPayWidgetProps = {
   walletOptions?: string[]
   onOriginConfirmation?: (txHash: string) => void
   onDestinationConfirmation?: (txHash: string) => void
-  useSourceTokenForButtonText?: boolean
   privyAppId?: string
   privyClientId?: string
 }
@@ -254,6 +251,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   const { login: loginPrivy } = useLogin()
   const { wallets: privyWallets, ready: privyWalletsReady } = usePrivyWallets()
   const { setActiveWallet: setPrivyActiveWallet } = useSetActiveWallet()
+  const usePrivyLogin = true // Set to true to use Privy email login options
 
   console.log("privyWallets", privyWallets, isConnected, address)
 
@@ -294,12 +292,15 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
       if (walletId === "injected") {
         await connect({ connector: config.connector() })
       } else if (walletId === "privy") {
-        console.log("Privy ready", privyReady)
+        console.log("Privy ready", privyReady, privyWalletsReady)
         if (!privyReady || !privyWalletsReady) {
           return
         }
-        await disconnectAsync()
-        const usePrivyLogin = false
+        try {
+          await disconnectAsync()
+        } catch (error) {
+          console.error("Failed to disconnect", error)
+        }
         if (usePrivyLogin) {
           try {
             await privyLogout()
@@ -337,7 +338,29 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 
   const handleWalletDisconnect = () => {
     setError(null)
-    setCurrentScreen("connect")
+
+    if (connector?.name === "Privy") {
+      Promise.resolve()
+        .then(async () => {
+          try {
+            await disconnectAsync()
+          } catch (error) {
+            console.error("Failed to disconnect", error)
+          }
+        })
+        .then(async () => {
+          try {
+            await privyLogout()
+          } catch (error) {
+            console.error("Failed to logout Privy", error)
+          }
+        })
+        .finally(() => {
+          setCurrentScreen("connect")
+        })
+    } else {
+      setCurrentScreen("connect")
+    }
   }
 
   const handleContinue = () => {
@@ -743,54 +766,53 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
   )
 
   const content = (
-    <QueryClientProvider client={queryClient}>
-      <SequenceHooksProvider
-        config={{
-          projectAccessKey: props.sequenceApiKey,
-          env: {
-            indexerUrl: props.sequenceIndexerUrl,
-            indexerGatewayUrl: props.sequenceIndexerUrl,
-            apiUrl: props.sequenceApiUrl,
-          },
-        }}
-      >
-        <PrivyProvider
-          appId={props.privyAppId || ""}
-          clientId={props.privyClientId}
+    <PrivyProvider
+      appId={props.privyAppId || ""}
+      clientId={props.privyClientId}
+      config={{
+        embeddedWallets: {
+          createOnLogin: "users-without-wallets",
+          requireUserPasswordOnCreate: true,
+          showWalletUIs: true,
+        },
+        loginMethods: ["google", "wallet", "email", "sms"],
+        appearance: {
+          showWalletLoginFirst: false,
+          walletList: [
+            "detected_wallets",
+            "metamask",
+            "coinbase_wallet",
+            "rainbow",
+            "zerion",
+            "uniswap",
+            "wallet_connect",
+          ],
+        },
+      }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <SequenceHooksProvider
           config={{
-            embeddedWallets: {
-              createOnLogin: "users-without-wallets",
-              requireUserPasswordOnCreate: true,
-              showWalletUIs: true,
-            },
-            loginMethods: ["wallet", "email", "sms"],
-            appearance: {
-              showWalletLoginFirst: false,
-              walletList: [
-                "detected_wallets",
-                "metamask",
-                "coinbase_wallet",
-                "rainbow",
-                "zerion",
-                "uniswap",
-                "wallet_connect",
-              ],
+            projectAccessKey: props.sequenceApiKey,
+            env: {
+              indexerUrl: props.sequenceIndexerUrl,
+              indexerGatewayUrl: props.sequenceIndexerUrl,
+              apiUrl: props.sequenceApiUrl,
             },
           }}
         >
-          <WidgetInner {...props} />
-        </PrivyProvider>
-      </SequenceHooksProvider>
-    </QueryClientProvider>
+          <WagmiProvider config={wagmiConfig}>
+            <WidgetInner {...props} />
+          </WagmiProvider>
+        </SequenceHooksProvider>
+      </QueryClientProvider>
+    </PrivyProvider>
   )
 
   // If no parent Wagmi context, provide our own
   if (!wagmiContext) {
-    return (
-      <StrictMode>
-        <WagmiProvider config={wagmiConfig}>{content}</WagmiProvider>
-      </StrictMode>
-    )
+    // TODO
+    // return <StrictMode>{content}</StrictMode>
   }
 
   // Otherwise use parent context
