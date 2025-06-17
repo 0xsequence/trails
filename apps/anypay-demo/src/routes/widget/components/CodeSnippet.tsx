@@ -5,20 +5,20 @@ import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"
 
 interface CodeSnippetProps {
   children: React.ReactNode
-  toRecipient: string
+  toAddress: string
   toAmount: string
   toChainId: number | undefined
   toToken: string | undefined
   toCalldata: string
   useCustomButton: boolean | null
   renderInline: boolean | null
-  theme: "light" | "dark" | "auto" | null
+  theme: string | null
   walletOptions: string[] | null
 }
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   children,
-  toRecipient,
+  toAddress,
   toAmount,
   toChainId,
   toToken,
@@ -48,7 +48,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
 
   const getCode = () => {
     const props = [
-      toRecipient && `toRecipient="${toRecipient}"`,
+      toAddress && `toAddress="${toAddress}"`,
       toAmount && `toAmount="${toAmount}"`,
       toChainId && `toChainId={${toChainId}}`,
       toToken && `toToken="${toToken}"`,

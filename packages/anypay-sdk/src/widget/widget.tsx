@@ -1,7 +1,14 @@
 import { SequenceHooksProvider } from "@0xsequence/hooks"
+import {
+  PrivyProvider,
+  useLogin,
+  usePrivy,
+  useWallets as usePrivyWallets,
+} from "@privy-io/react-auth"
+import { createConfig, useSetActiveWallet } from "@privy-io/wagmi"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AnimatePresence, motion } from "motion/react"
-import { StrictMode, useContext, useEffect, useState } from "react"
+import React, { StrictMode, useContext, useEffect, useState } from "react"
 import {
   createWalletClient,
   custom,
@@ -11,8 +18,17 @@ import {
 } from "viem"
 import * as chains from "viem/chains"
 import { mainnet } from "viem/chains"
-import { createConfig, useAccount, useConnect, WagmiProvider } from "wagmi"
-import ConnectWallet from "./components/ConnectWallet.js"
+import {
+  useAccount,
+  useConnect,
+  useDisconnect,
+  WagmiContext,
+  WagmiProvider,
+} from "wagmi"
+import { injected } from "wagmi/connectors"
+import type { TransactionState } from "../anypay.js"
+import { useIndexerGatewayClient } from "../indexerClient.js"
+import { ConnectWallet, type WalletOption } from "./components/ConnectWallet.js"
 import DebugScreensDropdown from "./components/DebugScreensDropdown.js"
 import Modal from "./components/Modal.js"
 import Receipt from "./components/Receipt.js"
@@ -21,15 +37,12 @@ import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPending.js"
 import "@0xsequence/design-system/preset"
 import "./index.css"
-import React from "react"
-import { WagmiContext } from "wagmi"
-import { injected } from "wagmi/connectors"
-import type { TransactionState } from "../anypay.js"
-import { useIndexerGatewayClient } from "../indexerClient.js"
 
 type Screen = "connect" | "tokens" | "send" | "pending" | "receipt"
-type Theme = "light" | "dark" | "auto"
+export type Theme = "light" | "dark" | "auto"
 type ActiveTheme = "light" | "dark"
+
+export const defaultWalletOptions = ["injected", "privy"]
 
 interface Token {
   id: number
@@ -58,10 +71,10 @@ const getChainConfig = (chainId: number) => {
 
 export type AnyPayWidgetProps = {
   sequenceApiKey: string
-  indexerUrl?: string
-  apiUrl?: string
-  env?: "local" | "cors-anywhere" | "dev" | "prod"
-  toRecipient?: string
+  sequenceIndexerUrl?: string
+  sequenceApiUrl?: string
+  sequenceEnv?: "local" | "cors-anywhere" | "dev" | "prod"
+  toAddress?: string
   toAmount?: string
   toChainId?: number | string
   toToken?: string
@@ -74,6 +87,8 @@ export type AnyPayWidgetProps = {
   onOriginConfirmation?: (txHash: string) => void
   onDestinationConfirmation?: (txHash: string) => void
   useSourceTokenForButtonText?: boolean
+  privyAppId?: string
+  privyClientId?: string
 }
 
 const queryClient = new QueryClient()
@@ -94,25 +109,126 @@ const getInitialTheme = (mode: Theme): ActiveTheme => {
   return mode as ActiveTheme
 }
 
-const WALLET_CONFIGS = {
-  metamask: {
-    id: "metamask",
-    name: "MetaMask",
+const WALLET_CONFIGS: Record<
+  string,
+  { id: string; name: string; connector: () => any }
+> = {
+  injected: {
+    id: "injected",
+    name: "Injected Web3",
     connector: injected,
+  },
+  privy: {
+    id: "privy",
+    name: "Privy",
+    connector: () => {},
   },
 } as const
 
+// Create a custom hook for theme management
+const useThemeManager = (initialTheme: Theme) => {
+  const [theme, setTheme] = useState<ActiveTheme>(getInitialTheme(initialTheme))
+  const [themeMode, setThemeMode] = useState<Theme>(initialTheme)
+
+  useEffect(() => {
+    if (themeMode !== "auto") return
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+    const handleChange = (e: MediaQueryListEvent) => {
+      setTheme(e.matches ? "dark" : "light")
+    }
+
+    setTheme(mediaQuery.matches ? "dark" : "light")
+    mediaQuery.addEventListener("change", handleChange)
+    return () => mediaQuery.removeEventListener("change", handleChange)
+  }, [themeMode])
+
+  useEffect(() => {
+    setThemeMode(initialTheme)
+    setTheme(getInitialTheme(initialTheme))
+  }, [initialTheme])
+
+  return { theme, themeMode }
+}
+
+// Create a custom hook for wallet management
+const useWalletManager = (
+  provider: any,
+  address: string | undefined,
+  chainId: number | undefined,
+  connector: any,
+) => {
+  const [walletClient, setWalletClient] = useState<WalletClient | null>(null)
+
+  useEffect(() => {
+    const connect = async () => {
+      const activeProvider = provider || (await connector?.getProvider())
+
+      if (activeProvider && address && chainId) {
+        const chain = getChainConfig(chainId)
+        const client = createWalletClient({
+          account: address as `0x${string}`,
+          chain,
+          transport: custom(activeProvider),
+        })
+
+        setWalletClient(client)
+      }
+    }
+    connect().catch(console.error)
+  }, [provider, address, chainId, connector])
+
+  return walletClient
+}
+
+// Create a custom hook for transaction state management
+const useTransactionState = (
+  onOriginConfirmation?: (txHash: string) => void,
+  onDestinationConfirmation?: (txHash: string) => void,
+) => {
+  const [originTxHash, setOriginTxHash] = useState("")
+  const [destinationTxHash, setDestinationTxHash] = useState("")
+  const [destinationChainId, setDestinationChainId] = useState<number | null>(
+    null,
+  )
+  const [transactionStates, setTransactionStates] = useState<
+    TransactionState[]
+  >([])
+
+  useEffect(() => {
+    if (onOriginConfirmation && originTxHash) {
+      onOriginConfirmation(originTxHash)
+    }
+  }, [originTxHash, onOriginConfirmation])
+
+  useEffect(() => {
+    if (onDestinationConfirmation && destinationTxHash) {
+      onDestinationConfirmation(destinationTxHash)
+    }
+  }, [destinationTxHash, onDestinationConfirmation])
+
+  return {
+    originTxHash,
+    setOriginTxHash,
+    destinationTxHash,
+    setDestinationTxHash,
+    destinationChainId,
+    setDestinationChainId,
+    transactionStates,
+    setTransactionStates,
+  }
+}
+
 const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   sequenceApiKey,
-  indexerUrl,
-  apiUrl,
-  env,
-  toRecipient,
+  sequenceIndexerUrl,
+  sequenceApiUrl,
+  sequenceEnv,
+  toAddress,
   toAmount,
   toChainId,
   toToken,
   toCalldata,
-  provider,
   children,
   renderInline = true,
   theme: initialTheme = "auto",
@@ -122,65 +238,39 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   useSourceTokenForButtonText,
 }) => {
   const { address, isConnected, chainId, connector } = useAccount()
-  const [theme, setTheme] = useState<ActiveTheme>(getInitialTheme(initialTheme))
-  const [themeMode, setThemeMode] = useState<Theme>(initialTheme)
+  const { disconnectAsync } = useDisconnect()
+  const { theme } = useThemeManager(initialTheme)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentScreen, setCurrentScreen] = useState<Screen>(
     isConnected ? "tokens" : "connect",
   )
   const [selectedToken, setSelectedToken] = useState<Token | null>(null)
-  const [originTxHash, setOriginTxHash] = useState("")
-  const [destinationTxHash, setDestinationTxHash] = useState("")
-  const [destinationChainId, setDestinationChainId] = useState<number | null>(
-    null,
-  )
-  const [walletClient, setWalletClient] = useState<WalletClient | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [transactionStates, setTransactionStates] = useState<
-    TransactionState[]
-  >([])
   const { connect } = useConnect()
+  const {
+    connectWallet: privyConnectWallet,
+    ready: privyReady,
+    logout: privyLogout,
+  } = usePrivy()
+  const { login: loginPrivy } = useLogin()
+  const { wallets: privyWallets, ready: privyWalletsReady } = usePrivyWallets()
+  const { setActiveWallet: setPrivyActiveWallet } = useSetActiveWallet()
 
-  // Update theme when system preference changes
-  useEffect(() => {
-    if (themeMode !== "auto") return
+  console.log("privyWallets", privyWallets, isConnected, address)
 
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
-    const handleChange = (e: MediaQueryListEvent) => {
-      setTheme(e.matches ? "dark" : "light")
-    }
+  const walletClient = useWalletManager(undefined, address, chainId, connector)
 
-    // Set initial value
-    setTheme(mediaQuery.matches ? "dark" : "light")
+  const {
+    setOriginTxHash,
+    destinationTxHash,
+    setDestinationTxHash,
+    destinationChainId,
+    setDestinationChainId,
+    transactionStates,
+    setTransactionStates,
+  } = useTransactionState(onOriginConfirmation, onDestinationConfirmation)
 
-    // Add listener for changes
-    mediaQuery.addEventListener("change", handleChange)
-    return () => mediaQuery.removeEventListener("change", handleChange)
-  }, [themeMode])
-
-  // Update theme when prop changes
-  useEffect(() => {
-    setThemeMode(initialTheme)
-    setTheme(getInitialTheme(initialTheme))
-  }, [initialTheme])
-
-  // Set up wallet client when connected
-  useEffect(() => {
-    const connect = async () => {
-      const activeProvider = provider || (await connector?.getProvider())
-
-      if (activeProvider && address && chainId) {
-        const chain = getChainConfig(chainId)
-        const client = createWalletClient({
-          account: address,
-          chain,
-          transport: custom(activeProvider),
-        })
-        setWalletClient(client)
-      }
-    }
-    connect().catch(console.error)
-  }, [provider, address, chainId, connector])
+  console.log("isConnected", isConnected, "address", address)
 
   // Update screen based on connection state
   useEffect(() => {
@@ -190,7 +280,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   }, [isConnected])
 
   const indexerGatewayClient = useIndexerGatewayClient({
-    indexerGatewayUrl: indexerUrl,
+    indexerGatewayUrl: sequenceIndexerUrl,
     projectAccessKey: sequenceApiKey,
   })
 
@@ -202,7 +292,30 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
         setError(`No configuration found for wallet: ${walletId}`)
         return
       }
-      await connect({ connector: config.connector() })
+      if (walletId === "injected") {
+        await connect({ connector: config.connector() })
+      } else if (walletId === "privy") {
+        console.log("Privy ready", privyReady)
+        if (!privyReady || !privyWalletsReady) {
+          return
+        }
+        await disconnectAsync()
+        const usePrivyLogin = false
+        if (usePrivyLogin) {
+          try {
+            await privyLogout()
+          } catch (error) {
+            console.error("Failed to logout Privy", error)
+          }
+          try {
+            await loginPrivy()
+          } catch (error) {
+            console.error("Failed to login Privy", error)
+          }
+        } else {
+          await privyConnectWallet()
+        }
+      }
       console.log(`Connected to ${config.name}`)
     } catch (error) {
       console.error("Failed to connect:", error)
@@ -211,6 +324,17 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
       )
     }
   }
+
+  useEffect(() => {
+    console.log("Privy wallets change", privyWallets)
+    const latestWallet = privyWallets?.sort(
+      (a, b) => a.connectedAt - b.connectedAt,
+    )?.[0]
+    if (latestWallet) {
+      console.log("Setting Privy active wallet", latestWallet)
+      setPrivyActiveWallet(latestWallet)
+    }
+  }, [privyWallets, setPrivyActiveWallet])
 
   const handleWalletDisconnect = () => {
     setError(null)
@@ -221,17 +345,19 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     setCurrentScreen("tokens")
   }
 
-  const getAvailableWallets = () => {
-    const requestedWallets = walletOptions || ["metamask"]
+  const getAvailableWallets = (): WalletOption[] => {
+    const requestedWallets = walletOptions || defaultWalletOptions
     return requestedWallets
       .filter((id) => WALLET_CONFIGS[id as keyof typeof WALLET_CONFIGS])
       .map((id) => {
         const config = WALLET_CONFIGS[id as keyof typeof WALLET_CONFIGS]
+        if (!config) return null as any
         return {
           id: config.id,
           name: config.name,
         }
       })
+      .filter(Boolean)
   }
 
   const handleTokenSelect = (token: Token) => {
@@ -285,18 +411,6 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
         break
     }
   }
-
-  useEffect(() => {
-    if (onOriginConfirmation && originTxHash) {
-      onOriginConfirmation(originTxHash)
-    }
-  }, [originTxHash, onOriginConfirmation])
-
-  useEffect(() => {
-    if (onDestinationConfirmation && destinationTxHash) {
-      onDestinationConfirmation(destinationTxHash)
-    }
-  }, [destinationTxHash, onDestinationConfirmation])
 
   function handleTransferComplete(data?: {
     originChainId: number
@@ -443,9 +557,9 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             selectedToken={selectedToken}
             account={walletClient.account}
             sequenceApiKey={sequenceApiKey}
-            apiUrl={apiUrl}
-            env={env}
-            toRecipient={toRecipient}
+            apiUrl={sequenceApiUrl}
+            env={sequenceEnv}
+            toRecipient={toAddress}
             toAmount={toAmount}
             toChainId={toChainId ? Number(toChainId) : undefined}
             toToken={toToken}
@@ -636,13 +750,38 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
         config={{
           projectAccessKey: props.sequenceApiKey,
           env: {
-            indexerUrl: props.indexerUrl,
-            indexerGatewayUrl: props.indexerUrl,
-            apiUrl: props.apiUrl,
+            indexerUrl: props.sequenceIndexerUrl,
+            indexerGatewayUrl: props.sequenceIndexerUrl,
+            apiUrl: props.sequenceApiUrl,
           },
         }}
       >
-        <WidgetInner {...props} />
+        <PrivyProvider
+          appId={props.privyAppId || ""}
+          clientId={props.privyClientId}
+          config={{
+            embeddedWallets: {
+              createOnLogin: "users-without-wallets",
+              requireUserPasswordOnCreate: true,
+              showWalletUIs: true,
+            },
+            loginMethods: ["wallet", "email", "sms"],
+            appearance: {
+              showWalletLoginFirst: false,
+              walletList: [
+                "detected_wallets",
+                "metamask",
+                "coinbase_wallet",
+                "rainbow",
+                "zerion",
+                "uniswap",
+                "wallet_connect",
+              ],
+            },
+          }}
+        >
+          <WidgetInner {...props} />
+        </PrivyProvider>
       </SequenceHooksProvider>
     </QueryClientProvider>
   )

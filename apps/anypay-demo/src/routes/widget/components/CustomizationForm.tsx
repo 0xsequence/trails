@@ -1,52 +1,16 @@
+import {
+  SUPPORTED_TO_CHAINS,
+  SUPPORTED_TO_TOKENS,
+} from "@0xsequence/anypay-sdk"
+import { defaultWalletOptions } from "@0xsequence/anypay-sdk/widget"
 import { NetworkImage, TokenImage } from "@0xsequence/design-system"
 import { ChevronDown } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { useAccount } from "wagmi"
 
-const SUPPORTED_CHAINS = [
-  { id: 1, name: "Ethereum", icon: 1 },
-  { id: 8453, name: "Base", icon: 8453 },
-  { id: 10, name: "Optimism", icon: 10 },
-  { id: 42161, name: "Arbitrum", icon: 42161 },
-  { id: 137, name: "Polygon", icon: 137 },
-]
-
-const SUPPORTED_TOKENS = [
-  {
-    symbol: "ETH",
-    name: "Ethereum",
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/small/1/0x0000000000000000000000000000000000000000.webp",
-  },
-  {
-    symbol: "USDC",
-    name: "USD Coin",
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/small/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
-  },
-  {
-    symbol: "USDT",
-    name: "Tether",
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/small/1/0xdac17f958d2ee523a2206206994597c13d831ec7.webp",
-  },
-  {
-    symbol: "BAT",
-    name: "Basic Attention Token",
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/small/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp",
-  },
-  {
-    symbol: "ARB",
-    name: "Arbitrum",
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/small/42161/0x912ce59144191c1204e64559fe8253a0e49e6548.webp",
-  },
-] as const
-
 interface CustomizationFormProps {
-  toRecipient: string
-  setToRecipient: (value: string) => void
+  toAddress: string
+  setToAddress: (value: string) => void
   toAmount: string
   setToAmount: (value: string) => void
   toChainId: number | undefined
@@ -59,20 +23,20 @@ interface CustomizationFormProps {
   setUseCustomButton: (value: boolean | null) => void
   renderInline: boolean | null
   setRenderInline: (value: boolean | null) => void
-  theme: "light" | "dark" | "auto" | null
-  setTheme: (value: "light" | "dark" | "auto" | null) => void
+  theme: string | null
+  setTheme: (value: string | null) => void
   walletOptions: string[] | null
   setWalletOptions: (value: string[] | null) => void
 }
 
 // Local storage keys
 export const STORAGE_KEYS = {
-  RECIPIENT: "anypay_recipient",
-  AMOUNT: "anypay_amount",
-  CHAIN_ID: "anypay_chain_id",
-  TOKEN: "anypay_token",
-  CALLDATA: "anypay_calldata",
-  CUSTOM_BUTTON: "anypay_custom_button",
+  TO_ADDRESS: "anypay_to_address",
+  TO_AMOUNT: "anypay_to_amount",
+  TO_CHAIN_ID: "anypay_to_chain_id",
+  TO_TOKEN: "anypay_to_token",
+  TO_CALLLDATA: "anypay_to_calldata",
+  USE_CUSTOM_BUTTON: "anypay_use_custom_button",
   RENDER_INLINE: "anypay_render_inline",
   THEME: "anypay_theme",
   WALLET_OPTIONS: "anypay_wallet_options",
@@ -110,8 +74,8 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
 }
 
 export const CustomizationForm: React.FC<CustomizationFormProps> = ({
-  toRecipient,
-  setToRecipient,
+  toAddress,
+  setToAddress,
   toAmount,
   setToAmount,
   toChainId,
@@ -146,34 +110,32 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   // Load saved values from localStorage on mount
   useEffect(() => {
-    const savedRecipient = localStorage.getItem(STORAGE_KEYS.RECIPIENT)
-    const savedAmount = localStorage.getItem(STORAGE_KEYS.AMOUNT)
-    const savedChainId = localStorage.getItem(STORAGE_KEYS.CHAIN_ID)
-    const savedToken = localStorage.getItem(STORAGE_KEYS.TOKEN) as
-      | "ETH"
-      | "USDC"
+    const savedToAddress = localStorage.getItem(STORAGE_KEYS.TO_ADDRESS)
+    const savedToAmount = localStorage.getItem(STORAGE_KEYS.TO_AMOUNT)
+    const savedToChainId = localStorage.getItem(STORAGE_KEYS.TO_CHAIN_ID)
+    const savedToToken = localStorage.getItem(STORAGE_KEYS.TO_TOKEN) as
+      | string
       | undefined
-    const savedCalldata = localStorage.getItem(STORAGE_KEYS.CALLDATA)
-    const savedCustomButton = localStorage.getItem(STORAGE_KEYS.CUSTOM_BUTTON)
+    const savedToCalldata = localStorage.getItem(STORAGE_KEYS.TO_CALLLDATA)
+    const savedUseCustomButton = localStorage.getItem(
+      STORAGE_KEYS.USE_CUSTOM_BUTTON,
+    )
     const savedRenderInline = localStorage.getItem(STORAGE_KEYS.RENDER_INLINE)
-    const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) as
-      | "light"
-      | "dark"
-      | "auto"
-      | null
+    const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) as string | null
     const savedWalletOptions = localStorage.getItem(STORAGE_KEYS.WALLET_OPTIONS)
 
-    if (savedRecipient) setToRecipient(savedRecipient)
-    if (savedAmount) setToAmount(savedAmount)
-    if (savedChainId) setToChainId(Number(savedChainId))
-    if (savedToken) setToToken(savedToken)
-    if (savedCalldata) setToCalldata(savedCalldata)
-    if (savedCustomButton) setUseCustomButton(savedCustomButton === "true")
+    if (savedToAddress) setToAddress(savedToAddress)
+    if (savedToAmount) setToAmount(savedToAmount)
+    if (savedToChainId) setToChainId(Number(savedToChainId))
+    if (savedToToken) setToToken(savedToToken)
+    if (savedToCalldata) setToCalldata(savedToCalldata)
+    if (savedUseCustomButton)
+      setUseCustomButton(savedUseCustomButton === "true")
     if (savedRenderInline) setRenderInline(savedRenderInline === "true")
     if (savedTheme) setTheme(savedTheme)
     if (savedWalletOptions) setWalletOptions(JSON.parse(savedWalletOptions))
   }, [
-    setToRecipient,
+    setToAddress,
     setToAmount,
     setToChainId,
     setToToken,
@@ -186,31 +148,31 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   // Save values to localStorage whenever they change
   useEffect(() => {
-    if (toRecipient) localStorage.setItem(STORAGE_KEYS.RECIPIENT, toRecipient)
-  }, [toRecipient])
+    if (toAddress) localStorage.setItem(STORAGE_KEYS.TO_ADDRESS, toAddress)
+  }, [toAddress])
 
   useEffect(() => {
-    if (toAmount) localStorage.setItem(STORAGE_KEYS.AMOUNT, toAmount)
+    if (toAmount) localStorage.setItem(STORAGE_KEYS.TO_AMOUNT, toAmount)
   }, [toAmount])
 
   useEffect(() => {
     if (toChainId)
-      localStorage.setItem(STORAGE_KEYS.CHAIN_ID, toChainId.toString())
+      localStorage.setItem(STORAGE_KEYS.TO_CHAIN_ID, toChainId.toString())
   }, [toChainId])
 
   useEffect(() => {
-    if (toToken) localStorage.setItem(STORAGE_KEYS.TOKEN, toToken)
+    if (toToken) localStorage.setItem(STORAGE_KEYS.TO_TOKEN, toToken)
   }, [toToken])
 
   useEffect(() => {
-    if (toCalldata) localStorage.setItem(STORAGE_KEYS.CALLDATA, toCalldata)
+    if (toCalldata) localStorage.setItem(STORAGE_KEYS.TO_CALLLDATA, toCalldata)
   }, [toCalldata])
 
   // Save custom button state to localStorage
   useEffect(() => {
     if (typeof useCustomButton === "boolean") {
       localStorage.setItem(
-        STORAGE_KEYS.CUSTOM_BUTTON,
+        STORAGE_KEYS.USE_CUSTOM_BUTTON,
         useCustomButton.toString(),
       )
     }
@@ -267,7 +229,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   const handleReset = () => {
     // Clear form state
-    setToRecipient("")
+    setToAddress("")
     setToAmount("")
     setToChainId(undefined)
     setToToken(undefined)
@@ -311,8 +273,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </label>
             <input
               type="text"
-              value={toRecipient}
-              onChange={(e) => setToRecipient(e.target.value.trim())}
+              value={toAddress}
+              onChange={(e) => setToAddress(e.target.value.trim())}
               placeholder="0x..."
               className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
@@ -346,13 +308,20 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     <TokenImage
                       symbol={toToken}
                       src={
-                        SUPPORTED_TOKENS.find((t) => t.symbol === toToken)
-                          ?.imageUrl
+                        SUPPORTED_TO_TOKENS.find(
+                          (t: { symbol: string; imageUrl: string }) =>
+                            t.symbol === toToken,
+                        )?.imageUrl
                       }
                       size="sm"
                     />
                     <span className="ml-2 flex-1 text-left text-gray-200">
-                      {SUPPORTED_TOKENS.find((t) => t.symbol === toToken)?.name}{" "}
+                      {
+                        SUPPORTED_TO_TOKENS.find(
+                          (t: { symbol: string; name: string }) =>
+                            t.symbol === toToken,
+                        )?.name
+                      }{" "}
                       ({toToken})
                     </span>
                   </>
@@ -381,33 +350,39 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       <span className="ml-auto text-blue-400">•</span>
                     )}
                   </button>
-                  {SUPPORTED_TOKENS.map((token) => (
-                    <button
-                      key={token.symbol}
-                      type="button"
-                      onClick={() => {
-                        setToToken(token.symbol as "ETH" | "USDC")
-                        setIsTokenDropdownOpen(false)
-                      }}
-                      className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${
-                        toToken === token.symbol
-                          ? "bg-gray-600 text-blue-400"
-                          : "text-gray-200"
-                      }`}
-                    >
-                      <TokenImage
-                        symbol={token.symbol}
-                        src={token.imageUrl}
-                        size="sm"
-                      />
-                      <span className="ml-2">
-                        {token.name} ({token.symbol})
-                      </span>
-                      {toToken === token.symbol && (
-                        <span className="ml-auto text-blue-400">•</span>
-                      )}
-                    </button>
-                  ))}
+                  {SUPPORTED_TO_TOKENS.map(
+                    (token: {
+                      symbol: string
+                      name: string
+                      imageUrl: string
+                    }) => (
+                      <button
+                        key={token.symbol}
+                        type="button"
+                        onClick={() => {
+                          setToToken(token.symbol as "ETH" | "USDC")
+                          setIsTokenDropdownOpen(false)
+                        }}
+                        className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${
+                          toToken === token.symbol
+                            ? "bg-gray-600 text-blue-400"
+                            : "text-gray-200"
+                        }`}
+                      >
+                        <TokenImage
+                          symbol={token.symbol}
+                          src={token.imageUrl}
+                          size="sm"
+                        />
+                        <span className="ml-2">
+                          {token.name} ({token.symbol})
+                        </span>
+                        {toToken === token.symbol && (
+                          <span className="ml-auto text-blue-400">•</span>
+                        )}
+                      </button>
+                    ),
+                  )}
                 </div>
               )}
             </div>
@@ -432,8 +407,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     />
                     <span className="ml-2 flex-1 text-left text-gray-200">
                       {
-                        SUPPORTED_CHAINS.find((chain) => chain.id === toChainId)
-                          ?.name
+                        SUPPORTED_TO_CHAINS.find(
+                          (chain: { id: number; name: string }) =>
+                            chain.id === toChainId,
+                        )?.name
                       }{" "}
                       ({toChainId})
                     </span>
@@ -463,33 +440,35 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       <span className="ml-auto text-blue-400">•</span>
                     )}
                   </button>
-                  {SUPPORTED_CHAINS.map((chain) => (
-                    <button
-                      key={chain.id}
-                      type="button"
-                      onClick={() => {
-                        setToChainId(chain.id)
-                        setIsChainDropdownOpen(false)
-                      }}
-                      className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${
-                        toChainId === chain.id
-                          ? "bg-gray-600 text-blue-400"
-                          : "text-gray-200"
-                      }`}
-                    >
-                      <NetworkImage
-                        chainId={chain.icon}
-                        size="sm"
-                        className="w-5 h-5"
-                      />
-                      <span className="ml-2">
-                        {chain.name} ({chain.id})
-                      </span>
-                      {toChainId === chain.id && (
-                        <span className="ml-auto text-blue-400">•</span>
-                      )}
-                    </button>
-                  ))}
+                  {SUPPORTED_TO_CHAINS.map(
+                    (chain: { id: number; name: string }) => (
+                      <button
+                        key={chain.id}
+                        type="button"
+                        onClick={() => {
+                          setToChainId(chain.id)
+                          setIsChainDropdownOpen(false)
+                        }}
+                        className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${
+                          toChainId === chain.id
+                            ? "bg-gray-600 text-blue-400"
+                            : "text-gray-200"
+                        }`}
+                      >
+                        <NetworkImage
+                          chainId={chain.id}
+                          size="sm"
+                          className="w-5 h-5"
+                        />
+                        <span className="ml-2">
+                          {chain.name} ({chain.id})
+                        </span>
+                        {toChainId === chain.id && (
+                          <span className="ml-auto text-blue-400">•</span>
+                        )}
+                      </button>
+                    ),
+                  )}
                 </div>
               )}
             </div>
@@ -570,7 +549,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               Wallet Options
             </label>
             <div className="flex rounded-lg overflow-hidden border border-gray-600">
-              {(["metamask"] as const).map((wallet: string) => (
+              {defaultWalletOptions.map((wallet: string) => (
                 <button
                   key={wallet}
                   onClick={() => handleWalletOptionToggle(wallet)}
@@ -580,9 +559,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       : "text-gray-300 hover:text-white hover:bg-gray-700"
                   }`}
                 >
-                  {wallet === "metamask"
-                    ? "MetaMask"
-                    : wallet.charAt(0).toUpperCase() + wallet.slice(1)}
+                  {wallet.charAt(0).toUpperCase() + wallet.slice(1)}
                 </button>
               ))}
             </div>
@@ -640,7 +617,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     </div>
                     <button
                       onClick={() => {
-                        setToRecipient(usdcRecipient)
+                        setToAddress(usdcRecipient)
                         setToAmount("0.1")
                         setToToken("USDC")
                         setToChainId(8453)
@@ -697,7 +674,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         const formattedAddress = nftRecipient
                           ? formatAddressForCalldata(nftRecipient)
                           : ""
-                        setToRecipient(
+                        setToAddress(
                           "0xAA3df3c86EdB6aA4D03b75092b4dd0b99515EC83",
                         )
                         setToCalldata(
@@ -759,7 +736,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         const formattedAddress = nftRecipient
                           ? formatAddressForCalldata(nftRecipient)
                           : ""
-                        setToRecipient(
+                        setToAddress(
                           "0x15e68e3Cdf84ea8bB2CeF2c3b49976903543F708",
                         )
                         setToCalldata(

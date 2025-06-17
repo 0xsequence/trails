@@ -1,13 +1,18 @@
 // biome-ignore lint/style/useImportType: Need to use React
 import React, { useState } from "react"
 import { useAccount, useDisconnect } from "wagmi"
+import MetaMaskFox from "../assets/MetaMask-icon-fox.svg"
+import MetaMaskLogoWhite from "../assets/MetaMask-logo-white.svg"
+import PrivyLogoBlack from "../assets/Privy_Brandmark_Black.svg"
+import PrivyLogoWhite from "../assets/Privy_Brandmark_White.svg"
 
-interface WalletOption {
+export interface WalletOption {
   id: string
   name: string
+  connector: () => void
 }
 
-interface ConnectWalletProps {
+export interface ConnectWalletProps {
   onConnect: (walletId: string) => void
   onDisconnect: () => void
   onContinue: () => void
@@ -40,9 +45,24 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
   }
 
   const getWalletButtonStyle = (walletId: string) => {
+    let isMetaMask = false
+    try {
+      if (walletId === "injected") {
+        isMetaMask = !!window.ethereum?.isMetaMask
+      }
+    } catch (error) {
+      console.error("Failed to check if MetaMask is installed:", error)
+    }
+
+    if (isMetaMask) {
+      return "bg-[#FF5C16] hover:bg-[#FF5C16]/90 text-white"
+    }
+
     switch (walletId) {
-      case "metamask":
-        return "bg-orange-500 hover:bg-orange-600"
+      case "privy":
+        return theme === "dark"
+          ? "bg-white hover:bg-white/90 text-black"
+          : "bg-black hover:bg-black/90 text-white"
       default:
         return theme === "dark"
           ? "bg-blue-600 hover:bg-blue-700"
@@ -90,7 +110,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
             className={`p-4 rounded-2xl ${theme === "dark" ? "bg-gray-800" : "bg-gray-50"}`}
           >
             <p className={theme === "dark" ? "text-gray-400" : "text-gray-500"}>
-              Connected with {connector?.name}
+              Connected with {connector?.name || ""}
             </p>
             <p
               className={theme === "dark" ? "text-white" : "text-gray-900"}
@@ -158,9 +178,26 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
             <button
               key={wallet.id}
               onClick={() => onConnect(wallet.id)}
-              className={`w-full flex items-center justify-center space-x-2 cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${getWalletButtonStyle(wallet.id)} text-white`}
+              className={`w-full flex items-center justify-center space-x-2 cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${getWalletButtonStyle(wallet.id)}`}
             >
-              <span>{wallet.name}</span>
+              {wallet.id === "privy" ? (
+                <img
+                  src={theme === "dark" ? PrivyLogoBlack : PrivyLogoWhite}
+                  alt="Privy"
+                  className="h-6"
+                />
+              ) : wallet.id === "injected" && window.ethereum?.isMetaMask ? (
+                <div className="flex items-center space-x-2">
+                  <img
+                    src={MetaMaskFox}
+                    alt="MetaMask Fox"
+                    className="h-6 w-6"
+                  />
+                  <img src={MetaMaskLogoWhite} alt="MetaMask" className="h-6" />
+                </div>
+              ) : (
+                <span>{wallet.name}</span>
+              )}
             </button>
           ))}
         </div>
