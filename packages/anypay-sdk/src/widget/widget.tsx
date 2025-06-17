@@ -339,7 +339,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   const handleWalletDisconnect = () => {
     setError(null)
 
-    if (connector?.name === "Privy") {
+    if (connector?.name?.toLowerCase()?.includes("privy")) {
       Promise.resolve()
         .then(async () => {
           try {
@@ -354,6 +354,9 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
           } catch (error) {
             console.error("Failed to logout Privy", error)
           }
+        })
+        .then(async () => {
+          setPrivyActiveWallet(null as any)
         })
         .finally(() => {
           setCurrentScreen("connect")
