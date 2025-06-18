@@ -15,7 +15,7 @@
     "src"
   ],
   "scripts": {
-    "build": "npm run build:react && npm run build:umd && npm run build:ts && npm run build:copy-js",
+    "build": "npm run build:react && npm run build:umd && npm run build:copy-js && npm run build:ts",
     "build:react": "vite build --config vite.config.ts && tsc -p tsconfig.build.json",
     "build:umd": "BUILD_MODE=umd vite build --config vite.umd.config.ts",
     "build:copy-js": "cp ./dist/umd/anypay.min.js ../../apps/anypay-demo/public/js/anypay.min.js",

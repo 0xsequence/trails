@@ -18,6 +18,7 @@ import { useAPIClient } from "../../apiClient.js"
 import { useTokenPrices } from "../../prices.js"
 import { getRelayer } from "../../relayer.js"
 import { formatBalance } from "../../tokenBalances.js"
+import { useQueryParams } from "../hooks/useQueryParams.js"
 import { FeeOptions } from "./FeeOptions.js"
 
 interface Token {
@@ -360,6 +361,9 @@ export const SendForm: React.FC<SendFormProps> = ({
     (typeof FEE_TOKENS)[number] | undefined
   >()
 
+  const { hasParam } = useQueryParams()
+  const isDryMode = hasParam("dryMode", "true")
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -409,7 +413,7 @@ export const SendForm: React.FC<SendFormProps> = ({
         originRelayer,
         destinationRelayer,
         destinationCalldata: toCalldata,
-        dryMode: false, // Set to true to skip the metamask transaction, for testing purposes
+        dryMode: isDryMode,
         onTransactionStateChange: (transactionStates: TransactionState[]) => {
           onTransactionStateChange(transactionStates)
         },
