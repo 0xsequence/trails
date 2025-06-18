@@ -1105,7 +1105,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
             p.chainId === originChainId.toString(),
         )
         const nativeMinAmount =
-          nativePrecondition?.data?.minAmount ?? nativePrecondition?.data?.min
+          nativePrecondition?.data?.minAmount?.toString() ??
+          nativePrecondition?.data?.min?.toString()
         if (nativeMinAmount === undefined) {
           throw new Error(
             "Could not find native precondition (transfer-native or native-balance) or min amount",
@@ -1125,7 +1126,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
             ),
         )
 
-        const erc20MinAmount = erc20Precondition?.data?.min
+        const erc20MinAmount = erc20Precondition?.data?.min?.toString()
         if (erc20MinAmount === undefined) {
           throw new Error(
             "Could not find ERC20 balance precondition or min amount",
@@ -1739,9 +1740,7 @@ export async function prepareSend(options: SendOptions) {
       }
 
       const firstPreconditionAddress = firstPrecondition?.data?.address
-      const firstPreconditionMin = firstPrecondition?.data?.min
-
-      const buffer = BigInt(100) // wei to account for rounding errors
+      const firstPreconditionMin = firstPrecondition?.data?.min?.toString()
 
       const originCallParams = {
         to:
@@ -1757,7 +1756,7 @@ export async function prepareSend(options: SendOptions) {
               ),
         value:
           originTokenAddress === zeroAddress
-            ? BigInt(firstPreconditionMin) + BigInt(fee) + buffer
+            ? BigInt(firstPreconditionMin) + BigInt(fee)
             : "0",
         chainId: originChainId,
         chain,
