@@ -34,6 +34,7 @@ import SendForm from "./components/SendForm.js"
 import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPending.js"
 import "@0xsequence/design-system/preset"
+import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
 import "./index.css"
 
 type Screen = "connect" | "tokens" | "send" | "pending" | "receipt"
@@ -804,8 +805,8 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
 
   const content = (
     <PrivyProvider
-      appId={props.privyAppId || ""}
-      clientId={props.privyClientId}
+      appId={props.privyAppId || defaultPrivyAppId}
+      clientId={props.privyClientId || defaultPrivyClientId}
       config={{
         embeddedWallets: {
           createOnLogin: "users-without-wallets",
