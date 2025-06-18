@@ -1575,7 +1575,7 @@ export async function prepareSend(options: SendOptions) {
     state: "pending",
   })
 
-  if (!isToSameToken) {
+  if (!isToSameChain) {
     // swap + bridge tx
     transactionStates.push({
       transactionHash: "",
@@ -1584,15 +1584,23 @@ export async function prepareSend(options: SendOptions) {
       state: "pending",
     })
 
-    if (!isToSameChain) {
-      // destination tx
-      transactionStates.push({
-        transactionHash: "",
-        explorerUrl: "",
-        chainId: destinationChainId,
-        state: "pending",
-      })
-    }
+    // destination tx
+    transactionStates.push({
+      transactionHash: "",
+      explorerUrl: "",
+      chainId: destinationChainId,
+      state: "pending",
+    })
+  }
+
+  if (isToSameChain && !isToSameToken) {
+    // swap tx
+    transactionStates.push({
+      transactionHash: "",
+      explorerUrl: "",
+      chainId: originChainId,
+      state: "pending",
+    })
   }
 
   if (isToSameToken && isToSameChain) {
@@ -1937,7 +1945,6 @@ export async function prepareSend(options: SendOptions) {
 
       console.log("opHash", opHash)
 
-      let tries = 0
       // eslint-disable-next-line no-constant-condition
       while (true) {
         console.log(
@@ -1951,15 +1958,11 @@ export async function prepareSend(options: SendOptions) {
           Number(metaTx.chainId),
         )
         console.log("status", receipt)
-        if (tries > 10) {
-          break
-        }
         if (receipt.transactionHash) {
           originMetaTxnReceipt = receipt.data?.receipt
           break
         }
         await new Promise((resolve) => setTimeout(resolve, 1000))
-        tries++
       }
 
       transactionStates[1] = {

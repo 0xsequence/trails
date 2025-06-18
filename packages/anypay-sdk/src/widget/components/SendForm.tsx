@@ -305,6 +305,12 @@ export const SendForm: React.FC<SendFormProps> = ({
     setAmount(toAmount ?? "")
   }, [toAmount])
 
+  // Update recipient when toRecipient prop changes
+  useEffect(() => {
+    setRecipientInput(toRecipient ?? "")
+    setRecipient(toRecipient ?? "")
+  }, [toRecipient])
+
   const chainDropdownRef = useRef<HTMLDivElement>(null)
   const tokenDropdownRef = useRef<HTMLDivElement>(null)
   const chainInfo = getChainInfo(selectedToken.chainId) as any // TODO: Add proper type
