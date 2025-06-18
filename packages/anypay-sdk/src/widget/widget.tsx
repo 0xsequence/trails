@@ -295,8 +295,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
       if (walletId === "injected") {
         await connect({ connector: config.connector() })
       } else if (walletId === "privy") {
-        console.log("Privy ready", privyReady, privyWalletsReady)
-        if (!privyReady || !privyWalletsReady) {
+        console.log("Privy ready", privyReady)
+        if (!privyReady) {
           return
         }
         try {
