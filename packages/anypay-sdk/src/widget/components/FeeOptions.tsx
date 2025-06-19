@@ -1,6 +1,8 @@
 import { TokenImage } from "@0xsequence/design-system"
 import { ChevronDown } from "lucide-react"
+import type React from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useQueryParams } from "../hooks/useQueryParams.js"
 
 // Constants for fee display
 const SHOW_FEE_DISPLAY = false
@@ -37,6 +39,10 @@ export const FeeOptions: React.FC<FeeOptionsProps> = ({
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const { hasParam } = useQueryParams()
+
+  // Show fee display if feeOptions=true is in URL params
+  const shouldShowFeeDisplay = hasParam("feeOptions", "true")
 
   // Calculate USD value of fee
   const feeUsdValue = useMemo(() => {
@@ -72,7 +78,7 @@ export const FeeOptions: React.FC<FeeOptionsProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  if (!SHOW_FEE_DISPLAY) {
+  if (!shouldShowFeeDisplay) {
     return null
   }
 
