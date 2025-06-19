@@ -6,6 +6,7 @@ import { defaultWalletOptions } from "@0xsequence/anypay-sdk/widget"
 import { NetworkImage, TokenImage } from "@0xsequence/design-system"
 import { ChevronDown } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { encodeFunctionData, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
 
 interface CustomizationFormProps {
@@ -105,8 +106,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   const [isPolygonNftMintFormOpen, setIsPolygonNftMintFormOpen] =
     useState(false)
   const [isSendUsdcFormOpen, setIsSendUsdcFormOpen] = useState(false)
+  const [isAaveDepositFormOpen, setIsAaveDepositFormOpen] = useState(false)
   const [nftRecipient, setNftRecipient] = useState("")
   const [usdcRecipient, setUsdcRecipient] = useState("")
+  const [aaveRecipient, setAaveRecipient] = useState("")
 
   // Load saved values from localStorage on mount
   useEffect(() => {
@@ -754,6 +757,67 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   </div>
                 )}
               </div>
+
+              {/* Aave Deposit Example */}
+              <div className="rounded-lg border border-gray-600 overflow-hidden">
+                <button
+                  onClick={() =>
+                    setIsAaveDepositFormOpen(!isAaveDepositFormOpen)
+                  }
+                  className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors duration-200 text-sm font-medium cursor-pointer text-left flex justify-between items-center"
+                >
+                  <div>
+                    <div>Deposit ETH to Aave on Base</div>
+                    <div className="text-xs text-gray-400 mt-1">
+                      Deposit ETH to Aave lending pool on Base
+                    </div>
+                  </div>
+                  <ChevronDown
+                    className={`h-5 w-5 text-gray-400 transition-transform ${
+                      isAaveDepositFormOpen ? "transform rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {isAaveDepositFormOpen && (
+                  <div className="p-4 bg-gray-800 space-y-4">
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="block text-sm font-medium text-gray-200">
+                          On Behalf Of
+                        </label>
+                        <UseAccountButton onAddressSelect={setAaveRecipient} />
+                      </div>
+                      <input
+                        type="text"
+                        value={aaveRecipient}
+                        onChange={(e) =>
+                          setAaveRecipient(e.target.value.trim())
+                        }
+                        placeholder="0x..."
+                        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <button
+                      onClick={() => {
+                        setToAddress(
+                          "0xa0d9C1E9E48Ca30c8d8C3B5D69FF5dc1f6DFfC24",
+                        ) // Aave lending pool address
+                        setToCalldata(
+                          encodeAaveEthDepositCalldata(aaveRecipient),
+                        ) // deposit() calldata
+                        setToAmount("0.00004")
+                        setToToken("ETH")
+                        setToChainId(8453)
+                      }}
+                      disabled={!aaveRecipient}
+                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed"
+                    >
+                      Apply Example
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -761,3 +825,59 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     </div>
   )
 }
+
+function encodeAaveEthDepositCalldata(recipient: string = zeroAddress) {
+  const calldata = encodeFunctionData({
+    abi: [
+      {
+        type: "function",
+        name: "depositETH",
+        stateMutability: "payable",
+        inputs: [
+          { name: "pool", type: "address" },
+          { name: "onBehalfOf", type: "address" },
+          { name: "referralCode", type: "uint16" },
+        ],
+        outputs: [],
+      },
+    ],
+    functionName: "depositETH",
+    args: [
+      "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // pool address
+      recipient as `0x${string}`, // onBehalfOf
+      0, // referralCode
+    ],
+  })
+
+  console.log(calldata)
+  return calldata
+}
+
+// function encodeErc20AaveDepositCalldata(recipient: string = zeroAddress) {
+//   const calldata = encodeFunctionData({
+//     abi: [
+//       {
+//         type: 'function',
+//         name: 'supply',
+//         stateMutability: 'nonpayable',
+//         inputs: [
+//           { name: 'asset', type: 'address' },
+//           { name: 'amount', type: 'uint256' },
+//           { name: 'onBehalfOf', type: 'address' },
+//           { name: 'referralCode', type: 'uint16' }
+//         ],
+//         outputs: []
+//       }
+//     ],
+//     functionName: 'supply',
+//     args: [
+//       '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC on Base
+//       parseUnits('0.1', 6), // 0.1 USDC (6 decimals)
+//       recipient as `0x${string}`, // onBehalfOf
+//       0 // referralCode
+//     ]
+// });
+
+// console.log(calldata);
+// return calldata
+// }
