@@ -1,6 +1,6 @@
 {
   "name": "@0xsequence/anypay-sdk",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "SDK for Anypay functionality",
   "type": "module",
   "main": "./dist/index.js",
@@ -35,11 +35,11 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@0xsequence/anypay-api": "^0.0.0",
+    "@0xsequence/anypay-api": "^0.0.1",
     "@0xsequence/design-system": "^2.1.6",
     "@0xsequence/hooks": "^5.3.4",
     "@0xsequence/indexer": "^2.3.9",
-    "@0xsequence/anypay-relayer": "^0.0.0",
+    "@0xsequence/anypay-relayer": "^0.0.1",
     "@0xsequence/wagmi-connector": "^4.0.1",
     "@0xsequence/wallet-core": "github:0xsequence/sequence.js#dists/wallet/core",
     "@0xsequence/wallet-primitives": "github:0xsequence/sequence.js#dists/wallet/primitives",
@@ -58,11 +58,11 @@
     "wagmi": "^2.15.5"
   },
   "peerDependencies": {
-    "@0xsequence/anypay-api": "^0.0.0",
+    "@0xsequence/anypay-api": "^0.0.1",
     "@0xsequence/design-system": "^2.1.6",
     "@0xsequence/hooks": "^5.3.4",
     "@0xsequence/indexer": "^2.3.9",
-    "@0xsequence/anypay-relayer": "^0.0.0",
+    "@0xsequence/anypay-relayer": "^0.0.1",
     "@0xsequence/wagmi-connector": "^4.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

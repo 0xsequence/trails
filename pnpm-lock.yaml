@@ -31,7 +31,7 @@ importers:
     dependencies:
       '@0xsequence/anypay-api':
         specifier: workspace:*
-        version: link:../../packages/api
+        version: link:../../packages/anypay-api
       '@0xsequence/anypay-sdk':
         specifier: workspace:*
         version: link:../../packages/anypay-sdk
@@ -156,14 +156,38 @@ importers:
 
   configurations/typescript-config: {}
 
+  packages/anypay-api:
+    devDependencies:
+      '@0xsequence/typescript-config':
+        specifier: workspace:^
+        version: link:../../configurations/typescript-config
+      '@types/node':
+        specifier: ^22.15.29
+        version: 22.15.31
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+
+  packages/anypay-relayer:
+    devDependencies:
+      '@0xsequence/typescript-config':
+        specifier: workspace:^
+        version: link:../../configurations/typescript-config
+      '@types/node':
+        specifier: ^22.15.29
+        version: 22.15.31
+      typescript:
+        specifier: ^5.8.3
+        version: 5.8.3
+
   packages/anypay-sdk:
     dependencies:
       '@0xsequence/anypay-api':
-        specifier: workspace:*
-        version: link:../api
+        specifier: ^0.0.0
+        version: 0.0.0
       '@0xsequence/anypay-relayer':
-        specifier: workspace:*
-        version: link:../relayer
+        specifier: ^0.0.0
+        version: 0.0.0
       '@0xsequence/design-system':
         specifier: ^2.1.6
         version: 2.1.15(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(motion@12.18.1(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -280,30 +304,6 @@ importers:
         specifier: ^3.2.1
         version: 3.2.3(@types/debug@4.1.12)(@types/node@22.15.31)(jiti@2.4.2)(lightningcss@1.30.1)
 
-  packages/api:
-    devDependencies:
-      '@0xsequence/typescript-config':
-        specifier: workspace:^
-        version: link:../../configurations/typescript-config
-      '@types/node':
-        specifier: ^22.15.29
-        version: 22.15.31
-      typescript:
-        specifier: ^5.8.3
-        version: 5.8.3
-
-  packages/relayer:
-    devDependencies:
-      '@0xsequence/typescript-config':
-        specifier: workspace:^
-        version: link:../../configurations/typescript-config
-      '@types/node':
-        specifier: ^22.15.29
-        version: 22.15.31
-      typescript:
-        specifier: ^5.8.3
-        version: 5.8.3
-
 packages:
 
   0xsequence@2.3.17:
@@ -318,6 +318,12 @@ packages:
     resolution: {integrity: sha512-fEM0TXdBGXeKA4ooSuVRubhN8xe1O40d4FcTIGvrhj8VahUjcxjjf1ln3eCuF/3IrWna077EiELHXQHsSBlHYQ==}
     peerDependencies:
       ethers: '>=6'
+
+  '@0xsequence/anypay-api@0.0.0':
+    resolution: {integrity: sha512-gm3gm0jfbN5dG11VixMttMo6/nt4sw3wu/odEjqqTvkBJl77Ncn/t583mabxDLhruhLTF2kINobabIaclnFrmA==}
+
+  '@0xsequence/anypay-relayer@0.0.0':
+    resolution: {integrity: sha512-I8NvVKOtNJsJCgWK9OnX3icL/ZNLLGlGi5elCImASZaEhBrBpgSD5O7QmkGvQddHmMNeRsdv7WsEoKUgSDN8wg==}
 
   '@0xsequence/api@2.3.17':
     resolution: {integrity: sha512-FC65y3VjIl7/stTK9Iy5804aqn0EUteBkYCW3ehbhksk7P46YyGPtNmaKMxTh7cHYuw1+Cmb0w7kffkyn2G3kw==}
@@ -5220,6 +5226,10 @@ snapshots:
       '@0xsequence/utils': 2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@0xsequence/wallet': 2.3.17(ethers@6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       ethers: 6.14.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+
+  '@0xsequence/anypay-api@0.0.0': {}
+
+  '@0xsequence/anypay-relayer@0.0.0': {}
 
   '@0xsequence/api@2.3.17': {}
 
