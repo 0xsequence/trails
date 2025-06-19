@@ -1,5 +1,5 @@
 {
-  "name": "@0xsequence/api",
+  "name": "@0xsequence/anypay-api",
   "version": "0.0.0",
   "type": "module",
   "description": "api sub-package for Sequence",

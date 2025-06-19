@@ -1,14 +1,14 @@
 import type {
+  AnypayLifiInfo,
+  IntentCallsPayload,
+  IntentPrecondition,
+} from "@0xsequence/anypay-api"
+import type {
   Account,
   AnypayFee,
   MetaTxn,
   TokenBalance,
 } from "@0xsequence/anypay-sdk"
-import type {
-  AnypayLifiInfo,
-  IntentCallsPayload,
-  IntentPrecondition,
-} from "@0xsequence/api"
 import { NetworkImage, Text } from "@0xsequence/design-system"
 import {
   AlertCircle,

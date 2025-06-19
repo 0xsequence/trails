@@ -3,7 +3,7 @@ import type {
   GetIntentConfigReturn,
   IntentCallsPayload,
   IntentPrecondition,
-} from "@0xsequence/api"
+} from "@0xsequence/anypay-api"
 import { Button, Text } from "@0xsequence/design-system"
 import { AlertCircle, Loader2, Zap } from "lucide-react"
 import type React from "react"

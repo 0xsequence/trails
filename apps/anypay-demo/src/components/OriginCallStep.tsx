@@ -1,4 +1,7 @@
-import type { IntentCallsPayload, IntentPrecondition } from "@0xsequence/api"
+import type {
+  IntentCallsPayload,
+  IntentPrecondition,
+} from "@0xsequence/anypay-api"
 import { Button, NetworkImage, Text } from "@0xsequence/design-system"
 import { Zap } from "lucide-react"
 import type React from "react"

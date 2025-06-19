@@ -5,7 +5,7 @@ import type {
   IntentCallsPayload,
   IntentPrecondition,
   SequenceAPIClient,
-} from "@0xsequence/api"
+} from "@0xsequence/anypay-api"
 import type { Relayer } from "@0xsequence/wallet-core"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Address } from "ox"

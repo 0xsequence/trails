@@ -1,4 +1,4 @@
-import type { IntentPrecondition } from "@0xsequence/api"
+import type { IntentPrecondition } from "@0xsequence/anypay-api"
 import type { Relayer } from "@0xsequence/wallet-core"
 import type { Hex } from "viem"
 import type { MetaTxn } from "./metaTxnMonitor.js"

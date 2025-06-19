@@ -4,7 +4,7 @@ import type {
   GetIntentCallsPayloadsReturn as GetIntentCallsPayloadsReturnFromAPI,
   IntentPrecondition,
   SequenceAPIClient,
-} from "@0xsequence/api"
+} from "@0xsequence/anypay-api"
 import type { Context as ContextLike } from "@0xsequence/wallet-primitives"
 import { Config, type Context, Payload } from "@0xsequence/wallet-primitives"
 import {

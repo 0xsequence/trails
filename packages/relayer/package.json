@@ -1,5 +1,5 @@
 {
-  "name": "@0xsequence/relayer",
+  "name": "@0xsequence/anypay-relayer",
   "version": "0.0.0",
   "type": "module",
   "description": "relayer sub-package for Sequence",

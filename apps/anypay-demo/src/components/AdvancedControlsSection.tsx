@@ -1,5 +1,5 @@
+import type { IntentCallsPayload } from "@0xsequence/anypay-api"
 import type { MetaTxn } from "@0xsequence/anypay-sdk"
-import type { IntentCallsPayload } from "@0xsequence/api"
 import { Button, NetworkImage, Text } from "@0xsequence/design-system"
 import { Info, Layers, Loader2 } from "lucide-react"
 import type React from "react"
