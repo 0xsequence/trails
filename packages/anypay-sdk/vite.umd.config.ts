@@ -31,7 +31,7 @@ const mainConfig = defineConfig({
         "@0xsequence/design-system",
         "wagmi",
         "viem",
-        "@0xsequence/api",
+        "@0xsequence/anypay-api",
         "@0xsequence/wallet-core",
         "@0xsequence/wallet-primitives",
         "@0xsequence/wallet-wdk",
@@ -50,7 +50,7 @@ const mainConfig = defineConfig({
     force: true,
     // TODO: This shouldn't be needed, fix sdk build
     include: [
-      "@0xsequence/api",
+      "@0xsequence/anypay-api",
       "@0xsequence/wallet-core",
       "@0xsequence/wallet-primitives",
       "@0xsequence/wallet-wdk",

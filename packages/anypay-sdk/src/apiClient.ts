@@ -1,4 +1,4 @@
-import { SequenceAPIClient } from "@0xsequence/api"
+import { SequenceAPIClient } from "@0xsequence/anypay-api"
 import { useConfig } from "@0xsequence/hooks"
 import { useMemo } from "react"
 import { DEFAULT_API_URL } from "./constants.js"

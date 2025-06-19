@@ -1,4 +1,4 @@
-import type { IntentPrecondition } from "@0xsequence/api"
+import type { IntentPrecondition } from "@0xsequence/anypay-api"
 
 export function findPreconditionAddress(
   preconditions: IntentPrecondition[],

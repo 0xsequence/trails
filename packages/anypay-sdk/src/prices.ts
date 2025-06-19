@@ -1,4 +1,4 @@
-import type { SequenceAPIClient, Token } from "@0xsequence/api"
+import type { SequenceAPIClient, Token } from "@0xsequence/anypay-api"
 import { useQuery } from "@tanstack/react-query"
 
 export const getTokenPrices = async (

@@ -1,4 +1,4 @@
-import type { Page, Price, SequenceAPIClient } from "@0xsequence/api"
+import type { Page, Price, SequenceAPIClient } from "@0xsequence/anypay-api"
 import {
   ContractVerificationStatus,
   type GetTokenBalancesSummaryReturn,
