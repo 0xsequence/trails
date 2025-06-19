@@ -56,6 +56,7 @@ interface SendFormProps {
   theme?: "light" | "dark"
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   useSourceTokenForButtonText?: boolean
+  onError: (error: Error) => void
 }
 
 // Available chains
@@ -210,6 +211,7 @@ export const SendForm: React.FC<SendFormProps> = ({
   theme = "light",
   onTransactionStateChange,
   useSourceTokenForButtonText = false,
+  onError,
 }) => {
   const [amount, setAmount] = useState(toAmount ?? "")
   const [recipientInput, setRecipientInput] = useState(toRecipient ?? "")
@@ -396,6 +398,21 @@ export const SendForm: React.FC<SendFormProps> = ({
         selectedChain.id,
       )
 
+      const sourceTokenDecimals =
+        typeof selectedToken.contractInfo?.decimals === "number"
+          ? selectedToken.contractInfo.decimals
+          : null
+      const destinationTokenDecimals =
+        typeof selectedDestToken.decimals === "number"
+          ? selectedDestToken.decimals
+          : null
+
+      if (sourceTokenDecimals === null || destinationTokenDecimals === null) {
+        setError("Invalid token decimals")
+        setIsSubmitting(false)
+        return
+      }
+
       const options = {
         account,
         originTokenAddress: selectedToken.contractAddress,
@@ -417,6 +434,10 @@ export const SendForm: React.FC<SendFormProps> = ({
         onTransactionStateChange: (transactionStates: TransactionState[]) => {
           onTransactionStateChange(transactionStates)
         },
+        sourceTokenPriceUsd: selectedToken.tokenPriceUsd ?? null,
+        destinationTokenPriceUsd: destTokenPrices?.[0]?.price?.value ?? null,
+        sourceTokenDecimals,
+        destinationTokenDecimals,
       }
 
       console.log("options", options)
@@ -451,6 +472,7 @@ export const SendForm: React.FC<SendFormProps> = ({
       setError(
         error instanceof Error ? error.message : "An unexpected error occurred",
       )
+      onError(error as Error)
     }
 
     setIsSubmitting(false)

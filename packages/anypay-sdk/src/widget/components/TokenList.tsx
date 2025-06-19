@@ -147,25 +147,65 @@ export const TokenList: React.FC<TokenListProps> = ({
     }
 
     const query = searchQuery.toLowerCase().trim()
+    const queryParts = query.split(/\s+/).filter((part) => part.length > 0)
+
     return sortedTokens.filter((token: any) => {
       const isNative = !("contractAddress" in token)
       const chainInfo = getChainInfo(token.chainId) as any // TODO: Add proper type
       const chainName = chainInfo?.name || ""
+      const chainNameLower = chainName.toLowerCase()
 
       if (isNative) {
         const nativeSymbol = chainInfo?.nativeCurrency.symbol || "ETH"
         const nativeName = chainInfo?.nativeCurrency.name || "Native Token"
-        return (
-          nativeSymbol.toLowerCase().includes(query) ||
-          nativeName.toLowerCase().includes(query) ||
-          chainName.toLowerCase().includes(query)
+        const nativeSymbolLower = nativeSymbol.toLowerCase()
+        const nativeNameLower = nativeName.toLowerCase()
+
+        // If multiple query parts, check if they match chain + token combination
+        if (queryParts.length > 1) {
+          const matchesChain = queryParts.some((part) =>
+            chainNameLower.includes(part),
+          )
+          const matchesToken = queryParts.some(
+            (part) =>
+              nativeSymbolLower.includes(part) ||
+              nativeNameLower.includes(part),
+          )
+          return matchesChain && matchesToken
+        }
+
+        // Single query part - match against any field
+        return queryParts.some(
+          (part) =>
+            nativeSymbolLower.includes(part) ||
+            nativeNameLower.includes(part) ||
+            chainNameLower.includes(part),
         )
       }
 
-      return (
-        token.contractInfo?.symbol?.toLowerCase().includes(query) ||
-        token.contractInfo?.name?.toLowerCase().includes(query) ||
-        chainName.toLowerCase().includes(query)
+      const tokenSymbol = token.contractInfo?.symbol || "???"
+      const tokenName = token.contractInfo?.name || "Unknown Token"
+      const tokenSymbolLower = tokenSymbol.toLowerCase()
+      const tokenNameLower = tokenName.toLowerCase()
+
+      // If multiple query parts, check if they match chain + token combination
+      if (queryParts.length > 1) {
+        const matchesChain = queryParts.some((part) =>
+          chainNameLower.includes(part),
+        )
+        const matchesToken = queryParts.some(
+          (part) =>
+            tokenSymbolLower.includes(part) || tokenNameLower.includes(part),
+        )
+        return matchesChain && matchesToken
+      }
+
+      // Single query part - match against any field
+      return queryParts.some(
+        (part) =>
+          tokenSymbolLower.includes(part) ||
+          tokenNameLower.includes(part) ||
+          chainNameLower.includes(part),
       )
     })
   }, [sortedTokens, searchQuery])

@@ -252,7 +252,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     logout: privyLogout,
   } = usePrivy()
   const { login: loginPrivy } = useLogin()
-  const { wallets: privyWallets, ready: privyWalletsReady } = usePrivyWallets()
+  const { wallets: privyWallets } = usePrivyWallets()
   const { setActiveWallet: setPrivyActiveWallet } = useSetActiveWallet()
   const usePrivyLogin = true // Set to true to use Privy email login options
 
@@ -275,9 +275,16 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   // Update screen based on connection state
   useEffect(() => {
     if (isConnected) {
+      setError(null)
       setCurrentScreen("tokens")
     }
   }, [isConnected])
+
+  // Clear error on screen change
+  useEffect(() => {
+    console.log("currentScreen", currentScreen)
+    setError(null)
+  }, [currentScreen])
 
   const indexerGatewayClient = useIndexerGatewayClient({
     indexerGatewayUrl: sequenceIndexerUrl,
@@ -421,6 +428,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   }
 
   const handleBack = () => {
+    setError(null)
     switch (currentScreen) {
       case "tokens":
         setCurrentScreen("connect")
@@ -583,6 +591,13 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     }
   }
 
+  const handleSendError = (error: Error) => {
+    console.error("Error sending transaction", error)
+    if (currentScreen === "pending") {
+      setError(error.message)
+    }
+  }
+
   const renderScreenContent = () => {
     switch (currentScreen) {
       case "connect":
@@ -625,6 +640,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             theme={theme}
             onTransactionStateChange={handleTransactionStateChange}
             useSourceTokenForButtonText={useSourceTokenForButtonText}
+            onError={handleSendError}
           />
         ) : (
           <div
