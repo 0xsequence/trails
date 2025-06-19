@@ -29,10 +29,13 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   walletOptions,
 }) => {
   const [isCopied, setIsCopied] = useState(false)
+  const [activeTab, setActiveTab] = useState<"react" | "script">("react")
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(codeExample)
+      await navigator.clipboard.writeText(
+        activeTab === "react" ? reactCodeExample : scriptCodeExample,
+      )
       setIsCopied(true)
       setTimeout(() => setIsCopied(false), 2000)
     } catch (err) {
@@ -46,7 +49,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
     window.history.pushState({}, "", url.toString())
   }
 
-  const getCode = () => {
+  const getReactCode = () => {
     const props = [
       toAddress && `toAddress="${toAddress}"`,
       toAmount && `toAmount="${toAmount}"`,
@@ -80,7 +83,38 @@ export const App = () => {
 }`
   }
 
-  const codeExample = getCode()
+  const getScriptCode = () => {
+    const props = [
+      toAddress && `toAddress: '${toAddress}'`,
+      toAmount && `toAmount: '${toAmount}'`,
+      toChainId && `toChainId: ${toChainId}`,
+      toToken && `toToken: '${toToken}'`,
+      toCalldata && `toCalldata: '${toCalldata}'`,
+      renderInline !== null && `renderInline: ${renderInline}`,
+      theme && `theme: '${theme}'`,
+      walletOptions && `walletOptions: ${JSON.stringify(walletOptions)}`,
+    ].filter(Boolean)
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+    <title>AnyPay Widget Demo</title>
+    <script src="https://anypay.sequence-demos.xyz/js/anypay.min.js"></script>
+</head>
+<body>
+    <div id="anypay"></div>
+    
+    <script>
+        AnyPayWidget.render(document.getElementById('anypay'), {
+            sequenceApiKey: 'key_123...',${props.length > 0 ? "\n            " : ""}${props.join(",\n            ")}
+        });
+    </script>
+</body>
+</html>`
+  }
+
+  const reactCodeExample = getReactCode()
+  const scriptCodeExample = getScriptCode()
 
   return (
     <div className="bg-gray-800 rounded-lg p-6 h-full relative">
@@ -90,7 +124,7 @@ export const App = () => {
             Integration Example
           </h2>
           <p className="text-sm text-gray-400 mt-1">
-            Import and use the widget in your React application.
+            Import and use the widget in your application.
           </p>
         </div>
         <button
@@ -110,9 +144,34 @@ export const App = () => {
           )}
         </button>
       </div>
+
+      {/* Tab Navigation */}
+      <div className="flex space-x-1 mb-4">
+        <button
+          onClick={() => setActiveTab("react")}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+            activeTab === "react"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+          }`}
+        >
+          React Component
+        </button>
+        <button
+          onClick={() => setActiveTab("script")}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+            activeTab === "script"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+          }`}
+        >
+          Script Tag
+        </button>
+      </div>
+
       <div className="rounded-lg overflow-hidden">
         <SyntaxHighlighter
-          language="tsx"
+          language={activeTab === "react" ? "tsx" : "html"}
           style={vscDarkPlus}
           customStyle={{
             margin: 0,
@@ -121,7 +180,7 @@ export const App = () => {
             height: "100%",
           }}
         >
-          {codeExample}
+          {activeTab === "react" ? reactCodeExample : scriptCodeExample}
         </SyntaxHighlighter>
       </div>
       {children}

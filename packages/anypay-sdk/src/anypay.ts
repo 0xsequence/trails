@@ -15,9 +15,11 @@ import {
   createPublicClient,
   createWalletClient,
   custom,
+  formatUnits,
   type Hex,
   http,
   isAddressEqual,
+  parseUnits,
   type TransactionReceipt,
   type WalletClient,
   zeroAddress,
@@ -1105,7 +1107,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
             p.chainId === originChainId.toString(),
         )
         const nativeMinAmount =
-          nativePrecondition?.data?.minAmount ?? nativePrecondition?.data?.min
+          nativePrecondition?.data?.minAmount?.toString() ??
+          nativePrecondition?.data?.min?.toString()
         if (nativeMinAmount === undefined) {
           throw new Error(
             "Could not find native precondition (transfer-native or native-balance) or min amount",
@@ -1125,7 +1128,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
             ),
         )
 
-        const erc20MinAmount = erc20Precondition?.data?.min
+        const erc20MinAmount = erc20Precondition?.data?.min?.toString()
         if (erc20MinAmount === undefined) {
           throw new Error(
             "Could not find ERC20 balance precondition or min amount",
@@ -1490,6 +1493,10 @@ export type SendOptions = {
   destinationRelayer: Relayer.Rpc.RpcRelayer
   destinationCalldata?: string
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
+  sourceTokenPriceUsd?: number | null
+  destinationTokenPriceUsd?: number | null
+  sourceTokenDecimals: number
+  destinationTokenDecimals: number
 }
 
 export type SendReturn = {
@@ -1518,6 +1525,10 @@ export async function prepareSend(options: SendOptions) {
     destinationRelayer,
     destinationCalldata,
     onTransactionStateChange,
+    sourceTokenPriceUsd,
+    destinationTokenPriceUsd,
+    sourceTokenDecimals,
+    destinationTokenDecimals,
   } = options
 
   if (!walletClient) {
@@ -1575,7 +1586,7 @@ export async function prepareSend(options: SendOptions) {
     state: "pending",
   })
 
-  if (!isToSameToken) {
+  if (!isToSameChain) {
     // swap + bridge tx
     transactionStates.push({
       transactionHash: "",
@@ -1584,15 +1595,23 @@ export async function prepareSend(options: SendOptions) {
       state: "pending",
     })
 
-    if (!isToSameChain) {
-      // destination tx
-      transactionStates.push({
-        transactionHash: "",
-        explorerUrl: "",
-        chainId: destinationChainId,
-        state: "pending",
-      })
-    }
+    // destination tx
+    transactionStates.push({
+      transactionHash: "",
+      explorerUrl: "",
+      chainId: destinationChainId,
+      state: "pending",
+    })
+  }
+
+  if (isToSameChain && !isToSameToken) {
+    // swap tx
+    transactionStates.push({
+      transactionHash: "",
+      explorerUrl: "",
+      chainId: originChainId,
+      state: "pending",
+    })
   }
 
   if (isToSameToken && isToSameChain) {
@@ -1731,9 +1750,53 @@ export async function prepareSend(options: SendOptions) {
       }
 
       const firstPreconditionAddress = firstPrecondition?.data?.address
-      const firstPreconditionMin = firstPrecondition?.data?.min
+      const firstPreconditionMin = firstPrecondition?.data?.min?.toString()
 
-      const buffer = BigInt(100) // wei to account for rounding errors
+      // ETH fee required by some bridges for low token amounts
+      // TODO: update backend API to return the native fee requirement, if any
+      let needsNativeFee = false
+      let nativeFee = parseUnits("0.00005", 18).toString()
+      if (originChainId === 137) {
+        nativeFee = parseUnits("1.5", 18).toString()
+      }
+      console.log("sourceTokenPriceUsd", sourceTokenPriceUsd)
+      console.log("destinationTokenPriceUsd", destinationTokenPriceUsd)
+      console.log("sourceTokenDecimals", sourceTokenDecimals)
+      console.log("destinationTokenDecimals", destinationTokenDecimals)
+      if (
+        originTokenAddress !== zeroAddress &&
+        sourceTokenPriceUsd &&
+        destinationTokenPriceUsd &&
+        firstPreconditionMin &&
+        destinationTokenDecimals !== undefined &&
+        sourceTokenDecimals !== undefined
+      ) {
+        // Convert from wei to token units using formatUnits
+        const destinationAmount = Number(
+          formatUnits(BigInt(destinationTokenAmount), destinationTokenDecimals),
+        )
+        const preconditionMin = Number(
+          formatUnits(BigInt(firstPreconditionMin), destinationTokenDecimals),
+        )
+        console.log("destinationAmount", destinationAmount)
+        console.log("preconditionMin", preconditionMin)
+        const destinationAmountUsd =
+          destinationAmount * destinationTokenPriceUsd
+        const preconditionMinUsd = preconditionMin * sourceTokenPriceUsd
+        const diff = preconditionMinUsd - destinationAmountUsd
+        console.log(
+          "destinationAmountUsd",
+          destinationAmountUsd,
+          "preconditionMinUsd",
+          preconditionMinUsd,
+          "diff",
+          diff,
+        )
+        if (diff >= 0 && diff <= 0.02) {
+          needsNativeFee = true
+        }
+      }
+      console.log("needsNativeFee", needsNativeFee)
 
       const originCallParams = {
         to:
@@ -1749,7 +1812,7 @@ export async function prepareSend(options: SendOptions) {
               ),
         value:
           originTokenAddress === zeroAddress
-            ? BigInt(firstPreconditionMin) + BigInt(fee) + buffer
+            ? BigInt(firstPreconditionMin) + BigInt(fee)
             : "0",
         chainId: originChainId,
         chain,
@@ -1763,31 +1826,32 @@ export async function prepareSend(options: SendOptions) {
       await attemptSwitchChain(walletClient, originChainId)
 
       let useSendCalls = false
+      const moreThan1Tx = needsNativeFee
 
-      try {
-        // the reason for the timeout is some users experience this call to hang indefinitely on metamask on all chains.
-        // not sure why this is happening, but it happens.
-        const capabilities = await requestWithTimeout<Record<string, any>>(
-          walletClient,
-          [
-            {
-              method: "wallet_getCapabilities",
-              params: [account.address],
-            },
-          ],
-          10000,
-        )
+      if (moreThan1Tx) {
+        try {
+          // the reason for the timeout is some users experience this call to hang indefinitely on metamask on all chains.
+          // not sure why this is happening, but it happens.
+          const capabilities = await requestWithTimeout<Record<string, any>>(
+            walletClient,
+            [
+              {
+                method: "wallet_getCapabilities",
+                params: [account.address],
+              },
+            ],
+            10000,
+          )
 
-        console.log("capabilities", capabilities)
+          console.log("capabilities", capabilities)
 
-        // Check if the chain supports atomic transactions
-        const chainHex = `0x${originChainId.toString(16)}` as const
-        const chainCapabilities = capabilities[chainHex]
-        const moreThan1Tx = false // TODO: check if we need to do more than 1 tx
-        useSendCalls =
-          chainCapabilities?.atomic?.status === "supported" && moreThan1Tx
-      } catch (error) {
-        console.error("Error getting capabilities", error)
+          // Check if the chain supports atomic transactions
+          const chainHex = `0x${originChainId.toString(16)}` as const
+          const chainCapabilities = capabilities[chainHex]
+          useSendCalls = chainCapabilities?.atomic?.status === "supported"
+        } catch (error) {
+          console.error("Error getting capabilities", error)
+        }
       }
 
       if (dryMode) {
@@ -1807,15 +1871,13 @@ export async function prepareSend(options: SendOptions) {
             data: `0x${string}`
             value?: `0x${string}`
           }> = []
-
-          // If we're swapping ERC20 and it's a cross-chain transfer, add ETH fee call
-          // if (originTokenAddress !== zeroAddress) {
-          //   calls.push({
-          //     to: firstPreconditionAddress as `0x${string}`,
-          //     data: '0x00',
-          //     value: `0x${parseUnits('0.00005', 18).toString(16)}`,
-          //   })
-          // }
+          if (needsNativeFee) {
+            calls.push({
+              to: firstPreconditionAddress as `0x${string}`,
+              data: "0x00",
+              value: `0x${BigInt(nativeFee).toString(16)}` as `0x${string}`,
+            })
+          }
 
           // Add the origin call
           calls.push({
@@ -1880,19 +1942,21 @@ export async function prepareSend(options: SendOptions) {
         }
       } else {
         if (!dryMode) {
-          // If we're swapping erc20 then we need to pay the lifi fee in eth
-          // if (originTokenAddress !== zeroAddress) {
-          //   const tx0 = await sendOriginTransaction(account, walletClient, {
-          //     to: firstPreconditionAddress,
-          //     data: '0x00',
-          //     value: parseUnits('0.00005', 18).toString(),
-          //     chainId: originChainId,
-          //     chain,
-          //   } as any) // TODO: Add proper type
-          //   console.log('origin tx', tx0)
-          //   // Wait for transaction receipt
-          //   const receipt0 = await publicClient.waitForTransactionReceipt({ hash: tx0 })
-          // }
+          if (needsNativeFee) {
+            const tx0 = await sendOriginTransaction(account, walletClient, {
+              to: firstPreconditionAddress,
+              data: "0x00",
+              value: nativeFee,
+              chainId: originChainId,
+              chain,
+            } as any) // TODO: Add proper type
+            console.log("origin tx", tx0)
+            // Wait for transaction receipt
+            const feeReceipt = await publicClient.waitForTransactionReceipt({
+              hash: tx0,
+            })
+            console.log("nativeFeeReceipt", feeReceipt)
+          }
 
           const tx = await sendOriginTransaction(
             account,
@@ -1937,7 +2001,6 @@ export async function prepareSend(options: SendOptions) {
 
       console.log("opHash", opHash)
 
-      let tries = 0
       // eslint-disable-next-line no-constant-condition
       while (true) {
         console.log(
@@ -1951,15 +2014,11 @@ export async function prepareSend(options: SendOptions) {
           Number(metaTx.chainId),
         )
         console.log("status", receipt)
-        if (tries > 10) {
-          break
-        }
         if (receipt.transactionHash) {
           originMetaTxnReceipt = receipt.data?.receipt
           break
         }
         await new Promise((resolve) => setTimeout(resolve, 1000))
-        tries++
       }
 
       transactionStates[1] = {

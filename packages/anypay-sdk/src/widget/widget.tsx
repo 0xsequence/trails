@@ -34,6 +34,7 @@ import SendForm from "./components/SendForm.js"
 import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPending.js"
 import "@0xsequence/design-system/preset"
+import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
 import "./index.css"
 
 type Screen = "connect" | "tokens" | "send" | "pending" | "receipt"
@@ -251,7 +252,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     logout: privyLogout,
   } = usePrivy()
   const { login: loginPrivy } = useLogin()
-  const { wallets: privyWallets, ready: privyWalletsReady } = usePrivyWallets()
+  const { wallets: privyWallets } = usePrivyWallets()
   const { setActiveWallet: setPrivyActiveWallet } = useSetActiveWallet()
   const usePrivyLogin = true // Set to true to use Privy email login options
 
@@ -274,9 +275,16 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   // Update screen based on connection state
   useEffect(() => {
     if (isConnected) {
+      setError(null)
       setCurrentScreen("tokens")
     }
   }, [isConnected])
+
+  // Clear error on screen change
+  useEffect(() => {
+    console.log("currentScreen", currentScreen)
+    setError(null)
+  }, [currentScreen])
 
   const indexerGatewayClient = useIndexerGatewayClient({
     indexerGatewayUrl: sequenceIndexerUrl,
@@ -294,8 +302,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
       if (walletId === "injected") {
         await connect({ connector: config.connector() })
       } else if (walletId === "privy") {
-        console.log("Privy ready", privyReady, privyWalletsReady)
-        if (!privyReady || !privyWalletsReady) {
+        console.log("Privy ready", privyReady)
+        if (!privyReady) {
           return
         }
         try {
@@ -420,6 +428,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   }
 
   const handleBack = () => {
+    setError(null)
     switch (currentScreen) {
       case "tokens":
         setCurrentScreen("connect")
@@ -582,6 +591,13 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     }
   }
 
+  const handleSendError = (error: Error) => {
+    console.error("Error sending transaction", error)
+    if (currentScreen === "pending") {
+      setError(error.message)
+    }
+  }
+
   const renderScreenContent = () => {
     switch (currentScreen) {
       case "connect":
@@ -624,6 +640,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             theme={theme}
             onTransactionStateChange={handleTransactionStateChange}
             useSourceTokenForButtonText={useSourceTokenForButtonText}
+            onError={handleSendError}
           />
         ) : (
           <div
@@ -804,8 +821,8 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
 
   const content = (
     <PrivyProvider
-      appId={props.privyAppId || ""}
-      clientId={props.privyClientId}
+      appId={props.privyAppId || defaultPrivyAppId}
+      clientId={props.privyClientId || defaultPrivyClientId}
       config={{
         embeddedWallets: {
           createOnLogin: "users-without-wallets",

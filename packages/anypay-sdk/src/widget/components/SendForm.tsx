@@ -18,6 +18,7 @@ import { useAPIClient } from "../../apiClient.js"
 import { useTokenPrices } from "../../prices.js"
 import { getRelayer } from "../../relayer.js"
 import { formatBalance } from "../../tokenBalances.js"
+import { useQueryParams } from "../hooks/useQueryParams.js"
 import { FeeOptions } from "./FeeOptions.js"
 
 interface Token {
@@ -55,6 +56,7 @@ interface SendFormProps {
   theme?: "light" | "dark"
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   useSourceTokenForButtonText?: boolean
+  onError: (error: Error) => void
 }
 
 // Available chains
@@ -209,6 +211,7 @@ export const SendForm: React.FC<SendFormProps> = ({
   theme = "light",
   onTransactionStateChange,
   useSourceTokenForButtonText = false,
+  onError,
 }) => {
   const [amount, setAmount] = useState(toAmount ?? "")
   const [recipientInput, setRecipientInput] = useState(toRecipient ?? "")
@@ -305,6 +308,12 @@ export const SendForm: React.FC<SendFormProps> = ({
     setAmount(toAmount ?? "")
   }, [toAmount])
 
+  // Update recipient when toRecipient prop changes
+  useEffect(() => {
+    setRecipientInput(toRecipient ?? "")
+    setRecipient(toRecipient ?? "")
+  }, [toRecipient])
+
   const chainDropdownRef = useRef<HTMLDivElement>(null)
   const tokenDropdownRef = useRef<HTMLDivElement>(null)
   const chainInfo = getChainInfo(selectedToken.chainId) as any // TODO: Add proper type
@@ -354,6 +363,9 @@ export const SendForm: React.FC<SendFormProps> = ({
     (typeof FEE_TOKENS)[number] | undefined
   >()
 
+  const { hasParam } = useQueryParams()
+  const isDryMode = hasParam("dryMode", "true")
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -386,6 +398,21 @@ export const SendForm: React.FC<SendFormProps> = ({
         selectedChain.id,
       )
 
+      const sourceTokenDecimals =
+        typeof selectedToken.contractInfo?.decimals === "number"
+          ? selectedToken.contractInfo.decimals
+          : null
+      const destinationTokenDecimals =
+        typeof selectedDestToken.decimals === "number"
+          ? selectedDestToken.decimals
+          : null
+
+      if (sourceTokenDecimals === null || destinationTokenDecimals === null) {
+        setError("Invalid token decimals")
+        setIsSubmitting(false)
+        return
+      }
+
       const options = {
         account,
         originTokenAddress: selectedToken.contractAddress,
@@ -403,10 +430,14 @@ export const SendForm: React.FC<SendFormProps> = ({
         originRelayer,
         destinationRelayer,
         destinationCalldata: toCalldata,
-        dryMode: false, // Set to true to skip the metamask transaction, for testing purposes
+        dryMode: isDryMode,
         onTransactionStateChange: (transactionStates: TransactionState[]) => {
           onTransactionStateChange(transactionStates)
         },
+        sourceTokenPriceUsd: selectedToken.tokenPriceUsd ?? null,
+        destinationTokenPriceUsd: destTokenPrices?.[0]?.price?.value ?? null,
+        sourceTokenDecimals,
+        destinationTokenDecimals,
       }
 
       console.log("options", options)
@@ -441,6 +472,7 @@ export const SendForm: React.FC<SendFormProps> = ({
       setError(
         error instanceof Error ? error.message : "An unexpected error occurred",
       )
+      onError(error as Error)
     }
 
     setIsSubmitting(false)

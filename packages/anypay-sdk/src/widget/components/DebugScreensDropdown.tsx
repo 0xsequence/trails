@@ -1,6 +1,7 @@
 import { ChevronDown } from "lucide-react"
 import type React from "react"
 import { useEffect, useRef, useState } from "react"
+import { useQueryParams } from "../hooks/useQueryParams.js"
 
 interface DebugScreensDropdownProps {
   onScreenSelect: (screen: string) => void
@@ -9,17 +10,15 @@ interface DebugScreensDropdownProps {
 
 const SCREENS = ["Connect", "Tokens", "Send", "Pending", "Receipt"] as const
 
-const checkDebugParam = () =>
-  typeof window !== "undefined" &&
-  new URLSearchParams(window.location.search).get("debug") === "true"
-
 export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
   onScreenSelect,
   theme = "light",
 }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [shouldShow, setShouldShow] = useState(checkDebugParam())
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const { hasParam } = useQueryParams()
+
+  const shouldShow = hasParam("debug", "true")
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -31,36 +30,10 @@ export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
       }
     }
 
-    const handleUrlChange = () => {
-      setShouldShow(checkDebugParam())
-    }
-
-    // Check on popstate (back/forward navigation)
-    window.addEventListener("popstate", handleUrlChange)
-
-    // Check on pushState/replaceState
-    const originalPushState = window.history.pushState
-    const originalReplaceState = window.history.replaceState
-
-    window.history.pushState = function () {
-      // biome-ignore lint/complexity/noArguments: TODO: To fix
-      originalPushState.apply(this, arguments as any)
-      handleUrlChange()
-    }
-
-    window.history.replaceState = function () {
-      // biome-ignore lint/complexity/noArguments: TODO: To fix
-      originalReplaceState.apply(this, arguments as any)
-      handleUrlChange()
-    }
-
     document.addEventListener("mousedown", handleClickOutside)
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
-      window.removeEventListener("popstate", handleUrlChange)
-      window.history.pushState = originalPushState
-      window.history.replaceState = originalReplaceState
     }
   }, [])
 
