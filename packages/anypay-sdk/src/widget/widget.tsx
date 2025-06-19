@@ -820,31 +820,31 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
   )
 
   const content = (
-    <PrivyProvider
-      appId={props.privyAppId || defaultPrivyAppId}
-      clientId={props.privyClientId || defaultPrivyClientId}
-      config={{
-        embeddedWallets: {
-          createOnLogin: "users-without-wallets",
-          requireUserPasswordOnCreate: true,
-          showWalletUIs: true,
-        },
-        loginMethods: ["google", "wallet", "email", "sms"],
-        appearance: {
-          showWalletLoginFirst: false,
-          walletList: [
-            "detected_wallets",
-            "metamask",
-            "coinbase_wallet",
-            "rainbow",
-            "zerion",
-            "uniswap",
-            "wallet_connect",
-          ],
-        },
-      }}
-    >
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <PrivyProvider
+        appId={props.privyAppId || defaultPrivyAppId}
+        clientId={props.privyClientId || defaultPrivyClientId}
+        config={{
+          embeddedWallets: {
+            createOnLogin: "users-without-wallets",
+            requireUserPasswordOnCreate: true,
+            showWalletUIs: true,
+          },
+          loginMethods: ["google", "wallet", "email", "sms"],
+          appearance: {
+            showWalletLoginFirst: false,
+            walletList: [
+              "detected_wallets",
+              "metamask",
+              "coinbase_wallet",
+              "rainbow",
+              "zerion",
+              "uniswap",
+              "wallet_connect",
+            ],
+          },
+        }}
+      >
         <SequenceHooksProvider
           config={{
             projectAccessKey: props.sequenceApiKey,
@@ -859,8 +859,8 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
             <WidgetInner {...props} />
           </WagmiProvider>
         </SequenceHooksProvider>
-      </QueryClientProvider>
-    </PrivyProvider>
+      </PrivyProvider>
+    </QueryClientProvider>
   )
 
   // If no parent Wagmi context, provide our own
