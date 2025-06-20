@@ -1,7 +1,7 @@
 import { X } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
-import type React from "react"
-import { useEffect, useRef } from "react"
+// biome-ignore lint/style/useImportType: False positive
+import React, { useEffect, useRef } from "react"
 
 interface ModalProps {
   isOpen: boolean

@@ -1,10 +1,11 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
+    "jsx": "react-jsx",
     "rootDir": "src",
     "outDir": "dist",
     "types": ["node"]
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", "src/widget", "src/umd.tsx"]
+  "exclude": ["node_modules", "dist", "src/umd.tsx"]
 }
