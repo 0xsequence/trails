@@ -662,7 +662,7 @@ describe("Intent Configuration Address with LifiInfo", () => {
     "0x0000000000000000000000000000000000000001",
   )
 
-  const lifiInfos: AnypayExecutionInfo[] = [
+  const executionInfos: AnypayExecutionInfo[] = [
     {
       originToken: Address.from("0x1111111111111111111111111111111111111111"),
       amount: 100n,
@@ -695,7 +695,7 @@ describe("Intent Configuration Address with LifiInfo", () => {
       [payload],
       testContext,
       attestationSigner,
-      lifiInfos,
+      executionInfos,
     )
 
     console.log("Single Operation with LifiInfo Test Address:", address)
@@ -746,7 +746,7 @@ describe("Intent Configuration Address with LifiInfo", () => {
       [payload1, payload2],
       testContext,
       attestationSigner,
-      lifiInfos,
+      executionInfos,
     )
 
     console.log("Multiple Operations with LifiInfo Test Address:", address)
@@ -1057,7 +1057,7 @@ describe("HashIntentParams", () => {
 
 describe("GetAnypayExecutionInfoHash", () => {
   it("should match hash for single AnypayExecutionInfo", () => {
-    const lifiInfos: AnypayExecutionInfo[] = [
+    const executionInfos: AnypayExecutionInfo[] = [
       {
         originToken: Address.from("0x1111111111111111111111111111111111111111"),
         amount: 100n,
@@ -1069,14 +1069,14 @@ describe("GetAnypayExecutionInfoHash", () => {
       "0xaAaAaAaaAaAaAaaAaAAAAAAAAaaaAaAaAaaAaaAa",
     )
 
-    const hash = getAnypayExecutionInfoHash(lifiInfos, attestationAddress)
+    const hash = getAnypayExecutionInfoHash(executionInfos, attestationAddress)
     expect(hash.toLowerCase()).toBe(
       "0x21872bd6b64711c4a5aecba95829c612f0b50c63f1a26991c2f76cf4a754aede",
     )
   })
 
   it("should match hash for multiple AnypayExecutionInfo", () => {
-    const lifiInfos: AnypayExecutionInfo[] = [
+    const executionInfos: AnypayExecutionInfo[] = [
       {
         originToken: Address.from("0x1111111111111111111111111111111111111111"),
         amount: 100n,
@@ -1094,23 +1094,23 @@ describe("GetAnypayExecutionInfoHash", () => {
       "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB",
     )
 
-    const hash = getAnypayExecutionInfoHash(lifiInfos, attestationAddress)
+    const hash = getAnypayExecutionInfoHash(executionInfos, attestationAddress)
     expect(hash.toLowerCase()).toBe(
       "0xd18e54455db64ba31b9f9a447e181f83977cb70b136228d64ac85d64a6aefe71",
     )
   })
 
-  it("should error on empty lifiInfos", () => {
+  it("should error on empty executionInfos", () => {
     const attestationAddress = Address.from(
       "0xaAaAaAaaAaAaAaaAaAAAAAAAAaaaAaAaAaaAaaAa",
     )
     expect(() => getAnypayExecutionInfoHash([], attestationAddress)).toThrow(
-      "lifiInfos is empty",
+      "executionInfos is empty",
     )
   })
 
   it("should error on zero attestationAddress", () => {
-    const lifiInfos: AnypayExecutionInfo[] = [
+    const executionInfos: AnypayExecutionInfo[] = [
       {
         originToken: Address.from("0x1111111111111111111111111111111111111111"),
         amount: 100n,
@@ -1122,7 +1122,7 @@ describe("GetAnypayExecutionInfoHash", () => {
       "0x0000000000000000000000000000000000000000",
     )
     expect(() =>
-      getAnypayExecutionInfoHash(lifiInfos, attestationAddress),
+      getAnypayExecutionInfoHash(executionInfos, attestationAddress),
     ).toThrow("attestationAddress is zero")
   })
 })

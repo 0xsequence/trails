@@ -933,7 +933,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     isAutoExecute,
     intentCallsPayloads,
     intentPreconditions,
-    anypayInfos, // Add lifiInfos dependency
+    anypayInfos, // Add executionInfos dependency
     account.address,
     commitIntentConfigMutation,
     commitIntentConfigMutation.isPending,

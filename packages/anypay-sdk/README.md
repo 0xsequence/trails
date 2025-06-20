@@ -107,8 +107,8 @@ async function sendCrossChainToken() {
   const intent = await getIntentCallsPayloads(apiClient, args)
 
   // Calculate and commit intent
-  const intentAddress = calculateIntentAddress(account.address, intent.calls, intent.lifiInfos)
-  await commitIntentConfig(apiClient, account.address, intent.calls, intent.preconditions, intent.lifiInfos)
+  const intentAddress = calculateIntentAddress(account.address, intent.calls, intent.executionInfos)
+  await commitIntentConfig(apiClient, account.address, intent.calls, intent.preconditions, intent.executionInfos)
 
   // Monitor transaction status
   const status = await getMetaTxStatus(relayer, metaTxId, chainId)
