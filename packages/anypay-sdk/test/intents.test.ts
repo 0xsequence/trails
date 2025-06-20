@@ -696,6 +696,7 @@ describe("Intent Configuration Address with LifiInfo", () => {
       testContext,
       attestationSigner,
       executionInfos,
+      "lifi",
     )
 
     console.log("Single Operation with LifiInfo Test Address:", address)
@@ -747,6 +748,7 @@ describe("Intent Configuration Address with LifiInfo", () => {
       testContext,
       attestationSigner,
       executionInfos,
+      "lifi",
     )
 
     console.log("Multiple Operations with LifiInfo Test Address:", address)
