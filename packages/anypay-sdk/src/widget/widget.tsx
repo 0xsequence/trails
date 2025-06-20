@@ -40,11 +40,18 @@ import Receipt from "./components/Receipt.js"
 import SendForm from "./components/SendForm.js"
 import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPending.js"
+import WalletConfirmation from "./components/WalletConfirmation.js"
 import "@0xsequence/design-system/preset"
 import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
 import css from "./index.css?inline"
 
-type Screen = "connect" | "tokens" | "send" | "pending" | "receipt"
+type Screen =
+  | "connect"
+  | "tokens"
+  | "send"
+  | "wallet-confirmation"
+  | "pending"
+  | "receipt"
 export type Theme = "light" | "dark" | "auto"
 type ActiveTheme = "light" | "dark"
 
@@ -252,6 +259,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   )
   const [selectedToken, setSelectedToken] = useState<Token | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [intentAddress, setIntentAddress] = useState<string | null>(null)
   const { connect } = useConnect()
   const {
     connectWallet: privyConnectWallet,
@@ -427,6 +435,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     setDestinationTxHash("")
     setDestinationChainId(null)
     setTransactionStates([])
+    setIntentAddress(null)
   }
 
   const handleCloseModal = () => {
@@ -443,6 +452,9 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
       case "send":
         setCurrentScreen("tokens")
         setSelectedToken(null)
+        break
+      case "wallet-confirmation":
+        setCurrentScreen("send")
         break
       case "receipt":
         setCurrentScreen("tokens")
@@ -528,6 +540,28 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
         setTransactionStates([])
 
         break
+      case "wallet confirmation":
+        // Set dummy USDC token for debug mode
+        setSelectedToken({
+          id: 1,
+          name: "USD Coin",
+          symbol: "USDC",
+          balance: "1000000000",
+          imageUrl:
+            "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+          chainId: 1,
+          contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          contractInfo: {
+            decimals: 6,
+            symbol: "USDC",
+            name: "USD Coin",
+          },
+        })
+
+        setCurrentScreen("wallet-confirmation")
+        setIntentAddress("0x5A0fb747531bC369367CB031472b89ea4D5c6Df7")
+        setTransactionStates([])
+        break
       case "pending":
         // Set dummy transaction states for debug mode - showing all steps
         setTransactionStates([
@@ -605,6 +639,11 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     }
   }
 
+  const handleWaitingForWalletConfirm = (intentAddress?: string) => {
+    setCurrentScreen("wallet-confirmation")
+    setIntentAddress(intentAddress ?? null)
+  }
+
   const renderScreenContent = () => {
     switch (currentScreen) {
       case "connect":
@@ -631,6 +670,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
           <SendForm
             onSend={handleOnSend}
             onBack={handleBack}
+            onWaitingForWalletConfirm={handleWaitingForWalletConfirm}
             onConfirm={() => setCurrentScreen("pending")}
             onComplete={handleTransferComplete}
             selectedToken={selectedToken}
@@ -659,6 +699,18 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
           >
             Please connect wallet
           </div>
+        )
+      case "wallet-confirmation":
+        return (
+          <WalletConfirmation
+            onBack={handleBack}
+            error={error as string}
+            onComplete={() => setCurrentScreen("pending")}
+            theme={theme}
+            amount={toAmount}
+            recipient={intentAddress ?? ""}
+            tokenSymbol={selectedToken?.symbol}
+          />
         )
       case "pending":
         return (

@@ -8,7 +8,14 @@ interface DebugScreensDropdownProps {
   theme?: "light" | "dark"
 }
 
-const SCREENS = ["Connect", "Tokens", "Send", "Pending", "Receipt"] as const
+const SCREENS = [
+  "Connect",
+  "Tokens",
+  "Send",
+  "Wallet Confirmation",
+  "Pending",
+  "Receipt",
+] as const
 
 export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
   onScreenSelect,

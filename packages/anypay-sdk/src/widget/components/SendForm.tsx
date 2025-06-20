@@ -57,6 +57,7 @@ interface SendFormProps {
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   useSourceTokenForButtonText?: boolean
   onError: (error: Error) => void
+  onWaitingForWalletConfirm: (intentAddress?: string) => void
 }
 
 // Available chains
@@ -212,6 +213,7 @@ export const SendForm: React.FC<SendFormProps> = ({
   onTransactionStateChange,
   useSourceTokenForButtonText = false,
   onError,
+  onWaitingForWalletConfirm,
 }) => {
   const [amount, setAmount] = useState(toAmount ?? "")
   const [recipientInput, setRecipientInput] = useState(toRecipient ?? "")
@@ -452,6 +454,7 @@ export const SendForm: React.FC<SendFormProps> = ({
       }
 
       setIsWaitingForWalletConfirm(true)
+      onWaitingForWalletConfirm(intentAddress?.toString())
       // Wait for full send to complete
       const {
         originUserTxReceipt,

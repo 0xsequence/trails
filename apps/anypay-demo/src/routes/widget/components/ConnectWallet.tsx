@@ -8,7 +8,6 @@ import { WagmiAdapter } from "@reown/appkit-adapter-wagmi"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { reconnect } from "@wagmi/core"
 import { useEffect, useState } from "react"
-import type { Chain } from "viem"
 import * as chains from "viem/chains"
 import { injected, useConnect, WagmiProvider } from "wagmi"
 
@@ -29,8 +28,13 @@ const metadata = {
   icons: ["https://sequence.xyz/favicon.ico"],
 }
 
+type AppKitNetwork = any // TODO: Add type
+
 // Set networks
-const networks: [Chain, ...Chain[]] = [chains.mainnet, ...Object.values(chains)]
+const networks: [AppKitNetwork, ...AppKitNetwork[]] = [
+  chains.mainnet as AppKitNetwork,
+  ...Object.values(chains).map((chain) => chain as AppKitNetwork),
+]
 
 // Create Wagmi Adapter
 const wagmiAdapter = new WagmiAdapter({
