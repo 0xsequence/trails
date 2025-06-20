@@ -76,6 +76,7 @@ export interface AnypayFee {
   originTokenTotalAmount?: string
   totalFeeAmount?: string
   totalFeeUSD?: string
+  quoteProvider?: string
 }
 
 export type GetIntentCallsPayloadsReturn = GetIntentCallsPayloadsReturnFromAPI
@@ -144,7 +145,7 @@ export function calculateIntentAddress(
 
   //console.log('Transformed coreCalls:', JSON.stringify(coreCalls, null, 2))
 
-  const coreexecutionInfos = executionInfosArg?.map(
+  const coreExecutionInfos = executionInfosArg?.map(
     (info: AnypayExecutionInfo) => ({
       originToken: Address.from(info.originToken),
       amount: BigInt(info.amount),
@@ -154,9 +155,9 @@ export function calculateIntentAddress(
   )
 
   console.log(
-    "Transformed coreexecutionInfos:",
+    "Transformed coreExecutionInfos:",
     JSON.stringify(
-      coreexecutionInfos,
+      coreExecutionInfos,
       (_, v) => (typeof v === "bigint" ? v.toString() : v),
       2,
     ),
@@ -168,7 +169,7 @@ export function calculateIntentAddress(
     context,
     // AnyPay.ANYPAY_LIFI_ATTESATION_SIGNER_ADDRESS,
     Address.from("0x0000000000000000000000000000000000000001"),
-    coreexecutionInfos,
+    coreExecutionInfos,
     sapientType,
   )
 

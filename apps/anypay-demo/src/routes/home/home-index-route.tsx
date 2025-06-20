@@ -1,12 +1,13 @@
 import {
   type Account,
+  calculateIntentAddress,
   type TokenBalance,
   useAnyPay,
   useTokenBalances,
 } from "@0xsequence/anypay-sdk"
 import { Loader2 } from "lucide-react"
 import { AbiFunction, type Address } from "ox"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import type { Hex } from "viem"
 import { useAccount, useConnect, useDisconnect } from "wagmi"
 import { AccountInfoSection } from "@/components/AccountInfoSection"
@@ -88,7 +89,6 @@ function useHook() {
     sendMetaTxnArgs,
     clearIntent,
     metaTxnMonitorStatuses,
-    calculatedIntentAddress,
     updateOriginCallParams,
     originCallParams,
     originBlockTimestamp,
@@ -98,6 +98,23 @@ function useHook() {
     account: account as Account,
     env: import.meta.env.VITE_ENV,
   })
+
+  const calculatedIntentAddress = useMemo(() => {
+    if (
+      !account.address ||
+      !intentCallsPayloads ||
+      !anypayInfos ||
+      !anypayFee
+    ) {
+      return null
+    }
+    return calculateIntentAddress(
+      account.address,
+      intentCallsPayloads as any,
+      anypayInfos as any,
+      anypayFee.quoteProvider as "lifi" | "relay",
+    )
+  }, [account.address, intentCallsPayloads, anypayInfos, anypayFee])
 
   const { sortedTokens, isLoadingBalances, balanceError } = useTokenBalances(
     account.address as Address.Address,

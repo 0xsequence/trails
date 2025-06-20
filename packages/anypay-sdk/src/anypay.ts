@@ -148,7 +148,6 @@ export type UseAnyPayReturn = {
   createIntentSuccess: boolean
   createIntentError: Error | null
   createIntentArgs: any // TODO: Add proper type
-  calculatedIntentAddress: Address.Address | null
   originCallParams: OriginCallParams | null
   updateOriginCallParams: (
     args: { originChainId: number; tokenAddress: string } | null,
@@ -241,6 +240,18 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     useV3Relayers,
   })
 
+  const calculatedIntentAddress = useMemo(() => {
+    if (!account.address || !intentCallsPayloads || !anypayInfos) {
+      return null
+    }
+    return calculateIntentAddress(
+      account.address,
+      intentCallsPayloads as any[],
+      anypayInfos as any[],
+      anypayFee?.quoteProvider as "lifi" | "relay",
+    ) // TODO: Add proper type
+  }, [account.address, intentCallsPayloads, anypayInfos, anypayFee])
+
   // Add gas estimation hook with proper types
   const {
     data: estimatedGas,
@@ -264,6 +275,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       calls: IntentCallsPayload[]
       preconditions: IntentPrecondition[]
       anypayInfos: AnypayExecutionInfo[]
+      quoteProvider?: "lifi" | "relay"
     }) => {
       if (!apiClient) throw new Error("API client not available")
       if (!args.anypayInfos) throw new Error("AnypayInfos not available")
@@ -278,6 +290,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
           args.mainSigner,
           args.calls as any[], // TODO: Add proper type
           args.anypayInfos as any[], // TODO: Add proper type
+          args.quoteProvider,
         )
         const receivedAddress = findPreconditionAddress(args.preconditions)
 
@@ -321,6 +334,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
               args.mainSigner,
               args.calls as any[], // TODO: Add proper type
               args.anypayInfos as any[], // TODO: Add proper type
+              args.quoteProvider,
             )
             const receivedAddress = findPreconditionAddress(args.preconditions)
             setVerificationStatus({
@@ -927,6 +941,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         calls: intentCallsPayloads,
         preconditions: intentPreconditions,
         anypayInfos: anypayInfos,
+        quoteProvider: anypayFee?.quoteProvider as "lifi" | "relay",
       })
     }
   }, [
@@ -935,9 +950,11 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     intentPreconditions,
     anypayInfos, // Add executionInfos dependency
     account.address,
+    calculatedIntentAddress,
     commitIntentConfigMutation,
     commitIntentConfigMutation.isPending,
     commitIntentConfigMutation.isSuccess,
+    anypayFee,
   ])
 
   // Update the sendMetaTxn mutation
@@ -957,6 +974,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         account.address,
         intentCallsPayloads as any[],
         anypayInfos as any[],
+        anypayFee?.quoteProvider as "lifi" | "relay",
       ) // TODO: Add proper type
 
       // If no specific ID is selected, send all meta transactions
@@ -1161,6 +1179,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     originChainId,
     intentPreconditions,
     account.address,
+    calculatedIntentAddress,
   ])
 
   // const checkPreconditionStatuses = useCallback(async () => {
@@ -1348,17 +1367,6 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     createIntentMutation.mutate(args)
   }
 
-  const calculatedIntentAddress = useMemo(() => {
-    if (!account.address || !intentCallsPayloads || !anypayInfos) {
-      return null
-    }
-    return calculateIntentAddress(
-      account.address,
-      intentCallsPayloads as any[],
-      anypayInfos as any[],
-    ) // TODO: Add proper type
-  }, [account.address, intentCallsPayloads, anypayInfos])
-
   const createIntentPending = createIntentMutation.isPending
   const createIntentSuccess = createIntentMutation.isSuccess
   const createIntentError = createIntentMutation.error
@@ -1370,6 +1378,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
     anypayInfos: AnypayExecutionInfo[]
+    quoteProvider?: "lifi" | "relay"
   }) {
     console.log("commitIntentConfig", args)
     commitIntentConfigMutation.mutate(args)
@@ -1459,7 +1468,6 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     createIntentSuccess,
     createIntentError,
     createIntentArgs,
-    calculatedIntentAddress,
     originCallParams,
     updateOriginCallParams,
     originBlockTimestamp,
@@ -1722,6 +1730,7 @@ export async function prepareSend(options: SendOptions) {
     mainSigner,
     intent.calls as any[],
     intent.anypayInfos as any[],
+    intent.anypayFee?.quoteProvider as "lifi" | "relay",
   ) // TODO: Add proper type
   console.log("Calculated intent address:", intentAddress.toString())
 
@@ -1731,6 +1740,7 @@ export async function prepareSend(options: SendOptions) {
     intent.calls as any[],
     intent.preconditions as any[],
     intent.anypayInfos as any[],
+    intent.anypayFee?.quoteProvider as "lifi" | "relay",
   )
 
   console.log("Committed intent config")

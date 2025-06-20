@@ -555,6 +555,14 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                     </span>
                   </div>
                 )}
+                {anypayFee.quoteProvider && (
+                  <div className="text-xs font-semibold text-white flex items-center">
+                    Quote Provider:
+                    <span className="font-mono text-yellow-300 ml-2 text-xs font-medium bg-gray-900/50 px-2 py-1 rounded-md border border-gray-700/50">
+                      {anypayFee.quoteProvider.toLocaleUpperCase()}
+                    </span>
+                  </div>
+                )}
                 {anypayFee.feeToken && (
                   <div className="text-xs font-semibold text-white flex items-center">
                     Fee Token:
