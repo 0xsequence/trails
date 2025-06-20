@@ -31,22 +31,10 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
           className={`mx-auto flex items-center justify-center transition-all duration-500 ease-out ${showContent ? "transform -translate-y-8" : ""}`}
         >
           <div
-            className={`relative w-20 h-20 flex items-center justify-center`}
-          >
-            {/* Outer pulsing ring */}
-            <div
-              className={`absolute inset-0 rounded-full border-2 ${
-                theme === "dark" ? "border-blue-400" : "border-blue-500"
-              } animate-pulse`}
-            />
-
-            {/* Inner spinning loader */}
-            <div
-              className={`w-12 h-12 border-2 border-transparent border-t-current rounded-full animate-spin ${
-                theme === "dark" ? "text-blue-400" : "text-blue-500"
-              }`}
-            />
-          </div>
+            className={`animate-spin rounded-full h-16 w-16 border-b-2 ${
+              theme === "dark" ? "border-blue-400" : "border-blue-500"
+            }`}
+          />
         </div>
 
         <div
