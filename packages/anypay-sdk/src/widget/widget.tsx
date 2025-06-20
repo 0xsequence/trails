@@ -260,6 +260,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   const [selectedToken, setSelectedToken] = useState<Token | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [intentAddress, setIntentAddress] = useState<string | null>(null)
+  const [fromAmount, setFromAmount] = useState<string | null>(null)
   const { connect } = useConnect()
   const {
     connectWallet: privyConnectWallet,
@@ -298,8 +299,10 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   // Clear error on screen change
   useEffect(() => {
     console.log("currentScreen", currentScreen)
-    setError(null)
-  }, [currentScreen])
+    if (error) {
+      setError(null)
+    }
+  }, [currentScreen, error])
 
   const indexerGatewayClient = useIndexerGatewayClient({
     indexerGatewayUrl: sequenceIndexerUrl,
@@ -436,6 +439,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     setDestinationChainId(null)
     setTransactionStates([])
     setIntentAddress(null)
+    setFromAmount(null)
   }
 
   const handleCloseModal = () => {
@@ -560,6 +564,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 
         setCurrentScreen("wallet-confirmation")
         setIntentAddress("0x5A0fb747531bC369367CB031472b89ea4D5c6Df7")
+        setFromAmount("1")
         setTransactionStates([])
         break
       case "pending":
@@ -634,14 +639,22 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 
   const handleSendError = (error: Error) => {
     console.error("Error sending transaction", error)
-    if (currentScreen === "pending") {
+    console.log("currentScreen", currentScreen)
+    if (
+      currentScreen === "wallet-confirmation" ||
+      currentScreen === "pending"
+    ) {
       setError(error.message)
     }
   }
 
-  const handleWaitingForWalletConfirm = (intentAddress?: string) => {
+  const handleWaitingForWalletConfirm = (
+    intentAddress?: string,
+    originAmount?: string,
+  ) => {
     setCurrentScreen("wallet-confirmation")
     setIntentAddress(intentAddress ?? null)
+    setFromAmount(originAmount ?? null)
   }
 
   const renderScreenContent = () => {
@@ -707,7 +720,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             error={error as string}
             onComplete={() => setCurrentScreen("pending")}
             theme={theme}
-            amount={toAmount}
+            amount={fromAmount ?? undefined}
             recipient={intentAddress ?? ""}
             tokenSymbol={selectedToken?.symbol}
           />
