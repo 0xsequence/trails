@@ -12,9 +12,9 @@ import {
 import { isAddressEqual } from "viem"
 import { describe, expect, it, vi } from "vitest"
 import {
-  type AnypayLifiInfo,
+  type AnypayExecutionInfo,
   calculateIntentConfigurationAddress,
-  getAnypayLifiInfoHash,
+  getAnypayExecutionInfoHash,
   hashIntentParams,
   type IntentCallsPayload,
 } from "../src/intents.js"
@@ -662,7 +662,7 @@ describe("Intent Configuration Address with LifiInfo", () => {
     "0x0000000000000000000000000000000000000001",
   )
 
-  const lifiInfos: AnypayLifiInfo[] = [
+  const lifiInfos: AnypayExecutionInfo[] = [
     {
       originToken: Address.from("0x1111111111111111111111111111111111111111"),
       amount: 100n,
@@ -1055,9 +1055,9 @@ describe("HashIntentParams", () => {
   })
 })
 
-describe("GetAnypayLifiInfoHash", () => {
-  it("should match hash for single AnypayLifiInfo", () => {
-    const lifiInfos: AnypayLifiInfo[] = [
+describe("GetAnypayExecutionInfoHash", () => {
+  it("should match hash for single AnypayExecutionInfo", () => {
+    const lifiInfos: AnypayExecutionInfo[] = [
       {
         originToken: Address.from("0x1111111111111111111111111111111111111111"),
         amount: 100n,
@@ -1069,14 +1069,14 @@ describe("GetAnypayLifiInfoHash", () => {
       "0xaAaAaAaaAaAaAaaAaAAAAAAAAaaaAaAaAaaAaaAa",
     )
 
-    const hash = getAnypayLifiInfoHash(lifiInfos, attestationAddress)
+    const hash = getAnypayExecutionInfoHash(lifiInfos, attestationAddress)
     expect(hash.toLowerCase()).toBe(
       "0x21872bd6b64711c4a5aecba95829c612f0b50c63f1a26991c2f76cf4a754aede",
     )
   })
 
-  it("should match hash for multiple AnypayLifiInfo", () => {
-    const lifiInfos: AnypayLifiInfo[] = [
+  it("should match hash for multiple AnypayExecutionInfo", () => {
+    const lifiInfos: AnypayExecutionInfo[] = [
       {
         originToken: Address.from("0x1111111111111111111111111111111111111111"),
         amount: 100n,
@@ -1094,7 +1094,7 @@ describe("GetAnypayLifiInfoHash", () => {
       "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB",
     )
 
-    const hash = getAnypayLifiInfoHash(lifiInfos, attestationAddress)
+    const hash = getAnypayExecutionInfoHash(lifiInfos, attestationAddress)
     expect(hash.toLowerCase()).toBe(
       "0xd18e54455db64ba31b9f9a447e181f83977cb70b136228d64ac85d64a6aefe71",
     )
@@ -1104,13 +1104,13 @@ describe("GetAnypayLifiInfoHash", () => {
     const attestationAddress = Address.from(
       "0xaAaAaAaaAaAaAaaAaAAAAAAAAaaaAaAaAaaAaaAa",
     )
-    expect(() => getAnypayLifiInfoHash([], attestationAddress)).toThrow(
+    expect(() => getAnypayExecutionInfoHash([], attestationAddress)).toThrow(
       "lifiInfos is empty",
     )
   })
 
   it("should error on zero attestationAddress", () => {
-    const lifiInfos: AnypayLifiInfo[] = [
+    const lifiInfos: AnypayExecutionInfo[] = [
       {
         originToken: Address.from("0x1111111111111111111111111111111111111111"),
         amount: 100n,
@@ -1121,8 +1121,8 @@ describe("GetAnypayLifiInfoHash", () => {
     const attestationAddress = Address.from(
       "0x0000000000000000000000000000000000000000",
     )
-    expect(() => getAnypayLifiInfoHash(lifiInfos, attestationAddress)).toThrow(
-      "attestationAddress is zero",
-    )
+    expect(() =>
+      getAnypayExecutionInfoHash(lifiInfos, attestationAddress),
+    ).toThrow("attestationAddress is zero")
   })
 })

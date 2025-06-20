@@ -21,10 +21,13 @@ import {
   isAddressEqual,
   type WalletClient,
 } from "viem"
-import { ANYPAY_LIFI_SAPIENT_SIGNER_LITE_ADDRESS } from "./constants.js"
+import {
+  ANYPAY_LIFI_SAPIENT_SIGNER_LITE_ADDRESS,
+  ANYPAY_RELAY_SAPIENT_SIGNER_LITE_ADDRESS,
+} from "./constants.js"
 import { findPreconditionAddress } from "./preconditions.js"
 
-export interface AnypayLifiInfo {
+export interface AnypayExecutionInfo {
   originToken: Address.Address
   amount: bigint
   originChainId: bigint
@@ -102,12 +105,13 @@ export async function getIntentCallsPayloads(
 export function calculateIntentAddress(
   mainSigner: string,
   calls: IntentCallsPayload[],
-  lifiInfosArg: AnypayLifiInfo[] | null | undefined,
+  executionInfosArg: AnypayExecutionInfo[] | null | undefined,
+  sapientType: "lifi" | "relay" = "relay",
 ): `0x${string}` {
   console.log("calculateIntentAddress inputs:", {
     mainSigner,
     calls: JSON.stringify(calls, null, 2),
-    lifiInfosArg: JSON.stringify(lifiInfosArg, null, 2),
+    executionInfosArg: JSON.stringify(executionInfosArg, null, 2),
   })
 
   const context: ContextLike.Context = {
@@ -140,17 +144,19 @@ export function calculateIntentAddress(
 
   //console.log('Transformed coreCalls:', JSON.stringify(coreCalls, null, 2))
 
-  const coreLifiInfos = lifiInfosArg?.map((info: AnypayLifiInfo) => ({
-    originToken: Address.from(info.originToken),
-    amount: BigInt(info.amount),
-    originChainId: BigInt(info.originChainId),
-    destinationChainId: BigInt(info.destinationChainId),
-  }))
+  const coreexecutionInfos = executionInfosArg?.map(
+    (info: AnypayExecutionInfo) => ({
+      originToken: Address.from(info.originToken),
+      amount: BigInt(info.amount),
+      originChainId: BigInt(info.originChainId),
+      destinationChainId: BigInt(info.destinationChainId),
+    }),
+  )
 
   console.log(
-    "Transformed coreLifiInfos:",
+    "Transformed coreexecutionInfos:",
     JSON.stringify(
-      coreLifiInfos,
+      coreexecutionInfos,
       (_, v) => (typeof v === "bigint" ? v.toString() : v),
       2,
     ),
@@ -162,7 +168,8 @@ export function calculateIntentAddress(
     context,
     // AnyPay.ANYPAY_LIFI_ATTESATION_SIGNER_ADDRESS,
     Address.from("0x0000000000000000000000000000000000000001"),
-    coreLifiInfos,
+    coreexecutionInfos,
+    sapientType,
   )
 
   console.log("Final calculated address:", calculatedAddress.toString())
@@ -174,16 +181,22 @@ export function commitIntentConfig(
   mainSigner: string,
   calls: IntentCallsPayload[],
   preconditions: IntentPrecondition[],
-  lifiInfos: AnypayLifiInfo[],
+  executionInfos: AnypayExecutionInfo[],
+  sapientType: "lifi" | "relay" = "relay",
 ): Promise<CommitIntentConfigReturn> {
   console.log("commitIntentConfig inputs:", {
     mainSigner,
     calls: JSON.stringify(calls, null, 2),
     preconditions: JSON.stringify(preconditions, null, 2),
-    lifiInfos: JSON.stringify(lifiInfos, null, 2),
+    executionInfos: JSON.stringify(executionInfos, null, 2),
   })
 
-  const calculatedAddress = calculateIntentAddress(mainSigner, calls, lifiInfos)
+  const calculatedAddress = calculateIntentAddress(
+    mainSigner,
+    calls,
+    executionInfos,
+    sapientType,
+  )
   const receivedAddress = findPreconditionAddress(preconditions)
   console.log("Address comparison:", {
     receivedAddress,
@@ -196,7 +209,7 @@ export function commitIntentConfig(
     mainSigner: mainSigner,
     calls: calls,
     preconditions: preconditions,
-    lifiInfos: lifiInfos,
+    executionInfos: executionInfos,
   }
   console.log("args", args)
   return apiClient.commitIntentConfig(args as any) // TODO: Add proper type
@@ -344,12 +357,12 @@ export function bigintReplacer(_key: string, value: any) {
   return typeof value === "bigint" ? value.toString() : value
 }
 
-export function getAnypayLifiInfoHash(
-  lifiInfos: AnypayLifiInfo[],
+export function getAnypayExecutionInfoHash(
+  executionInfos: AnypayExecutionInfo[],
   attestationAddress: Address.Address,
 ): Hex.Hex {
-  if (!lifiInfos || lifiInfos.length === 0) {
-    throw new Error("lifiInfos is empty")
+  if (!executionInfos || executionInfos.length === 0) {
+    throw new Error("executionInfos is empty")
   }
   if (
     !attestationAddress ||
@@ -358,14 +371,14 @@ export function getAnypayLifiInfoHash(
     throw new Error("attestationAddress is zero")
   }
 
-  const anypayLifiInfoComponents = [
+  const AnypayExecutionInfoComponents = [
     { name: "originToken", type: "address" },
     { name: "amount", type: "uint256" },
     { name: "originChainId", type: "uint256" },
     { name: "destinationChainId", type: "uint256" },
   ]
 
-  const lifiInfosForAbi = lifiInfos.map((info) => ({
+  const executionInfosForAbi = executionInfos.map((info) => ({
     originToken: info.originToken,
     amount: info.amount,
     originChainId: info.originChainId,
@@ -375,14 +388,14 @@ export function getAnypayLifiInfoHash(
   const abiSchema = [
     {
       type: "tuple[]",
-      name: "lifiInfos",
-      components: anypayLifiInfoComponents,
+      name: "executionInfos",
+      components: AnypayExecutionInfoComponents,
     },
     { type: "address", name: "attestationAddress" },
   ]
 
   const encodedHex = AbiParameters.encode(abiSchema, [
-    lifiInfosForAbi,
+    executionInfosForAbi,
     attestationAddress,
   ]) as Hex.Hex
   const encodedBytes = Bytes.fromHex(encodedHex)
@@ -395,13 +408,15 @@ export function calculateIntentConfigurationAddress(
   calls: IntentCallsPayload[],
   context: Context.Context,
   attestationSigner?: Address.Address,
-  lifiInfos?: AnypayLifiInfo[],
+  executionInfos?: AnypayExecutionInfo[],
+  sapientType: "lifi" | "relay" = "relay",
 ): Address.Address {
   const config = createIntentConfiguration(
     mainSigner,
     calls,
     attestationSigner,
-    lifiInfos,
+    executionInfos,
+    sapientType,
   )
 
   // Calculate the image hash of the configuration
@@ -425,7 +440,8 @@ function createIntentConfiguration(
   mainSigner: Address.Address,
   calls: IntentCallsPayload[],
   attestationSigner?: Address.Address,
-  lifiInfos?: AnypayLifiInfo[],
+  executionInfos?: AnypayExecutionInfo[],
+  sapientType: "lifi" | "relay" = "relay",
 ): Config.Config {
   const mainSignerLeaf: Config.SignerLeaf = {
     type: "signer",
@@ -450,14 +466,19 @@ function createIntentConfiguration(
 
   const otherLeaves: Config.Topology[] = [...subdigestLeaves]
 
-  if (lifiInfos && lifiInfos.length > 0) {
+  if (executionInfos && executionInfos.length > 0) {
     if (attestationSigner) {
       const lifiConditionLeaf: Config.SapientSignerLeaf = {
         type: "sapient-signer",
-        // address: ANYPAY_LIFI_SAPIENT_SIGNER_ADDRESS,
-        address: ANYPAY_LIFI_SAPIENT_SIGNER_LITE_ADDRESS,
+        address:
+          sapientType === "lifi"
+            ? ANYPAY_LIFI_SAPIENT_SIGNER_LITE_ADDRESS
+            : ANYPAY_RELAY_SAPIENT_SIGNER_LITE_ADDRESS,
         weight: 1n,
-        imageHash: getAnypayLifiInfoHash(lifiInfos, attestationSigner),
+        imageHash: getAnypayExecutionInfoHash(
+          executionInfos,
+          attestationSigner,
+        ),
       }
       otherLeaves.push(lifiConditionLeaf)
     }
