@@ -42,3 +42,6 @@ next-env.d.ts
 .env.production
 .env.test
 !.env.sample
+
+# SDK JS build (added during build to expose umd js for script tag imports)
+./public/js/anypay.min.js
