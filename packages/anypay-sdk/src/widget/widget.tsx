@@ -12,7 +12,14 @@ import {
 } from "@privy-io/wagmi"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AnimatePresence, motion } from "motion/react"
-import React, { StrictMode, useContext, useEffect, useState } from "react"
+import React, {
+  StrictMode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
+import { createPortal } from "react-dom"
 import {
   createWalletClient,
   custom,
@@ -35,7 +42,7 @@ import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPending.js"
 import "@0xsequence/design-system/preset"
 import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
-import "./index.css"
+import css from "./index.css?inline"
 
 type Screen = "connect" | "tokens" | "send" | "pending" | "receipt"
 export type Theme = "light" | "dark" | "auto"
@@ -866,11 +873,38 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
   // If no parent Wagmi context, provide our own
   if (!wagmiContext) {
     // TODO
-    // return <StrictMode>{content}</StrictMode>
+    // return <ShadowPortal><StrictMode>{content}</StrictMode></ShadowPortal>
   }
 
   // Otherwise use parent context
-  return <StrictMode>{content}</StrictMode>
+  return (
+    <ShadowPortal>
+      <StrictMode>{content}</StrictMode>
+    </ShadowPortal>
+  )
+}
+
+export function ShadowPortal({ children }: { children: React.ReactNode }) {
+  const hostRef = useRef<HTMLDivElement>(null)
+  const [shadowRoot, setShadowRoot] = useState<ShadowRoot | null>(null)
+
+  useEffect(() => {
+    if (hostRef.current && !hostRef.current.shadowRoot) {
+      const shadow = hostRef.current.attachShadow({ mode: "open" })
+      setShadowRoot(shadow)
+
+      // Inject <style> tag with your widget's CSS
+      const styleTag = document.createElement("style")
+      styleTag.textContent = css
+      shadow.appendChild(styleTag)
+    }
+  }, [])
+
+  return (
+    <div ref={hostRef}>
+      {shadowRoot ? createPortal(children, shadowRoot) : null}
+    </div>
+  )
 }
 
 export default AnyPayWidget
