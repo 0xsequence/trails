@@ -469,7 +469,7 @@ function createIntentConfiguration(
 
   if (executionInfos && executionInfos.length > 0) {
     if (attestationSigner) {
-      const lifiConditionLeaf: Config.SapientSignerLeaf = {
+      const sapientSignerLeaf: Config.SapientSignerLeaf = {
         type: "sapient-signer",
         address:
           sapientType === "lifi"
@@ -481,7 +481,7 @@ function createIntentConfiguration(
           attestationSigner,
         ),
       }
-      otherLeaves.push(lifiConditionLeaf)
+      otherLeaves.push(sapientSignerLeaf)
     }
   }
 
@@ -498,6 +498,12 @@ function createIntentConfiguration(
   } else {
     secondaryTopologyNode = buildMerkleTreeFromMembers(otherLeaves)
   }
+
+  // Print the topology
+  console.log(
+    "Topology:",
+    JSON.stringify([mainSignerLeaf, secondaryTopologyNode], bigintReplacer, 2),
+  )
 
   return {
     threshold: 1n,
