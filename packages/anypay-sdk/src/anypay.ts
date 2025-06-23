@@ -1842,7 +1842,7 @@ export async function prepareSend(options: SendOptions) {
 
       const doGasless = originTokenAddress !== zeroAddress && paymasterUrl
       if (doGasless) {
-        const testnet = false
+        const testnet = true
         const txHash = await runGasless7702Flow(
           testnet ? baseSepolia : chain,
           testnet
