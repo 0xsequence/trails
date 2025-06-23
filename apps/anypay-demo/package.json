@@ -16,8 +16,8 @@
     "clean": "rimraf dist node_modules/.vite"
   },
   "dependencies": {
-    "@0xsequence/anypay-sdk": "workspace:*",
     "@0xsequence/anypay-api": "workspace:*",
+    "@0xsequence/anypay-sdk": "workspace:*",
     "@0xsequence/design-system": "^2.1.14",
     "@0xsequence/hooks": "^5.3.4",
     "@0xsequence/indexer": "^2.3.17",
