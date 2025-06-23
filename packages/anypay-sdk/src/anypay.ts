@@ -1735,22 +1735,23 @@ export async function prepareSend(options: SendOptions) {
 
   console.log("Committed intent config")
 
+  const firstPrecondition = findFirstPreconditionForChainId(
+    intent.preconditions,
+    originChainId,
+  )
+
+  if (!firstPrecondition) {
+    throw new Error("No precondition found for origin chain")
+  }
+
+  const firstPreconditionAddress = firstPrecondition?.data?.address
+  const firstPreconditionMin = firstPrecondition?.data?.min?.toString()
+
   return {
     intentAddress,
+    originSendAmount: firstPreconditionMin,
     send: async (onOriginSend: () => void): Promise<SendReturn> => {
       console.log("sending origin transaction")
-
-      const firstPrecondition = findFirstPreconditionForChainId(
-        intent.preconditions,
-        originChainId,
-      )
-
-      if (!firstPrecondition) {
-        throw new Error("No precondition found for origin chain")
-      }
-
-      const firstPreconditionAddress = firstPrecondition?.data?.address
-      const firstPreconditionMin = firstPrecondition?.data?.min?.toString()
 
       // ETH fee required by some bridges for low token amounts
       // TODO: update backend API to return the native fee requirement, if any
