@@ -25,7 +25,9 @@
     "clean": "rimraf dist",
     "lint": "biome lint ./src",
     "lint:fix": "biome lint --write ./src",
-    "format": "biome format --write ./src"
+    "format": "biome format --write ./src",
+    "prepublishOnly": "node scripts/replace-workspace-versions.cjs",
+    "postpublish": "node scripts/restore-workspace-versions.cjs"
   },
   "keywords": [
     "anypay",
@@ -35,11 +37,11 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@0xsequence/anypay-api": "^0.0.2",
+    "@0xsequence/anypay-api": "workspace:*",
     "@0xsequence/design-system": "^2.1.6",
     "@0xsequence/hooks": "^5.3.4",
     "@0xsequence/indexer": "^2.3.9",
-    "@0xsequence/anypay-relayer": "^0.0.2",
+    "@0xsequence/anypay-relayer": "workspace:*",
     "@0xsequence/wagmi-connector": "^4.0.1",
     "@0xsequence/wallet-core": "github:0xsequence/sequence.js#dists/wallet/core",
     "@0xsequence/wallet-primitives": "github:0xsequence/sequence.js#dists/wallet/primitives",
@@ -58,11 +60,11 @@
     "wagmi": "^2.15.5"
   },
   "peerDependencies": {
-    "@0xsequence/anypay-api": "^0.0.2",
+    "@0xsequence/anypay-api": "workspace:*",
     "@0xsequence/design-system": "^2.1.6",
     "@0xsequence/hooks": "^5.3.4",
     "@0xsequence/indexer": "^2.3.9",
-    "@0xsequence/anypay-relayer": "^0.0.2",
+    "@0xsequence/anypay-relayer": "workspace:*",
     "@0xsequence/wagmi-connector": "^4.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
