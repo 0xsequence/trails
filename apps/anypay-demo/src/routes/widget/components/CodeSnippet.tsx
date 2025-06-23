@@ -1,7 +1,7 @@
 import { Check, Copy } from "lucide-react"
 import { useState } from "react"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"
+import { nightOwl as syntaxStyle } from "react-syntax-highlighter/dist/esm/styles/prism"
 
 interface CodeSnippetProps {
   children: React.ReactNode
@@ -117,7 +117,7 @@ export const App = () => {
   const scriptCodeExample = getScriptCode()
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6 h-full relative">
+    <div className="rounded-lg p-6 h-full relative">
       <div className="flex justify-between items-start mb-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-200">
@@ -169,10 +169,13 @@ export const App = () => {
         </button>
       </div>
 
-      <div className="rounded-lg overflow-hidden">
+      <div
+        className="rounded-lg overflow-hidden"
+        style={{ backgroundColor: "#13141c" }}
+      >
         <SyntaxHighlighter
           language={activeTab === "react" ? "tsx" : "html"}
-          style={vscDarkPlus}
+          style={syntaxStyle}
           customStyle={{
             margin: 0,
             borderRadius: "0.5rem",
