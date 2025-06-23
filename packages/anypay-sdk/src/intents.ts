@@ -450,6 +450,8 @@ function createIntentConfiguration(
     weight: 1n,
   }
 
+  console.log("mainSignerLeaf:", mainSignerLeaf)
+
   const subdigestLeaves: Config.AnyAddressSubdigestLeaf[] = calls.map(
     (call) => {
       const digest = Payload.hash(
@@ -464,6 +466,9 @@ function createIntentConfiguration(
       } as Config.AnyAddressSubdigestLeaf
     },
   )
+
+  console.log("calls:", calls)
+  console.log("subdigestLeaves:", subdigestLeaves)
 
   const otherLeaves: Config.Topology[] = [...subdigestLeaves]
 
