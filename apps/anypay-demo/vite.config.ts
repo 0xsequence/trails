@@ -9,7 +9,8 @@ export default defineConfig({
     force: true,
     // TODO: This shouldn't be needed, fix sdk build
     include: [
-      "@0xsequence/api",
+      "@0xsequence/anypay-api",
+      "@0xsequence/anypay-sdk",
       "@0xsequence/hooks",
       "@0xsequence/wallet-core",
       "@0xsequence/wallet-primitives",
