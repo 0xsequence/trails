@@ -28,6 +28,8 @@ interface CustomizationFormProps {
   setTheme: (value: string | null) => void
   walletOptions: string[] | null
   setWalletOptions: (value: string[] | null) => void
+  paymasterUrl: string
+  setPaymasterUrl: (value: string) => void
 }
 
 // Local storage keys
@@ -41,6 +43,7 @@ export const STORAGE_KEYS = {
   RENDER_INLINE: "anypay_render_inline",
   THEME: "anypay_theme",
   WALLET_OPTIONS: "anypay_wallet_options",
+  PAYMASTER_URL: "anypay_paymaster_url",
 } as const
 
 interface UseAccountButtonProps {
@@ -93,6 +96,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   setTheme,
   walletOptions,
   setWalletOptions,
+  paymasterUrl,
+  setPaymasterUrl,
 }) => {
   const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
   const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
@@ -126,6 +131,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     const savedRenderInline = localStorage.getItem(STORAGE_KEYS.RENDER_INLINE)
     const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) as string | null
     const savedWalletOptions = localStorage.getItem(STORAGE_KEYS.WALLET_OPTIONS)
+    const savedPaymasterUrl = localStorage.getItem(STORAGE_KEYS.PAYMASTER_URL)
 
     if (savedToAddress) setToAddress(savedToAddress)
     if (savedToAmount) setToAmount(savedToAmount)
@@ -137,6 +143,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     if (savedRenderInline) setRenderInline(savedRenderInline === "true")
     if (savedTheme) setTheme(savedTheme)
     if (savedWalletOptions) setWalletOptions(JSON.parse(savedWalletOptions))
+    if (savedPaymasterUrl) setPaymasterUrl(savedPaymasterUrl)
   }, [
     setToAddress,
     setToAmount,
@@ -147,6 +154,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setRenderInline,
     setTheme,
     setWalletOptions,
+    setPaymasterUrl,
   ])
 
   // Save values to localStorage whenever they change
@@ -202,6 +210,13 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
   }, [walletOptions])
 
+  // Save paymasterUrl to localStorage
+  useEffect(() => {
+    if (paymasterUrl) {
+      localStorage.setItem(STORAGE_KEYS.PAYMASTER_URL, paymasterUrl)
+    }
+  }, [paymasterUrl])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -240,6 +255,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setUseCustomButton(false)
     setRenderInline(true) // Reset to default true
     setTheme("auto") // Reset to default light
+    setPaymasterUrl("") // Reset paymasterUrl
     // Clear localStorage
     Object.values(STORAGE_KEYS).forEach((key) => {
       localStorage.removeItem(key)
@@ -487,6 +503,19 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               placeholder="0x..."
               rows={4}
               className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-200 mb-2">
+              Paymaster URL
+            </label>
+            <input
+              type="text"
+              value={paymasterUrl}
+              onChange={(e) => setPaymasterUrl(e.target.value.trim())}
+              placeholder="https://..."
+              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 

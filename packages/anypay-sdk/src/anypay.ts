@@ -56,6 +56,9 @@ import {
 import { getBackupRelayer, useRelayers } from "./relayer.js"
 import { getChainInfo } from "./tokenBalances.js"
 import { requestWithTimeout } from "./utils.js"
+import { runGasless7702Flow } from "./gasless.js"
+import { baseSepolia } from "viem/chains"
+import { attemptSwitchChain } from "./chainSwitch.js"
 
 export type Account = {
   address: `0x${string}`
@@ -1497,6 +1500,7 @@ export type SendOptions = {
   destinationTokenPriceUsd?: number | null
   sourceTokenDecimals: number
   destinationTokenDecimals: number
+  paymasterUrl?: string
 }
 
 export type SendReturn = {
@@ -1529,6 +1533,7 @@ export async function prepareSend(options: SendOptions) {
     destinationTokenPriceUsd,
     sourceTokenDecimals,
     destinationTokenDecimals,
+    paymasterUrl,
   } = options
 
   if (!walletClient) {
@@ -1753,6 +1758,18 @@ export async function prepareSend(options: SendOptions) {
     send: async (onOriginSend: () => void): Promise<SendReturn> => {
       console.log("sending origin transaction")
 
+      const firstPrecondition = findFirstPreconditionForChainId(
+        intent.preconditions,
+        originChainId,
+      )
+
+      if (!firstPrecondition) {
+        throw new Error("No precondition found for origin chain")
+      }
+
+      const firstPreconditionAddress = firstPrecondition?.data?.address
+      const firstPreconditionMin = firstPrecondition?.data?.min?.toString()
+
       // ETH fee required by some bridges for low token amounts
       // TODO: update backend API to return the native fee requirement, if any
       let needsNativeFee = false
@@ -1823,159 +1840,251 @@ export async function prepareSend(options: SendOptions) {
       let originMetaTxnReceipt: any = null // TODO: Add proper type
       let destinationMetaTxnReceipt: any = null // TODO: Add proper type
 
-      onTransactionStateChange(transactionStates)
-      await attemptSwitchChain(walletClient, originChainId)
+      const doGasless = originTokenAddress !== zeroAddress && paymasterUrl
+      if (doGasless) {
+        const testnet = false
+        const txHash = await runGasless7702Flow(
+          testnet ? baseSepolia : chain,
+          testnet
+            ? "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+            : (originTokenAddress as `0x${string}`),
+          BigInt(firstPreconditionMin),
+          intentAddress as `0x${string}`,
+          paymasterUrl,
+        )
+        if (onOriginSend) {
+          onOriginSend()
+        }
 
-      let useSendCalls = false
-      const moreThan1Tx = needsNativeFee
-
-      if (moreThan1Tx) {
-        try {
-          // the reason for the timeout is some users experience this call to hang indefinitely on metamask on all chains.
-          // not sure why this is happening, but it happens.
-          const capabilities = await requestWithTimeout<Record<string, any>>(
-            walletClient,
-            [
-              {
-                method: "wallet_getCapabilities",
-                params: [account.address],
-              },
-            ],
-            10000,
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash as `0x${string}`,
+        })
+        console.log("receipt", receipt)
+        originUserTxReceipt = receipt
+      } else {
+        // ETH fee required by some bridges for low token amounts
+        // TODO: update backend API to return the native fee requirement, if any
+        let needsNativeFee = false
+        let nativeFee = parseUnits("0.00005", 18).toString()
+        if (originChainId === 137) {
+          nativeFee = parseUnits("1.5", 18).toString()
+        }
+        console.log("sourceTokenPriceUsd", sourceTokenPriceUsd)
+        console.log("destinationTokenPriceUsd", destinationTokenPriceUsd)
+        console.log("sourceTokenDecimals", sourceTokenDecimals)
+        console.log("destinationTokenDecimals", destinationTokenDecimals)
+        if (
+          originTokenAddress !== zeroAddress &&
+          sourceTokenPriceUsd &&
+          destinationTokenPriceUsd &&
+          firstPreconditionMin &&
+          destinationTokenDecimals !== undefined &&
+          sourceTokenDecimals !== undefined
+        ) {
+          // Convert from wei to token units using formatUnits
+          const destinationAmount = Number(
+            formatUnits(
+              BigInt(destinationTokenAmount),
+              destinationTokenDecimals,
+            ),
           )
-
-          console.log("capabilities", capabilities)
-
-          // Check if the chain supports atomic transactions
-          const chainHex = `0x${originChainId.toString(16)}` as const
-          const chainCapabilities = capabilities[chainHex]
-          useSendCalls = chainCapabilities?.atomic?.status === "supported"
-        } catch (error) {
-          console.error("Error getting capabilities", error)
+          const preconditionMin = Number(
+            formatUnits(BigInt(firstPreconditionMin), destinationTokenDecimals),
+          )
+          console.log("destinationAmount", destinationAmount)
+          console.log("preconditionMin", preconditionMin)
+          const destinationAmountUsd =
+            destinationAmount * destinationTokenPriceUsd
+          const preconditionMinUsd = preconditionMin * sourceTokenPriceUsd
+          const diff = preconditionMinUsd - destinationAmountUsd
+          console.log(
+            "destinationAmountUsd",
+            destinationAmountUsd,
+            "preconditionMinUsd",
+            preconditionMinUsd,
+            "diff",
+            diff,
+          )
+          if (diff >= 0 && diff <= 0.02) {
+            needsNativeFee = true
+          }
         }
-      }
+        console.log("needsNativeFee", needsNativeFee)
 
-      if (dryMode) {
-        console.log("dry mode, skipping send calls")
-      }
+        const originCallParams = {
+          to:
+            originTokenAddress === zeroAddress
+              ? firstPreconditionAddress
+              : originTokenAddress,
+          data:
+            originTokenAddress === zeroAddress
+              ? "0x"
+              : getERC20TransferData(
+                  firstPreconditionAddress,
+                  BigInt(firstPreconditionMin) + BigInt(fee),
+                ),
+          value:
+            originTokenAddress === zeroAddress
+              ? BigInt(firstPreconditionMin) + BigInt(fee)
+              : "0",
+          chainId: originChainId,
+          chain,
+        }
 
-      if (useSendCalls) {
-        console.log("using sendCalls")
-      } else {
-        console.log("using sendTransaction")
-      }
+        onTransactionStateChange(transactionStates)
+        await attemptSwitchChain(walletClient, originChainId)
 
-      if (useSendCalls) {
-        if (!dryMode) {
-          const calls: Array<{
-            to: `0x${string}`
-            data: `0x${string}`
-            value?: `0x${string}`
-          }> = []
-          if (needsNativeFee) {
+        let useSendCalls = false
+        const moreThan1Tx = needsNativeFee
+
+        if (moreThan1Tx) {
+          try {
+            // the reason for the timeout is some users experience this call to hang indefinitely on metamask on all chains.
+            // not sure why this is happening, but it happens.
+            const capabilities = await requestWithTimeout<Record<string, any>>(
+              walletClient,
+              [
+                {
+                  method: "wallet_getCapabilities",
+                  params: [account.address],
+                },
+              ],
+              10000,
+            )
+
+            console.log("capabilities", capabilities)
+
+            // Check if the chain supports atomic transactions
+            const chainHex = `0x${originChainId.toString(16)}` as const
+            const chainCapabilities = capabilities[chainHex]
+            useSendCalls = chainCapabilities?.atomic?.status === "supported"
+          } catch (error) {
+            console.error("Error getting capabilities", error)
+          }
+        }
+
+        if (dryMode) {
+          console.log("dry mode, skipping send calls")
+        }
+
+        if (useSendCalls) {
+          console.log("using sendCalls")
+        } else {
+          console.log("using sendTransaction")
+        }
+
+        if (useSendCalls) {
+          if (!dryMode) {
+            const calls: Array<{
+              to: `0x${string}`
+              data: `0x${string}`
+              value?: `0x${string}`
+            }> = []
+            if (needsNativeFee) {
+              calls.push({
+                to: firstPreconditionAddress as `0x${string}`,
+                data: "0x00",
+                value: `0x${BigInt(nativeFee).toString(16)}` as `0x${string}`,
+              })
+            }
+
+            // Add the origin call
             calls.push({
-              to: firstPreconditionAddress as `0x${string}`,
-              data: "0x00",
-              value: `0x${BigInt(nativeFee).toString(16)}` as `0x${string}`,
+              to: originCallParams.to as `0x${string}`,
+              data: originCallParams.data as `0x${string}`,
+              value: originCallParams.value
+                ? `0x${BigInt(originCallParams.value).toString(16)}`
+                : "0x0",
             })
-          }
 
-          // Add the origin call
-          calls.push({
-            to: originCallParams.to as `0x${string}`,
-            data: originCallParams.data as `0x${string}`,
-            value: originCallParams.value
-              ? `0x${BigInt(originCallParams.value).toString(16)}`
-              : "0x0",
-          })
+            // Send the batched call via EIP-7702
+            const result = (await walletClient.request({
+              method: "wallet_sendCalls",
+              params: [
+                {
+                  version: "2.0.0",
+                  chainId: `0x${originChainId.toString(16)}`,
+                  atomicRequired: true,
+                  calls,
+                },
+              ],
+            })) as { requestId: `0x${string}` }
 
-          // Send the batched call via EIP-7702
-          const result = (await walletClient.request({
-            method: "wallet_sendCalls",
-            params: [
-              {
-                version: "2.0.0",
-                chainId: `0x${originChainId.toString(16)}`,
-                atomicRequired: true,
-                calls,
-              },
-            ],
-          })) as { requestId: `0x${string}` }
+            console.log("sendCalls result", result)
+            const requestId = result.requestId || (result as any).id
 
-          console.log("sendCalls result", result)
-          const requestId = result.requestId || (result as any).id
+            // Poll to check if the tx has been submitted
+            let txHash: `0x${string}` | undefined
+            while (!txHash) {
+              const status = (await walletClient.request({
+                method: "wallet_getCallsStatus",
+                params: [requestId],
+              })) as {
+                status: "pending" | "submitted" | "failed"
+                transactionHash?: `0x${string}`
+                error?: string
+              }
 
-          // Poll to check if the tx has been submitted
-          let txHash: `0x${string}` | undefined
-          while (!txHash) {
-            const status = (await walletClient.request({
-              method: "wallet_getCallsStatus",
-              params: [requestId],
-            })) as {
-              status: "pending" | "submitted" | "failed"
-              transactionHash?: `0x${string}`
-              error?: string
+              console.log("getCallsStatus result", status)
+              const receipt = (status as any)?.receipts?.[0]
+
+              if ((status as any).status === 200 && receipt?.transactionHash) {
+                txHash = receipt.transactionHash
+                break
+              } else if ((status as any).status === 500) {
+                throw new Error(`Transaction failed: ${status.error}`)
+              }
+
+              // wait a bit before polling again
+              await new Promise((r) => setTimeout(r, 2000))
             }
 
-            console.log("getCallsStatus result", status)
-            const receipt = (status as any)?.receipts?.[0]
-
-            if ((status as any).status === 200 && receipt?.transactionHash) {
-              txHash = receipt.transactionHash
-              break
-            } else if ((status as any).status === 500) {
-              throw new Error(`Transaction failed: ${status.error}`)
+            if (onOriginSend) {
+              onOriginSend()
             }
 
-            // wait a bit before polling again
-            await new Promise((r) => setTimeout(r, 2000))
+            const receipt = await publicClient.waitForTransactionReceipt({
+              hash: txHash as `0x${string}`,
+            })
+            console.log("receipt", receipt)
+            originUserTxReceipt = receipt
           }
+        } else {
+          if (!dryMode) {
+            if (needsNativeFee) {
+              const tx0 = await sendOriginTransaction(account, walletClient, {
+                to: firstPreconditionAddress,
+                data: "0x00",
+                value: nativeFee,
+                chainId: originChainId,
+                chain,
+              } as any) // TODO: Add proper type
+              console.log("origin tx", tx0)
+              // Wait for transaction receipt
+              const feeReceipt = await publicClient.waitForTransactionReceipt({
+                hash: tx0,
+              })
+              console.log("nativeFeeReceipt", feeReceipt)
+            }
 
-          if (onOriginSend) {
-            onOriginSend()
-          }
+            const tx = await sendOriginTransaction(
+              account,
+              walletClient,
+              originCallParams as any,
+            ) // TODO: Add proper type
+            console.log("origin tx", tx)
 
-          const receipt = await publicClient.waitForTransactionReceipt({
-            hash: txHash as `0x${string}`,
-          })
-          console.log("receipt", receipt)
-          originUserTxReceipt = receipt
-        }
-      } else {
-        if (!dryMode) {
-          if (needsNativeFee) {
-            const tx0 = await sendOriginTransaction(account, walletClient, {
-              to: firstPreconditionAddress,
-              data: "0x00",
-              value: nativeFee,
-              chainId: originChainId,
-              chain,
-            } as any) // TODO: Add proper type
-            console.log("origin tx", tx0)
+            if (onOriginSend) {
+              onOriginSend()
+            }
+
             // Wait for transaction receipt
-            const feeReceipt = await publicClient.waitForTransactionReceipt({
-              hash: tx0,
+            const receipt = await publicClient.waitForTransactionReceipt({
+              hash: tx,
             })
-            console.log("nativeFeeReceipt", feeReceipt)
+            console.log("receipt", receipt)
+            originUserTxReceipt = receipt
           }
-
-          const tx = await sendOriginTransaction(
-            account,
-            walletClient,
-            originCallParams as any,
-          ) // TODO: Add proper type
-          console.log("origin tx", tx)
-
-          if (onOriginSend) {
-            onOriginSend()
-          }
-
-          // Wait for transaction receipt
-          const receipt = await publicClient.waitForTransactionReceipt({
-            hash: tx,
-          })
-          console.log("receipt", receipt)
-          originUserTxReceipt = receipt
         }
       }
 
@@ -2101,39 +2210,4 @@ export function getExplorerUrl(txHash: string, chainId: number) {
     }
   }
   return ""
-}
-
-async function attemptSwitchChain(
-  walletClient: WalletClient,
-  desiredChainId: number,
-): Promise<void> {
-  try {
-    // Check if the chain was switched successfully
-    let currentChainId = await walletClient.getChainId()
-    if (currentChainId === desiredChainId) {
-      console.log("Chain already switched to:", desiredChainId)
-      return
-    }
-
-    console.log(
-      "Switching to chain:",
-      desiredChainId,
-      "currentChainId",
-      currentChainId,
-    )
-    await walletClient.switchChain({ id: desiredChainId })
-
-    // Check if the chain was switched successfully
-    currentChainId = await walletClient.getChainId()
-    if (currentChainId !== desiredChainId) {
-      throw new Error("Failed to switch chain")
-    }
-
-    console.log("Chain switched to:", desiredChainId)
-  } catch (error: unknown) {
-    console.error("Chain switch failed:", error)
-    throw new Error(
-      `Failed to switch chain: ${error instanceof Error ? error.message : "Unknown error"}`,
-    )
-  }
 }

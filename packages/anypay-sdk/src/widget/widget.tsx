@@ -102,6 +102,7 @@ export type AnyPayWidgetProps = {
   privyAppId?: string
   privyClientId?: string
   useSourceTokenForButtonText?: boolean
+  paymasterUrl?: string
 }
 
 const queryClient = new QueryClient()
@@ -232,6 +233,57 @@ const useTransactionState = (
   }
 }
 
+// Mock SmartAccount type for now
+type SmartAccount = {
+  address: `0x${string}`
+  entryPoint: `0x${string}`
+  factory: `0x${string}`
+  salt: `0x${string}`
+}
+
+// Create a custom hook for smart account management
+const useSmartAccount = (
+  provider: any,
+  address: string | undefined,
+  chainId: number | undefined,
+  connector: any,
+) => {
+  const [smartAccount, setSmartAccount] = useState<SmartAccount | null>(null)
+
+  useEffect(() => {
+    const connect = async () => {
+      const activeProvider = provider || (await connector?.getProvider())
+
+      if (activeProvider && address && chainId) {
+        const chain = getChainConfig(chainId)
+        const client = createWalletClient({
+          account: address as `0x${string}`,
+          chain,
+          transport: custom(activeProvider),
+        })
+
+        try {
+          // Mock smart account implementation for now
+          // TODO: Replace with actual viem 7702 implementation when available
+          const smartAccountInstance: SmartAccount = {
+            address: address as `0x${string}`,
+            entryPoint: "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+            factory: "0x0000000000000000000000000000000000000000",
+            salt: "0x0000000000000000000000000000000000000000000000000000000000000000",
+          }
+          setSmartAccount(smartAccountInstance)
+        } catch (error) {
+          console.error("Failed to get smart account:", error)
+          setSmartAccount(null)
+        }
+      }
+    }
+    connect().catch(console.error)
+  }, [provider, address, chainId, connector])
+
+  return smartAccount
+}
+
 const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   sequenceApiKey,
   sequenceIndexerUrl,
@@ -249,6 +301,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   onOriginConfirmation,
   onDestinationConfirmation,
   useSourceTokenForButtonText,
+  paymasterUrl,
 }) => {
   const { address, isConnected, chainId, connector } = useAccount()
   const { disconnectAsync } = useDisconnect()
@@ -701,6 +754,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             onTransactionStateChange={handleTransactionStateChange}
             useSourceTokenForButtonText={useSourceTokenForButtonText}
             onError={handleSendError}
+            paymasterUrl={paymasterUrl}
           />
         ) : (
           <div
@@ -875,6 +929,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 }
 
 export const AnyPayWidget = (props: AnyPayWidgetProps) => {
+  console.log("AnyPayWidget props", props)
+
   const wagmiContext = useContext(WagmiContext)
   const wagmiConfig = React.useMemo(
     () =>

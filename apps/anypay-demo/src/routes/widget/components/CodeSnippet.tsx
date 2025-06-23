@@ -14,6 +14,7 @@ interface CodeSnippetProps {
   renderInline: boolean | null
   theme: string | null
   walletOptions: string[] | null
+  paymasterUrl: string
 }
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = ({
@@ -27,6 +28,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   renderInline,
   theme,
   walletOptions,
+  paymasterUrl,
 }) => {
   const [isCopied, setIsCopied] = useState(false)
   const [activeTab, setActiveTab] = useState<"react" | "script">("react")
@@ -56,6 +58,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
       toChainId && `toChainId={${toChainId}}`,
       toToken && `toToken="${toToken}"`,
       toCalldata && `toCalldata="${toCalldata}"`,
+      paymasterUrl && `paymasterUrl="${paymasterUrl}"`,
       renderInline !== null && `renderInline={${renderInline}}`,
       theme && `theme="${theme}"`,
       walletOptions && `walletOptions={${JSON.stringify(walletOptions)}}`,
@@ -90,6 +93,7 @@ export const App = () => {
       toChainId && `toChainId: ${toChainId}`,
       toToken && `toToken: '${toToken}'`,
       toCalldata && `toCalldata: '${toCalldata}'`,
+      paymasterUrl && `paymasterUrl: '${paymasterUrl}'`,
       renderInline !== null && `renderInline: ${renderInline}`,
       theme && `theme: '${theme}'`,
       walletOptions && `walletOptions: ${JSON.stringify(walletOptions)}`,

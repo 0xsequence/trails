@@ -22,6 +22,7 @@ export const Widget = () => {
   const [provider, setProvider] = useState<any>(null)
   const [theme, setTheme] = useState<string | null>(null)
   const [walletOptions, setWalletOptions] = useState<string[] | null>(null)
+  const [paymasterUrl, setPaymasterUrl] = useState("")
 
   const handleConnect = useCallback((provider: any) => {
     console.log("provider", provider)
@@ -79,6 +80,8 @@ export const Widget = () => {
               setTheme={setTheme}
               walletOptions={walletOptions}
               setWalletOptions={setWalletOptions}
+              paymasterUrl={paymasterUrl}
+              setPaymasterUrl={setPaymasterUrl}
             />
           </div>
 
@@ -94,6 +97,7 @@ export const Widget = () => {
               renderInline={renderInline}
               theme={theme}
               walletOptions={walletOptions}
+              paymasterUrl={paymasterUrl}
             >
               <div className="mt-6 w-full max-w-md mx-auto">
                 <AnyPayWidget
@@ -113,6 +117,7 @@ export const Widget = () => {
                   useSourceTokenForButtonText={true}
                   privyAppId={privyAppId}
                   privyClientId={privyClientId}
+                  paymasterUrl={paymasterUrl}
                 >
                   {useCustomButton ? (
                     <button className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-lg hover:from-green-600 hover:to-emerald-600 cursor-pointer transition duration-300">

@@ -62,6 +62,7 @@ interface SendFormProps {
     intentAddress?: string,
     originAmount?: string,
   ) => void
+  paymasterUrl?: string
 }
 
 // Available chains
@@ -218,6 +219,7 @@ export const SendForm: React.FC<SendFormProps> = ({
   useSourceTokenForButtonText = false,
   onError,
   onWaitingForWalletConfirm,
+  paymasterUrl,
 }) => {
   const [amount, setAmount] = useState(toAmount ?? "")
   const [recipientInput, setRecipientInput] = useState(toRecipient ?? "")
@@ -444,6 +446,7 @@ export const SendForm: React.FC<SendFormProps> = ({
         destinationTokenPriceUsd: destTokenPrices?.[0]?.price?.value ?? null,
         sourceTokenDecimals,
         destinationTokenDecimals,
+        paymasterUrl,
       }
 
       console.log("options", options)
