@@ -12,7 +12,14 @@ import {
 } from "@privy-io/wagmi"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { AnimatePresence, motion } from "motion/react"
-import React, { StrictMode, useContext, useEffect, useState } from "react"
+import React, {
+  StrictMode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
+import { createPortal } from "react-dom"
 import {
   createWalletClient,
   custom,
@@ -33,11 +40,18 @@ import Receipt from "./components/Receipt.js"
 import SendForm from "./components/SendForm.js"
 import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPending.js"
+import WalletConfirmation from "./components/WalletConfirmation.js"
 import "@0xsequence/design-system/preset"
 import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
-import "./index.css"
+import css from "./index.css?inline"
 
-type Screen = "connect" | "tokens" | "send" | "pending" | "receipt"
+type Screen =
+  | "connect"
+  | "tokens"
+  | "send"
+  | "wallet-confirmation"
+  | "pending"
+  | "receipt"
 export type Theme = "light" | "dark" | "auto"
 type ActiveTheme = "light" | "dark"
 
@@ -245,6 +259,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   )
   const [selectedToken, setSelectedToken] = useState<Token | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [intentAddress, setIntentAddress] = useState<string | null>(null)
+  const [fromAmount, setFromAmount] = useState<string | null>(null)
   const { connect } = useConnect()
   const {
     connectWallet: privyConnectWallet,
@@ -283,8 +299,10 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   // Clear error on screen change
   useEffect(() => {
     console.log("currentScreen", currentScreen)
-    setError(null)
-  }, [currentScreen])
+    if (error) {
+      setError(null)
+    }
+  }, [currentScreen, error])
 
   const indexerGatewayClient = useIndexerGatewayClient({
     indexerGatewayUrl: sequenceIndexerUrl,
@@ -420,6 +438,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     setDestinationTxHash("")
     setDestinationChainId(null)
     setTransactionStates([])
+    setIntentAddress(null)
+    setFromAmount(null)
   }
 
   const handleCloseModal = () => {
@@ -436,6 +456,9 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
       case "send":
         setCurrentScreen("tokens")
         setSelectedToken(null)
+        break
+      case "wallet-confirmation":
+        setCurrentScreen("send")
         break
       case "receipt":
         setCurrentScreen("tokens")
@@ -521,6 +544,29 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
         setTransactionStates([])
 
         break
+      case "wallet confirmation":
+        // Set dummy USDC token for debug mode
+        setSelectedToken({
+          id: 1,
+          name: "USD Coin",
+          symbol: "USDC",
+          balance: "1000000000",
+          imageUrl:
+            "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+          chainId: 1,
+          contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+          contractInfo: {
+            decimals: 6,
+            symbol: "USDC",
+            name: "USD Coin",
+          },
+        })
+
+        setCurrentScreen("wallet-confirmation")
+        setIntentAddress("0x5A0fb747531bC369367CB031472b89ea4D5c6Df7")
+        setFromAmount("1")
+        setTransactionStates([])
+        break
       case "pending":
         // Set dummy transaction states for debug mode - showing all steps
         setTransactionStates([
@@ -593,9 +639,22 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 
   const handleSendError = (error: Error) => {
     console.error("Error sending transaction", error)
-    if (currentScreen === "pending") {
+    console.log("currentScreen", currentScreen)
+    if (
+      currentScreen === "wallet-confirmation" ||
+      currentScreen === "pending"
+    ) {
       setError(error.message)
     }
+  }
+
+  const handleWaitingForWalletConfirm = (
+    intentAddress?: string,
+    originAmount?: string,
+  ) => {
+    setCurrentScreen("wallet-confirmation")
+    setIntentAddress(intentAddress ?? null)
+    setFromAmount(originAmount ?? null)
   }
 
   const renderScreenContent = () => {
@@ -624,6 +683,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
           <SendForm
             onSend={handleOnSend}
             onBack={handleBack}
+            onWaitingForWalletConfirm={handleWaitingForWalletConfirm}
             onConfirm={() => setCurrentScreen("pending")}
             onComplete={handleTransferComplete}
             selectedToken={selectedToken}
@@ -652,6 +712,18 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
           >
             Please connect wallet
           </div>
+        )
+      case "wallet-confirmation":
+        return (
+          <WalletConfirmation
+            onBack={handleBack}
+            error={error as string}
+            onComplete={() => setCurrentScreen("pending")}
+            theme={theme}
+            amount={fromAmount ?? undefined}
+            recipient={intentAddress ?? ""}
+            tokenSymbol={selectedToken?.symbol}
+          />
         )
       case "pending":
         return (
@@ -866,11 +938,38 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
   // If no parent Wagmi context, provide our own
   if (!wagmiContext) {
     // TODO
-    // return <StrictMode>{content}</StrictMode>
+    // return <ShadowPortal><StrictMode>{content}</StrictMode></ShadowPortal>
   }
 
   // Otherwise use parent context
-  return <StrictMode>{content}</StrictMode>
+  return (
+    <ShadowPortal>
+      <StrictMode>{content}</StrictMode>
+    </ShadowPortal>
+  )
+}
+
+export function ShadowPortal({ children }: { children: React.ReactNode }) {
+  const hostRef = useRef<HTMLDivElement>(null)
+  const [shadowRoot, setShadowRoot] = useState<ShadowRoot | null>(null)
+
+  useEffect(() => {
+    if (hostRef.current && !hostRef.current.shadowRoot) {
+      const shadow = hostRef.current.attachShadow({ mode: "open" })
+      setShadowRoot(shadow)
+
+      // Inject <style> tag with your widget's CSS
+      const styleTag = document.createElement("style")
+      styleTag.textContent = css
+      shadow.appendChild(styleTag)
+    }
+  }, [])
+
+  return (
+    <div ref={hostRef}>
+      {shadowRoot ? createPortal(children, shadowRoot) : null}
+    </div>
+  )
 }
 
 export default AnyPayWidget

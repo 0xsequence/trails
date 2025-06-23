@@ -4,6 +4,7 @@ import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import {
   type Account,
+  formatUnits,
   getAddress,
   isAddress,
   parseUnits,
@@ -57,6 +58,10 @@ interface SendFormProps {
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   useSourceTokenForButtonText?: boolean
   onError: (error: Error) => void
+  onWaitingForWalletConfirm: (
+    intentAddress?: string,
+    originAmount?: string,
+  ) => void
 }
 
 // Available chains
@@ -212,6 +217,7 @@ export const SendForm: React.FC<SendFormProps> = ({
   onTransactionStateChange,
   useSourceTokenForButtonText = false,
   onError,
+  onWaitingForWalletConfirm,
 }) => {
   const [amount, setAmount] = useState(toAmount ?? "")
   const [recipientInput, setRecipientInput] = useState(toRecipient ?? "")
@@ -442,7 +448,8 @@ export const SendForm: React.FC<SendFormProps> = ({
 
       console.log("options", options)
 
-      const { intentAddress, send } = await prepareSend(options)
+      const { intentAddress, originSendAmount, send } =
+        await prepareSend(options)
       console.log("Intent address:", intentAddress?.toString())
 
       function onOriginSend() {
@@ -452,6 +459,13 @@ export const SendForm: React.FC<SendFormProps> = ({
       }
 
       setIsWaitingForWalletConfirm(true)
+      onWaitingForWalletConfirm(
+        intentAddress?.toString(),
+        formatUnits(
+          originSendAmount,
+          selectedToken.contractInfo?.decimals ?? 18,
+        ),
+      )
       // Wait for full send to complete
       const {
         originUserTxReceipt,

@@ -1,7 +1,8 @@
 import type React from "react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { TransactionState } from "../../anypay.js"
 import { getExplorerUrl } from "../../anypay.js"
+import { GreenCheckAnimation } from "./GreenCheckAnimation.js"
 
 interface ReceiptProps {
   txHash?: string
@@ -16,48 +17,47 @@ interface ReceiptProps {
 export const Receipt: React.FC<ReceiptProps> = ({
   txHash,
   chainId,
-  onSendAnother,
   onClose,
   theme = "light",
   renderInline = false,
   transactionStates = [],
 }) => {
   const [showDetails, setShowDetails] = useState(false)
+  const [showContent, setShowContent] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowContent(true)
+    }, 400)
+
+    return () => clearTimeout(timer)
+  }, [])
 
   if (!txHash || !chainId) {
     return null
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col justify-center min-h-full space-y-6 pt-8">
       <div className="text-center">
-        <div
-          className={`mx-auto flex items-center justify-center h-12 w-12 rounded-full ${
-            theme === "dark" ? "bg-green-900/20" : "bg-green-100"
-          }`}
-        >
-          <svg
-            className={`h-6 w-6 ${theme === "dark" ? "text-green-400" : "text-green-600"}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
-          </svg>
+        <div className={`mx-auto flex items-center justify-center`}>
+          <GreenCheckAnimation />
         </div>
-        <h2
-          className={`mt-4 text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+
+        <div
+          className={`transition-all duration-500 ease-out ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
         >
-          Transaction Confirmed
-        </h2>
+          <h2
+            className={`mt-4 text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+          >
+            Transaction Confirmed
+          </h2>
+        </div>
       </div>
 
-      <div className="text-center">
+      <div
+        className={`text-center transition-all duration-500 ease-out delay-100 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+      >
         <a
           href={getExplorerUrl(txHash, chainId)}
           target="_blank"
@@ -87,17 +87,9 @@ export const Receipt: React.FC<ReceiptProps> = ({
         </a>
       </div>
 
-      <div className="space-y-3">
-        <button
-          onClick={onSendAnother}
-          className={`w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${
-            theme === "dark"
-              ? "bg-blue-600 hover:bg-blue-700 text-white"
-              : "bg-blue-500 hover:bg-blue-600 text-white"
-          }`}
-        >
-          Start Another Transaction
-        </button>
+      <div
+        className={`space-y-3 transition-all duration-500 ease-out delay-200 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+      >
         {!renderInline && (
           <button
             onClick={onClose}

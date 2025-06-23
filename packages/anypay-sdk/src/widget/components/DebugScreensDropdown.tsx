@@ -1,6 +1,6 @@
 import { ChevronDown } from "lucide-react"
 import type React from "react"
-import { useEffect, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { useQueryParams } from "../hooks/useQueryParams.js"
 
 interface DebugScreensDropdownProps {
@@ -8,7 +8,14 @@ interface DebugScreensDropdownProps {
   theme?: "light" | "dark"
 }
 
-const SCREENS = ["Connect", "Tokens", "Send", "Pending", "Receipt"] as const
+const SCREENS = [
+  "Connect",
+  "Tokens",
+  "Send",
+  "Wallet Confirmation",
+  "Pending",
+  "Receipt",
+] as const
 
 export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
   onScreenSelect,
@@ -19,23 +26,6 @@ export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
   const { hasParam } = useQueryParams()
 
   const shouldShow = hasParam("debug", "true")
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false)
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside)
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
 
   if (!shouldShow) {
     return null

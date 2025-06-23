@@ -4,9 +4,6 @@ import type React from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useQueryParams } from "../hooks/useQueryParams.js"
 
-// Constants for fee display
-const SHOW_FEE_DISPLAY = false
-
 // Simulated fee amounts and prices
 const FEE_AMOUNTS = {
   ETH: "0.00001",
