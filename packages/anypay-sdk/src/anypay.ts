@@ -802,7 +802,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         metaTxns &&
         metaTxns.length > 0 &&
         isAutoExecute &&
-        !metaTxns.some((tx) => sentMetaTxns[`${tx.chainId}-${tx.id}`])
+        !metaTxns.some((tx: MetaTxn) => sentMetaTxns[`${tx.chainId}-${tx.id}`])
       ) {
         console.log(
           "Origin transaction successful, auto-sending all meta transactions...",
@@ -961,7 +961,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
 
       // If no specific ID is selected, send all meta transactions
       const txnsToSend = selectedId
-        ? [metaTxns.find((tx) => tx.id === selectedId)]
+        ? [metaTxns.find((tx: MetaTxn) => tx.id === selectedId)]
         : metaTxns
 
       if (!txnsToSend || (selectedId && !txnsToSend[0])) {
@@ -998,7 +998,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
           }
 
           const relevantPreconditions = intentPreconditions.filter(
-            (p) => p.chainId && parseInt(p.chainId) === chainId,
+            (p: IntentPrecondition) =>
+              p.chainId && parseInt(p.chainId) === chainId,
           )
 
           console.log(
@@ -1217,10 +1218,12 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     }
     // Sort by a stable key (e.g., id) to ensure consistent order if metaTxns array order changes
     // but content is the same, though metaTxns itself is a dependency, so this might be redundant if metaTxns order is stable.
-    const sortedTxnIds = metaTxns.map((tx) => `${tx.chainId}-${tx.id}`).sort()
+    const sortedTxnIds = metaTxns
+      .map((tx: MetaTxn) => `${tx.chainId}-${tx.id}`)
+      .sort()
 
     return sortedTxnIds
-      .map((key) => {
+      .map((key: string) => {
         const statusObj = metaTxnMonitorStatuses[key]
         return `${key}:${statusObj ? statusObj.status : "loading"}`
       })
@@ -1250,7 +1253,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       return
     }
 
-    metaTxns.forEach(async (metaTxn) => {
+    metaTxns.forEach(async (metaTxn: MetaTxn) => {
       const operationKey = `${metaTxn.chainId}-${metaTxn.id}`
 
       // Skip if already processed
