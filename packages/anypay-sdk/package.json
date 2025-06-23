@@ -1,6 +1,6 @@
 {
   "name": "@0xsequence/anypay-sdk",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "SDK for Anypay functionality",
   "type": "module",
   "main": "./dist/index.js",
@@ -25,7 +25,9 @@
     "clean": "rimraf dist",
     "lint": "biome lint ./src",
     "lint:fix": "biome lint --write ./src",
-    "format": "biome format --write ./src"
+    "format": "biome format --write ./src",
+    "prepublishOnly": "node scripts/replace-workspace-versions.cjs",
+    "postpublish": "node scripts/restore-workspace-versions.cjs"
   },
   "keywords": [
     "anypay",
