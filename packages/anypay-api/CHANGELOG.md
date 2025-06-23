@@ -1,5 +1,11 @@
 # @0xsequence/anypay-api
 
+## 0.0.3
+
+### Patch Changes
+
+- CSS leak fix
+
 ## 0.0.2
 
 ### Patch Changes

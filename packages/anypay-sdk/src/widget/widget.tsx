@@ -1,4 +1,4 @@
-import { SequenceHooksProvider } from "@0xsequence/hooks"
+import { SequenceHooksContext, SequenceHooksProvider } from "@0xsequence/hooks"
 import {
   PrivyProvider,
   useLogin,
@@ -262,17 +262,17 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   const [intentAddress, setIntentAddress] = useState<string | null>(null)
   const [fromAmount, setFromAmount] = useState<string | null>(null)
   const { connect } = useConnect()
+
   const {
     connectWallet: privyConnectWallet,
     ready: privyReady,
     logout: privyLogout,
   } = usePrivy()
+
   const { login: loginPrivy } = useLogin()
   const { wallets: privyWallets } = usePrivyWallets()
   const { setActiveWallet: setPrivyActiveWallet } = useSetActiveWallet()
   const usePrivyLogin = true // Set to true to use Privy email login options
-
-  console.log("privyWallets", privyWallets, isConnected, address)
 
   const walletClient = useWalletManager(undefined, address, chainId, connector)
 
@@ -286,8 +286,6 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     setTransactionStates,
   } = useTransactionState(onOriginConfirmation, onDestinationConfirmation)
 
-  console.log("isConnected", isConnected, "address", address)
-
   // Update screen based on connection state
   useEffect(() => {
     if (isConnected) {
@@ -295,14 +293,6 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
       setCurrentScreen("tokens")
     }
   }, [isConnected])
-
-  // Clear error on screen change
-  useEffect(() => {
-    console.log("currentScreen", currentScreen)
-    if (error) {
-      setError(null)
-    }
-  }, [currentScreen, error])
 
   const indexerGatewayClient = useIndexerGatewayClient({
     indexerGatewayUrl: sequenceIndexerUrl,
@@ -876,6 +866,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 
 export const AnyPayWidget = (props: AnyPayWidgetProps) => {
   const wagmiContext = useContext(WagmiContext)
+  const sequenceHooksContext = useContext(SequenceHooksContext)
+
   const wagmiConfig = React.useMemo(
     () =>
       createConfig({
@@ -891,6 +883,10 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
     [],
   )
 
+  // Create the widget content without providers
+  const widgetContent = <WidgetInner {...props} />
+
+  // Create content with only the providers that don't exist in parent
   const content = (
     <QueryClientProvider client={queryClient}>
       <PrivyProvider
@@ -917,31 +913,42 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
           },
         }}
       >
-        <SequenceHooksProvider
-          config={{
-            projectAccessKey: props.sequenceApiKey,
-            env: {
-              indexerUrl: props.sequenceIndexerUrl,
-              indexerGatewayUrl: props.sequenceIndexerUrl,
-              apiUrl: props.sequenceApiUrl,
-            },
-          }}
-        >
-          <WagmiProvider config={wagmiConfig}>
-            <WidgetInner {...props} />
-          </WagmiProvider>
-        </SequenceHooksProvider>
+        {sequenceHooksContext ? (
+          // SequenceHooksProvider exists in parent, don't wrap
+          wagmiContext ? (
+            // Both providers exist in parent, just render widget
+            widgetContent
+          ) : (
+            // Only WagmiProvider missing, wrap with it
+            <WagmiProvider config={wagmiConfig}>{widgetContent}</WagmiProvider>
+          )
+        ) : (
+          // SequenceHooksProvider missing, wrap with it
+          <SequenceHooksProvider
+            config={{
+              projectAccessKey: props.sequenceApiKey,
+              env: {
+                indexerUrl: props.sequenceIndexerUrl,
+                indexerGatewayUrl: props.sequenceIndexerUrl,
+                apiUrl: props.sequenceApiUrl,
+              },
+            }}
+          >
+            {wagmiContext ? (
+              // WagmiProvider exists in parent, don't wrap
+              widgetContent
+            ) : (
+              // WagmiProvider missing, wrap with it
+              <WagmiProvider config={wagmiConfig}>
+                {widgetContent}
+              </WagmiProvider>
+            )}
+          </SequenceHooksProvider>
+        )}
       </PrivyProvider>
     </QueryClientProvider>
   )
 
-  // If no parent Wagmi context, provide our own
-  if (!wagmiContext) {
-    // TODO
-    // return <ShadowPortal><StrictMode>{content}</StrictMode></ShadowPortal>
-  }
-
-  // Otherwise use parent context
   return (
     <ShadowPortal>
       <StrictMode>{content}</StrictMode>
