@@ -1,5 +1,14 @@
 # @0xsequence/anypay-sdk
 
+## 0.0.4
+
+### Patch Changes
+
+- CSS leak fix
+- Updated dependencies
+  - @0xsequence/anypay-api@0.0.3
+  - @0xsequence/anypay-relayer@0.0.3
+
 ## 0.0.3
 
 ### Patch Changes
