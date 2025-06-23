@@ -183,11 +183,11 @@ importers:
   packages/anypay-sdk:
     dependencies:
       '@0xsequence/anypay-api':
-        specifier: ^0.0.0
-        version: 0.0.0
+        specifier: ^0.0.1
+        version: 0.0.1
       '@0xsequence/anypay-relayer':
-        specifier: ^0.0.0
-        version: 0.0.0
+        specifier: ^0.0.1
+        version: 0.0.1
       '@0xsequence/design-system':
         specifier: ^2.1.6
         version: 2.1.15(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(motion@12.18.1(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -322,11 +322,11 @@ packages:
     peerDependencies:
       ethers: '>=6'
 
-  '@0xsequence/anypay-api@0.0.0':
-    resolution: {integrity: sha512-gm3gm0jfbN5dG11VixMttMo6/nt4sw3wu/odEjqqTvkBJl77Ncn/t583mabxDLhruhLTF2kINobabIaclnFrmA==}
+  '@0xsequence/anypay-api@0.0.1':
+    resolution: {integrity: sha512-5BKPqq7nSpcMojYWp2B0Jffzmofksm+osrTNHJp3EHukPASghCpOGrehsrlFBvXoR4/G9Dpk9N7GzJRnn2vvTg==}
 
-  '@0xsequence/anypay-relayer@0.0.0':
-    resolution: {integrity: sha512-I8NvVKOtNJsJCgWK9OnX3icL/ZNLLGlGi5elCImASZaEhBrBpgSD5O7QmkGvQddHmMNeRsdv7WsEoKUgSDN8wg==}
+  '@0xsequence/anypay-relayer@0.0.1':
+    resolution: {integrity: sha512-22213OU6+6p66c0sG83O08FkFqmUIJ37BLOqKm3R7b+rJ872S/BWCylgB73DrTMClGLASS/xbP30XTiW4edQXQ==}
 
   '@0xsequence/api@2.3.17':
     resolution: {integrity: sha512-FC65y3VjIl7/stTK9Iy5804aqn0EUteBkYCW3ehbhksk7P46YyGPtNmaKMxTh7cHYuw1+Cmb0w7kffkyn2G3kw==}
@@ -5263,9 +5263,9 @@ snapshots:
       '@0xsequence/wallet': 2.3.17(ethers@6.14.4(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       ethers: 6.14.4(bufferutil@4.0.9)(utf-8-validate@5.0.10)
 
-  '@0xsequence/anypay-api@0.0.0': {}
+  '@0xsequence/anypay-api@0.0.1': {}
 
-  '@0xsequence/anypay-relayer@0.0.0': {}
+  '@0xsequence/anypay-relayer@0.0.1': {}
 
   '@0xsequence/api@2.3.17': {}
 
