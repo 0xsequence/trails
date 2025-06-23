@@ -94,11 +94,27 @@ export type UseAnyPayReturn = {
   committedIntentConfig: GetIntentConfigReturn | undefined
   isLoadingCommittedConfig: boolean
   committedConfigError: Error | null
-  commitIntentConfig: (args: any) => void // TODO: Add proper type
+  commitIntentConfig: (args: {
+    walletAddress: string
+    mainSigner: string
+    calls: IntentCallsPayload[]
+    preconditions: IntentPrecondition[]
+    anypayInfos: AnypayExecutionInfo[]
+    quoteProvider: "lifi" | "relay"
+  }) => void
   commitIntentConfigPending: boolean
   commitIntentConfigSuccess: boolean
   commitIntentConfigError: Error | null
-  commitIntentConfigArgs: any // TODO: Add proper type
+  commitIntentConfigArgs:
+    | {
+        walletAddress: string
+        mainSigner: string
+        calls: IntentCallsPayload[]
+        preconditions: IntentPrecondition[]
+        anypayInfos: AnypayExecutionInfo[]
+        quoteProvider: "lifi" | "relay"
+      }
+    | undefined
   getIntentCallsPayloads: (
     args: GetIntentCallsPayloadsArgs,
   ) => Promise<GetIntentCallsPayloadsReturn>
@@ -275,10 +291,11 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       calls: IntentCallsPayload[]
       preconditions: IntentPrecondition[]
       anypayInfos: AnypayExecutionInfo[]
-      quoteProvider?: "lifi" | "relay"
+      quoteProvider: "lifi" | "relay"
     }) => {
       if (!apiClient) throw new Error("API client not available")
       if (!args.anypayInfos) throw new Error("AnypayInfos not available")
+      if (!args.quoteProvider) throw new Error("quoteProvider is required")
 
       try {
         console.log("Calculating intent address...")
@@ -320,6 +337,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
           calls: args.calls,
           preconditions: args.preconditions,
           anypayInfos: args.anypayInfos,
+          sapientType: args.quoteProvider,
         })
         console.log("API Commit Response:", response)
         return { calculatedAddress: calculatedAddress.toString(), response }
@@ -929,6 +947,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       intentCallsPayloads &&
       intentPreconditions &&
       anypayInfos &&
+      anypayFee &&
       account.address &&
       calculatedIntentAddress &&
       !commitIntentConfigMutation.isPending &&
@@ -941,20 +960,20 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         calls: intentCallsPayloads,
         preconditions: intentPreconditions,
         anypayInfos: anypayInfos,
-        quoteProvider: anypayFee?.quoteProvider as "lifi" | "relay",
+        quoteProvider: anypayFee.quoteProvider as "lifi" | "relay",
       })
     }
   }, [
     isAutoExecute,
     intentCallsPayloads,
     intentPreconditions,
-    anypayInfos, // Add executionInfos dependency
+    anypayInfos,
+    anypayFee,
     account.address,
     calculatedIntentAddress,
     commitIntentConfigMutation,
     commitIntentConfigMutation.isPending,
     commitIntentConfigMutation.isSuccess,
-    anypayFee,
   ])
 
   // Update the sendMetaTxn mutation
@@ -970,11 +989,15 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         throw new Error("Missing required data for meta-transaction")
       }
 
+      if (!anypayFee?.quoteProvider) {
+        throw new Error("quoteProvider is required")
+      }
+
       const intentAddress = calculateIntentAddress(
         account.address,
         intentCallsPayloads as any[],
         anypayInfos as any[],
-        anypayFee?.quoteProvider as "lifi" | "relay",
+        anypayFee.quoteProvider as "lifi" | "relay",
       ) // TODO: Add proper type
 
       // If no specific ID is selected, send all meta transactions
@@ -1378,7 +1401,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
     anypayInfos: AnypayExecutionInfo[]
-    quoteProvider?: "lifi" | "relay"
+    quoteProvider: "lifi" | "relay"
   }) {
     console.log("commitIntentConfig", args)
     commitIntentConfigMutation.mutate(args)
@@ -2024,7 +2047,7 @@ export async function prepareSend(options: SendOptions) {
           Number(metaTx.chainId),
         )
         console.log("status", receipt)
-        if (receipt.transactionHash) {
+        if (receipt?.transactionHash) {
           originMetaTxnReceipt = receipt.data?.receipt
           break
         }

@@ -579,6 +579,7 @@ export const HomeIndexRoute = () => {
             intentCallsPayloads={intentCallsPayloads}
             intentPreconditions={intentPreconditions}
             anypayInfos={anypayInfos}
+            anypayFee={anypayFee}
             verificationStatus={verificationStatus}
             commitIntentConfigError={commitIntentConfigError}
             commitIntentConfigSuccess={commitIntentConfigSuccess}

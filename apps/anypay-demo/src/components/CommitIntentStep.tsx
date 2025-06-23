@@ -4,6 +4,7 @@ import type {
   IntentCallsPayload,
   IntentPrecondition,
 } from "@0xsequence/anypay-api"
+import type { AnypayFee } from "@0xsequence/anypay-sdk"
 import { Button, Text } from "@0xsequence/design-system"
 import { AlertCircle, Loader2, Zap } from "lucide-react"
 import type React from "react"
@@ -13,6 +14,7 @@ interface CommitIntentStepProps {
   intentCallsPayloads: IntentCallsPayload[] | null
   intentPreconditions: IntentPrecondition[] | null
   anypayInfos: AnypayExecutionInfo[] | null
+  anypayFee: AnypayFee | null
   verificationStatus: {
     success: boolean
     receivedAddress?: string
@@ -25,11 +27,12 @@ interface CommitIntentStepProps {
   committedConfigError: Error | null
   committedIntentConfigData: GetIntentConfigReturn | undefined
   commitIntentConfig: (args: {
-    walletAddress: string | null
+    walletAddress: string
     mainSigner: string
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
     anypayInfos: AnypayExecutionInfo[]
+    quoteProvider: "lifi" | "relay"
   }) => void
   isCommitButtonDisabled: boolean
   commitButtonText: React.ReactNode
@@ -41,6 +44,7 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
   intentCallsPayloads,
   intentPreconditions,
   anypayInfos,
+  anypayFee,
   verificationStatus,
   commitIntentConfigError,
   commitIntentConfigSuccess,
@@ -196,7 +200,9 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   !accountAddress ||
                   !intentCallsPayloads ||
                   !intentPreconditions ||
-                  !anypayInfos
+                  !anypayInfos ||
+                  !calculatedIntentAddress ||
+                  !anypayFee
                 )
                   return
                 commitIntentConfig({
@@ -205,6 +211,7 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   calls: intentCallsPayloads,
                   preconditions: intentPreconditions,
                   anypayInfos: anypayInfos,
+                  quoteProvider: anypayFee.quoteProvider as "lifi" | "relay",
                 })
               }}
               disabled={isCommitButtonDisabled}
