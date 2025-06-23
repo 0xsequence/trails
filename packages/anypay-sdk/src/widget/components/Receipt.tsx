@@ -1,5 +1,5 @@
-import type React from "react"
-import { useState } from "react"
+// biome-ignore lint/style/useImportType: False positive
+import React, { useState } from "react"
 import type { TransactionState } from "../../anypay.js"
 import { getExplorerUrl } from "../../anypay.js"
 

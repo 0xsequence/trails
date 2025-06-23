@@ -48,7 +48,8 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
     let isMetaMask = false
     try {
       if (walletId === "injected") {
-        isMetaMask = !!window.ethereum?.isMetaMask
+        isMetaMask =
+          typeof window !== "undefined" && !!window.ethereum?.isMetaMask
       }
     } catch (error) {
       console.error("Failed to check if MetaMask is installed:", error)

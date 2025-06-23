@@ -1,11 +1,11 @@
 import { TokenImage } from "@0xsequence/design-system"
 import { ChevronDown } from "lucide-react"
-import type React from "react"
-import { useEffect, useMemo, useRef, useState } from "react"
+// biome-ignore lint/style/useImportType: False positive
+import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useQueryParams } from "../hooks/useQueryParams.js"
 
 // Constants for fee display
-const SHOW_FEE_DISPLAY = false
+const _SHOW_FEE_DISPLAY = false
 
 // Simulated fee amounts and prices
 const FEE_AMOUNTS = {
