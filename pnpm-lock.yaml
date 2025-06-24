@@ -212,9 +212,6 @@ importers:
       '@privy-io/wagmi':
         specifier: ^1.0.4
         version: 1.0.4(@privy-io/react-auth@2.16.0(@solana/web3.js@1.98.2(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.8.3)(utf-8-validate@5.0.10))(@types/react@19.1.8)(bs58@6.0.0)(bufferutil@4.0.9)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(use-sync-external-store@1.5.0(react@19.1.0))(utf-8-validate@5.0.10)(zod@3.25.67))(react@19.1.0)(viem@2.31.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(wagmi@2.15.6(@tanstack/query-core@5.81.2)(@tanstack/react-query@5.81.2(react@19.1.0))(@types/react@19.1.8)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.31.3(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(zod@3.25.67))
-      '@reown/appkit-common':
-        specifier: ^1.7.10
-        version: 1.7.10(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67)
       '@tanstack/react-query':
         specifier: ^5.80.10
         version: 5.81.2(react@19.1.0)
