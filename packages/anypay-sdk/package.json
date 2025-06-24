@@ -1,6 +1,6 @@
 {
   "name": "@0xsequence/anypay-sdk",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "SDK for Anypay functionality",
   "type": "module",
   "main": "./dist/index.js",
@@ -18,14 +18,16 @@
     "build": "npm run build:react && npm run build:umd && npm run build:copy-js && npm run build:ts",
     "build:react": "vite build --config vite.config.ts && tsc -p tsconfig.build.json",
     "build:umd": "BUILD_MODE=umd vite build --config vite.umd.config.ts",
-    "build:copy-js": "cp ./dist/umd/anypay.min.js ../../apps/anypay-demo/public/js/anypay.min.js",
+    "build:copy-js": "mkdir -p ../../apps/anypay-demo/public/js && cp ./dist/umd/anypay.min.js ../../apps/anypay-demo/public/js/anypay.min.js",
     "build:ts": "tsc -p tsconfig.json",
     "dev": "tsc --watch",
     "test": "vitest",
     "clean": "rimraf dist",
     "lint": "biome lint ./src",
     "lint:fix": "biome lint --write ./src",
-    "format": "biome format --write ./src"
+    "format": "biome format --write ./src",
+    "prepublishOnly": "node scripts/replace-workspace-versions.cjs",
+    "postpublish": "node scripts/restore-workspace-versions.cjs"
   },
   "keywords": [
     "anypay",

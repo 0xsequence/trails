@@ -201,7 +201,7 @@ export function useTokenBalances(
         const tokensWithPrices = balances.map((token) => {
           const isNative = isNativeToken(token)
           const priceData = tokenPrices.find(
-            (p) =>
+            (p: { token: { contractAddress: string; chainId: number } }) =>
               p.token.contractAddress ===
                 (isNative ? zeroAddress : token.contractAddress) &&
               p.token.chainId ===

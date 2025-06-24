@@ -89,7 +89,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
             )}
           </div>
         </div>
-        <div className="absolute top-full pt-2 left-1/2 -translate-x-1/2">
+        <div className="mt-2 flex justify-center">
           <div className={labelClasses}>
             {getStepLabel(index, transactionStates.length)}
             {!isPending && !isAfterPending && (
@@ -135,9 +135,9 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
                   : index >= activePendingIndex
                     ? "bg-gray-300"
                     : "bg-gray-400"
-              } ${isActiveDots ? "animate-[fadeInOut_1.5s_ease-in-out_infinite]" : ""}`}
+              } ${isActiveDots ? "animate-[dotFadeIn_1.5s_ease-in-out_infinite]" : ""}`}
               style={{
-                animationDelay: isActiveDots ? `${i * 0.3}s` : "0s",
+                animationDelay: isActiveDots ? `${i * 0.2}s` : "0s",
               }}
             />
           ))}
@@ -150,10 +150,10 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
     <>
       <style>
         {`
-          @keyframes fadeInOut {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
+          @keyframes dotFadeIn {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.3; transform: scale(0.8); }
           }
           @keyframes pulseRing {
             0% { transform: scale(0.7); opacity: 0; }
@@ -174,9 +174,10 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
           className={`animate-spin rounded-full h-16 w-16 border-b-2 ${
             theme === "dark" ? "border-blue-400" : "border-blue-500"
           }`}
+          style={{ borderBottomWidth: "2px" }}
         />
 
-        <div className="w-full max-w-2xl px-8">
+        <div className="w-full max-w-2xl">
           <div className="relative flex items-center justify-center pb-8">
             <div
               className={`flex items-center ${
