@@ -746,6 +746,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
   })
 
   // Modify the effect that watches for transaction status
+  // biome-ignore lint/correctness/useExhaustiveDependencies: False positive
   useEffect(() => {
     if (!txnHash) {
       // Only reset these when txnHash is cleared
