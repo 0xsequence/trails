@@ -23,6 +23,7 @@ import {
   type TransactionReceipt,
   type WalletClient,
   zeroAddress,
+  type PublicClient
 } from "viem"
 import * as chains from "viem/chains"
 import {
@@ -56,9 +57,11 @@ import {
 import { getBackupRelayer, useRelayers } from "./relayer.js"
 import { getChainInfo } from "./tokenBalances.js"
 import { requestWithTimeout } from "./utils.js"
-import { runGasless7702Flow } from "./gasless.js"
+import { getPermitSignature, getPermitCalls, runGasless7702Flow } from "./gasless.js"
 import { baseSepolia } from "viem/chains"
 import { attemptSwitchChain } from "./chainSwitch.js"
+import { simpleCreateSequenceWallet, sequenceSendTransaction } from "./sequenceWallet.js"
+import { getQueryParam } from "./queryParams.js"
 
 export type Account = {
   address: `0x${string}`
@@ -1552,6 +1555,9 @@ export async function prepareSend(options: SendOptions) {
     transport: http(),
   })
 
+  const testnet = getQueryParam('testnet') === 'true'
+  const testnetOriginTokenAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+
   const mainSigner = account.address
 
   const _destinationCalldata =
@@ -1843,27 +1849,76 @@ export async function prepareSend(options: SendOptions) {
       let originMetaTxnReceipt: any = null // TODO: Add proper type
       let destinationMetaTxnReceipt: any = null // TODO: Add proper type
 
-      const doGasless = originTokenAddress !== zeroAddress && paymasterUrl
+      const doGasless = originTokenAddress !== zeroAddress
       if (doGasless) {
-        const testnet = true
-        const txHash = await runGasless7702Flow(
-          testnet ? baseSepolia : chain,
-          testnet
-            ? "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
-            : (originTokenAddress as `0x${string}`),
-          BigInt(firstPreconditionMin),
-          intentAddress as `0x${string}`,
-          paymasterUrl,
-        )
-        if (onOriginSend) {
-          onOriginSend()
+        if (paymasterUrl) {
+          const txHash = await runGasless7702Flow(
+            testnet ? baseSepolia : chain,
+            testnet
+              ? testnetOriginTokenAddress
+              : (originTokenAddress as `0x${string}`),
+            BigInt(firstPreconditionMin),
+            intentAddress as `0x${string}`,
+            paymasterUrl,
+          )
+          if (onOriginSend) {
+            onOriginSend()
+          }
+  
+          const receipt = await publicClient.waitForTransactionReceipt({
+            hash: txHash as `0x${string}`,
+          })
+          console.log("receipt", receipt)
+          originUserTxReceipt = receipt
+        } else {
+          const sequenceWalletAddress = await simpleCreateSequenceWallet(
+            publicClient,
+            account as any,
+          )
+          console.log("sequenceWalletAddress", sequenceWalletAddress)
+        
+          // Initialize clients
+          const sequencePublicClient = createPublicClient({
+            chain: testnet ? baseSepolia : chain,
+            transport: http(),
+          })
+        
+          const { signature, deadline } = await getPermitSignature(
+            sequencePublicClient as PublicClient,
+            account.address,
+            sequenceWalletAddress,
+            testnet ? testnetOriginTokenAddress : originTokenAddress as `0x${string}`,
+            BigInt(originTokenAmount)
+          )
+        
+          const calls = getPermitCalls(
+            account.address,
+            sequenceWalletAddress,
+            BigInt(originTokenAmount),
+            deadline,
+            signature,
+            intentAddress as `0x${string}`,
+            testnet ? testnetOriginTokenAddress : originTokenAddress as `0x${string}`,
+         )
+        
+          const sequenceTxHash = await sequenceSendTransaction(
+            sequenceWalletAddress,
+            walletClient,
+            sequencePublicClient as PublicClient,
+            calls,
+            testnet ? baseSepolia : chain,
+          )
+          console.log("sequenceTxHash", sequenceTxHash)
+          if (onOriginSend) {
+            onOriginSend()
+          }
+  
+          const receipt = await publicClient.waitForTransactionReceipt({
+            hash: sequenceTxHash as `0x${string}`,
+          })
+          console.log("receipt", receipt)
+          originUserTxReceipt = receipt
         }
-
-        const receipt = await publicClient.waitForTransactionReceipt({
-          hash: txHash as `0x${string}`,
-        })
-        console.log("receipt", receipt)
-        originUserTxReceipt = receipt
       } else {
         // ETH fee required by some bridges for low token amounts
         // TODO: update backend API to return the native fee requirement, if any

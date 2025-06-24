@@ -443,7 +443,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 
   const getAvailableWallets = (): WalletOption[] => {
     const requestedWallets = walletOptions || defaultWalletOptions
-    return requestedWallets
+    const availableWallets = requestedWallets
       .filter((id) => WALLET_CONFIGS[id as keyof typeof WALLET_CONFIGS])
       .map((id) => {
         const config = WALLET_CONFIGS[id as keyof typeof WALLET_CONFIGS]
@@ -454,6 +454,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
         }
       })
       .filter(Boolean)
+
+    return availableWallets
   }
 
   const handleTokenSelect = (token: Token) => {
@@ -919,8 +921,6 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 }
 
 export const AnyPayWidget = (props: AnyPayWidgetProps) => {
-  console.log("AnyPayWidget props", props)
-
   const wagmiContext = useContext(WagmiContext)
   const sequenceHooksContext = useContext(SequenceHooksContext)
 

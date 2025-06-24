@@ -1,7 +1,7 @@
 import { ChevronDown } from "lucide-react"
 import type React from "react"
 import { useRef, useState } from "react"
-import { useQueryParams } from "../hooks/useQueryParams.js"
+import { useQueryParams } from "../../queryParams.js"
 
 interface DebugScreensDropdownProps {
   onScreenSelect: (screen: string) => void
