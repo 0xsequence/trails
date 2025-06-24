@@ -573,7 +573,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                 )}
                 {anypayFee.anypayFixedFeeUSD && (
                   <div className="text-xs font-semibold text-white flex items-center">
-                    Fixed Fee ($0.01 for each meta-tx):
+                    Fixed Fee ($0.01):
                     <span className="font-mono text-yellow-300 ml-2 text-xs font-medium bg-gray-900/50 px-2 py-1 rounded-md border border-gray-700/50">
                       {anypayFee.anypayFixedFeeUSD}
                     </span>
@@ -588,10 +588,10 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                     <div className="space-y-1 text-sm pl-2">
                       <p>
                         <span className="font-medium text-gray-400">
-                          LIFI Fee:
+                          Provider Fee:
                         </span>{" "}
                         $
-                        {anypayFee.crossChainFee.lifiFeeUSD.toLocaleString(
+                        {anypayFee.crossChainFee.providerFeeUSD.toLocaleString(
                           undefined,
                           {
                             minimumFractionDigits: 2,

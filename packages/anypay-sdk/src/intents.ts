@@ -60,9 +60,9 @@ export interface ExecuteQuote {
 }
 
 export interface CrossChainFee {
-  lifiFee: string
+  providerFee: string
   anypaySwapFee: string
-  lifiFeeUSD: number
+  providerFeeUSD: number
   anypaySwapFeeUSD: number
   totalFeeAmount: string
   totalFeeUSD: number
