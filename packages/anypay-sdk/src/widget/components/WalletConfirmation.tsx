@@ -87,7 +87,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
                 <span
                   className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
                 >
-                  To:
+                  To (Intent):
                 </span>
                 <span
                   className={`font-mono text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}

@@ -238,17 +238,23 @@ export async function runGasless7702Flow(
     console.log("Transfer amount:", amount.toString())
 
     const { signature, deadline } = await getPermitSignature(
-        publicClient,
-        connectedAccount,
-        delegatorSmartAccount.address,
-        tokenAddress,
-        amount
+      publicClient,
+      connectedAccount,
+      delegatorSmartAccount.address,
+      tokenAddress,
+      amount,
     )
 
     console.log("Received signature:", signature)
 
     // Encode permit call
-    const permitCalldata = getPermitCalldata(connectedAccount, delegatorSmartAccount.address, amount, deadline, signature)
+    const permitCalldata = getPermitCalldata(
+      connectedAccount,
+      delegatorSmartAccount.address,
+      amount,
+      deadline,
+      signature,
+    )
 
     console.log("delegatorSmartAccount.address", delegatorSmartAccount.address)
 
@@ -279,7 +285,11 @@ export async function runGasless7702Flow(
     // console.log('Prefund receipt:', prefundReceipt);
 
     // Encode transferFrom call
-    const transferFromCalldata = getTransferFromCalldata(connectedAccount, delegatorSmartAccount.address, amount)
+    const transferFromCalldata = getTransferFromCalldata(
+      connectedAccount,
+      delegatorSmartAccount.address,
+      amount,
+    )
 
     // Encode transfer call to recipient
     const transferCalldata = getTransferCalldata(recipient, amount)
@@ -493,175 +503,189 @@ export const getRequiredPrefund = (userOperation: UserOperation) => {
   return requiredGas * op.maxFeePerGas
 }
 
-export function getPermitCalldata(connectedAccount: `0x${string}`, spender: `0x${string}`, amount: bigint, deadline: bigint, signature: `0x${string}`) {
-    // Split signature into v, r, s
-    const sig = signature.slice(2)
-    const r = `0x${sig.slice(0, 64)}` as `0x${string}`
-    const s = `0x${sig.slice(64, 128)}` as `0x${string}`
-    const v = parseInt(sig.slice(128, 130), 16)
-    console.log("Split signature:", { r, s, v })
+export function getPermitCalldata(
+  connectedAccount: `0x${string}`,
+  spender: `0x${string}`,
+  amount: bigint,
+  deadline: bigint,
+  signature: `0x${string}`,
+) {
+  // Split signature into v, r, s
+  const sig = signature.slice(2)
+  const r = `0x${sig.slice(0, 64)}` as `0x${string}`
+  const s = `0x${sig.slice(64, 128)}` as `0x${string}`
+  const v = parseInt(sig.slice(128, 130), 16)
+  console.log("Split signature:", { r, s, v })
 
-    // Encode permit call
-    const permitCalldata = encodeFunctionData({
+  // Encode permit call
+  const permitCalldata = encodeFunctionData({
     abi: [PERMIT_ABI],
     functionName: "permit",
-    args: [
-        connectedAccount,
-        spender,
-        amount,
-        deadline,
-        v,
-        r,
-        s,
-    ],
-    })
+    args: [connectedAccount, spender, amount, deadline, v, r, s],
+  })
 
-    return permitCalldata
+  return permitCalldata
 }
 
-export function getTransferFromCalldata(connectedAccount: `0x${string}`, spender: `0x${string}`, amount: bigint) {
-    // Encode transferFrom call
-    const transferFromCalldata = encodeFunctionData({
-        abi: [TRANSFER_FROM_ABI],
-        functionName: "transferFrom",
-        args: [connectedAccount, spender, amount],
-    })
+export function getTransferFromCalldata(
+  connectedAccount: `0x${string}`,
+  spender: `0x${string}`,
+  amount: bigint,
+) {
+  // Encode transferFrom call
+  const transferFromCalldata = encodeFunctionData({
+    abi: [TRANSFER_FROM_ABI],
+    functionName: "transferFrom",
+    args: [connectedAccount, spender, amount],
+  })
 
-    return transferFromCalldata
+  return transferFromCalldata
 }
 
 export function getTransferCalldata(recipient: `0x${string}`, amount: bigint) {
-      // Encode transfer call to recipient
-      const transferCalldata = encodeFunctionData({
-        abi: [TRANSFER_ABI],
-        functionName: "transfer",
-        args: [recipient, amount],
-      })
+  // Encode transfer call to recipient
+  const transferCalldata = encodeFunctionData({
+    abi: [TRANSFER_ABI],
+    functionName: "transfer",
+    args: [recipient, amount],
+  })
 
-      return transferCalldata
+  return transferCalldata
 }
 
 export function getPermitCalls(
-    connectedAccount: `0x${string}`,
-    delegatorSmartAccountAddress: `0x${string}`,
-    amount: bigint,
-    deadline: bigint,
-    signature: `0x${string}`,
-    recipient: `0x${string}`,
-    tokenAddress: `0x${string}`,
+  connectedAccount: `0x${string}`,
+  delegatorSmartAccountAddress: `0x${string}`,
+  amount: bigint,
+  deadline: bigint,
+  signature: `0x${string}`,
+  recipient: `0x${string}`,
+  tokenAddress: `0x${string}`,
 ) {
-    const permitCalldata = getPermitCalldata(connectedAccount, delegatorSmartAccountAddress, amount, deadline, signature)
-    const transferFromCalldata = getTransferFromCalldata(connectedAccount, delegatorSmartAccountAddress, amount)
-    const transferCalldata = getTransferCalldata(recipient, amount)
+  const permitCalldata = getPermitCalldata(
+    connectedAccount,
+    delegatorSmartAccountAddress,
+    amount,
+    deadline,
+    signature,
+  )
+  const transferFromCalldata = getTransferFromCalldata(
+    connectedAccount,
+    delegatorSmartAccountAddress,
+    amount,
+  )
+  const transferCalldata = getTransferCalldata(recipient, amount)
 
-    return [permitCalldata, transferFromCalldata, transferCalldata].map(call => ({
-        to: tokenAddress,
-        data: call,
-        value: '0',
-    }))
+  return [permitCalldata, transferFromCalldata, transferCalldata].map(
+    (call) => ({
+      to: tokenAddress,
+      data: call,
+      value: "0",
+    }),
+  )
 }
 
 export async function getPermitSignature(
-    publicClient: PublicClient,
-    connectedAccount: `0x${string}`,
-    delegatorSmartAccountAddress: `0x${string}`,
-    tokenAddress: `0x${string}`,
-    amount: bigint
+  publicClient: PublicClient,
+  connectedAccount: `0x${string}`,
+  delegatorSmartAccountAddress: `0x${string}`,
+  tokenAddress: `0x${string}`,
+  amount: bigint,
 ) {
-    // Get permit signature from connected account
-    const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600) // 1 hour from now
-    const nonce = await publicClient.readContract({
-        address: tokenAddress as `0x${string}`,
-        abi: [
-        {
-            name: "nonces",
-            type: "function",
-            stateMutability: "view",
-            inputs: [{ name: "owner", type: "address" }],
-            outputs: [{ name: "", type: "uint256" }],
-        },
-        ],
-        functionName: "nonces",
-        args: [connectedAccount],
-    })
+  // Get permit signature from connected account
+  const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600) // 1 hour from now
+  const nonce = await publicClient.readContract({
+    address: tokenAddress as `0x${string}`,
+    abi: [
+      {
+        name: "nonces",
+        type: "function",
+        stateMutability: "view",
+        inputs: [{ name: "owner", type: "address" }],
+        outputs: [{ name: "", type: "uint256" }],
+      },
+    ],
+    functionName: "nonces",
+    args: [connectedAccount],
+  })
 
-    console.log("Nonce:", nonce.toString())
+  console.log("Nonce:", nonce.toString())
 
-    const name = (await publicClient.readContract({
-        address: tokenAddress as `0x${string}`,
-        abi: [
+  const name = (await publicClient.readContract({
+    address: tokenAddress as `0x${string}`,
+    abi: [
+      {
+        name: "name",
+        type: "function",
+        stateMutability: "view",
+        inputs: [],
+        outputs: [{ name: "", type: "string" }],
+      },
+    ],
+    functionName: "name",
+  })) as string
+
+  let version = "1" // fallback default
+  try {
+    version = (await publicClient.readContract({
+      address: tokenAddress as `0x${string}`,
+      abi: [
         {
-            name: "name",
-            type: "function",
-            stateMutability: "view",
-            inputs: [],
-            outputs: [{ name: "", type: "string" }],
+          name: "version",
+          type: "function",
+          stateMutability: "view",
+          inputs: [],
+          outputs: [{ name: "", type: "string" }],
         },
-        ],
-        functionName: "name",
+      ],
+      functionName: "version",
     })) as string
+  } catch {
+    console.warn('Token does not implement version(), defaulting to "1"')
+  }
 
-    let version = "1" // fallback default
-    try {
-        version = (await publicClient.readContract({
-        address: tokenAddress as `0x${string}`,
-        abi: [
-            {
-            name: "version",
-            type: "function",
-            stateMutability: "view",
-            inputs: [],
-            outputs: [{ name: "", type: "string" }],
-            },
-        ],
-        functionName: "version",
-        })) as string
-    } catch {
-        console.warn('Token does not implement version(), defaulting to "1"')
-    }
+  const domain = {
+    name,
+    version,
+    chainId: chain.id,
+    verifyingContract: tokenAddress as `0x${string}`,
+  }
 
-    const domain = {
-        name,
-        version,
-        chainId: chain.id,
-        verifyingContract: tokenAddress as `0x${string}`,
-    }
+  const types = {
+    Permit: [
+      { name: "owner", type: "address" },
+      { name: "spender", type: "address" },
+      { name: "value", type: "uint256" },
+      { name: "nonce", type: "uint256" },
+      { name: "deadline", type: "uint256" },
+    ],
+  }
 
-    const types = {
-        Permit: [
-        { name: "owner", type: "address" },
-        { name: "spender", type: "address" },
-        { name: "value", type: "uint256" },
-        { name: "nonce", type: "uint256" },
-        { name: "deadline", type: "uint256" },
-        ],
-    }
+  // Create permit data
+  const permitData = {
+    owner: connectedAccount,
+    spender: delegatorSmartAccountAddress,
+    value: amount,
+    nonce: nonce,
+    deadline: deadline,
+  }
 
-    // Create permit data
-    const permitData = {
-        owner: connectedAccount,
-        spender: delegatorSmartAccountAddress,
-        value: amount,
-        nonce: nonce,
-        deadline: deadline,
-    }
+  const walletClient = createWalletClient({
+    account: connectedAccount,
+    chain,
+    transport: custom(window.ethereum),
+  })
 
-    const walletClient = createWalletClient({
-        account: connectedAccount,
-        chain,
-        transport: custom(window.ethereum),
-    })
+  await attemptSwitchChain(walletClient, chain.id)
 
-    await attemptSwitchChain(walletClient, chain.id)
+  console.log("Requesting permit signature...")
 
-    console.log("Requesting permit signature...")
+  const signature = await walletClient.signTypedData({
+    domain,
+    types,
+    primaryType: "Permit",
+    message: permitData,
+  })
 
-    const signature = await walletClient.signTypedData({
-        domain,
-        types,
-        primaryType: "Permit",
-        message: permitData,
-    })
-
-    return { signature, deadline }
+  return { signature, deadline }
 }

@@ -23,7 +23,7 @@ import {
   type TransactionReceipt,
   type WalletClient,
   zeroAddress,
-  type PublicClient
+  type PublicClient,
 } from "viem"
 import * as chains from "viem/chains"
 import {
@@ -57,10 +57,17 @@ import {
 import { getBackupRelayer, useRelayers } from "./relayer.js"
 import { getChainInfo } from "./tokenBalances.js"
 import { requestWithTimeout } from "./utils.js"
-import { getPermitSignature, getPermitCalls, runGasless7702Flow } from "./gasless.js"
+import {
+  getPermitSignature,
+  getPermitCalls,
+  runGasless7702Flow,
+} from "./gasless.js"
 import { baseSepolia } from "viem/chains"
 import { attemptSwitchChain } from "./chainSwitch.js"
-import { simpleCreateSequenceWallet, sequenceSendTransaction } from "./sequenceWallet.js"
+import {
+  simpleCreateSequenceWallet,
+  sequenceSendTransaction,
+} from "./sequenceWallet.js"
 import { getQueryParam } from "./queryParams.js"
 
 export type Account = {
@@ -1507,6 +1514,7 @@ export type SendOptions = {
   sourceTokenDecimals: number
   destinationTokenDecimals: number
   paymasterUrl?: string
+  gasless?: boolean
 }
 
 export type SendReturn = {
@@ -1540,6 +1548,7 @@ export async function prepareSend(options: SendOptions) {
     sourceTokenDecimals,
     destinationTokenDecimals,
     paymasterUrl,
+    gasless,
   } = options
 
   if (!walletClient) {
@@ -1555,7 +1564,7 @@ export async function prepareSend(options: SendOptions) {
     transport: http(),
   })
 
-  const testnet = getQueryParam('testnet') === 'true'
+  const testnet = getQueryParam("testnet") === "true"
   const testnetOriginTokenAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
 
   const mainSigner = account.address
@@ -1849,8 +1858,9 @@ export async function prepareSend(options: SendOptions) {
       let originMetaTxnReceipt: any = null // TODO: Add proper type
       let destinationMetaTxnReceipt: any = null // TODO: Add proper type
 
-      const doGasless = originTokenAddress !== zeroAddress
+      const doGasless = originTokenAddress !== zeroAddress && gasless
       if (doGasless) {
+        console.log("gasless")
         if (paymasterUrl) {
           const txHash = await runGasless7702Flow(
             testnet ? baseSepolia : chain,
@@ -1864,7 +1874,7 @@ export async function prepareSend(options: SendOptions) {
           if (onOriginSend) {
             onOriginSend()
           }
-  
+
           const receipt = await publicClient.waitForTransactionReceipt({
             hash: txHash as `0x${string}`,
           })
@@ -1876,21 +1886,23 @@ export async function prepareSend(options: SendOptions) {
             account as any,
           )
           console.log("sequenceWalletAddress", sequenceWalletAddress)
-        
+
           // Initialize clients
           const sequencePublicClient = createPublicClient({
             chain: testnet ? baseSepolia : chain,
             transport: http(),
           })
-        
+
           const { signature, deadline } = await getPermitSignature(
             sequencePublicClient as PublicClient,
             account.address,
             sequenceWalletAddress,
-            testnet ? testnetOriginTokenAddress : originTokenAddress as `0x${string}`,
-            BigInt(originTokenAmount)
+            testnet
+              ? testnetOriginTokenAddress
+              : (originTokenAddress as `0x${string}`),
+            BigInt(originTokenAmount),
           )
-        
+
           const calls = getPermitCalls(
             account.address,
             sequenceWalletAddress,
@@ -1898,9 +1910,11 @@ export async function prepareSend(options: SendOptions) {
             deadline,
             signature,
             intentAddress as `0x${string}`,
-            testnet ? testnetOriginTokenAddress : originTokenAddress as `0x${string}`,
-         )
-        
+            testnet
+              ? testnetOriginTokenAddress
+              : (originTokenAddress as `0x${string}`),
+          )
+
           const sequenceTxHash = await sequenceSendTransaction(
             sequenceWalletAddress,
             walletClient,
@@ -1912,7 +1926,7 @@ export async function prepareSend(options: SendOptions) {
           if (onOriginSend) {
             onOriginSend()
           }
-  
+
           const receipt = await publicClient.waitForTransactionReceipt({
             hash: sequenceTxHash as `0x${string}`,
           })

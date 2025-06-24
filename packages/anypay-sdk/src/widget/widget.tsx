@@ -103,6 +103,7 @@ export type AnyPayWidgetProps = {
   privyClientId?: string
   useSourceTokenForButtonText?: boolean
   paymasterUrl?: string
+  gasless?: boolean
 }
 
 const queryClient = new QueryClient()
@@ -302,6 +303,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   onDestinationConfirmation,
   useSourceTokenForButtonText,
   paymasterUrl,
+  gasless,
 }) => {
   const { address, isConnected, chainId, connector } = useAccount()
   const { disconnectAsync } = useDisconnect()
@@ -747,6 +749,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             useSourceTokenForButtonText={useSourceTokenForButtonText}
             onError={handleSendError}
             paymasterUrl={paymasterUrl}
+            gasless={gasless}
           />
         ) : (
           <div

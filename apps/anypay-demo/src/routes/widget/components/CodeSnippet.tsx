@@ -15,6 +15,7 @@ interface CodeSnippetProps {
   theme: string | null
   walletOptions: string[] | null
   paymasterUrl: string
+  gasless: boolean
 }
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = ({
@@ -29,6 +30,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   theme,
   walletOptions,
   paymasterUrl,
+  gasless,
 }) => {
   const [isCopied, setIsCopied] = useState(false)
   const [activeTab, setActiveTab] = useState<"react" | "script">("react")
@@ -62,6 +64,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
       renderInline !== null && `renderInline={${renderInline}}`,
       theme && `theme="${theme}"`,
       walletOptions && `walletOptions={${JSON.stringify(walletOptions)}}`,
+      gasless && `gasless={true}`,
     ].filter(Boolean)
 
     return `import { AnyPayWidget } from '@0xsequence/anypay-sdk/widget'
@@ -97,6 +100,7 @@ export const App = () => {
       renderInline !== null && `renderInline: ${renderInline}`,
       theme && `theme: '${theme}'`,
       walletOptions && `walletOptions: ${JSON.stringify(walletOptions)}`,
+      gasless && `gasless: true`,
     ].filter(Boolean)
 
     return `<!DOCTYPE html>

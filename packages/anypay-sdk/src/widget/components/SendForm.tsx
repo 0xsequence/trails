@@ -63,6 +63,7 @@ interface SendFormProps {
     originAmount?: string,
   ) => void
   paymasterUrl?: string
+  gasless?: boolean
 }
 
 // Available chains
@@ -220,6 +221,7 @@ export const SendForm: React.FC<SendFormProps> = ({
   onError,
   onWaitingForWalletConfirm,
   paymasterUrl,
+  gasless,
 }) => {
   const [amount, setAmount] = useState(toAmount ?? "")
   const [recipientInput, setRecipientInput] = useState(toRecipient ?? "")
@@ -447,6 +449,7 @@ export const SendForm: React.FC<SendFormProps> = ({
         sourceTokenDecimals,
         destinationTokenDecimals,
         paymasterUrl,
+        gasless,
       }
 
       console.log("options", options)

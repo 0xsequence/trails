@@ -30,6 +30,8 @@ interface CustomizationFormProps {
   setWalletOptions: (value: string[] | null) => void
   paymasterUrl: string
   setPaymasterUrl: (value: string) => void
+  gasless: boolean
+  setGasless: (value: boolean) => void
 }
 
 // Local storage keys
@@ -44,6 +46,7 @@ export const STORAGE_KEYS = {
   THEME: "anypay_theme",
   WALLET_OPTIONS: "anypay_wallet_options",
   PAYMASTER_URL: "anypay_paymaster_url",
+  GASLESS: "anypay_gasless",
 } as const
 
 interface UseAccountButtonProps {
@@ -98,6 +101,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   setWalletOptions,
   paymasterUrl,
   setPaymasterUrl,
+  gasless,
+  setGasless,
 }) => {
   const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
   const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
@@ -132,6 +137,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) as string | null
     const savedWalletOptions = localStorage.getItem(STORAGE_KEYS.WALLET_OPTIONS)
     const savedPaymasterUrl = localStorage.getItem(STORAGE_KEYS.PAYMASTER_URL)
+    const savedGasless = localStorage.getItem(STORAGE_KEYS.GASLESS)
 
     if (savedToAddress) setToAddress(savedToAddress)
     if (savedToAmount) setToAmount(savedToAmount)
@@ -144,6 +150,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     if (savedTheme) setTheme(savedTheme)
     if (savedWalletOptions) setWalletOptions(JSON.parse(savedWalletOptions))
     if (savedPaymasterUrl) setPaymasterUrl(savedPaymasterUrl)
+    if (savedGasless) setGasless(savedGasless === "true")
   }, [
     setToAddress,
     setToAmount,
@@ -155,6 +162,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setTheme,
     setWalletOptions,
     setPaymasterUrl,
+    setGasless,
   ])
 
   // Save values to localStorage whenever they change
@@ -216,6 +224,11 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       localStorage.setItem(STORAGE_KEYS.PAYMASTER_URL, paymasterUrl)
     }
   }, [paymasterUrl])
+
+  // Save gasless to localStorage
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.GASLESS, String(gasless))
+  }, [gasless])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -506,9 +519,76 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             />
           </div>
 
+          <div className="flex items-center justify-between py-2">
+            <label className="block text-sm font-medium text-gray-200 flex items-center gap-2">
+              Gasless
+              <span className="relative group cursor-pointer">
+                <svg
+                  width="16"
+                  height="16"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  className="inline-block text-gray-400"
+                >
+                  <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                  <text
+                    x="12"
+                    y="16"
+                    textAnchor="middle"
+                    fontSize="12"
+                    fill="currentColor"
+                  >
+                    i
+                  </text>
+                </svg>
+                <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-2 py-1 bg-gray-900 text-gray-100 text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  Enable gasless transactions using Sequence Relayer
+                </span>
+              </span>
+            </label>
+            <button
+              onClick={() => setGasless(!gasless)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                gasless ? "bg-blue-500" : "bg-gray-600"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  gasless ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-2">
+            <label className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2">
               Paymaster URL
+              <span className="relative group cursor-pointer">
+                <svg
+                  width="16"
+                  height="16"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  className="inline-block text-gray-400"
+                >
+                  <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                  <text
+                    x="12"
+                    y="16"
+                    textAnchor="middle"
+                    fontSize="12"
+                    fill="currentColor"
+                  >
+                    i
+                  </text>
+                </svg>
+                <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-2 py-1 bg-gray-900 text-gray-100 text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  Use a 4337-compatible bundler/paymaster URL for gasless
+                  transactions, such as Alchemy, Thirdweb, Pimlico, ZeroDev, etc
+                </span>
+              </span>
             </label>
             <input
               type="text"

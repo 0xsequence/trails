@@ -23,6 +23,7 @@ export const Widget = () => {
   const [theme, setTheme] = useState<string | null>(null)
   const [walletOptions, setWalletOptions] = useState<string[] | null>(null)
   const [paymasterUrl, setPaymasterUrl] = useState("")
+  const [gasless, setGasless] = useState(false)
 
   const handleConnect = useCallback((provider: any) => {
     console.log("provider", provider)
@@ -82,6 +83,8 @@ export const Widget = () => {
               setWalletOptions={setWalletOptions}
               paymasterUrl={paymasterUrl}
               setPaymasterUrl={setPaymasterUrl}
+              gasless={gasless}
+              setGasless={setGasless}
             />
           </div>
 
@@ -98,6 +101,7 @@ export const Widget = () => {
               theme={theme}
               walletOptions={walletOptions}
               paymasterUrl={paymasterUrl}
+              gasless={gasless}
             >
               <div className="mt-6 w-full max-w-md mx-auto">
                 <AnyPayWidget
@@ -118,6 +122,7 @@ export const Widget = () => {
                   privyAppId={privyAppId}
                   privyClientId={privyClientId}
                   paymasterUrl={paymasterUrl}
+                  gasless={gasless}
                 >
                   {useCustomButton ? (
                     <button className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-lg hover:from-green-600 hover:to-emerald-600 cursor-pointer transition duration-300">
