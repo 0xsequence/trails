@@ -1,6 +1,6 @@
 {
   "name": "@0xsequence/anypay-api",
-  "version": "0.0.0",
+  "version": "0.0.3",
   "type": "module",
   "description": "api sub-package for Sequence",
   "repository": "https://github.com/0xsequence/sequence.js/tree/master/packages/api",
