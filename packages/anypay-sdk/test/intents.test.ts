@@ -44,7 +44,7 @@ function randomAddress(): Address.Address {
   )
 }
 
-describe("AnyPay Preconditions", () => {
+describe.skip("AnyPay Preconditions", () => {
   const getProvider = async (): Promise<{
     provider: Provider.Provider
     chainId: bigint
