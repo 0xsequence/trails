@@ -62,7 +62,7 @@
   "peerDependencies": {
     "@0xsequence/anypay-api": "workspace:*",
     "@0xsequence/anypay-relayer": "workspace:*",
-    "@0xsequence/design-system": "^2.1.6",
+    "@0xsequence/design-system": "^2.1.15",
     "@0xsequence/hooks": "^5.3.6",
     "@0xsequence/indexer": "^2.3.17",
     "@0xsequence/wagmi-connector": "^4.0.1",
