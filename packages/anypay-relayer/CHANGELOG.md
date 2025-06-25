@@ -1,5 +1,11 @@
 # @0xsequence/anypay-relayer
 
+## 0.0.4
+
+### Patch Changes
+
+- Minor dependency fix
+
 ## 0.0.3
 
 ### Patch Changes
