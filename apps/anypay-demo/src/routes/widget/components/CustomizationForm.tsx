@@ -116,27 +116,28 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     const savedToAddress = localStorage.getItem(STORAGE_KEYS.TO_ADDRESS)
     const savedToAmount = localStorage.getItem(STORAGE_KEYS.TO_AMOUNT)
     const savedToChainId = localStorage.getItem(STORAGE_KEYS.TO_CHAIN_ID)
-    const savedToToken = localStorage.getItem(STORAGE_KEYS.TO_TOKEN) as
-      | string
-      | undefined
+    const savedToToken = localStorage.getItem(STORAGE_KEYS.TO_TOKEN)
     const savedToCalldata = localStorage.getItem(STORAGE_KEYS.TO_CALLLDATA)
     const savedUseCustomButton = localStorage.getItem(
       STORAGE_KEYS.USE_CUSTOM_BUTTON,
     )
     const savedRenderInline = localStorage.getItem(STORAGE_KEYS.RENDER_INLINE)
-    const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) as string | null
+    const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME)
     const savedWalletOptions = localStorage.getItem(STORAGE_KEYS.WALLET_OPTIONS)
 
-    if (savedToAddress) setToAddress(savedToAddress)
-    if (savedToAmount) setToAmount(savedToAmount)
-    if (savedToChainId) setToChainId(Number(savedToChainId))
-    if (savedToToken) setToToken(savedToToken)
-    if (savedToCalldata) setToCalldata(savedToCalldata)
-    if (savedUseCustomButton)
+    // Only set values if they exist in localStorage
+    if (savedToAddress !== null) setToAddress(savedToAddress)
+    if (savedToAmount !== null) setToAmount(savedToAmount)
+    if (savedToChainId !== null) setToChainId(Number(savedToChainId))
+    if (savedToToken !== null) setToToken(savedToToken)
+    if (savedToCalldata !== null) setToCalldata(savedToCalldata)
+    if (savedUseCustomButton !== null)
       setUseCustomButton(savedUseCustomButton === "true")
-    if (savedRenderInline) setRenderInline(savedRenderInline === "true")
-    if (savedTheme) setTheme(savedTheme)
-    if (savedWalletOptions) setWalletOptions(JSON.parse(savedWalletOptions))
+    if (savedRenderInline !== null)
+      setRenderInline(savedRenderInline === "true")
+    if (savedTheme !== null) setTheme(savedTheme)
+    if (savedWalletOptions !== null)
+      setWalletOptions(JSON.parse(savedWalletOptions))
   }, [
     setToAddress,
     setToAmount,
@@ -151,24 +152,43 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   // Save values to localStorage whenever they change
   useEffect(() => {
-    if (toAddress) localStorage.setItem(STORAGE_KEYS.TO_ADDRESS, toAddress)
+    if (toAddress) {
+      localStorage.setItem(STORAGE_KEYS.TO_ADDRESS, toAddress)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.TO_ADDRESS)
+    }
   }, [toAddress])
 
   useEffect(() => {
-    if (toAmount) localStorage.setItem(STORAGE_KEYS.TO_AMOUNT, toAmount)
+    if (toAmount) {
+      localStorage.setItem(STORAGE_KEYS.TO_AMOUNT, toAmount)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.TO_AMOUNT)
+    }
   }, [toAmount])
 
   useEffect(() => {
-    if (toChainId)
+    if (toChainId) {
       localStorage.setItem(STORAGE_KEYS.TO_CHAIN_ID, toChainId.toString())
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.TO_CHAIN_ID)
+    }
   }, [toChainId])
 
   useEffect(() => {
-    if (toToken) localStorage.setItem(STORAGE_KEYS.TO_TOKEN, toToken)
+    if (toToken) {
+      localStorage.setItem(STORAGE_KEYS.TO_TOKEN, toToken)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.TO_TOKEN)
+    }
   }, [toToken])
 
   useEffect(() => {
-    if (toCalldata) localStorage.setItem(STORAGE_KEYS.TO_CALLLDATA, toCalldata)
+    if (toCalldata) {
+      localStorage.setItem(STORAGE_KEYS.TO_CALLLDATA, toCalldata)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.TO_CALLLDATA)
+    }
   }, [toCalldata])
 
   // Save custom button state to localStorage
