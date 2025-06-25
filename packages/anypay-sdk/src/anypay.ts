@@ -7,7 +7,7 @@ import type {
   SequenceAPIClient,
 } from "@0xsequence/anypay-api"
 import type { Relayer } from "@0xsequence/wallet-core"
-import { Payload } from "@0xsequence/wallet-primitives"
+import type { Payload } from "@0xsequence/wallet-primitives"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Address } from "ox"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"

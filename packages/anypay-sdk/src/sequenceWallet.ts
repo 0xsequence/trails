@@ -1,7 +1,7 @@
 import { Account } from "@0xsequence/account"
 import { trackers } from "@0xsequence/sessions"
 import { commons } from "@0xsequence/core"
-import { Payload } from "@0xsequence/wallet-primitives"
+import type { Payload } from "@0xsequence/wallet-primitives"
 import { Orchestrator, type signers } from "@0xsequence/signhub"
 import { allNetworks } from "@0xsequence/network"
 import {
@@ -12,7 +12,7 @@ import {
   type WalletClient,
 } from "viem"
 import { AbiFunction } from "ox"
-import { Relayer } from "./relayer.js"
+import type { Relayer } from "./relayer.js"
 import { toHex } from "viem"
 import { Abi } from "ox"
 
@@ -251,7 +251,7 @@ export async function sequenceSendTransaction(
   })
 
   const isDeployed = hasCode !== undefined
-  let sponsored = false
+  const sponsored = false
   if (!isDeployed) {
     console.log("deploying sequence wallet")
 
@@ -449,7 +449,7 @@ function encodeGasRefundTransaction(option?: any) {
         },
       ]
 
-    case "ERC20_TOKEN":
+    case "ERC20_TOKEN": {
       if (!option.token.contractAddress) {
         throw new Error(`No contract address for ERC-20 fee option`)
       }
@@ -477,6 +477,7 @@ function encodeGasRefundTransaction(option?: any) {
           ]),
         },
       ]
+    }
 
     default:
       throw new Error(`Unhandled fee token type ${option.token.type}`)
