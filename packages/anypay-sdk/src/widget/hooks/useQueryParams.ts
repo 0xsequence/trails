@@ -44,10 +44,6 @@ export function useQueryParams() {
 
   const hasParam = (key: string, value?: string): boolean => {
     const result = value ? queryParams.get(key) === value : queryParams.has(key)
-    console.log(`useQueryParams: hasParam(${key}, ${value}) = ${result}`, {
-      queryParams: Object.fromEntries(queryParams.entries()),
-      currentValue: queryParams.get(key),
-    })
     return result
   }
 
