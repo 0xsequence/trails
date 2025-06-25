@@ -23,7 +23,7 @@ export const Widget = () => {
   const [theme, setTheme] = useState<string | null>(null)
   const [walletOptions, setWalletOptions] = useState<string[] | null>(null)
   const [paymasterUrl, setPaymasterUrl] = useState("")
-  const [gasless, setGasless] = useState(false)
+  const [gasless, setGasless] = useState<boolean | null>(null)
 
   const handleConnect = useCallback((provider: any) => {
     console.log("provider", provider)
