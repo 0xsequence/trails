@@ -7,6 +7,7 @@ import type {
   SequenceAPIClient,
 } from "@0xsequence/anypay-api"
 import type { Relayer } from "@0xsequence/wallet-core"
+import { Payload } from "@0xsequence/wallet-primitives"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Address } from "ox"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
@@ -67,6 +68,7 @@ import { attemptSwitchChain } from "./chainSwitch.js"
 import {
   simpleCreateSequenceWallet,
   sequenceSendTransaction,
+  getFeeOptions,
 } from "./sequenceWallet.js"
 import { getQueryParam } from "./queryParams.js"
 
@@ -1567,6 +1569,8 @@ export async function prepareSend(options: SendOptions) {
   const testnet = getQueryParam("testnet") === "true"
   const testnetOriginTokenAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
 
+  console.log("testnet", testnet)
+
   const mainSigner = account.address
 
   const _destinationCalldata =
@@ -1859,8 +1863,8 @@ export async function prepareSend(options: SendOptions) {
       let destinationMetaTxnReceipt: any = null // TODO: Add proper type
 
       const doGasless = originTokenAddress !== zeroAddress && gasless
+      console.log("doGasless", doGasless)
       if (doGasless) {
-        console.log("gasless")
         if (paymasterUrl) {
           const txHash = await runGasless7702Flow(
             testnet ? baseSepolia : chain,
@@ -1901,6 +1905,7 @@ export async function prepareSend(options: SendOptions) {
               ? testnetOriginTokenAddress
               : (originTokenAddress as `0x${string}`),
             BigInt(originTokenAmount),
+            testnet ? baseSepolia : chain,
           )
 
           const calls = getPermitCalls(
@@ -1914,6 +1919,23 @@ export async function prepareSend(options: SendOptions) {
               ? testnetOriginTokenAddress
               : (originTokenAddress as `0x${string}`),
           )
+
+          const feeOptions = await getFeeOptions(
+            originRelayer,
+            sequenceWalletAddress,
+            originChainId,
+            calls.map((call) => ({
+              to: call.to,
+              value: BigInt(call.value),
+              data: call.data,
+              gasLimit: BigInt(0),
+              delegateCall: false,
+              onlyFallback: false,
+              behaviorOnError: "revert",
+            })) as Payload.Call[],
+          )
+
+          console.log("feeOptions", feeOptions)
 
           const sequenceTxHash = await sequenceSendTransaction(
             sequenceWalletAddress,

@@ -1,6 +1,7 @@
 import { Account } from "@0xsequence/account"
 import { trackers } from "@0xsequence/sessions"
 import { commons } from "@0xsequence/core"
+import { Payload } from "@0xsequence/wallet-primitives"
 import { Orchestrator, type signers } from "@0xsequence/signhub"
 import { allNetworks } from "@0xsequence/network"
 import {
@@ -10,6 +11,10 @@ import {
   type Chain,
   type WalletClient,
 } from "viem"
+import { AbiFunction } from "ox"
+import { Relayer } from "./relayer.js"
+import { toHex } from "viem"
+import { Abi } from "ox"
 
 export type FlatTransaction = {
   to: string
@@ -213,7 +218,7 @@ export async function sequenceSendTransaction(
     space: Math.floor(Date.now()).toString(),
     nonce: "0",
     chainId: chainId.toString(),
-    transactions: txsToExecute,
+    transactions: [],
   }
   // Calculate the tx subdigest
   const subdigest = subdigestOf(txe)
@@ -246,9 +251,108 @@ export async function sequenceSendTransaction(
   })
 
   const isDeployed = hasCode !== undefined
+  let sponsored = false
   if (!isDeployed) {
-    wallet.deploy() // sends meta transaction to deploy
-    await new Promise((resolve) => setTimeout(resolve, 3000))
+    console.log("deploying sequence wallet")
+
+    const deployTx = await wallet.buildDeployTransaction()
+    if (!wallet.relayer) throw new Error("Wallet deploy requires a relayer")
+    console.log("deploy Tx", deployTx)
+    console.log("deployTx entrypoint:", deployTx!.entrypoint)
+    console.log("deployTx transactions:", deployTx!.transactions)
+
+    const feeOptions = await wallet.relayer.getFeeOptions(
+      wallet.address as `0x${string}`,
+      ...deployTx!.transactions,
+    )
+
+    const quote = feeOptions?.quote
+    console.log("feeOptions", feeOptions)
+
+    // Check if deployment is whitelisted (no fees required)
+    if (feeOptions?.options.length === 0 || sponsored) {
+      console.log("Deployment is whitelisted - no fees required")
+
+      const bytes = new Uint8Array(32)
+      crypto.getRandomValues(bytes)
+
+      wallet.relayer.relay(
+        {
+          entrypoint: deployTx!.entrypoint as `0x${string}`,
+          transactions: deployTx!.transactions,
+          chainId: wallet.chainId,
+          intent: {
+            id: toHex(bytes),
+            wallet: wallet.address,
+          },
+        },
+        quote,
+      )
+
+      console.log("Deployment relayed")
+
+      // Wait for deployment to complete
+      await new Promise((resolve) => setTimeout(resolve, 3000))
+    } else {
+      // Find the USDC option for fee payment
+      const option = feeOptions?.options.find(
+        (option) => option.token.symbol === "USDC",
+      )
+      if (!option) {
+        throw new Error("USDC option not found")
+      }
+
+      console.log("option", option)
+
+      if (option) {
+        console.log("Using native token for deployment fee")
+
+        // Use encodeGasRefundTransaction to create the fee transaction
+        const feeTransactions = encodeGasRefundTransaction(option)
+        console.log("Fee transactions:", feeTransactions)
+
+        // Include both deployment and fee transactions
+        const allTransactions = [...feeTransactions, ...deployTx!.transactions]
+        console.log("All transactions (deployment + fees):", allTransactions)
+
+        const predecorated = await sequenceAccount.predecorateTransactions(
+          allTransactions,
+          status,
+          chainId,
+        )
+        const signed = await sequenceAccount.signTransactions(
+          predecorated,
+          chainId,
+        )
+
+        console.log("signed transactions with fees:", signed.transactions)
+        console.log("signed entrypoint with fees:", signed.entrypoint)
+
+        const bytes = new Uint8Array(32)
+        crypto.getRandomValues(bytes)
+
+        wallet.relayer.relay(
+          {
+            entrypoint: signed!.entrypoint as `0x${string}`,
+            transactions: signed.transactions,
+            chainId: wallet.chainId,
+            intent: {
+              id: toHex(bytes),
+              wallet: wallet.address,
+            },
+          },
+          quote,
+        )
+
+        // Wait for deployment to complete
+        await new Promise((resolve) => setTimeout(resolve, 3000))
+        console.log("sequence wallet deployed")
+      } else {
+        throw new Error(
+          "ERC20 fee payment for deployment is not supported yet. Please use native token or a relayer with free wallet deployments.",
+        )
+      }
+    }
   }
 
   // Sign the txs with the Sequence Wallet
@@ -308,5 +412,73 @@ export class StaticSigner implements signers.SapientSigner {
 
   async getAddress() {
     return this.address
+  }
+}
+
+export async function getFeeOptions(
+  relayer: Relayer.Rpc.RpcRelayer,
+  wallet: string,
+  chainId: number,
+  calls: Payload.Call[],
+) {
+  const feeOptions = await relayer.feeOptions(
+    wallet as `0x${string}`,
+    BigInt(chainId),
+    calls,
+  )
+
+  return feeOptions
+}
+
+// Import the encodeGasRefundTransaction function
+function encodeGasRefundTransaction(option?: any) {
+  if (!option) return []
+
+  const value = BigInt(option.value)
+
+  switch (option.token.type) {
+    case "UNKNOWN":
+      return [
+        {
+          delegateCall: false,
+          revertOnError: true,
+          gasLimit: option.gasLimit,
+          to: option.to,
+          value: value.toString(),
+          data: "0x",
+        },
+      ]
+
+    case "ERC20_TOKEN":
+      if (!option.token.contractAddress) {
+        throw new Error(`No contract address for ERC-20 fee option`)
+      }
+
+      const [transfer] = Abi.from([
+        {
+          inputs: [{ type: "address" }, { type: "uint256" }],
+          name: "transfer",
+          outputs: [{ type: "bool" }],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ])
+
+      return [
+        {
+          delegateCall: false,
+          revertOnError: true,
+          gasLimit: option.gasLimit,
+          to: option.token.contractAddress,
+          value: 0,
+          data: AbiFunction.encodeData(transfer, [
+            option.to as `0x${string}`,
+            value,
+          ]),
+        },
+      ]
+
+    default:
+      throw new Error(`Unhandled fee token type ${option.token.type}`)
   }
 }

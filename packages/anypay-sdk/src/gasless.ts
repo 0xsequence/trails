@@ -16,7 +16,6 @@ import {
   type Chain,
   type PublicClient,
 } from "viem"
-import { baseSepolia } from "viem/chains"
 import type { UserOperation } from "viem/account-abstraction"
 import { privateKeyToAccount, generatePrivateKey } from "viem/accounts"
 import { sendUserOperationDirectly } from "./sendUserOp.js"
@@ -27,7 +26,6 @@ import {
 } from "viem/account-abstraction"
 import { toSimpleSmartAccount } from "./toSimpleSmartAccount.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
-const chain = baseSepolia
 
 // --- Type declarations ---
 
@@ -243,6 +241,7 @@ export async function runGasless7702Flow(
       delegatorSmartAccount.address,
       tokenAddress,
       amount,
+      chain,
     )
 
     console.log("Received signature:", signature)
@@ -444,6 +443,7 @@ async function stakeOnEntryPoint(
   relayerClient: WalletClient,
   relayerAccount: Account,
   delegatorAddress: `0x${string}`,
+  chain: Chain,
 ) {
   const STAKE_AMOUNT = parseEther("0.01")
 
@@ -591,6 +591,7 @@ export async function getPermitSignature(
   delegatorSmartAccountAddress: `0x${string}`,
   tokenAddress: `0x${string}`,
   amount: bigint,
+  chain: Chain,
 ) {
   // Get permit signature from connected account
   const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600) // 1 hour from now
