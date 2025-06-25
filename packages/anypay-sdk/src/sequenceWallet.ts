@@ -218,7 +218,7 @@ export async function sequenceSendTransaction(
     space: Math.floor(Date.now()).toString(),
     nonce: "0",
     chainId: chainId.toString(),
-    transactions: [],
+    transactions: txsToExecute,
   }
   // Calculate the tx subdigest
   const subdigest = subdigestOf(txe)

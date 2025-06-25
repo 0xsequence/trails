@@ -383,7 +383,11 @@ export const TokenList: React.FC<TokenListProps> = ({
                   }`}
                 >
                   {contractAddress ? (
-                    <TokenImage symbol={tokenSymbol} src={imageUrl} />
+                    <TokenImage
+                      symbol={tokenSymbol}
+                      src={imageUrl}
+                      disableAnimation={true}
+                    />
                   ) : (
                     <span
                       className={`text-base font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
@@ -397,6 +401,7 @@ export const TokenList: React.FC<TokenListProps> = ({
                     chainId={token.chainId}
                     size="sm"
                     className="w-3.5 h-3.5"
+                    disableAnimation={true}
                   />
                 </div>
               </div>

@@ -62,7 +62,7 @@ interface SendFormProps {
     intentAddress?: string,
     originAmount?: string,
   ) => void
-  paymasterUrl?: string
+  paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
 }
 
@@ -220,7 +220,7 @@ export const SendForm: React.FC<SendFormProps> = ({
   useSourceTokenForButtonText = false,
   onError,
   onWaitingForWalletConfirm,
-  paymasterUrl,
+  paymasterUrls,
   gasless,
 }) => {
   const [amount, setAmount] = useState(toAmount ?? "")
@@ -448,7 +448,10 @@ export const SendForm: React.FC<SendFormProps> = ({
         destinationTokenPriceUsd: destTokenPrices?.[0]?.price?.value ?? null,
         sourceTokenDecimals,
         destinationTokenDecimals,
-        paymasterUrl,
+        paymasterUrl:
+          paymasterUrls?.find(
+            (p) => p.chainId.toString() === selectedToken.chainId.toString(),
+          )?.url ?? undefined,
         gasless,
       }
 
@@ -583,6 +586,7 @@ export const SendForm: React.FC<SendFormProps> = ({
               <TokenImage
                 symbol={selectedToken.symbol}
                 src={selectedToken.imageUrl}
+                disableAnimation={true}
               />
             ) : (
               <span
@@ -597,6 +601,7 @@ export const SendForm: React.FC<SendFormProps> = ({
               chainId={selectedToken.chainId}
               size="sm"
               className="w-6 h-6"
+              disableAnimation={true}
             />
           </div>
         </div>
@@ -634,6 +639,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                 chainId={selectedChain.icon}
                 size="sm"
                 className="w-5 h-5"
+                disableAnimation={true}
               />
               <span
                 className={`ml-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
@@ -656,6 +662,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                   chainId={selectedChain.icon}
                   size="sm"
                   className="w-5 h-5"
+                  disableAnimation={true}
                 />
                 <span className="ml-2 flex-1 text-left">
                   {selectedChain.name}
@@ -697,6 +704,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                         chainId={chain.icon}
                         size="sm"
                         className="w-5 h-5"
+                        disableAnimation={true}
                       />
                       <span className="ml-2">{chain.name}</span>
                       {selectedChain.id === chain.id && (
@@ -727,6 +735,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                 symbol={selectedDestToken.symbol}
                 src={selectedDestToken.imageUrl}
                 size="sm"
+                disableAnimation={true}
               />
               <span
                 className={`ml-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
@@ -754,6 +763,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                     symbol={selectedDestToken.symbol}
                     src={selectedDestToken.imageUrl}
                     size="sm"
+                    disableAnimation={true}
                   />
                 </div>
                 <span className="ml-2 flex-1 text-left">
@@ -801,6 +811,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                           symbol={token.symbol}
                           src={token.imageUrl}
                           size="sm"
+                          disableAnimation={true}
                         />
                       </div>
                       <span className="ml-2">

@@ -1863,7 +1863,7 @@ export async function prepareSend(options: SendOptions) {
       let destinationMetaTxnReceipt: any = null // TODO: Add proper type
 
       const doGasless = originTokenAddress !== zeroAddress && gasless
-      console.log("doGasless", doGasless)
+      console.log("doGasless", doGasless, paymasterUrl)
       if (doGasless) {
         if (paymasterUrl) {
           const txHash = await runGasless7702Flow(

@@ -102,7 +102,7 @@ export type AnyPayWidgetProps = {
   privyAppId?: string
   privyClientId?: string
   useSourceTokenForButtonText?: boolean
-  paymasterUrl?: string
+  paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
 }
 
@@ -302,7 +302,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   onOriginConfirmation,
   onDestinationConfirmation,
   useSourceTokenForButtonText,
-  paymasterUrl,
+  paymasterUrls,
   gasless,
 }) => {
   const { address, isConnected, chainId, connector } = useAccount()
@@ -748,7 +748,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             onTransactionStateChange={handleTransactionStateChange}
             useSourceTokenForButtonText={useSourceTokenForButtonText}
             onError={handleSendError}
-            paymasterUrl={paymasterUrl}
+            paymasterUrls={paymasterUrls}
             gasless={gasless}
           />
         ) : (

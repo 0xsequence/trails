@@ -3,11 +3,12 @@ import {
   SUPPORTED_TO_TOKENS,
 } from "@0xsequence/anypay-sdk"
 import { defaultWalletOptions } from "@0xsequence/anypay-sdk/widget"
-import { NetworkImage, TokenImage } from "@0xsequence/design-system"
+import { TokenImage } from "@0xsequence/design-system"
 import { ChevronDown } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { encodeFunctionData, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
+import { ChainSelector } from "./ChainSelector"
 
 interface CustomizationFormProps {
   toAddress: string
@@ -28,8 +29,8 @@ interface CustomizationFormProps {
   setTheme: (value: string | null) => void
   walletOptions: string[] | null
   setWalletOptions: (value: string[] | null) => void
-  paymasterUrl: string
-  setPaymasterUrl: (value: string) => void
+  paymasterUrls: Array<{ chainId: number; url: string }>
+  setPaymasterUrls: (value: Array<{ chainId: number; url: string }>) => void
   gasless: boolean | null
   setGasless: (value: boolean | null) => void
 }
@@ -45,7 +46,7 @@ export const STORAGE_KEYS = {
   RENDER_INLINE: "anypay_render_inline",
   THEME: "anypay_theme",
   WALLET_OPTIONS: "anypay_wallet_options",
-  PAYMASTER_URL: "anypay_paymaster_url",
+  PAYMASTER_URLS: "anypay_paymaster_urls",
   GASLESS: "anypay_gasless",
 } as const
 
@@ -73,7 +74,7 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
   return (
     <button
       onClick={() => onAddressSelect(address)}
-      className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 cursor-pointer text-white rounded-lg transition-colors"
+      className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 cursor-pointer text-white rounded-lg transition-colors cursor-pointer"
     >
       Use Account
     </button>
@@ -99,16 +100,14 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   setTheme,
   walletOptions,
   setWalletOptions,
-  paymasterUrl,
-  setPaymasterUrl,
+  paymasterUrls,
+  setPaymasterUrls,
   gasless,
   setGasless,
 }) => {
   const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
-  const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
 
   const tokenDropdownRef = useRef<HTMLDivElement>(null)
-  const chainDropdownRef = useRef<HTMLDivElement>(null)
 
   // Add state for NFT mint forms
   const [isArbitrumNftMintFormOpen, setIsArbitrumNftMintFormOpen] =
@@ -120,6 +119,14 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   const [nftRecipient, setNftRecipient] = useState("")
   const [usdcRecipient, setUsdcRecipient] = useState("")
   const [aaveRecipient, setAaveRecipient] = useState("")
+
+  // Add state for editing chain
+  const [paymasterKey, setPaymasterKey] = useState(0)
+
+  // Debug useEffect for paymasterUrls
+  useEffect(() => {
+    console.log("paymasterUrls changed:", paymasterUrls)
+  }, [paymasterUrls])
 
   // Load saved values from localStorage on mount
   useEffect(() => {
@@ -134,7 +141,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     const savedRenderInline = localStorage.getItem(STORAGE_KEYS.RENDER_INLINE)
     const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME)
     const savedWalletOptions = localStorage.getItem(STORAGE_KEYS.WALLET_OPTIONS)
-    const savedPaymasterUrl = localStorage.getItem(STORAGE_KEYS.PAYMASTER_URL)
+    const savedPaymasterUrls = localStorage.getItem(STORAGE_KEYS.PAYMASTER_URLS)
     const savedGasless = localStorage.getItem(STORAGE_KEYS.GASLESS)
 
     // Only set values if they exist in localStorage
@@ -150,7 +157,25 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     if (savedTheme !== null) setTheme(savedTheme)
     if (savedWalletOptions !== null)
       setWalletOptions(JSON.parse(savedWalletOptions))
-    if (savedPaymasterUrl !== null) setPaymasterUrl(savedPaymasterUrl)
+    if (savedPaymasterUrls !== null) {
+      try {
+        const parsed = JSON.parse(savedPaymasterUrls)
+        // Handle both old object format and new array format
+        if (Array.isArray(parsed)) {
+          setPaymasterUrls(parsed)
+        } else {
+          // Convert old object format to new array format
+          const converted = Object.entries(parsed).map(([chainId, url]) => ({
+            chainId: Number(chainId),
+            url: url as string,
+          }))
+          setPaymasterUrls(converted)
+        }
+      } catch (error) {
+        console.error("Failed to parse paymasterUrls from localStorage:", error)
+        setPaymasterUrls([])
+      }
+    }
     if (savedGasless !== null) setGasless(savedGasless === "true")
   }, [
     setToAddress,
@@ -162,7 +187,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setRenderInline,
     setTheme,
     setWalletOptions,
-    setPaymasterUrl,
+    setPaymasterUrls,
     setGasless,
   ])
 
@@ -238,14 +263,17 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
   }, [walletOptions])
 
-  // Save paymasterUrl to localStorage
+  // Save paymasterUrls to localStorage
   useEffect(() => {
-    if (paymasterUrl) {
-      localStorage.setItem(STORAGE_KEYS.PAYMASTER_URL, paymasterUrl)
+    if (paymasterUrls.length > 0) {
+      localStorage.setItem(
+        STORAGE_KEYS.PAYMASTER_URLS,
+        JSON.stringify(paymasterUrls),
+      )
     } else {
-      localStorage.removeItem(STORAGE_KEYS.PAYMASTER_URL)
+      localStorage.removeItem(STORAGE_KEYS.PAYMASTER_URLS)
     }
-  }, [paymasterUrl])
+  }, [paymasterUrls])
 
   // Save gasless to localStorage
   useEffect(() => {
@@ -261,12 +289,6 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         !tokenDropdownRef.current.contains(event.target as Node)
       ) {
         setIsTokenDropdownOpen(false)
-      }
-      if (
-        chainDropdownRef.current &&
-        !chainDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsChainDropdownOpen(false)
       }
     }
 
@@ -292,7 +314,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setUseCustomButton(false)
     setRenderInline(true) // Reset to default true
     setTheme("auto") // Reset to default light
-    setPaymasterUrl("") // Reset paymasterUrl
+    setPaymasterUrls([]) // Reset paymasterUrls
     setGasless(false) // Reset gasless to default false
     // Clear localStorage
     Object.values(STORAGE_KEYS).forEach((key) => {
@@ -358,7 +380,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               <button
                 type="button"
                 onClick={() => setIsTokenDropdownOpen(!isTokenDropdownOpen)}
-                className="w-full flex items-center px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full flex items-center px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
               >
                 {toToken ? (
                   <>
@@ -371,6 +393,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         )?.imageUrl
                       }
                       size="sm"
+                      disableAnimation={true}
                     />
                     <span className="ml-2 flex-1 text-left text-gray-200">
                       {
@@ -400,7 +423,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       setToToken(undefined)
                       setIsTokenDropdownOpen(false)
                     }}
-                    className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${!toToken ? "bg-gray-600 text-blue-400" : "text-gray-200"}`}
+                    className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${!toToken ? "bg-gray-600 text-blue-400" : "text-gray-200"} cursor-pointer`}
                   >
                     <span className="ml-2">Select Token</span>
                     {!toToken && (
@@ -420,7 +443,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           setToToken(token.symbol as "ETH" | "USDC")
                           setIsTokenDropdownOpen(false)
                         }}
-                        className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${
+                        className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 cursor-pointer ${
                           toToken === token.symbol
                             ? "bg-gray-600 text-blue-400"
                             : "text-gray-200"
@@ -430,6 +453,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           symbol={token.symbol}
                           src={token.imageUrl}
                           size="sm"
+                          disableAnimation={true}
                         />
                         <span className="ml-2">
                           {token.name} ({token.symbol})
@@ -445,90 +469,14 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </div>
           </div>
 
-          <div className="space-y-2" ref={chainDropdownRef}>
+          <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-200 mb-2">
               To Chain ID
             </label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
-                className="w-full flex items-center px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                {toChainId ? (
-                  <>
-                    <NetworkImage
-                      chainId={toChainId}
-                      size="sm"
-                      className="w-5 h-5"
-                    />
-                    <span className="ml-2 flex-1 text-left text-gray-200">
-                      {
-                        SUPPORTED_TO_CHAINS.find(
-                          (chain: { id: number; name: string }) =>
-                            chain.id === toChainId,
-                        )?.name
-                      }{" "}
-                      ({toChainId})
-                    </span>
-                  </>
-                ) : (
-                  <span className="flex-1 text-left text-gray-400">
-                    Select Chain
-                  </span>
-                )}
-                <ChevronDown
-                  className={`h-5 w-5 text-gray-400 transition-transform ${isChainDropdownOpen ? "transform rotate-180" : ""}`}
-                />
-              </button>
-
-              {isChainDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setToChainId(undefined)
-                      setIsChainDropdownOpen(false)
-                    }}
-                    className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${!toChainId ? "bg-gray-600 text-blue-400" : "text-gray-200"}`}
-                  >
-                    <span className="ml-2">Select Chain</span>
-                    {!toChainId && (
-                      <span className="ml-auto text-blue-400">•</span>
-                    )}
-                  </button>
-                  {SUPPORTED_TO_CHAINS.map(
-                    (chain: { id: number; name: string }) => (
-                      <button
-                        key={chain.id}
-                        type="button"
-                        onClick={() => {
-                          setToChainId(chain.id)
-                          setIsChainDropdownOpen(false)
-                        }}
-                        className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${
-                          toChainId === chain.id
-                            ? "bg-gray-600 text-blue-400"
-                            : "text-gray-200"
-                        }`}
-                      >
-                        <NetworkImage
-                          chainId={chain.id}
-                          size="sm"
-                          className="w-5 h-5"
-                        />
-                        <span className="ml-2">
-                          {chain.name} ({chain.id})
-                        </span>
-                        {toChainId === chain.id && (
-                          <span className="ml-auto text-blue-400">•</span>
-                        )}
-                      </button>
-                    ),
-                  )}
-                </div>
-              )}
-            </div>
+            <ChainSelector
+              selectedChainId={toChainId}
+              onChainSelect={setToChainId}
+            />
           </div>
 
           <div>
@@ -588,7 +536,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
           <div>
             <label className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2">
-              Paymaster URL
+              Paymaster URLs (Chain-specific)
               <span className="relative group cursor-pointer">
                 <svg
                   width="16"
@@ -610,18 +558,101 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   </text>
                 </svg>
                 <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-2 py-1 bg-gray-900 text-gray-100 text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  Use a 4337-compatible bundler/paymaster URL for gasless
-                  transactions, such as Alchemy, Thirdweb, Pimlico, ZeroDev, etc
+                  Use 4337-compatible bundler/paymaster URLs for gasless
+                  transactions, such as Alchemy, Thirdweb, Pimlico, ZeroDev,
+                  etc. Set different URLs for different chains.
                 </span>
               </span>
             </label>
-            <input
-              type="text"
-              value={paymasterUrl}
-              onChange={(e) => setPaymasterUrl(e.target.value.trim())}
-              placeholder="https://..."
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+
+            {/* Paymaster URLs List */}
+            <div className="space-y-3">
+              {paymasterUrls.map(({ chainId, url }, index) => {
+                const currentChainId = chainId
+
+                return (
+                  <div
+                    key={`paymaster-${currentChainId}-${index}-${paymasterKey}`}
+                    className="flex items-center gap-2"
+                  >
+                    {/* Chain Selector */}
+                    <div className="flex-shrink-0">
+                      <ChainSelector
+                        selectedChainId={currentChainId}
+                        onChainSelect={(newChainId) => {
+                          const newPaymasterUrls = paymasterUrls.map((p) =>
+                            p.chainId === currentChainId
+                              ? { ...p, chainId: newChainId }
+                              : p,
+                          )
+                          console.log("Updating paymaster URLs:", {
+                            currentChainId,
+                            newChainId,
+                            newPaymasterUrls,
+                          })
+
+                          setPaymasterUrls(newPaymasterUrls)
+                          setPaymasterKey((prev) => prev + 1) // Force re-render
+                        }}
+                        className="w-32"
+                        showIconsOnly={true}
+                      />
+                    </div>
+
+                    {/* URL Input */}
+                    <input
+                      type="text"
+                      value={url}
+                      onChange={(e) =>
+                        setPaymasterUrls(
+                          paymasterUrls.map((p) =>
+                            p.chainId === currentChainId
+                              ? { ...p, url: e.target.value.trim() }
+                              : p,
+                          ),
+                        )
+                      }
+                      placeholder="https://..."
+                      className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+
+                    {/* Remove Button - Styled like text */}
+                    <button
+                      onClick={() => {
+                        const newPaymasterUrls = paymasterUrls.filter(
+                          (p) => p.chainId !== currentChainId,
+                        )
+                        setPaymasterUrls(newPaymasterUrls)
+                      }}
+                      className="px-3 py-2 text-gray-400 hover:text-gray-200 transition-colors text-lg font-medium cursor-pointer"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )
+              })}
+
+              {/* Add Button */}
+              <button
+                onClick={() => {
+                  // Find first available chain that's not already used
+                  const usedChainIds = paymasterUrls.map((p) => p.chainId)
+                  const availableChain = SUPPORTED_TO_CHAINS.find(
+                    (chain) => !usedChainIds.includes(chain.id),
+                  )
+                  if (availableChain) {
+                    setPaymasterUrls([
+                      ...paymasterUrls,
+                      { chainId: availableChain.id, url: "" },
+                    ])
+                  }
+                }}
+                disabled={paymasterUrls.length >= SUPPORTED_TO_CHAINS.length}
+                className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
+              >
+                + Add Paymaster URL
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center justify-between py-2">
@@ -630,7 +661,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </label>
             <button
               onClick={() => setUseCustomButton(!useCustomButton)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer ${
                 useCustomButton ? "bg-blue-500" : "bg-gray-600"
               }`}
             >
@@ -648,7 +679,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </label>
             <button
               onClick={() => setRenderInline(!renderInline)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer ${
                 renderInline ? "bg-blue-500" : "bg-gray-600"
               }`}
             >
@@ -705,7 +736,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           <div className="pt-2">
             <button
               onClick={handleReset}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors duration-200 text-sm font-medium border border-gray-600 hover:border-gray-500"
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors duration-200 text-sm font-medium border border-gray-600 hover:border-gray-500 cursor-pointer"
             >
               Reset
             </button>
@@ -761,7 +792,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         setToCalldata("")
                       }}
                       disabled={!usdcRecipient}
-                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed"
+                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
                     >
                       Apply Example
                     </button>
@@ -822,7 +853,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         setToChainId(42161)
                       }}
                       disabled={!nftRecipient}
-                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed"
+                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
                     >
                       Apply Example
                     </button>
@@ -884,7 +915,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         setToChainId(137)
                       }}
                       disabled={!nftRecipient}
-                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed"
+                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
                     >
                       Apply Example
                     </button>
@@ -945,7 +976,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         setToChainId(8453)
                       }}
                       disabled={!aaveRecipient}
-                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed"
+                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
                     >
                       Apply Example
                     </button>

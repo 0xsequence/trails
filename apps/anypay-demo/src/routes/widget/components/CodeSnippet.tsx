@@ -14,8 +14,8 @@ interface CodeSnippetProps {
   renderInline: boolean | null
   theme: string | null
   walletOptions: string[] | null
-  paymasterUrl: string
-  gasless: boolean
+  paymasterUrls: Array<{ chainId: number; url: string }>
+  gasless: boolean | null
 }
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = ({
@@ -29,7 +29,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   renderInline,
   theme,
   walletOptions,
-  paymasterUrl,
+  paymasterUrls,
   gasless,
 }) => {
   const [isCopied, setIsCopied] = useState(false)
@@ -60,7 +60,9 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
       toChainId && `toChainId={${toChainId}}`,
       toToken && `toToken="${toToken}"`,
       toCalldata && `toCalldata="${toCalldata}"`,
-      paymasterUrl && `paymasterUrl="${paymasterUrl}"`,
+      paymasterUrls &&
+        paymasterUrls.length > 0 &&
+        `paymasterUrls={${JSON.stringify(paymasterUrls)}}`,
       renderInline !== null && `renderInline={${renderInline}}`,
       theme && `theme="${theme}"`,
       walletOptions && `walletOptions={${JSON.stringify(walletOptions)}}`,
@@ -96,7 +98,9 @@ export const App = () => {
       toChainId && `toChainId: ${toChainId}`,
       toToken && `toToken: '${toToken}'`,
       toCalldata && `toCalldata: '${toCalldata}'`,
-      paymasterUrl && `paymasterUrl: '${paymasterUrl}'`,
+      paymasterUrls &&
+        paymasterUrls.length > 0 &&
+        `paymasterUrls: ${JSON.stringify(paymasterUrls)}`,
       renderInline !== null && `renderInline: ${renderInline}`,
       theme && `theme: '${theme}'`,
       walletOptions && `walletOptions: ${JSON.stringify(walletOptions)}`,
