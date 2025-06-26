@@ -1,6 +1,6 @@
 import { ChevronDown } from "lucide-react"
 // biome-ignore lint/style/useImportType: False positive
-import React, { useEffect, useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 import { useQueryParams } from "../hooks/useQueryParams.js"
 
 interface DebugScreensDropdownProps {

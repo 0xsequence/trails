@@ -4,7 +4,13 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "outputs": [
+        "dist/**",
+        "dist/**/*.js",
+        "dist/**/*.d.ts",
+        "../../apps/anypay-demo/public/js/anypay.min.js"
+      ]
     },
     "lint": {
       "dependsOn": ["^lint"]
