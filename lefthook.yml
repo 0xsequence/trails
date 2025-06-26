@@ -1,6 +1,6 @@
 pre-commit:
   commands:
-    prettier:
+    format:
       glob: '**/*.{js,jsx,ts,tsx,json}'
       run: pnpm run format {staged_files} && git add {staged_files}
     lint:
