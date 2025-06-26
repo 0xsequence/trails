@@ -210,7 +210,8 @@ export function commitIntentConfig(
     mainSigner: mainSigner,
     calls: calls,
     preconditions: preconditions,
-    executionInfos: executionInfos,
+    anypayInfos: executionInfos,
+    sapientType: sapientType,
   }
   console.log("args", args)
   return apiClient.commitIntentConfig(args as any) // TODO: Add proper type
