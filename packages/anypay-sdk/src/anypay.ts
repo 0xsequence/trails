@@ -1885,6 +1885,7 @@ export async function prepareSend(options: SendOptions) {
           console.log("receipt", receipt)
           originUserTxReceipt = receipt
         } else {
+          await attemptSwitchChain(walletClient, originChainId)
           const sequenceWalletAddress = await simpleCreateSequenceWallet(
             publicClient,
             account as any,

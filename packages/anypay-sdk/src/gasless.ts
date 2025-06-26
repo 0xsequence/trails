@@ -1,13 +1,13 @@
 import {
   createPublicClient,
-  createWalletClient,
+    createWalletClient,
   http,
-  custom,
-  encodeFunctionData,
-  parseAbi,
-  encodePacked,
-  toHex,
-  pad,
+    custom,
+    encodeFunctionData,
+    parseAbi,
+    encodePacked,
+    toHex,
+    pad,
   parseEther,
   zeroAddress,
   parseGwei,
@@ -98,18 +98,18 @@ export const ENTRYPOINT_ABI = [
 // --- Constants ---
 
 const RELAYER_PRIVATE_KEY = "" // This is for testing only
-
-// --- Interfaces ---
-
-interface PackedCall {
+  
+  // --- Interfaces ---
+  
+  interface PackedCall {
   to: `0x${string}`
   value: bigint
   gasLimit: bigint
   behaviorOnError: number
   data: `0x${string}`
-}
-
-interface Payload {
+  }
+  
+  interface Payload {
   kind: number
   noChainId: boolean
   space: number
@@ -160,10 +160,10 @@ const TRANSFER_ABI = {
 }
 
 const ENTRYPOINT_ADDRESS = "0x0000000071727de22e5e9d8baf0edac6f37da032"
-
-// --- Payload packer ---
-
-export function packPayload(payload: Payload): `0x${string}` {
+  
+  // --- Payload packer ---
+  
+  export function packPayload(payload: Payload): `0x${string}` {
   const globalFlag = 0x00
   const numCalls = payload.calls.length
 
@@ -184,10 +184,10 @@ export function packPayload(payload: Payload): `0x${string}` {
       ...encodedCalls,
     ],
   )
-}
-
-// --- Main logic ---
-
+  }
+  
+  // --- Main logic ---
+  
 export async function runGasless7702Flow(
   chain: Chain,
   tokenAddress: `0x${string}`,
@@ -689,4 +689,5 @@ export async function getPermitSignature(
   })
 
   return { signature, deadline }
-}
+  }
+  
