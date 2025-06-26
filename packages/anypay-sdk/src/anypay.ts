@@ -54,6 +54,7 @@ import {
   findPreconditionAddress,
 } from "./preconditions.js"
 import { getBackupRelayer, useRelayers } from "./relayer.js"
+import { executeSimpleRelayTransaction, getRelaySDKQuote } from "./relaysdk.js"
 import { getChainInfo } from "./tokenBalances.js"
 import { requestWithTimeout } from "./utils.js"
 
@@ -1640,17 +1641,62 @@ export async function prepareSend(options: SendOptions) {
   }
 
   if (isToSameChain && !isToSameToken) {
-    // swap tx
-    transactionStates.push({
-      transactionHash: "",
-      explorerUrl: "",
+    const quote = await getRelaySDKQuote({
+      wallet: walletClient,
       chainId: originChainId,
-      state: "pending",
+      amount: destinationTokenAmount,
+      currency: originTokenAddress,
+      toCurrency: destinationTokenAddress,
+      txs: destinationCalldata
+        ? [
+            {
+              to: recipient,
+              value:
+                destinationTokenAddress === zeroAddress
+                  ? destinationTokenAmount
+                  : "0",
+              data: destinationCalldata,
+            },
+          ]
+        : [],
     })
+
+    console.log("relaysdk quote", quote)
+
+    return {
+      originSendAmount: originTokenAmount,
+      send: async (onOriginSend: () => void): Promise<SendReturn> => {
+        await attemptSwitchChain(walletClient, originChainId)
+
+        const result = await executeSimpleRelayTransaction(quote, walletClient)
+        console.log("relaysdk result", result)
+
+        const txHash =
+          result?.data?.steps?.[result?.data?.steps!.length - 1]?.items?.[0]
+            ?.txHashes?.[0]?.txHash
+
+        if (onOriginSend) {
+          onOriginSend()
+        }
+
+        const originUserTxReceipt =
+          await publicClient.waitForTransactionReceipt({
+            hash: txHash as `0x${string}`,
+          })
+
+        return {
+          originUserTxReceipt: originUserTxReceipt,
+          originMetaTxnReceipt: null,
+          destinationMetaTxnReceipt: null,
+        }
+      },
+    }
   }
 
   if (isToSameToken && isToSameChain) {
+    console.log("isToSameToken && isToSameChain")
     return {
+      originSendAmount: originTokenAmount,
       send: async (onOriginSend: () => void): Promise<SendReturn> => {
         const originCallParams = {
           to: destinationCalldata

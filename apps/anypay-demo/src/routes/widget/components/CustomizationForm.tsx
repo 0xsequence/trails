@@ -116,27 +116,28 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     const savedToAddress = localStorage.getItem(STORAGE_KEYS.TO_ADDRESS)
     const savedToAmount = localStorage.getItem(STORAGE_KEYS.TO_AMOUNT)
     const savedToChainId = localStorage.getItem(STORAGE_KEYS.TO_CHAIN_ID)
-    const savedToToken = localStorage.getItem(STORAGE_KEYS.TO_TOKEN) as
-      | string
-      | undefined
+    const savedToToken = localStorage.getItem(STORAGE_KEYS.TO_TOKEN)
     const savedToCalldata = localStorage.getItem(STORAGE_KEYS.TO_CALLLDATA)
     const savedUseCustomButton = localStorage.getItem(
       STORAGE_KEYS.USE_CUSTOM_BUTTON,
     )
     const savedRenderInline = localStorage.getItem(STORAGE_KEYS.RENDER_INLINE)
-    const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) as string | null
+    const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME)
     const savedWalletOptions = localStorage.getItem(STORAGE_KEYS.WALLET_OPTIONS)
 
-    if (savedToAddress) setToAddress(savedToAddress)
-    if (savedToAmount) setToAmount(savedToAmount)
-    if (savedToChainId) setToChainId(Number(savedToChainId))
-    if (savedToToken) setToToken(savedToToken)
-    if (savedToCalldata) setToCalldata(savedToCalldata)
-    if (savedUseCustomButton)
+    // Only set values if they exist in localStorage
+    if (savedToAddress !== null) setToAddress(savedToAddress)
+    if (savedToAmount !== null) setToAmount(savedToAmount)
+    if (savedToChainId !== null) setToChainId(Number(savedToChainId))
+    if (savedToToken !== null) setToToken(savedToToken)
+    if (savedToCalldata !== null) setToCalldata(savedToCalldata)
+    if (savedUseCustomButton !== null)
       setUseCustomButton(savedUseCustomButton === "true")
-    if (savedRenderInline) setRenderInline(savedRenderInline === "true")
-    if (savedTheme) setTheme(savedTheme)
-    if (savedWalletOptions) setWalletOptions(JSON.parse(savedWalletOptions))
+    if (savedRenderInline !== null)
+      setRenderInline(savedRenderInline === "true")
+    if (savedTheme !== null) setTheme(savedTheme)
+    if (savedWalletOptions !== null)
+      setWalletOptions(JSON.parse(savedWalletOptions))
   }, [
     setToAddress,
     setToAmount,
@@ -151,24 +152,43 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   // Save values to localStorage whenever they change
   useEffect(() => {
-    if (toAddress) localStorage.setItem(STORAGE_KEYS.TO_ADDRESS, toAddress)
+    if (toAddress) {
+      localStorage.setItem(STORAGE_KEYS.TO_ADDRESS, toAddress)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.TO_ADDRESS)
+    }
   }, [toAddress])
 
   useEffect(() => {
-    if (toAmount) localStorage.setItem(STORAGE_KEYS.TO_AMOUNT, toAmount)
+    if (toAmount) {
+      localStorage.setItem(STORAGE_KEYS.TO_AMOUNT, toAmount)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.TO_AMOUNT)
+    }
   }, [toAmount])
 
   useEffect(() => {
-    if (toChainId)
+    if (toChainId) {
       localStorage.setItem(STORAGE_KEYS.TO_CHAIN_ID, toChainId.toString())
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.TO_CHAIN_ID)
+    }
   }, [toChainId])
 
   useEffect(() => {
-    if (toToken) localStorage.setItem(STORAGE_KEYS.TO_TOKEN, toToken)
+    if (toToken) {
+      localStorage.setItem(STORAGE_KEYS.TO_TOKEN, toToken)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.TO_TOKEN)
+    }
   }, [toToken])
 
   useEffect(() => {
-    if (toCalldata) localStorage.setItem(STORAGE_KEYS.TO_CALLLDATA, toCalldata)
+    if (toCalldata) {
+      localStorage.setItem(STORAGE_KEYS.TO_CALLLDATA, toCalldata)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.TO_CALLLDATA)
+    }
   }, [toCalldata])
 
   // Save custom button state to localStorage
@@ -346,7 +366,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       setToToken(undefined)
                       setIsTokenDropdownOpen(false)
                     }}
-                    className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${!toToken ? "bg-gray-600 text-blue-400" : "text-gray-200"}`}
+                    className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 cursor-pointer ${!toToken ? "bg-gray-600 text-blue-400" : "text-gray-200"}`}
                   >
                     <span className="ml-2">Select Token</span>
                     {!toToken && (
@@ -399,7 +419,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               <button
                 type="button"
                 onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
-                className="w-full flex items-center px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full flex items-center px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
               >
                 {toChainId ? (
                   <>
@@ -436,7 +456,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       setToChainId(undefined)
                       setIsChainDropdownOpen(false)
                     }}
-                    className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${!toChainId ? "bg-gray-600 text-blue-400" : "text-gray-200"}`}
+                    className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 cursor-pointer ${!toChainId ? "bg-gray-600 text-blue-400" : "text-gray-200"}`}
                   >
                     <span className="ml-2">Select Chain</span>
                     {!toChainId && (
@@ -452,7 +472,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           setToChainId(chain.id)
                           setIsChainDropdownOpen(false)
                         }}
-                        className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${
+                        className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 cursor-pointer ${
                           toChainId === chain.id
                             ? "bg-gray-600 text-blue-400"
                             : "text-gray-200"
@@ -496,7 +516,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </label>
             <button
               onClick={() => setUseCustomButton(!useCustomButton)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer ${
                 useCustomButton ? "bg-blue-500" : "bg-gray-600"
               }`}
             >
@@ -514,7 +534,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </label>
             <button
               onClick={() => setRenderInline(!renderInline)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer ${
                 renderInline ? "bg-blue-500" : "bg-gray-600"
               }`}
             >
@@ -571,7 +591,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           <div className="pt-2">
             <button
               onClick={handleReset}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors duration-200 text-sm font-medium border border-gray-600 hover:border-gray-500"
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors duration-200 text-sm font-medium border border-gray-600 hover:border-gray-500 cursor-pointer"
             >
               Reset
             </button>
@@ -627,7 +647,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         setToCalldata("")
                       }}
                       disabled={!usdcRecipient}
-                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed"
+                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
                     >
                       Apply Example
                     </button>
@@ -688,7 +708,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         setToChainId(42161)
                       }}
                       disabled={!nftRecipient}
-                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed"
+                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
                     >
                       Apply Example
                     </button>
@@ -750,7 +770,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         setToChainId(137)
                       }}
                       disabled={!nftRecipient}
-                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed"
+                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
                     >
                       Apply Example
                     </button>
@@ -811,7 +831,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         setToChainId(8453)
                       }}
                       disabled={!aaveRecipient}
-                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed"
+                      className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 text-white rounded-lg transition-colors duration-200 text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
                     >
                       Apply Example
                     </button>
