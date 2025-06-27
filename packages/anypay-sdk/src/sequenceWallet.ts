@@ -247,7 +247,6 @@ export async function sequenceSendTransaction(
   })
 
   const isDeployed = hasCode !== undefined
-  const sponsored = false
   if (!isDeployed) {
     console.log("deploying sequence wallet")
 
@@ -257,6 +256,7 @@ export async function sequenceSendTransaction(
     console.log("deployTx entrypoint:", deployTx!.entrypoint)
     console.log("deployTx transactions:", deployTx!.transactions)
 
+    console.log("getting fee options 0")
     const feeOptions = await wallet.relayer.getFeeOptions(
       wallet.address as `0x${string}`,
       ...deployTx!.transactions,
@@ -266,7 +266,7 @@ export async function sequenceSendTransaction(
     console.log("feeOptions", feeOptions)
 
     // Check if deployment is whitelisted (no fees required)
-    if (feeOptions?.options.length === 0 || sponsored) {
+    if (feeOptions?.options.length === 0) {
       console.log("Deployment is whitelisted - no fees required")
 
       const bytes = new Uint8Array(32)
@@ -288,7 +288,7 @@ export async function sequenceSendTransaction(
       console.log("Deployment relayed")
 
       // Wait for deployment to complete
-      await new Promise((resolve) => setTimeout(resolve, 3000))
+      await new Promise((resolve) => setTimeout(resolve, 6000))
     } else {
       // Find the USDC option for fee payment
       const option = feeOptions?.options.find(
@@ -308,7 +308,7 @@ export async function sequenceSendTransaction(
         console.log("Fee transactions:", feeTransactions)
 
         // Include both deployment and fee transactions
-        const allTransactions = [...feeTransactions, ...deployTx!.transactions]
+        const allTransactions = [...deployTx!.transactions]
         console.log("All transactions (deployment + fees):", allTransactions)
 
         const predecorated = await sequenceAccount.predecorateTransactions(
@@ -329,8 +329,8 @@ export async function sequenceSendTransaction(
 
         wallet.relayer.relay(
           {
-            entrypoint: signed!.entrypoint as `0x${string}`,
-            transactions: signed.transactions,
+            entrypoint: deployTx!.entrypoint as `0x${string}`,
+            transactions: deployTx!.transactions,
             chainId: wallet.chainId,
             intent: {
               id: toHex(bytes),
@@ -341,7 +341,7 @@ export async function sequenceSendTransaction(
         )
 
         // Wait for deployment to complete
-        await new Promise((resolve) => setTimeout(resolve, 3000))
+        await new Promise((resolve) => setTimeout(resolve, 6000))
         console.log("sequence wallet deployed")
       } else {
         throw new Error(
@@ -351,14 +351,31 @@ export async function sequenceSendTransaction(
     }
   }
 
+  console.log("getting fee options 1")
+  const feeOptions = await wallet.relayer!.getFeeOptions(
+    wallet.address as `0x${string}`,
+    ...sequenceTxs,
+  )
+
+  // Find the USDC option for fee payment
+  const option = feeOptions?.options.find(
+    (option) => option.token.symbol === "USDC",
+  )
+
+  const quote = feeOptions?.quote
+
+  // Use encodeGasRefundTransaction to create the fee transaction
+  const feeTransactions = encodeGasRefundTransaction(option)
+  console.log("Fee transactions:", feeTransactions)
+
   // Sign the txs with the Sequence Wallet
   const signed = await wallet.signTransactions(
-    sequenceTxs,
+    [...feeTransactions, ...sequenceTxs],
     commons.transaction.encodeNonce(txe.space, txe.nonce),
   )
   // Relay the txs to sponsor them
   const relayer = sequenceAccount.relayer(chainId)
-  const relayed = await relayer.relay(signed)
+  const relayed = await relayer.relay(signed, quote)
   return relayed?.hash || null
 }
 
