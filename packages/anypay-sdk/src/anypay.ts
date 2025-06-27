@@ -62,7 +62,11 @@ import {
   findPreconditionAddress,
 } from "./preconditions.js"
 import { getQueryParam } from "./queryParams.js"
-import { getBackupRelayer, useRelayers } from "./relayer.js"
+import {
+  getBackupRelayer,
+  type RelayerEnvConfig,
+  useRelayers,
+} from "./relayer.js"
 import { executeSimpleRelayTransaction, getRelaySDKQuote } from "./relaysdk.js"
 import {
   getFeeOptions,
@@ -84,7 +88,7 @@ export type UseAnyPayConfig = {
   disableAutoExecute?: boolean
   env: "local" | "cors-anywhere" | "dev" | "prod"
   useV3Relayers?: boolean
-  sequenceApiKey?: string
+  sequenceProjectAccessKey?: string
 }
 
 export type UseAnyPayReturn = {
@@ -197,9 +201,9 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     disableAutoExecute = false,
     env,
     useV3Relayers = true,
-    sequenceApiKey,
+    sequenceProjectAccessKey,
   } = config
-  const apiClient = useAPIClient({ projectAccessKey: sequenceApiKey })
+  const apiClient = useAPIClient({ projectAccessKey: sequenceProjectAccessKey })
 
   const [isAutoExecute, setIsAutoExecute] = useState(!disableAutoExecute)
   const [hasAutoExecuted, setHasAutoExecuted] = useState(false)
@@ -1534,7 +1538,7 @@ export type SendOptions = {
   destinationTokenAddress: string
   destinationTokenAmount: string
   destinationTokenSymbol: string
-  sequenceApiKey: string
+  sequenceProjectAccessKey: string
   fee: string
   client?: WalletClient
   dryMode?: boolean
@@ -1549,6 +1553,7 @@ export type SendOptions = {
   destinationTokenDecimals: number
   paymasterUrl?: string
   gasless?: boolean
+  relayerConfig: RelayerEnvConfig
 }
 
 export type SendReturn = {
@@ -1583,6 +1588,8 @@ export async function prepareSend(options: SendOptions) {
     destinationTokenDecimals,
     paymasterUrl,
     gasless,
+    relayerConfig,
+    sequenceProjectAccessKey,
   } = options
 
   if (!walletClient) {
@@ -1937,100 +1944,112 @@ export async function prepareSend(options: SendOptions) {
       let originMetaTxnReceipt: any = null // TODO: Add proper type
       let destinationMetaTxnReceipt: any = null // TODO: Add proper type
 
-      const doGasless = originTokenAddress !== zeroAddress && gasless
-      console.log("doGasless", doGasless, paymasterUrl)
-      if (doGasless) {
-        if (paymasterUrl) {
-          const txHash = await runGasless7702Flow(
-            testnet ? chains.baseSepolia : chain,
-            testnet
-              ? testnetOriginTokenAddress
-              : (originTokenAddress as `0x${string}`),
-            BigInt(firstPreconditionMin),
-            intentAddress as `0x${string}`,
-            paymasterUrl,
-          )
-          if (onOriginSend) {
-            onOriginSend()
+      const doGasless =
+        originTokenAddress !== zeroAddress && (gasless || paymasterUrl)
+      try {
+        console.log("doGasless", doGasless, paymasterUrl)
+        if (doGasless) {
+          if (paymasterUrl) {
+            const txHash = await runGasless7702Flow(
+              testnet ? chains.baseSepolia : chain,
+              testnet
+                ? testnetOriginTokenAddress
+                : (originTokenAddress as `0x${string}`),
+              BigInt(firstPreconditionMin),
+              intentAddress as `0x${string}`,
+              paymasterUrl,
+            )
+            if (onOriginSend) {
+              onOriginSend()
+            }
+
+            const receipt = await publicClient.waitForTransactionReceipt({
+              hash: txHash as `0x${string}`,
+            })
+            console.log("receipt", receipt)
+            originUserTxReceipt = receipt
+          } else {
+            await attemptSwitchChain(walletClient, originChainId)
+            const sequenceWalletAddress = await simpleCreateSequenceWallet(
+              account as any,
+              relayerConfig,
+              sequenceProjectAccessKey,
+            )
+            console.log("sequenceWalletAddress", sequenceWalletAddress)
+
+            // Initialize clients
+            const sequencePublicClient = createPublicClient({
+              chain: testnet ? chains.baseSepolia : chain,
+              transport: http(),
+            })
+
+            const { signature, deadline } = await getPermitSignature(
+              sequencePublicClient as PublicClient,
+              account.address,
+              sequenceWalletAddress,
+              testnet
+                ? testnetOriginTokenAddress
+                : (originTokenAddress as `0x${string}`),
+              BigInt(originTokenAmount),
+              testnet ? chains.baseSepolia : chain,
+            )
+
+            const calls = getPermitCalls(
+              account.address,
+              sequenceWalletAddress,
+              BigInt(originTokenAmount),
+              deadline,
+              signature,
+              intentAddress as `0x${string}`,
+              testnet
+                ? testnetOriginTokenAddress
+                : (originTokenAddress as `0x${string}`),
+            )
+
+            const feeOptions = await getFeeOptions(
+              originRelayer,
+              sequenceWalletAddress,
+              originChainId,
+              calls.map((call) => ({
+                to: call.to,
+                value: BigInt(call.value),
+                data: call.data,
+                gasLimit: BigInt(0),
+                delegateCall: false,
+                onlyFallback: false,
+                behaviorOnError: "revert",
+              })) as Payload.Call[],
+            )
+
+            console.log("feeOptions", feeOptions)
+
+            const sequenceTxHash = await sequenceSendTransaction(
+              sequenceWalletAddress,
+              walletClient,
+              sequencePublicClient as PublicClient,
+              calls,
+              testnet ? chains.baseSepolia : chain,
+              relayerConfig,
+              sequenceProjectAccessKey,
+            )
+            console.log("sequenceTxHash", sequenceTxHash)
+            if (onOriginSend) {
+              onOriginSend()
+            }
+
+            const receipt = await publicClient.waitForTransactionReceipt({
+              hash: sequenceTxHash as `0x${string}`,
+            })
+            console.log("receipt", receipt)
+            originUserTxReceipt = receipt
           }
-
-          const receipt = await publicClient.waitForTransactionReceipt({
-            hash: txHash as `0x${string}`,
-          })
-          console.log("receipt", receipt)
-          originUserTxReceipt = receipt
-        } else {
-          await attemptSwitchChain(walletClient, originChainId)
-          const sequenceWalletAddress = await simpleCreateSequenceWallet(
-            account as any,
-          )
-          console.log("sequenceWalletAddress", sequenceWalletAddress)
-
-          // Initialize clients
-          const sequencePublicClient = createPublicClient({
-            chain: testnet ? chains.baseSepolia : chain,
-            transport: http(),
-          })
-
-          const { signature, deadline } = await getPermitSignature(
-            sequencePublicClient as PublicClient,
-            account.address,
-            sequenceWalletAddress,
-            testnet
-              ? testnetOriginTokenAddress
-              : (originTokenAddress as `0x${string}`),
-            BigInt(originTokenAmount),
-            testnet ? chains.baseSepolia : chain,
-          )
-
-          const calls = getPermitCalls(
-            account.address,
-            sequenceWalletAddress,
-            BigInt(originTokenAmount),
-            deadline,
-            signature,
-            intentAddress as `0x${string}`,
-            testnet
-              ? testnetOriginTokenAddress
-              : (originTokenAddress as `0x${string}`),
-          )
-
-          const feeOptions = await getFeeOptions(
-            originRelayer,
-            sequenceWalletAddress,
-            originChainId,
-            calls.map((call) => ({
-              to: call.to,
-              value: BigInt(call.value),
-              data: call.data,
-              gasLimit: BigInt(0),
-              delegateCall: false,
-              onlyFallback: false,
-              behaviorOnError: "revert",
-            })) as Payload.Call[],
-          )
-
-          console.log("feeOptions", feeOptions)
-
-          const sequenceTxHash = await sequenceSendTransaction(
-            sequenceWalletAddress,
-            walletClient,
-            sequencePublicClient as PublicClient,
-            calls,
-            testnet ? chains.baseSepolia : chain,
-          )
-          console.log("sequenceTxHash", sequenceTxHash)
-          if (onOriginSend) {
-            onOriginSend()
-          }
-
-          const receipt = await publicClient.waitForTransactionReceipt({
-            hash: sequenceTxHash as `0x${string}`,
-          })
-          console.log("receipt", receipt)
-          originUserTxReceipt = receipt
         }
-      } else {
+      } catch (error) {
+        console.log("gassless attempt failed", error)
+      }
+
+      // If gasless attempt failed, try to send a regular transaction
+      if (!originUserTxReceipt) {
         // ETH fee required by some bridges for low token amounts
         // TODO: update backend API to return the native fee requirement, if any
         let needsNativeFee = false

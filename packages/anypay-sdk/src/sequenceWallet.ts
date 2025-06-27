@@ -4,6 +4,7 @@ import { allNetworks } from "@0xsequence/network"
 import { trackers } from "@0xsequence/sessions"
 import { Orchestrator, type signers } from "@0xsequence/signhub"
 import type { Payload } from "@0xsequence/wallet-primitives"
+import { ethers } from "ethers"
 import { Abi, AbiFunction } from "ox"
 import {
   bytesToHex,
@@ -13,7 +14,8 @@ import {
   toHex,
   type WalletClient,
 } from "viem"
-import type { Relayer } from "./relayer.js"
+import type { Relayer, RelayerEnvConfig } from "./relayer.js"
+import { getRelayerUrl } from "./relayer.js"
 
 export type FlatTransaction = {
   to: string
@@ -37,11 +39,34 @@ export const TRACKER = new trackers.remote.RemoteConfigTracker(
   "https://sessions.sequence.app",
 )
 
-export const NETWORKS = allNetworks
+type GetAccountNetworksInput = {
+  relayerConfig: RelayerEnvConfig
+  sequenceProjectAccessKey: string
+}
+
+export function getAccountNetworks(input: GetAccountNetworksInput) {
+  return allNetworks.map((network) => {
+    const relayerUrl = getRelayerUrl(input.relayerConfig, network.chainId)
+    if (relayerUrl) {
+      const relayer: any = {
+        provider: new ethers.JsonRpcProvider(network.rpcUrl),
+        url: relayerUrl,
+        projectAccessKey: input.sequenceProjectAccessKey,
+      }
+      return {
+        ...network,
+        relayer,
+      }
+    }
+    return network
+  })
+}
 
 export async function createSequenceWallet(
   threshold: number,
   signers: { address: string; weight: number }[],
+  relayerConfig: RelayerEnvConfig,
+  sequenceProjectAccessKey: string,
 ): Promise<Account> {
   const account = await Account.new({
     config: {
@@ -53,7 +78,7 @@ export async function createSequenceWallet(
     tracker: TRACKER,
     contexts: commons.context.defaultContexts,
     orchestrator: new Orchestrator([]),
-    networks: NETWORKS,
+    networks: getAccountNetworks({ relayerConfig, sequenceProjectAccessKey }),
   })
 
   // Try to fetch the config from the tracker
@@ -97,6 +122,8 @@ export function toSequenceTransaction(
 export function accountFor(args: {
   address: string
   signatures?: { signer: string; signature: string }[]
+  relayerConfig: RelayerEnvConfig
+  sequenceProjectAccessKey: string
 }) {
   const signers: signers.SapientSigner[] = []
 
@@ -124,7 +151,10 @@ export function accountFor(args: {
     tracker: TRACKER,
     contexts: commons.context.defaultContexts,
     orchestrator: new Orchestrator(signers),
-    networks: NETWORKS,
+    networks: getAccountNetworks({
+      relayerConfig: args.relayerConfig,
+      sequenceProjectAccessKey: args.sequenceProjectAccessKey,
+    }),
   })
 }
 
@@ -178,13 +208,20 @@ export function recoverSigner(
   return res
 }
 
-export async function simpleCreateSequenceWallet(account: Account) {
+export async function simpleCreateSequenceWallet(
+  account: Account,
+  relayerConfig: RelayerEnvConfig,
+  sequenceProjectAccessKey: string,
+) {
   const signer = account.address
   const threshold = 1
   const weight = 1
-  const wallet = await createSequenceWallet(threshold, [
-    { address: signer, weight: weight },
-  ])
+  const wallet = await createSequenceWallet(
+    threshold,
+    [{ address: signer, weight: weight }],
+    relayerConfig,
+    sequenceProjectAccessKey,
+  )
 
   return wallet.address as `0x${string}`
 }
@@ -195,6 +232,8 @@ export async function sequenceSendTransaction(
   publicClient: PublicClient,
   calls: any[],
   chain: Chain,
+  relayerConfig: RelayerEnvConfig,
+  sequenceProjectAccessKey: string,
 ) {
   const chainId = chain.id
   if (!accountClient?.account?.address || !sequenceWalletAddress) {
@@ -234,6 +273,8 @@ export async function sequenceSendTransaction(
         signature: suffixed,
       },
     ],
+    relayerConfig,
+    sequenceProjectAccessKey,
   })
   const sequenceTxs = toSequenceTransactions(txsToExecute)
   const status = await sequenceAccount.status(chainId)

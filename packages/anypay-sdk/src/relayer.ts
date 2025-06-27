@@ -50,7 +50,10 @@ export function getBackupRelayer(
 }
 
 // TODO: add relayer url to config
-function getRelayerUrl(config: RelayerEnvConfig, chainId: number): string {
+export function getRelayerUrl(
+  config: RelayerEnvConfig,
+  chainId: number,
+): string {
   let relayerUrl
   if (config.env === "local") {
     // Use specific ports for different chains in local environment

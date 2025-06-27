@@ -83,7 +83,7 @@ const getChainConfig = (chainId: number) => {
 }
 
 export type AnyPayWidgetProps = {
-  sequenceApiKey: string
+  sequenceProjectAccessKey: string
   sequenceIndexerUrl?: string
   sequenceApiUrl?: string
   sequenceEnv?: "local" | "cors-anywhere" | "dev" | "prod"
@@ -235,7 +235,7 @@ const useTransactionState = (
 }
 
 const WidgetInner: React.FC<AnyPayWidgetProps> = ({
-  sequenceApiKey,
+  sequenceProjectAccessKey,
   sequenceIndexerUrl,
   sequenceApiUrl,
   sequenceEnv,
@@ -300,7 +300,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 
   const indexerGatewayClient = useIndexerGatewayClient({
     indexerGatewayUrl: sequenceIndexerUrl,
-    projectAccessKey: sequenceApiKey,
+    projectAccessKey: sequenceProjectAccessKey,
   })
 
   const handleWalletConnect = async (walletId: string) => {
@@ -684,7 +684,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             onComplete={handleTransferComplete}
             selectedToken={selectedToken}
             account={walletClient.account}
-            sequenceApiKey={sequenceApiKey}
+            sequenceProjectAccessKey={sequenceProjectAccessKey}
             apiUrl={sequenceApiUrl}
             env={sequenceEnv}
             toRecipient={toAddress}
@@ -934,7 +934,7 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
           // SequenceHooksProvider missing, wrap with it
           <SequenceHooksProvider
             config={{
-              projectAccessKey: props.sequenceApiKey,
+              projectAccessKey: props.sequenceProjectAccessKey,
               env: {
                 indexerUrl: props.sequenceIndexerUrl,
                 indexerGatewayUrl: props.sequenceIndexerUrl,

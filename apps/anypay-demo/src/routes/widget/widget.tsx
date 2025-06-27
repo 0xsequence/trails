@@ -5,13 +5,15 @@ import { AppKitProvider, ConnectButton } from "./components/ConnectWallet"
 import { CustomizationForm, STORAGE_KEYS } from "./components/CustomizationForm"
 
 export const Widget = () => {
-  const sequenceApiKey = import.meta.env.VITE_PROJECT_ACCESS_KEY
+  const defaultSequenceProjectAccessKey = import.meta.env
+    .VITE_PROJECT_ACCESS_KEY
   const apiUrl = import.meta.env.VITE_API_URL
   const indexerUrl = import.meta.env.VITE_INDEXER_URL
   const env = import.meta.env.VITE_ENV
   const privyAppId = import.meta.env.VITE_PRIVY_APP_ID
   const privyClientId = import.meta.env.VITE_PRIVY_CLIENT_ID
 
+  const [sequenceProjectAccessKey, setSequenceProjectAccessKey] = useState("")
   const [toAddress, setToAddress] = useState("")
   const [toAmount, setToAmount] = useState("")
   const [toChainId, setToChainId] = useState<number | undefined>()
@@ -65,6 +67,8 @@ export const Widget = () => {
           {/* Left Column - Config Form */}
           <div className="md:w-1/2">
             <CustomizationForm
+              sequenceProjectAccessKey={sequenceProjectAccessKey}
+              setSequenceProjectAccessKey={setSequenceProjectAccessKey}
               toAddress={toAddress}
               setToAddress={setToAddress}
               toAmount={toAmount}
@@ -93,6 +97,7 @@ export const Widget = () => {
           {/* Right Column - Code Snippet */}
           <div className="md:w-1/2">
             <CodeSnippet
+              sequenceProjectAccessKey={sequenceProjectAccessKey}
               toAddress={toAddress}
               toAmount={toAmount}
               toChainId={toChainId}
@@ -107,7 +112,9 @@ export const Widget = () => {
             >
               <div className="mt-6 w-full max-w-md mx-auto">
                 <AnyPayWidget
-                  sequenceApiKey={sequenceApiKey}
+                  sequenceProjectAccessKey={
+                    sequenceProjectAccessKey || defaultSequenceProjectAccessKey
+                  }
                   sequenceApiUrl={apiUrl}
                   sequenceIndexerUrl={indexerUrl}
                   sequenceEnv={env}

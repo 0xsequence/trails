@@ -145,11 +145,7 @@ export function useTokenBalances(
         }
       } catch (error) {
         console.error("Failed to fetch token balances:", error)
-        return {
-          balances: [],
-          nativeBalances: [],
-          page: defaultPage,
-        } as GetTokenBalancesSummaryReturn
+        throw error
       }
     },
     enabled: !!address,

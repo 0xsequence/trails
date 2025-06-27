@@ -56,6 +56,7 @@
     "@tanstack/react-query": "^5.81.2",
     "@wagmi/core": "^2.17.3",
     "buffer": "^6.0.3",
+    "ethers": "^6.14.4",
     "framer-motion": "^12.19.1",
     "isomorphic-fetch": "^3.0.0",
     "lucide-react": "^0.493.0",

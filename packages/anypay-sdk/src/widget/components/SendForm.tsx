@@ -45,7 +45,7 @@ interface SendFormProps {
   onConfirm: () => void
   onComplete: (data: any) => void // TODO: Add proper type
   account: Account
-  sequenceApiKey: string
+  sequenceProjectAccessKey: string
   apiUrl?: string
   env?: "local" | "cors-anywhere" | "dev" | "prod"
   toRecipient?: string
@@ -206,7 +206,7 @@ export const SendForm: React.FC<SendFormProps> = ({
   onConfirm,
   onComplete,
   account,
-  sequenceApiKey,
+  sequenceProjectAccessKey,
   apiUrl,
   env,
   toAmount,
@@ -264,7 +264,10 @@ export const SendForm: React.FC<SendFormProps> = ({
       : SUPPORTED_TO_TOKENS[0]!,
   )
 
-  const apiClient = useAPIClient({ apiUrl, projectAccessKey: sequenceApiKey })
+  const apiClient = useAPIClient({
+    apiUrl,
+    projectAccessKey: sequenceProjectAccessKey,
+  })
 
   const { data: destTokenPrices } = useTokenPrices(
     selectedDestToken
@@ -336,6 +339,7 @@ export const SendForm: React.FC<SendFormProps> = ({
     selectedToken.contractInfo?.decimals,
   )
   const balanceUsdFormatted = (selectedToken as any).balanceUsdFormatted ?? "" // TODO: Add proper type
+  const relayerConfig = { env, useV3Relayers: true }
 
   const isValidRecipient = recipient && isAddress(recipient)
 
@@ -399,14 +403,8 @@ export const SendForm: React.FC<SendFormProps> = ({
         return
       }
 
-      const originRelayer = getRelayer(
-        { env, useV3Relayers: true },
-        selectedToken.chainId,
-      )
-      const destinationRelayer = getRelayer(
-        { env, useV3Relayers: true },
-        selectedChain.id,
-      )
+      const originRelayer = getRelayer(relayerConfig, selectedToken.chainId)
+      const destinationRelayer = getRelayer(relayerConfig, selectedChain.id)
 
       const sourceTokenDecimals =
         typeof selectedToken.contractInfo?.decimals === "number"
@@ -433,7 +431,7 @@ export const SendForm: React.FC<SendFormProps> = ({
         destinationTokenAddress,
         destinationTokenAmount: parsedAmount,
         destinationTokenSymbol: selectedDestToken.symbol,
-        sequenceApiKey,
+        sequenceProjectAccessKey,
         fee: "0",
         client: walletClient,
         apiClient,
@@ -453,6 +451,7 @@ export const SendForm: React.FC<SendFormProps> = ({
             (p) => p.chainId.toString() === selectedToken.chainId.toString(),
           )?.url ?? undefined,
         gasless,
+        relayerConfig,
       }
 
       console.log("options", options)

@@ -11,6 +11,8 @@ import { useAccount } from "wagmi"
 import { ChainSelector } from "./ChainSelector"
 
 interface CustomizationFormProps {
+  sequenceProjectAccessKey: string
+  setSequenceProjectAccessKey: (value: string) => void
   toAddress: string
   setToAddress: (value: string) => void
   toAmount: string
@@ -37,6 +39,7 @@ interface CustomizationFormProps {
 
 // Local storage keys
 export const STORAGE_KEYS = {
+  SEQUENCE_PROJECT_ACCESS_KEY: "anypay_sequence_project_access_key",
   TO_ADDRESS: "anypay_to_address",
   TO_AMOUNT: "anypay_to_amount",
   TO_CHAIN_ID: "anypay_to_chain_id",
@@ -82,6 +85,8 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
 }
 
 export const CustomizationForm: React.FC<CustomizationFormProps> = ({
+  sequenceProjectAccessKey,
+  setSequenceProjectAccessKey,
   toAddress,
   setToAddress,
   toAmount,
@@ -130,6 +135,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   // Load saved values from localStorage on mount
   useEffect(() => {
+    const savedSequenceProjectAccessKey = localStorage.getItem(
+      STORAGE_KEYS.SEQUENCE_PROJECT_ACCESS_KEY,
+    )
     const savedToAddress = localStorage.getItem(STORAGE_KEYS.TO_ADDRESS)
     const savedToAmount = localStorage.getItem(STORAGE_KEYS.TO_AMOUNT)
     const savedToChainId = localStorage.getItem(STORAGE_KEYS.TO_CHAIN_ID)
@@ -145,6 +153,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     const savedGasless = localStorage.getItem(STORAGE_KEYS.GASLESS)
 
     // Only set values if they exist in localStorage
+    if (savedSequenceProjectAccessKey !== null)
+      setSequenceProjectAccessKey(savedSequenceProjectAccessKey)
     if (savedToAddress !== null) setToAddress(savedToAddress)
     if (savedToAmount !== null) setToAmount(savedToAmount)
     if (savedToChainId !== null) setToChainId(Number(savedToChainId))
@@ -178,6 +188,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
     if (savedGasless !== null) setGasless(savedGasless === "true")
   }, [
+    setSequenceProjectAccessKey,
     setToAddress,
     setToAmount,
     setToChainId,
@@ -192,6 +203,17 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   ])
 
   // Save values to localStorage whenever they change
+  useEffect(() => {
+    if (sequenceProjectAccessKey) {
+      localStorage.setItem(
+        STORAGE_KEYS.SEQUENCE_PROJECT_ACCESS_KEY,
+        sequenceProjectAccessKey,
+      )
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.SEQUENCE_PROJECT_ACCESS_KEY)
+    }
+  }, [sequenceProjectAccessKey])
+
   useEffect(() => {
     if (toAddress) {
       localStorage.setItem(STORAGE_KEYS.TO_ADDRESS, toAddress)
@@ -306,6 +328,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   const handleReset = () => {
     // Clear form state
+    setSequenceProjectAccessKey("")
     setToAddress("")
     setToAmount("")
     setToChainId(undefined)
@@ -346,6 +369,21 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           </p>
         </div>
         <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-200 mb-2">
+              Sequence Project Access Key
+            </label>
+            <input
+              type="text"
+              value={sequenceProjectAccessKey}
+              onChange={(e) =>
+                setSequenceProjectAccessKey(e.target.value.trim())
+              }
+              placeholder="Access key (optional for demo)"
+              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-200 mb-2">
               To Address
@@ -516,7 +554,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   </text>
                 </svg>
                 <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-2 py-1 bg-gray-900 text-gray-100 text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  Enable gasless transactions using Sequence Relayer
+                  Enable gasless transactions using Sequence Relayer based on
+                  your project access key sponsorship settings
                 </span>
               </span>
             </label>

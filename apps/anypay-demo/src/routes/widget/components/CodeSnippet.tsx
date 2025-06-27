@@ -5,6 +5,7 @@ import { nightOwl as syntaxStyle } from "react-syntax-highlighter/dist/esm/style
 
 interface CodeSnippetProps {
   children: React.ReactNode
+  sequenceProjectAccessKey: string
   toAddress: string
   toAmount: string
   toChainId: number | undefined
@@ -20,6 +21,7 @@ interface CodeSnippetProps {
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   children,
+  sequenceProjectAccessKey,
   toAddress,
   toAmount,
   toChainId,
@@ -53,6 +55,8 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
     window.history.pushState({}, "", url.toString())
   }
 
+  const accessKey = sequenceProjectAccessKey || "key_123..."
+
   const getReactCode = () => {
     const props = [
       toAddress && `toAddress="${toAddress}"`,
@@ -76,7 +80,7 @@ export const App = () => {
     useCustomButton
       ? `
     <AnyPayWidget
-      sequenceApiKey={'key_123...'}${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
+      sequenceProjectAccessKey="${accessKey}"${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
     >
       <button className="custom-button-styles">
         Pay with AnyPay
@@ -84,7 +88,7 @@ export const App = () => {
     </AnyPayWidget>`
       : `
     <AnyPayWidget
-      sequenceApiKey={'key_123...'}${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
+      sequenceProjectAccessKey="${accessKey}"${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
     />`
   }
   )
@@ -118,7 +122,7 @@ export const App = () => {
     
     <script>
         AnyPayWidget.render(document.getElementById('anypay'), {
-            sequenceApiKey: 'key_123...',${props.length > 0 ? "\n            " : ""}${props.join(",\n            ")}
+            sequenceProjectAccessKey: '${accessKey}',${props.length > 0 ? "\n            " : ""}${props.join(",\n            ")}
         });
     </script>
 </body>
