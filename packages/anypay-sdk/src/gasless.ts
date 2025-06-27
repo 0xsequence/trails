@@ -1,31 +1,31 @@
 import {
-  createPublicClient,
-    createWalletClient,
-  http,
-    custom,
-    encodeFunctionData,
-    parseAbi,
-    encodePacked,
-    toHex,
-    pad,
-  parseEther,
-  zeroAddress,
-  parseGwei,
-  type WalletClient,
   type Account,
   type Chain,
+  createPublicClient,
+  createWalletClient,
+  custom,
+  encodeFunctionData,
+  encodePacked,
+  http,
   type PublicClient,
+  pad,
+  parseAbi,
+  parseEther,
+  parseGwei,
+  toHex,
+  type WalletClient,
+  zeroAddress,
 } from "viem"
 import type { UserOperation } from "viem/account-abstraction"
-import { privateKeyToAccount, generatePrivateKey } from "viem/accounts"
-import { sendUserOperationDirectly } from "./sendUserOp.js"
 import {
   createBundlerClient,
   createPaymasterClient,
   prepareUserOperation,
 } from "viem/account-abstraction"
-import { toSimpleSmartAccount } from "./toSimpleSmartAccount.js"
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
 import { attemptSwitchChain } from "./chainSwitch.js"
+import { sendUserOperationDirectly } from "./sendUserOp.js"
+import { toSimpleSmartAccount } from "./toSimpleSmartAccount.js"
 
 // --- Type declarations ---
 
@@ -98,18 +98,18 @@ export const ENTRYPOINT_ABI = [
 // --- Constants ---
 
 const RELAYER_PRIVATE_KEY = "" // This is for testing only
-  
-  // --- Interfaces ---
-  
-  interface PackedCall {
+
+// --- Interfaces ---
+
+interface PackedCall {
   to: `0x${string}`
   value: bigint
   gasLimit: bigint
   behaviorOnError: number
   data: `0x${string}`
-  }
-  
-  interface Payload {
+}
+
+interface Payload {
   kind: number
   noChainId: boolean
   space: number
@@ -160,10 +160,10 @@ const TRANSFER_ABI = {
 }
 
 const ENTRYPOINT_ADDRESS = "0x0000000071727de22e5e9d8baf0edac6f37da032"
-  
-  // --- Payload packer ---
-  
-  export function packPayload(payload: Payload): `0x${string}` {
+
+// --- Payload packer ---
+
+export function packPayload(payload: Payload): `0x${string}` {
   const globalFlag = 0x00
   const numCalls = payload.calls.length
 
@@ -184,10 +184,10 @@ const ENTRYPOINT_ADDRESS = "0x0000000071727de22e5e9d8baf0edac6f37da032"
       ...encodedCalls,
     ],
   )
-  }
-  
-  // --- Main logic ---
-  
+}
+
+// --- Main logic ---
+
 export async function runGasless7702Flow(
   chain: Chain,
   tokenAddress: `0x${string}`,
@@ -424,7 +424,6 @@ export async function runGasless7702Flow(
 
       const txHash = await sendUserOperationDirectly({
         userOp: userOp1,
-        signedUserOp: signedUserOp1,
         relayerPrivateKey: RELAYER_PRIVATE_KEY as `0x${string}`,
         chain: chain,
       })
@@ -439,7 +438,7 @@ export async function runGasless7702Flow(
   }
 }
 
-async function stakeOnEntryPoint(
+export async function stakeOnEntryPoint(
   relayerClient: WalletClient,
   relayerAccount: Account,
   delegatorAddress: `0x${string}`,
@@ -689,5 +688,4 @@ export async function getPermitSignature(
   })
 
   return { signature, deadline }
-  }
-  
+}

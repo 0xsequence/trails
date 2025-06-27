@@ -2,43 +2,43 @@ import {
   type Account,
   type Address,
   type Assign,
+  BaseError,
   type Chain,
   type Client,
+  concat,
+  createWalletClient,
+  custom,
+  decodeAbiParameters,
+  decodeFunctionData,
+  type EIP1193Provider,
+  encodeDeployData,
+  encodeFunctionData,
   type Hex,
   type JsonRpcAccount,
   type LocalAccount,
   type OneOf,
+  type Prettify,
   type Transport,
   type WalletClient,
-  type EIP1193Provider,
-  type Prettify,
-  BaseError,
-  decodeFunctionData,
-  encodeFunctionData,
-  concat,
-  decodeAbiParameters,
-  encodeDeployData,
-  createWalletClient,
-  custom,
 } from "viem"
 import {
-  type SmartAccount,
-  type SmartAccountImplementation,
-  type UserOperation,
   entryPoint07Abi,
   entryPoint07Address,
   getUserOperationHash,
+  type SmartAccount,
+  type SmartAccountImplementation,
   toSmartAccount,
+  type UserOperation,
 } from "viem/account-abstraction"
+import { toAccount } from "viem/accounts"
 import {
-  getChainId,
-  signMessage,
-  readContract,
   call,
+  getChainId,
+  readContract,
+  signMessage,
   signTypedData,
 } from "viem/actions"
 import { getAction } from "viem/utils"
-import { toAccount } from "viem/accounts"
 
 const getAccountInitCode = async (
   owner: Address,
@@ -136,7 +136,7 @@ export async function toSimpleSmartAccount<
     index = BigInt(0),
     address,
     nonceKey,
-    accountLogicAddress = "0xe6Cae83BdE06E4c305530e199D7217f42808555B",
+    // accountLogicAddress = "0xe6Cae83BdE06E4c305530e199D7217f42808555B",
   } = parameters
 
   const localOwner = await toOwner({ owner })

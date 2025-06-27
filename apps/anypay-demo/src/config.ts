@@ -21,6 +21,6 @@ export const PAY_TOKEN_SYMBOL = "USDC"
 export const PAY_TOKEN_DECIMALS = 6
 export const PAY_RECIPIENT_ADDRESS =
   "0x750EF1D7a0b4Ab1c97B7A623D7917CcEb5ea779C"
-export const PAY_AMOUNT = 300000n // 0.3 USDC
-export const PAY_AMOUNT_FORMATTED = "0.3"
+export const PAY_AMOUNT = 30000n // 0.03 USDC
+export const PAY_AMOUNT_FORMATTED = "0.03"
 export const PAY_DISPLAY_TEXT = `(Donate $${PAY_AMOUNT_FORMATTED} ${PAY_TOKEN_SYMBOL})`

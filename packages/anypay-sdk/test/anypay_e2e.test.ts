@@ -89,7 +89,7 @@ async function prepareSend(options: SendOptions) {
   const intentAddress = calculateIntentAddress(
     mainSigner,
     intent.calls,
-    intent.lifiInfos,
+    intent.executionInfos,
   )
   console.log("Calculated intent address:", intentAddress.toString())
 
@@ -99,7 +99,7 @@ async function prepareSend(options: SendOptions) {
       mainSigner,
       intent.calls,
       intent.preconditions,
-      intent.lifiInfos,
+      intent.executionInfos,
     )
   }
 

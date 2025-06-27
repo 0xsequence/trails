@@ -1,5 +1,5 @@
 import type {
-  AnypayLifiInfo,
+  AnypayExecutionInfo,
   IntentCallsPayload,
   IntentPrecondition,
 } from "@0xsequence/anypay-api"
@@ -46,7 +46,7 @@ interface IntentQuoteDisplayStepProps {
   intentCallsPayloads: IntentCallsPayload[] | null
   intentPreconditions: IntentPrecondition[] | null
   metaTxns: MetaTxn[] | null
-  lifiInfos: AnypayLifiInfo[] | null
+  anypayInfos: AnypayExecutionInfo[] | null
   anypayFee: AnypayFee | null
   intentActionType: IntentAction | null
   selectedToken: TokenBalance | null
@@ -66,7 +66,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
   intentCallsPayloads,
   intentPreconditions,
   metaTxns,
-  lifiInfos,
+  anypayInfos,
   anypayFee,
   intentActionType,
   selectedToken,
@@ -221,7 +221,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
       !intentActionType ||
       !selectedToken ||
       !account?.address ||
-      !lifiInfos ||
+      !anypayInfos ||
       !intentPreconditions
     )
       return null
@@ -555,6 +555,14 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                     </span>
                   </div>
                 )}
+                {anypayFee.quoteProvider && (
+                  <div className="text-xs font-semibold text-white flex items-center">
+                    Quote Provider:
+                    <span className="font-mono text-yellow-300 ml-2 text-xs font-medium bg-gray-900/50 px-2 py-1 rounded-md border border-gray-700/50">
+                      {anypayFee.quoteProvider.toLocaleUpperCase()}
+                    </span>
+                  </div>
+                )}
                 {anypayFee.feeToken && (
                   <div className="text-xs font-semibold text-white flex items-center">
                     Fee Token:
@@ -565,7 +573,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                 )}
                 {anypayFee.anypayFixedFeeUSD && (
                   <div className="text-xs font-semibold text-white flex items-center">
-                    Fixed Fee ($0.01 for each meta-tx):
+                    Fixed Fee ($0.01):
                     <span className="font-mono text-yellow-300 ml-2 text-xs font-medium bg-gray-900/50 px-2 py-1 rounded-md border border-gray-700/50">
                       {anypayFee.anypayFixedFeeUSD}
                     </span>
@@ -580,10 +588,10 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                     <div className="space-y-1 text-sm pl-2">
                       <p>
                         <span className="font-medium text-gray-400">
-                          LIFI Fee:
+                          Provider Fee:
                         </span>{" "}
                         $
-                        {anypayFee.crossChainFee.lifiFeeUSD.toLocaleString(
+                        {anypayFee.crossChainFee.providerFeeUSD.toLocaleString(
                           undefined,
                           {
                             minimumFractionDigits: 2,
@@ -728,7 +736,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
           </div>
         )}
 
-        {lifiInfos && lifiInfos.length > 0 && (
+        {anypayInfos && anypayInfos.length > 0 && (
           <div className="mt-4">
             <Text
               variant="medium"
@@ -754,7 +762,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                   </Text>
                 </div>
                 <pre className="text-xs overflow-x-auto whitespace-pre-wrap bg-gray-900/50 p-2 rounded border border-gray-700/50 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-                  {JSON.stringify(lifiInfos, null, 2)}
+                  {JSON.stringify(anypayInfos, null, 2)}
                 </pre>
               </div>
             </div>

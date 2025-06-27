@@ -1,9 +1,10 @@
 import type {
-  AnypayLifiInfo,
+  AnypayExecutionInfo,
   GetIntentConfigReturn,
   IntentCallsPayload,
   IntentPrecondition,
 } from "@0xsequence/anypay-api"
+import type { AnypayFee } from "@0xsequence/anypay-sdk"
 import { Button, Text } from "@0xsequence/design-system"
 import { AlertCircle, Loader2, Zap } from "lucide-react"
 import type React from "react"
@@ -12,7 +13,8 @@ import { SectionHeader } from "@/components/SectionHeader"
 interface CommitIntentStepProps {
   intentCallsPayloads: IntentCallsPayload[] | null
   intentPreconditions: IntentPrecondition[] | null
-  lifiInfos: AnypayLifiInfo[] | null
+  anypayInfos: AnypayExecutionInfo[] | null
+  anypayFee: AnypayFee | null
   verificationStatus: {
     success: boolean
     receivedAddress?: string
@@ -25,11 +27,12 @@ interface CommitIntentStepProps {
   committedConfigError: Error | null
   committedIntentConfigData: GetIntentConfigReturn | undefined
   commitIntentConfig: (args: {
-    walletAddress: string | null
+    walletAddress: string
     mainSigner: string
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
-    lifiInfos: AnypayLifiInfo[]
+    anypayInfos: AnypayExecutionInfo[]
+    quoteProvider: "lifi" | "relay"
   }) => void
   isCommitButtonDisabled: boolean
   commitButtonText: React.ReactNode
@@ -40,7 +43,8 @@ interface CommitIntentStepProps {
 export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
   intentCallsPayloads,
   intentPreconditions,
-  lifiInfos,
+  anypayInfos,
+  anypayFee,
   verificationStatus,
   commitIntentConfigError,
   commitIntentConfigSuccess,
@@ -196,7 +200,9 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   !accountAddress ||
                   !intentCallsPayloads ||
                   !intentPreconditions ||
-                  !lifiInfos
+                  !anypayInfos ||
+                  !calculatedIntentAddress ||
+                  !anypayFee
                 )
                   return
                 commitIntentConfig({
@@ -204,7 +210,8 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   mainSigner: accountAddress,
                   calls: intentCallsPayloads,
                   preconditions: intentPreconditions,
-                  lifiInfos: lifiInfos,
+                  anypayInfos: anypayInfos,
+                  quoteProvider: anypayFee.quoteProvider as "lifi" | "relay",
                 })
               }}
               disabled={isCommitButtonDisabled}

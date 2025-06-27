@@ -1,12 +1,13 @@
 import {
   type Account,
+  calculateIntentAddress,
   type TokenBalance,
   useAnyPay,
   useTokenBalances,
 } from "@0xsequence/anypay-sdk"
 import { Loader2 } from "lucide-react"
 import { AbiFunction, type Address } from "ox"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import type { Hex } from "viem"
 import { useAccount, useConnect, useDisconnect } from "wagmi"
 import { AccountInfoSection } from "@/components/AccountInfoSection"
@@ -55,7 +56,7 @@ function useHook() {
     metaTxns,
     intentCallsPayloads,
     intentPreconditions,
-    lifiInfos,
+    anypayInfos,
     committedIntentAddress,
     verificationStatus,
     committedIntentConfig,
@@ -88,7 +89,6 @@ function useHook() {
     sendMetaTxnArgs,
     clearIntent,
     metaTxnMonitorStatuses,
-    calculatedIntentAddress,
     updateOriginCallParams,
     originCallParams,
     originBlockTimestamp,
@@ -98,6 +98,23 @@ function useHook() {
     account: account as Account,
     env: import.meta.env.VITE_ENV,
   })
+
+  const calculatedIntentAddress = useMemo(() => {
+    if (
+      !account.address ||
+      !intentCallsPayloads ||
+      !anypayInfos ||
+      !anypayFee
+    ) {
+      return null
+    }
+    return calculateIntentAddress(
+      account.address,
+      intentCallsPayloads as any,
+      anypayInfos as any,
+      anypayFee.quoteProvider as "lifi" | "relay",
+    )
+  }, [account.address, intentCallsPayloads, anypayInfos, anypayFee])
 
   const { sortedTokens, isLoadingBalances, balanceError } = useTokenBalances(
     account.address as Address.Address,
@@ -334,7 +351,7 @@ function useHook() {
     intentCallsPayloads,
     intentPreconditions,
     metaTxns,
-    lifiInfos,
+    anypayInfos,
     committedIntentAddress,
     committedIntentConfig,
     verificationStatus,
@@ -429,7 +446,7 @@ export const HomeIndexRoute = () => {
     intentCallsPayloads,
     intentPreconditions,
     metaTxns,
-    lifiInfos,
+    anypayInfos,
     committedIntentAddress,
     committedIntentConfig,
     verificationStatus,
@@ -548,7 +565,7 @@ export const HomeIndexRoute = () => {
             intentCallsPayloads={intentCallsPayloads}
             intentPreconditions={intentPreconditions}
             metaTxns={metaTxns}
-            lifiInfos={lifiInfos}
+            anypayInfos={anypayInfos}
             anypayFee={anypayFee}
             intentActionType={intentActionType}
             selectedToken={selectedToken}
@@ -561,7 +578,8 @@ export const HomeIndexRoute = () => {
           <CommitIntentStep
             intentCallsPayloads={intentCallsPayloads}
             intentPreconditions={intentPreconditions}
-            lifiInfos={lifiInfos}
+            anypayInfos={anypayInfos}
+            anypayFee={anypayFee}
             verificationStatus={verificationStatus}
             commitIntentConfigError={commitIntentConfigError}
             commitIntentConfigSuccess={commitIntentConfigSuccess}

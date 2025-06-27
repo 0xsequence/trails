@@ -1,6 +1,6 @@
 {
   "name": "@0xsequence/anypay-api",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "description": "api sub-package for Sequence",
   "repository": "https://github.com/0xsequence/sequence.js/tree/master/packages/api",
@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@0xsequence/typescript-config": "workspace:^",
-    "@types/node": "^22.15.29",
+    "@types/node": "^22.15.33",
     "typescript": "^5.8.3"
   }
 }

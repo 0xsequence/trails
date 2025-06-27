@@ -1,5 +1,5 @@
 import type {
-  AnypayLifiInfo,
+  AnypayExecutionInfo,
   GetIntentCallsPayloadsArgs,
   GetIntentConfigReturn,
   IntentCallsPayload,
@@ -20,11 +20,11 @@ import {
   type Hex,
   http,
   isAddressEqual,
+  type PublicClient,
   parseUnits,
   type TransactionReceipt,
   type WalletClient,
   zeroAddress,
-  type PublicClient,
 } from "viem"
 import * as chains from "viem/chains"
 import {
@@ -35,7 +35,13 @@ import {
   useWaitForTransactionReceipt,
 } from "wagmi"
 import { useAPIClient } from "./apiClient.js"
+import { attemptSwitchChain } from "./chainSwitch.js"
 import { getERC20TransferData } from "./encoders.js"
+import {
+  getPermitCalls,
+  getPermitSignature,
+  runGasless7702Flow,
+} from "./gasless.js"
 import {
   type AnypayFee,
   calculateIntentAddress,
@@ -55,22 +61,16 @@ import {
   findFirstPreconditionForChainId,
   findPreconditionAddress,
 } from "./preconditions.js"
+import { getQueryParam } from "./queryParams.js"
 import { getBackupRelayer, useRelayers } from "./relayer.js"
+import { executeSimpleRelayTransaction, getRelaySDKQuote } from "./relaysdk.js"
+import {
+  getFeeOptions,
+  sequenceSendTransaction,
+  simpleCreateSequenceWallet,
+} from "./sequenceWallet.js"
 import { getChainInfo } from "./tokenBalances.js"
 import { requestWithTimeout } from "./utils.js"
-import {
-  getPermitSignature,
-  getPermitCalls,
-  runGasless7702Flow,
-} from "./gasless.js"
-import { baseSepolia } from "viem/chains"
-import { attemptSwitchChain } from "./chainSwitch.js"
-import {
-  simpleCreateSequenceWallet,
-  sequenceSendTransaction,
-  getFeeOptions,
-} from "./sequenceWallet.js"
-import { getQueryParam } from "./queryParams.js"
 
 export type Account = {
   address: `0x${string}`
@@ -92,7 +92,7 @@ export type UseAnyPayReturn = {
   metaTxns: GetIntentCallsPayloadsReturn["metaTxns"] | null
   intentCallsPayloads: GetIntentCallsPayloadsReturn["calls"] | null
   intentPreconditions: GetIntentCallsPayloadsReturn["preconditions"] | null
-  lifiInfos: GetIntentCallsPayloadsReturn["lifiInfos"] | null
+  anypayInfos: GetIntentCallsPayloadsReturn["anypayInfos"] | null
   anypayFee: AnypayFee | null
   txnHash: Hex | undefined
   committedIntentAddress: string | null
@@ -109,11 +109,27 @@ export type UseAnyPayReturn = {
   committedIntentConfig: GetIntentConfigReturn | undefined
   isLoadingCommittedConfig: boolean
   committedConfigError: Error | null
-  commitIntentConfig: (args: any) => void // TODO: Add proper type
+  commitIntentConfig: (args: {
+    walletAddress: string
+    mainSigner: string
+    calls: IntentCallsPayload[]
+    preconditions: IntentPrecondition[]
+    anypayInfos: AnypayExecutionInfo[]
+    quoteProvider: "lifi" | "relay"
+  }) => void
   commitIntentConfigPending: boolean
   commitIntentConfigSuccess: boolean
   commitIntentConfigError: Error | null
-  commitIntentConfigArgs: any // TODO: Add proper type
+  commitIntentConfigArgs:
+    | {
+        walletAddress: string
+        mainSigner: string
+        calls: IntentCallsPayload[]
+        preconditions: IntentPrecondition[]
+        anypayInfos: AnypayExecutionInfo[]
+        quoteProvider: "lifi" | "relay"
+      }
+    | undefined
   getIntentCallsPayloads: (
     args: GetIntentCallsPayloadsArgs,
   ) => Promise<GetIntentCallsPayloadsReturn>
@@ -163,7 +179,6 @@ export type UseAnyPayReturn = {
   createIntentSuccess: boolean
   createIntentError: Error | null
   createIntentArgs: any // TODO: Add proper type
-  calculatedIntentAddress: Address.Address | null
   originCallParams: OriginCallParams | null
   updateOriginCallParams: (
     args: { originChainId: number; tokenAddress: string } | null,
@@ -204,8 +219,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
   const [intentPreconditions, setIntentPreconditions] = useState<
     GetIntentCallsPayloadsReturn["preconditions"] | null
   >(null)
-  const [lifiInfos, setLifiInfos] = useState<
-    GetIntentCallsPayloadsReturn["lifiInfos"] | null
+  const [anypayInfos, setAnypayInfos] = useState<
+    GetIntentCallsPayloadsReturn["anypayInfos"] | null
   >(null)
   const [anypayFee, setAnypayFee] = useState<AnypayFee | null>(null)
   const [txnHash, setTxnHash] = useState<Hex | undefined>()
@@ -256,6 +271,18 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     useV3Relayers,
   })
 
+  const calculatedIntentAddress = useMemo(() => {
+    if (!account.address || !intentCallsPayloads || !anypayInfos) {
+      return null
+    }
+    return calculateIntentAddress(
+      account.address,
+      intentCallsPayloads as any[],
+      anypayInfos as any[],
+      anypayFee?.quoteProvider as "lifi" | "relay",
+    ) // TODO: Add proper type
+  }, [account.address, intentCallsPayloads, anypayInfos, anypayFee])
+
   // Add gas estimation hook with proper types
   const {
     data: estimatedGas,
@@ -278,21 +305,24 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       mainSigner: string
       calls: IntentCallsPayload[]
       preconditions: IntentPrecondition[]
-      lifiInfos: AnypayLifiInfo[]
+      anypayInfos: AnypayExecutionInfo[]
+      quoteProvider: "lifi" | "relay"
     }) => {
       if (!apiClient) throw new Error("API client not available")
-      if (!args.lifiInfos) throw new Error("LifiInfos not available")
+      if (!args.anypayInfos) throw new Error("AnypayInfos not available")
+      if (!args.quoteProvider) throw new Error("quoteProvider is required")
 
       try {
         console.log("Calculating intent address...")
         console.log("Main signer:", args.mainSigner)
         console.log("Calls:", args.calls)
-        console.log("LifiInfos:", args.lifiInfos)
+        console.log("AnypayInfos:", args.anypayInfos)
 
         const calculatedAddress = calculateIntentAddress(
           args.mainSigner,
           args.calls as any[], // TODO: Add proper type
-          args.lifiInfos as any[], // TODO: Add proper type
+          args.anypayInfos as any[], // TODO: Add proper type
+          args.quoteProvider,
         )
         const receivedAddress = findPreconditionAddress(args.preconditions)
 
@@ -321,7 +351,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
           mainSigner: args.mainSigner,
           calls: args.calls,
           preconditions: args.preconditions,
-          lifiInfos: args.lifiInfos,
+          anypayInfos: args.anypayInfos,
+          sapientType: args.quoteProvider,
         })
         console.log("API Commit Response:", response)
         return { calculatedAddress: calculatedAddress.toString(), response }
@@ -335,7 +366,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
             const calculatedAddress = calculateIntentAddress(
               args.mainSigner,
               args.calls as any[], // TODO: Add proper type
-              args.lifiInfos as any[], // TODO: Add proper type
+              args.anypayInfos as any[], // TODO: Add proper type
+              args.quoteProvider,
             )
             const receivedAddress = findPreconditionAddress(args.preconditions)
             setVerificationStatus({
@@ -423,14 +455,14 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       setMetaTxns(null)
       setIntentCallsPayloads(null)
       setIntentPreconditions(null)
-      setLifiInfos(null)
+      setAnypayInfos(null)
 
       const data = await getIntentCallsPayloads(args)
 
       setMetaTxns(data.metaTxns)
       setIntentCallsPayloads(data.calls)
       setIntentPreconditions(data.preconditions)
-      setLifiInfos(data.lifiInfos)
+      setAnypayInfos(data.anypayInfos)
       setAnypayFee(data.anypayFee!)
       setCommittedIntentAddress(null)
 
@@ -441,7 +473,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       console.log("Intent Config Success:", data)
 
       setAnypayFee(data.anypayFee || null)
-      setLifiInfos(data.lifiInfos || null)
+      setAnypayInfos(data.anypayInfos || null)
 
       if (
         data?.calls &&
@@ -466,7 +498,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       setIntentCallsPayloads(null)
       setIntentPreconditions(null)
       setMetaTxns(null)
-      setLifiInfos(null)
+      setAnypayInfos(null)
       setAnypayFee(null)
     },
   })
@@ -480,7 +512,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     setIntentCallsPayloads(null)
     setIntentPreconditions(null)
     setMetaTxns(null)
-    setLifiInfos(null)
+    setAnypayInfos(null)
     setAnypayFee(null)
     setCommittedIntentAddress(null)
     setVerificationStatus(null)
@@ -729,6 +761,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
   })
 
   // Modify the effect that watches for transaction status
+  // biome-ignore lint/correctness/useExhaustiveDependencies: False positive
   useEffect(() => {
     if (!txnHash) {
       // Only reset these when txnHash is cleared
@@ -929,7 +962,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
       isAutoExecute &&
       intentCallsPayloads &&
       intentPreconditions &&
-      lifiInfos &&
+      anypayInfos &&
+      anypayFee &&
       account.address &&
       calculatedIntentAddress &&
       !commitIntentConfigMutation.isPending &&
@@ -941,15 +975,18 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         mainSigner: account.address,
         calls: intentCallsPayloads,
         preconditions: intentPreconditions,
-        lifiInfos: lifiInfos,
+        anypayInfos: anypayInfos,
+        quoteProvider: anypayFee.quoteProvider as "lifi" | "relay",
       })
     }
   }, [
     isAutoExecute,
     intentCallsPayloads,
     intentPreconditions,
-    lifiInfos, // Add lifiInfos dependency
+    anypayInfos,
+    anypayFee,
     account.address,
+    calculatedIntentAddress,
     commitIntentConfigMutation,
     commitIntentConfigMutation.isPending,
     commitIntentConfigMutation.isSuccess,
@@ -963,15 +1000,20 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
         !intentPreconditions ||
         !metaTxns ||
         !account.address ||
-        !lifiInfos
+        !anypayInfos
       ) {
         throw new Error("Missing required data for meta-transaction")
+      }
+
+      if (!anypayFee?.quoteProvider) {
+        throw new Error("quoteProvider is required")
       }
 
       const intentAddress = calculateIntentAddress(
         account.address,
         intentCallsPayloads as any[],
-        lifiInfos as any[],
+        anypayInfos as any[],
+        anypayFee.quoteProvider as "lifi" | "relay",
       ) // TODO: Add proper type
 
       // If no specific ID is selected, send all meta transactions
@@ -1177,6 +1219,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     originChainId,
     intentPreconditions,
     account.address,
+    calculatedIntentAddress,
   ])
 
   // const checkPreconditionStatuses = useCallback(async () => {
@@ -1366,17 +1409,6 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     createIntentMutation.mutate(args)
   }
 
-  const calculatedIntentAddress = useMemo(() => {
-    if (!account.address || !intentCallsPayloads || !lifiInfos) {
-      return null
-    }
-    return calculateIntentAddress(
-      account.address,
-      intentCallsPayloads as any[],
-      lifiInfos as any[],
-    ) // TODO: Add proper type
-  }, [account.address, intentCallsPayloads, lifiInfos])
-
   const createIntentPending = createIntentMutation.isPending
   const createIntentSuccess = createIntentMutation.isSuccess
   const createIntentError = createIntentMutation.error
@@ -1387,7 +1419,8 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     mainSigner: string
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
-    lifiInfos: AnypayLifiInfo[]
+    anypayInfos: AnypayExecutionInfo[]
+    quoteProvider: "lifi" | "relay"
   }) {
     console.log("commitIntentConfig", args)
     commitIntentConfigMutation.mutate(args)
@@ -1424,7 +1457,7 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     metaTxns,
     intentCallsPayloads,
     intentPreconditions,
-    lifiInfos,
+    anypayInfos,
     anypayFee,
     txnHash,
     committedIntentAddress,
@@ -1477,7 +1510,6 @@ export function useAnyPay(config: UseAnyPayConfig): UseAnyPayReturn {
     createIntentSuccess,
     createIntentError,
     createIntentArgs,
-    calculatedIntentAddress,
     originCallParams,
     updateOriginCallParams,
     originBlockTimestamp,
@@ -1632,17 +1664,62 @@ export async function prepareSend(options: SendOptions) {
   }
 
   if (isToSameChain && !isToSameToken) {
-    // swap tx
-    transactionStates.push({
-      transactionHash: "",
-      explorerUrl: "",
+    const quote = await getRelaySDKQuote({
+      wallet: walletClient,
       chainId: originChainId,
-      state: "pending",
+      amount: destinationTokenAmount,
+      currency: originTokenAddress,
+      toCurrency: destinationTokenAddress,
+      txs: destinationCalldata
+        ? [
+            {
+              to: recipient,
+              value:
+                destinationTokenAddress === zeroAddress
+                  ? destinationTokenAmount
+                  : "0",
+              data: destinationCalldata,
+            },
+          ]
+        : [],
     })
+
+    console.log("relaysdk quote", quote)
+
+    return {
+      originSendAmount: originTokenAmount,
+      send: async (onOriginSend: () => void): Promise<SendReturn> => {
+        await attemptSwitchChain(walletClient, originChainId)
+
+        const result = await executeSimpleRelayTransaction(quote, walletClient)
+        console.log("relaysdk result", result)
+
+        const txHash =
+          result?.data?.steps?.[result?.data?.steps!.length - 1]?.items?.[0]
+            ?.txHashes?.[0]?.txHash
+
+        if (onOriginSend) {
+          onOriginSend()
+        }
+
+        const originUserTxReceipt =
+          await publicClient.waitForTransactionReceipt({
+            hash: txHash as `0x${string}`,
+          })
+
+        return {
+          originUserTxReceipt: originUserTxReceipt,
+          originMetaTxnReceipt: null,
+          destinationMetaTxnReceipt: null,
+        }
+      },
+    }
   }
 
   if (isToSameToken && isToSameChain) {
+    console.log("isToSameToken && isToSameChain")
     return {
+      originSendAmount: originTokenAmount,
       send: async (onOriginSend: () => void): Promise<SendReturn> => {
         const originCallParams = {
           to: destinationCalldata
@@ -1740,7 +1817,7 @@ export async function prepareSend(options: SendOptions) {
   if (
     !intent.preconditions?.length ||
     !intent.calls?.length ||
-    !intent.lifiInfos?.length
+    !intent.anypayInfos?.length
   ) {
     throw new Error("Invalid intent")
   }
@@ -1748,7 +1825,8 @@ export async function prepareSend(options: SendOptions) {
   const intentAddress = calculateIntentAddress(
     mainSigner,
     intent.calls as any[],
-    intent.lifiInfos as any[],
+    intent.anypayInfos as any[],
+    intent.anypayFee?.quoteProvider as "lifi" | "relay",
   ) // TODO: Add proper type
   console.log("Calculated intent address:", intentAddress.toString())
 
@@ -1757,7 +1835,8 @@ export async function prepareSend(options: SendOptions) {
     mainSigner,
     intent.calls as any[],
     intent.preconditions as any[],
-    intent.lifiInfos as any[],
+    intent.anypayInfos as any[],
+    intent.anypayFee?.quoteProvider as "lifi" | "relay",
   )
 
   console.log("Committed intent config")
@@ -1771,7 +1850,7 @@ export async function prepareSend(options: SendOptions) {
     throw new Error("No precondition found for origin chain")
   }
 
-  const firstPreconditionAddress = firstPrecondition?.data?.address
+  // const firstPreconditionAddress = firstPrecondition?.data?.address
   const firstPreconditionMin = firstPrecondition?.data?.min?.toString()
 
   return {
@@ -1795,10 +1874,6 @@ export async function prepareSend(options: SendOptions) {
       // ETH fee required by some bridges for low token amounts
       // TODO: update backend API to return the native fee requirement, if any
       let needsNativeFee = false
-      let nativeFee = parseUnits("0.00005", 18).toString()
-      if (originChainId === 137) {
-        nativeFee = parseUnits("1.5", 18).toString()
-      }
       console.log("sourceTokenPriceUsd", sourceTokenPriceUsd)
       console.log("destinationTokenPriceUsd", destinationTokenPriceUsd)
       console.log("sourceTokenDecimals", sourceTokenDecimals)
@@ -1838,25 +1913,25 @@ export async function prepareSend(options: SendOptions) {
       }
       console.log("needsNativeFee", needsNativeFee)
 
-      const originCallParams = {
-        to:
-          originTokenAddress === zeroAddress
-            ? firstPreconditionAddress
-            : originTokenAddress,
-        data:
-          originTokenAddress === zeroAddress
-            ? "0x"
-            : getERC20TransferData(
-                firstPreconditionAddress,
-                BigInt(firstPreconditionMin) + BigInt(fee),
-              ),
-        value:
-          originTokenAddress === zeroAddress
-            ? BigInt(firstPreconditionMin) + BigInt(fee)
-            : "0",
-        chainId: originChainId,
-        chain,
-      }
+      // const originCallParams = {
+      //   to:
+      //     originTokenAddress === zeroAddress
+      //       ? firstPreconditionAddress
+      //       : originTokenAddress,
+      //   data:
+      //     originTokenAddress === zeroAddress
+      //       ? "0x"
+      //       : getERC20TransferData(
+      //           firstPreconditionAddress,
+      //           BigInt(firstPreconditionMin) + BigInt(fee),
+      //         ),
+      //   value:
+      //     originTokenAddress === zeroAddress
+      //       ? BigInt(firstPreconditionMin) + BigInt(fee)
+      //       : "0",
+      //   chainId: originChainId,
+      //   chain,
+      // }
 
       let originUserTxReceipt: TransactionReceipt | null = null
       let originMetaTxnReceipt: any = null // TODO: Add proper type
@@ -1867,7 +1942,7 @@ export async function prepareSend(options: SendOptions) {
       if (doGasless) {
         if (paymasterUrl) {
           const txHash = await runGasless7702Flow(
-            testnet ? baseSepolia : chain,
+            testnet ? chains.baseSepolia : chain,
             testnet
               ? testnetOriginTokenAddress
               : (originTokenAddress as `0x${string}`),
@@ -1887,14 +1962,13 @@ export async function prepareSend(options: SendOptions) {
         } else {
           await attemptSwitchChain(walletClient, originChainId)
           const sequenceWalletAddress = await simpleCreateSequenceWallet(
-            publicClient,
             account as any,
           )
           console.log("sequenceWalletAddress", sequenceWalletAddress)
 
           // Initialize clients
           const sequencePublicClient = createPublicClient({
-            chain: testnet ? baseSepolia : chain,
+            chain: testnet ? chains.baseSepolia : chain,
             transport: http(),
           })
 
@@ -1906,7 +1980,7 @@ export async function prepareSend(options: SendOptions) {
               ? testnetOriginTokenAddress
               : (originTokenAddress as `0x${string}`),
             BigInt(originTokenAmount),
-            testnet ? baseSepolia : chain,
+            testnet ? chains.baseSepolia : chain,
           )
 
           const calls = getPermitCalls(
@@ -1943,7 +2017,7 @@ export async function prepareSend(options: SendOptions) {
             walletClient,
             sequencePublicClient as PublicClient,
             calls,
-            testnet ? baseSepolia : chain,
+            testnet ? chains.baseSepolia : chain,
           )
           console.log("sequenceTxHash", sequenceTxHash)
           if (onOriginSend) {
@@ -2219,7 +2293,7 @@ export async function prepareSend(options: SendOptions) {
           Number(metaTx.chainId),
         )
         console.log("status", receipt)
-        if (receipt.transactionHash) {
+        if (receipt?.transactionHash) {
           originMetaTxnReceipt = receipt.data?.receipt
           break
         }

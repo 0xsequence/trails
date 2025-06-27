@@ -1,20 +1,19 @@
 import { Account } from "@0xsequence/account"
-import { trackers } from "@0xsequence/sessions"
 import { commons } from "@0xsequence/core"
-import type { Payload } from "@0xsequence/wallet-primitives"
-import { Orchestrator, type signers } from "@0xsequence/signhub"
 import { allNetworks } from "@0xsequence/network"
+import { trackers } from "@0xsequence/sessions"
+import { Orchestrator, type signers } from "@0xsequence/signhub"
+import type { Payload } from "@0xsequence/wallet-primitives"
+import { Abi, AbiFunction } from "ox"
 import {
-  type PublicClient,
-  hexToBytes,
   bytesToHex,
   type Chain,
+  hexToBytes,
+  type PublicClient,
+  toHex,
   type WalletClient,
 } from "viem"
-import { AbiFunction } from "ox"
 import type { Relayer } from "./relayer.js"
-import { toHex } from "viem"
-import { Abi } from "ox"
 
 export type FlatTransaction = {
   to: string
@@ -179,10 +178,7 @@ export function recoverSigner(
   return res
 }
 
-export async function simpleCreateSequenceWallet(
-  publicClient: PublicClient,
-  account: Account,
-) {
+export async function simpleCreateSequenceWallet(account: Account) {
   const signer = account.address
   const threshold = 1
   const weight = 1
@@ -228,7 +224,7 @@ export async function sequenceSendTransaction(
     account: accountClient.account,
     message: { raw: digestBytes },
   })
-  const suffixed = signature + "02"
+  const suffixed = `${signature}02`
   // Get the account for the Sequence Wallet with signatures
   const sequenceAccount = accountFor({
     address: sequenceWalletAddress as `0x${string}`,

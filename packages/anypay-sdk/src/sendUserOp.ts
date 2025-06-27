@@ -1,19 +1,21 @@
 import {
+  type Address,
+  type Chain,
+  concat,
   createPublicClient,
   createWalletClient,
-  http,
-  encodeFunctionData,
-  keccak256,
   encodeAbiParameters,
-  type Address,
-  type Hex,
-  slice,
-  size,
+  encodeFunctionData,
   getAddress,
-  type Chain,
+  type Hex,
+  http,
+  keccak256,
+  pad,
+  size,
+  slice,
+  toHex,
 } from "viem"
 import { privateKeyToAccount } from "viem/accounts"
-import { concat, pad, toHex } from "viem"
 
 type UserOperation = {
   sender: Address
@@ -172,12 +174,10 @@ const ENTRYPOINT_ADDRESS = "0x0000000071727De22E5E9d8BAf0edAc6f37da032"
 
 export async function sendUserOperationDirectly({
   userOp,
-  signedUserOp,
   relayerPrivateKey,
   chain,
 }: {
   userOp: any // fully formed + signed UserOp
-  signedUserOp: any
   relayerPrivateKey: `0x${string}`
   chain: Chain
 }) {
@@ -234,11 +234,6 @@ export async function sendUserOperationDirectly({
 
   return receipt.transactionHash
 }
-
-// Usage:
-// const userOp = await delegatorSmartAccount.prepareUserOperation(...);
-// const signedUserOp = await delegatorSmartAccount.signUserOperation(userOp);
-// await sendUserOperationDirectly({ userOp: signedUserOp, relayerPrivateKey });
 
 type PackedUserOperation = {
   sender: `0x${string}`

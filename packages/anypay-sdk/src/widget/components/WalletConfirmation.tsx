@@ -34,7 +34,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
             className={`animate-spin rounded-full h-16 w-16 border-b-2 ${
               theme === "dark" ? "border-blue-400" : "border-blue-500"
             }`}
-            style={{ borderBottomWidth: "2px" }}
+            style={{ borderTopWidth: "2px", borderBottomWidth: "2px" }}
           />
         </div>
 

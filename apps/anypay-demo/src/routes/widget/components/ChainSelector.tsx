@@ -1,7 +1,7 @@
+import { SUPPORTED_TO_CHAINS } from "@0xsequence/anypay-sdk"
 import { NetworkImage } from "@0xsequence/design-system"
 import { ChevronDown } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
-import { SUPPORTED_TO_CHAINS } from "@0xsequence/anypay-sdk"
 
 interface ChainSelectorProps {
   selectedChainId: number | undefined

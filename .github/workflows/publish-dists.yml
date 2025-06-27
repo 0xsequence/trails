@@ -1,25 +1,21 @@
 name: Publish Dists for Packages
-
 on:
   workflow_dispatch:
   push:
     branches:
       - master
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - uses: ./.github/actions/install-dependencies
-
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
       - name: Build package
         run: pnpm run build
-
       - name: Prepare dist branch
         run: |
           PACKAGES=("anypay-sdk")
