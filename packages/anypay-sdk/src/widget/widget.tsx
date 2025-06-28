@@ -760,7 +760,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
           damping: 30,
           mass: 1,
         }}
-        className={`flex flex-col min-h-[400px] rounded-[32px] shadow-xl p-6 relative w-[400px] mx-auto ${
+        className={`flex flex-col min-h-[400px] rounded-[32px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto ${
           theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"
         }`}
         layout

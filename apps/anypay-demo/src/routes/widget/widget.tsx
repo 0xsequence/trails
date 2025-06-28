@@ -47,12 +47,12 @@ export const Widget = () => {
   }, [])
 
   const content = (
-    <div className="flex flex-col items-center justify-center space-y-8 py-12">
-      <div className="text-center space-y-6 max-w-6xl px-4">
-        <h1 className="text-3xl font-extrabold text-white mb-4">
+    <div className="flex flex-col items-center justify-center space-y-6 py-8 px-4 sm:py-12 sm:px-6">
+      <div className="text-center space-y-4 max-w-6xl w-full">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-4">
           AnyPay Widget Demo
         </h1>
-        <p className="text-sm text-white leading-relaxed max-w-3xl mx-auto font-light">
+        <p className="text-sm text-white leading-relaxed max-w-3xl mx-auto font-light px-4">
           This demo showcases a multi-step transfer flow using the{" "}
           <span className="font-medium">AnyPay SDK</span>. Connect your wallet,
           select a token, specify the amount and recipient, and see the
@@ -62,10 +62,10 @@ export const Widget = () => {
         <ConnectButton onConnect={handleConnect} />
       </div>
 
-      <div className="w-full max-w-6xl px-4">
-        <div className="flex md:flex-row gap-6">
+      <div className="w-full max-w-6xl">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Left Column - Config Form */}
-          <div className="md:w-1/2">
+          <div className="w-full lg:w-1/2">
             <CustomizationForm
               sequenceProjectAccessKey={sequenceProjectAccessKey}
               setSequenceProjectAccessKey={setSequenceProjectAccessKey}
@@ -95,7 +95,7 @@ export const Widget = () => {
           </div>
 
           {/* Right Column - Code Snippet */}
-          <div className="md:w-1/2">
+          <div className="w-full lg:w-1/2">
             <CodeSnippet
               sequenceProjectAccessKey={sequenceProjectAccessKey}
               toAddress={toAddress}
@@ -110,7 +110,7 @@ export const Widget = () => {
               paymasterUrls={paymasterUrls}
               gasless={gasless}
             >
-              <div className="mt-6 w-full max-w-md mx-auto">
+              <div className="mt-6 w-full max-w-md mx-auto px-4">
                 <AnyPayWidget
                   sequenceProjectAccessKey={
                     sequenceProjectAccessKey || defaultSequenceProjectAccessKey

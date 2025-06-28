@@ -3,7 +3,7 @@ import {
   SUPPORTED_TO_TOKENS,
 } from "@0xsequence/anypay-sdk"
 import { defaultWalletOptions } from "@0xsequence/anypay-sdk/widget"
-import { TokenImage } from "@0xsequence/design-system"
+import { InfoIcon, TokenImage, Tooltip } from "@0xsequence/design-system"
 import { ChevronDown } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { encodeFunctionData, zeroAddress } from "viem"
@@ -66,7 +66,7 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
     return (
       <button
         disabled
-        className="px-3 py-1 text-xs bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed"
+        className="px-2 sm:px-3 py-1 text-xs bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed"
         title="Connect your wallet first"
       >
         Use Account
@@ -77,7 +77,7 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
   return (
     <button
       onClick={() => onAddressSelect(address)}
-      className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 cursor-pointer text-white rounded-lg transition-colors cursor-pointer"
+      className="px-2 sm:px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 cursor-pointer text-white rounded-lg transition-colors cursor-pointer"
     >
       Use Account
     </button>
@@ -360,10 +360,12 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6 h-full">
+    <div className="bg-gray-800 rounded-lg p-4 sm:p-6 h-full">
       <div className="space-y-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-200">Customize Widget</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-200">
+            Customize Widget
+          </h2>
           <p className="text-sm text-gray-400 mt-1">
             All fields are optional. Use these to preset the widget's state.
           </p>
@@ -379,8 +381,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               onChange={(e) =>
                 setSequenceProjectAccessKey(e.target.value.trim())
               }
-              placeholder="Access key (optional for demo)"
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter your sequence project access key"
+              className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
           </div>
 
@@ -393,7 +395,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               value={toAddress}
               onChange={(e) => setToAddress(e.target.value.trim())}
               placeholder="0x..."
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
           </div>
 
@@ -406,7 +408,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               value={toAmount}
               onChange={(e) => setToAmount(e.target.value.trim())}
               placeholder="0.00"
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
           </div>
 
@@ -418,7 +420,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               <button
                 type="button"
                 onClick={() => setIsTokenDropdownOpen(!isTokenDropdownOpen)}
-                className="w-full flex items-center px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+                className="w-full flex items-center px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
               >
                 {toToken ? (
                   <>
@@ -433,7 +435,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       size="sm"
                       disableAnimation={true}
                     />
-                    <span className="ml-2 flex-1 text-left text-gray-200">
+                    <span className="ml-2 flex-1 text-left text-gray-200 text-sm">
                       {
                         SUPPORTED_TO_TOKENS.find(
                           (t: { symbol: string; name: string }) =>
@@ -444,7 +446,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     </span>
                   </>
                 ) : (
-                  <span className="flex-1 text-left text-gray-400">
+                  <span className="flex-1 text-left text-gray-400 text-sm">
                     Select Token
                   </span>
                 )}
@@ -454,14 +456,14 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               </button>
 
               {isTokenDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+                <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                   <button
                     type="button"
                     onClick={() => {
                       setToToken(undefined)
                       setIsTokenDropdownOpen(false)
                     }}
-                    className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${!toToken ? "bg-gray-600 text-blue-400" : "text-gray-200"} cursor-pointer`}
+                    className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-600 ${!toToken ? "bg-gray-600 text-blue-400" : "text-gray-200"} cursor-pointer text-sm`}
                   >
                     <span className="ml-2">Select Token</span>
                     {!toToken && (
@@ -481,7 +483,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           setToToken(token.symbol as "ETH" | "USDC")
                           setIsTokenDropdownOpen(false)
                         }}
-                        className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 cursor-pointer ${
+                        className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-600 cursor-pointer text-sm ${
                           toToken === token.symbol
                             ? "bg-gray-600 text-blue-400"
                             : "text-gray-200"
@@ -525,39 +527,17 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               value={toCalldata}
               onChange={(e) => setToCalldata(e.target.value.trim())}
               placeholder="0x..."
-              rows={4}
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+              rows={3}
+              className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-xs sm:text-sm"
             />
           </div>
 
           <div className="flex items-center justify-between py-2">
             <label className="block text-sm font-medium text-gray-200 flex items-center gap-2">
               Gasless
-              <span className="relative group cursor-pointer">
-                <svg
-                  width="16"
-                  height="16"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  className="inline-block text-gray-400"
-                >
-                  <circle cx="12" cy="12" r="10" strokeWidth="2" />
-                  <text
-                    x="12"
-                    y="16"
-                    textAnchor="middle"
-                    fontSize="12"
-                    fill="currentColor"
-                  >
-                    i
-                  </text>
-                </svg>
-                <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-2 py-1 bg-gray-900 text-gray-100 text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  Enable gasless transactions using Sequence Relayer based on
-                  your project access key sponsorship settings
-                </span>
-              </span>
+              <Tooltip message="Enable gasless transactions using Sequence Relayer based on your project access key sponsorship settings">
+                <InfoIcon size="sm" className="text-gray-400 cursor-pointer" />
+              </Tooltip>
             </label>
             <button
               onClick={() => setGasless(!gasless)}
@@ -576,32 +556,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           <div>
             <label className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2">
               Paymaster URLs (Chain-specific)
-              <span className="relative group cursor-pointer">
-                <svg
-                  width="16"
-                  height="16"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  className="inline-block text-gray-400"
-                >
-                  <circle cx="12" cy="12" r="10" strokeWidth="2" />
-                  <text
-                    x="12"
-                    y="16"
-                    textAnchor="middle"
-                    fontSize="12"
-                    fill="currentColor"
-                  >
-                    i
-                  </text>
-                </svg>
-                <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-max px-2 py-1 bg-gray-900 text-gray-100 text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
-                  Use 4337-compatible bundler/paymaster URLs for gasless
-                  transactions, such as Alchemy, Thirdweb, Pimlico, ZeroDev,
-                  etc. Set different URLs for different chains.
-                </span>
-              </span>
+              <Tooltip message="Use 4337-compatible bundler/paymaster URLs for gasless transactions, such as Alchemy, Thirdweb, Pimlico, ZeroDev, etc. Set different URLs for different chains.">
+                <InfoIcon size="sm" className="text-gray-400 cursor-pointer" />
+              </Tooltip>
             </label>
 
             {/* Paymaster URLs List */}
@@ -612,10 +569,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                 return (
                   <div
                     key={`paymaster-${currentChainId}-${index}-${paymasterKey}`}
-                    className="flex items-center gap-2"
+                    className="flex flex-col sm:flex-row items-start sm:items-center gap-2"
                   >
                     {/* Chain Selector */}
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 w-full sm:w-32">
                       <ChainSelector
                         selectedChainId={currentChainId}
                         onChainSelect={(newChainId) => {
@@ -633,7 +590,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           setPaymasterUrls(newPaymasterUrls)
                           setPaymasterKey((prev) => prev + 1) // Force re-render
                         }}
-                        className="w-32"
+                        className="w-full sm:w-32"
                         showIconsOnly={true}
                       />
                     </div>
@@ -652,7 +609,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         )
                       }
                       placeholder="https://..."
-                      className="flex-1 px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="flex-1 px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                     />
 
                     {/* Remove Button - Styled like text */}
@@ -663,7 +620,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         )
                         setPaymasterUrls(newPaymasterUrls)
                       }}
-                      className="px-3 py-2 text-gray-400 hover:text-gray-200 transition-colors text-lg font-medium cursor-pointer"
+                      className="px-3 py-2 text-gray-400 hover:text-gray-200 transition-colors text-lg font-medium cursor-pointer self-center"
                     >
                       ×
                     </button>
@@ -730,7 +687,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </button>
           </div>
 
-          <div className="flex items-center justify-between py-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
             <label className="block text-sm font-medium text-gray-200">
               Theme Mode
             </label>
@@ -739,7 +696,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                 <button
                   key={mode}
                   onClick={() => setTheme(mode)}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
+                  className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
                     theme === mode
                       ? "bg-blue-500 text-white"
                       : "text-gray-300 hover:text-white hover:bg-gray-700"
@@ -751,16 +708,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center justify-between py-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
             <label className="block text-sm font-medium text-gray-200">
               Wallet Options
             </label>
-            <div className="flex rounded-lg overflow-hidden border border-gray-600">
+            <div className="flex flex-wrap rounded-lg overflow-hidden border border-gray-600">
               {defaultWalletOptions.map((wallet: string) => (
                 <button
                   key={wallet}
                   onClick={() => handleWalletOptionToggle(wallet)}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
+                  className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
                     walletOptions?.includes(wallet)
                       ? "bg-blue-500 text-white"
                       : "text-gray-300 hover:text-white hover:bg-gray-700"
@@ -788,7 +745,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               <div className="rounded-lg border border-gray-600 overflow-hidden">
                 <button
                   onClick={() => setIsSendUsdcFormOpen(!isSendUsdcFormOpen)}
-                  className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors duration-200 text-sm font-medium cursor-pointer text-left flex justify-between items-center"
+                  className="w-full px-3 sm:px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors duration-200 text-sm font-medium cursor-pointer text-left flex justify-between items-center"
                 >
                   <div>
                     <div>Pay USDC on Base</div>
@@ -804,9 +761,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                 </button>
 
                 {isSendUsdcFormOpen && (
-                  <div className="p-4 bg-gray-800 space-y-4">
+                  <div className="p-3 sm:p-4 bg-gray-800 space-y-4">
                     <div>
-                      <div className="flex justify-between items-center mb-2">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
                         <label className="block text-sm font-medium text-gray-200">
                           Recipient
                         </label>
@@ -819,7 +776,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           setUsdcRecipient(e.target.value.trim())
                         }
                         placeholder="0x..."
-                        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                     </div>
                     <button

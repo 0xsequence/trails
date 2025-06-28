@@ -133,10 +133,10 @@ export const App = () => {
   const scriptCodeExample = getScriptCode()
 
   return (
-    <div className="rounded-lg p-6 h-full relative bg-gray-800">
-      <div className="flex justify-between items-start mb-4">
+    <div className="rounded-lg p-4 sm:p-6 h-full relative bg-gray-800">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-start mb-4 gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-200">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-200">
             Integration Example
           </h2>
           <p className="text-sm text-gray-400 mt-1">
@@ -165,7 +165,7 @@ export const App = () => {
       <div className="flex space-x-1 mb-4">
         <button
           onClick={() => setActiveTab("react")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+          className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
             activeTab === "react"
               ? "bg-blue-600 text-white"
               : "bg-gray-700 text-gray-300 hover:bg-gray-600"
@@ -175,7 +175,7 @@ export const App = () => {
         </button>
         <button
           onClick={() => setActiveTab("script")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+          className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
             activeTab === "script"
               ? "bg-blue-600 text-white"
               : "bg-gray-700 text-gray-300 hover:bg-gray-600"
@@ -194,6 +194,7 @@ export const App = () => {
             borderRadius: "0.5rem",
             background: "#13141c",
             height: "100%",
+            fontSize: "12px",
           }}
         >
           {activeTab === "react" ? reactCodeExample : scriptCodeExample}

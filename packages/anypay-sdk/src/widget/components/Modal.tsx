@@ -55,7 +55,7 @@ const Modal: React.FC<ModalProps> = ({
             onClick={onClose}
           />
           <div
-            className={`fixed inset-0 flex items-center justify-center z-50 p-4 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+            className={`fixed inset-0 flex items-center justify-center z-50 p-2 sm:p-4 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
             onClick={handleClickOutside}
           >
             <motion.div
