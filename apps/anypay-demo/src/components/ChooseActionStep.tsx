@@ -46,36 +46,46 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
   return (
     <SectionHeader
       noFrame={true}
-      titleContainerClassName="px-6 pb-4 flex items-center justify-between w-full"
-      contentContainerClassName="px-6 pb-4 flex flex-col gap-4"
+      titleContainerClassName="px-4 sm:px-6 pb-3 sm:pb-4 flex items-center justify-between w-full"
+      contentContainerClassName="px-4 sm:px-6 pb-3 sm:pb-4 flex flex-col gap-3 sm:gap-4"
       isCollapsible={false}
       title={
         <div className="flex items-center">
-          <div className="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 shadow-lg">
+          <div className="bg-blue-600 text-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center mr-2 shadow-lg text-sm sm:text-base">
             <span>3</span>
           </div>
-          <h3 className="text-xl font-semibold text-white">Choose Action</h3>
+          <h3 className="text-lg sm:text-xl font-semibold text-white">
+            Choose Action
+          </h3>
         </div>
       }
     >
       {/* Auto-Execute Toggle */}
-      <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700/30">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+      <div className="bg-gray-800/50 p-3 sm:p-4 rounded-lg border border-gray-700/30">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+          <div className="flex flex-col space-y-1">
             <Text
               variant="medium"
               color="primary"
-              className="flex items-center"
+              className="flex items-center text-sm sm:text-base"
             >
               <Zap className="h-4 w-4 mr-2" />
               Auto-Execute
             </Text>
-            <Text variant="small" color="secondary" className="text-gray-400">
-              (Automatically commits and executes transactions when ready)
+            <Text
+              variant="small"
+              color="secondary"
+              className="text-gray-400 text-xs ml-6 sm:ml-6"
+            >
+              Automatically commits and executes transactions when ready
             </Text>
           </div>
           <div className="flex items-center space-x-2">
-            <Text variant="small" color="secondary">
+            <Text
+              variant="small"
+              color="secondary"
+              className="text-xs sm:text-sm"
+            >
               {isAutoExecuteEnabled ? "Enabled" : "Disabled"}
             </Text>
             <div
@@ -93,13 +103,13 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
           </div>
         </div>
       </div>
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-2 sm:gap-3">
         <Button
           variant="primary"
           size="sm"
           onClick={() => handleActionClick("pay")}
           disabled={!selectedToken || createIntentPending}
-          className="px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-2"
+          className="px-2 sm:px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
         >
           {createIntentPending && createIntentArgs === "pay" ? (
             "Processing..."
@@ -108,11 +118,15 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
               <NetworkImage
                 chainId={PAY_CHAIN_ID}
                 size="sm"
-                className="w-5 h-5"
+                className="w-4 h-4 sm:w-5 sm:h-5"
               />
               <span>
                 Pay Action{" "}
-                <Text variant="small" color="secondary">
+                <Text
+                  variant="small"
+                  color="secondary"
+                  className="text-xs sm:text-sm"
+                >
                   {PAY_DISPLAY_TEXT}
                 </Text>
               </span>
@@ -124,7 +138,7 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
           size="sm"
           onClick={() => handleActionClick("mock_interaction")}
           disabled={!selectedToken || createIntentPending}
-          className="px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-2"
+          className="px-2 sm:px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
         >
           {createIntentPending && intentActionType === "mock_interaction" ? (
             "Processing..."
@@ -133,7 +147,7 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
               <NetworkImage
                 chainId={chains.arbitrum.id}
                 size="sm"
-                className="w-5 h-5"
+                className="w-4 h-4 sm:w-5 sm:h-5"
               />
               <span>Mock Interaction</span>
             </>
@@ -144,13 +158,13 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
           size="sm"
           onClick={() => handleActionClick("custom_call")}
           disabled={!selectedToken || createIntentPending}
-          className="px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-2"
+          className="px-2 sm:px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
         >
           {createIntentPending && intentActionType === "custom_call" ? (
             "Processing..."
           ) : (
-            <div className="flex items-center gap-2">
-              <PenSquare className="h-5 w-5" />
+            <div className="flex items-center gap-1 sm:gap-2">
+              <PenSquare className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>Custom Call</span>
             </div>
           )}
@@ -158,10 +172,13 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
       </div>
 
       {showCustomCallForm && (
-        <div className="mt-4 bg-gray-800/50 p-4 rounded-lg border border-gray-700/30">
-          <form onSubmit={handleCustomCallSubmit} className="space-y-4">
+        <div className="mt-3 sm:mt-4 bg-gray-800/50 p-3 sm:p-4 rounded-lg border border-gray-700/30">
+          <form
+            onSubmit={handleCustomCallSubmit}
+            className="space-y-3 sm:space-y-4"
+          >
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
                 To Address
               </label>
               <input
@@ -171,12 +188,12 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
                   setCustomCallData({ ...customCallData, to: e.target.value })
                 }
                 placeholder="0x..."
-                className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-2 sm:px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
                 Call Data
               </label>
               <input
@@ -186,12 +203,12 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
                   setCustomCallData({ ...customCallData, data: e.target.value })
                 }
                 placeholder="0x..."
-                className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-2 sm:px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
                 Value (in wei)
               </label>
               <input
@@ -204,13 +221,13 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
                   })
                 }
                 placeholder="0"
-                className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-2 sm:px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Destination Chain ID
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                Chain ID
               </label>
               <input
                 type="text"
@@ -221,14 +238,14 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
                     chainId: e.target.value,
                   })
                 }
-                placeholder="8453"
-                className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="1"
+                className="w-full px-2 sm:px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Token Amount (in wei)
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
+                Token Amount
               </label>
               <input
                 type="text"
@@ -240,12 +257,12 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
                   })
                 }
                 placeholder="0"
-                className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-2 sm:px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-gray-300 mb-1">
                 Token Address
               </label>
               <input
@@ -258,26 +275,27 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
                   })
                 }
                 placeholder="0x..."
-                className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-2 sm:px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm"
                 required
               />
             </div>
-            <div className="flex justify-end space-x-2">
+            <div className="flex gap-2 pt-2">
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowCustomCallForm(false)} // This assumes setShowCustomCallForm is passed as a prop
-                className="px-4 py-2"
-              >
-                Cancel
-              </Button>
-              <Button
+                type="submit"
                 variant="primary"
                 size="sm"
-                type="submit"
-                className="px-4 py-2"
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm"
               >
-                Submit
+                Submit Custom Call
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowCustomCallForm(false)}
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm"
+              >
+                Cancel
               </Button>
             </div>
           </form>

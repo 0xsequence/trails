@@ -509,12 +509,12 @@ export const HomeIndexRoute = () => {
   } = useHook()
 
   return (
-    <div className="p-6 space-y-8 max-w-3xl mx-auto min-h-screen">
-      <div className="text-center mb-8 animate-fadeIn">
-        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 mb-2">
+    <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 max-w-3xl mx-auto min-h-screen">
+      <div className="text-center mb-6 sm:mb-8 animate-fadeIn">
+        <h1 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 mb-2">
           Sequence AnyPay Demo
         </h1>
-        <p className="text-gray-300 text-sm">
+        <p className="text-gray-300 text-sm px-4">
           Connect your wallet and explore cross-chain intents
         </p>
       </div>
@@ -531,7 +531,7 @@ export const HomeIndexRoute = () => {
 
       {/* Main Workflow Card - Container for Steps 2-6 */}
       {account.status === "connected" && (
-        <div className="bg-gray-800/80 rounded-xl shadow-lg border border-gray-700/50 backdrop-blur-sm space-y-6 transition-all duration-300 hover:shadow-blue-900/20 mb-6">
+        <div className="bg-gray-800/80 rounded-xl shadow-lg border border-gray-700/50 backdrop-blur-sm space-y-4 sm:space-y-6 transition-all duration-300 hover:shadow-blue-900/20 mb-6">
           {/* Step 2: Select Origin Token */}
           <SelectOriginTokenStep
             isLoadingBalances={isLoadingBalances}

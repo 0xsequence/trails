@@ -61,19 +61,19 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       <div onClick={handleHeaderClick} className={titleEffectiveClasses}>
         <div className="flex-grow">
           {typeof title === "string" ? (
-            <div className="flex items-center text-white font-semibold">
+            <div className="flex items-center text-white font-semibold text-sm sm:text-base">
               {title}
             </div>
           ) : (
             title
           )}
           {actionSubtitle && (
-            <div className="text-sm text-gray-300 mt-2 ml-1.5 flex items-center">
+            <div className="text-xs sm:text-sm text-gray-300 mt-1 sm:mt-2 ml-1 sm:ml-1.5 flex items-center">
               {actionSubtitle}
             </div>
           )}
           {subtitle && (
-            <div className="text-sm text-gray-400 mt-1 ml-1.5 flex items-center">
+            <div className="text-xs sm:text-sm text-gray-400 mt-1 ml-1 sm:ml-1.5 flex items-center">
               {subtitle}
             </div>
           )}
@@ -82,9 +82,9 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
           statusPill
         ) : isCollapsible ? (
           isOpen ? (
-            <ChevronDown className="text-gray-400 h-5 w-5" />
+            <ChevronDown className="text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
           ) : (
-            <ChevronRight className="text-gray-400 h-5 w-5" />
+            <ChevronRight className="text-gray-400 h-4 w-4 sm:h-5 sm:w-5" />
           )
         ) : null}
       </div>

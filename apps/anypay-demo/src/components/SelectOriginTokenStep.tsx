@@ -25,21 +25,21 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
   return (
     <SectionHeader
       noFrame={true}
-      titleContainerClassName="px-6 pt-6 pb-4 flex items-center justify-between w-full"
-      contentContainerClassName="px-6 pb-4"
+      titleContainerClassName="px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-4 flex items-center justify-between w-full"
+      contentContainerClassName="px-4 sm:px-6 pb-3 sm:pb-4"
       isCollapsible={false}
       title={
         <div className="flex items-center">
-          <div className="bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center mr-2 shadow-lg">
+          <div className="bg-blue-600 text-white rounded-full w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center mr-2 shadow-lg text-sm sm:text-base">
             <span>2</span>
           </div>
-          <h3 className="text-xl font-semibold text-white">
+          <h3 className="text-lg sm:text-xl font-semibold text-white">
             Select Origin Token
           </h3>
         </div>
       }
       statusPill={
-        <div className="px-3 py-1 rounded-full bg-gray-700/50 text-gray-300 text-sm flex items-center">
+        <div className="px-2 sm:px-3 py-1 rounded-full bg-gray-700/50 text-gray-300 text-xs sm:text-sm flex items-center">
           <span
             className={`w-2 h-2 rounded-full ${isLoadingBalances ? "bg-yellow-400" : sortedTokens.length > 0 ? "bg-green-400" : "bg-red-400"} mr-2 animate-pulse`}
           ></span>
@@ -66,7 +66,7 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
           No tokens with balance &gt; 0 found across any chain.
         </Text>
       )}
-      <div className="max-h-60 overflow-y-auto border border-gray-700/50 rounded-lg p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+      <div className="max-h-60 overflow-y-auto border border-gray-700/50 rounded-lg p-2 sm:p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
         {sortedTokens.map((token) => {
           const isNative = !("contractAddress" in token)
           const tokenBalance = isNative ? undefined : (token as TokenBalance)
@@ -121,22 +121,22 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
                 }
                 clearIntent()
               }}
-              className={`p-3 rounded-lg cursor-pointer transition-all duration-200 flex justify-between items-center ${selectedToken?.chainId === token.chainId && (isNative ? selectedToken?.contractAddress === zeroAddress : selectedToken?.contractAddress === (token as TokenBalance).contractAddress) ? "bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 shadow-lg" : "bg-gray-700/80 hover:bg-gray-600/90 hover:shadow-md"}`}
+              className={`p-2 sm:p-3 rounded-lg cursor-pointer transition-all duration-200 flex justify-between items-center ${selectedToken?.chainId === token.chainId && (isNative ? selectedToken?.contractAddress === zeroAddress : selectedToken?.contractAddress === (token as TokenBalance).contractAddress) ? "bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 shadow-lg" : "bg-gray-700/80 hover:bg-gray-600/90 hover:shadow-md"}`}
             >
-              <div className="flex items-center">
-                <div className="relative">
-                  <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center mr-2 shadow-sm">
+              <div className="flex items-center min-w-0 flex-1">
+                <div className="relative flex-shrink-0">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-600 flex items-center justify-center mr-2 shadow-sm">
                     <Text
                       variant="medium"
                       color="primary"
-                      className="font-semibold"
+                      className="font-semibold text-xs sm:text-sm"
                     >
                       {isNative
                         ? nativeSymbol[0]
                         : tokenBalance?.contractInfo?.symbol?.[0] || "T"}
                     </Text>
                   </div>
-                  <div className="absolute -bottom-1 right-0.5 w-5 h-5 rounded-full bg-gray-800 border-2 border-gray-700 shadow-sm">
+                  <div className="absolute -bottom-1 right-0.5 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-gray-800 border-2 border-gray-700 shadow-sm">
                     <NetworkImage
                       chainId={token.chainId}
                       size="sm"
@@ -144,11 +144,11 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
                     />
                   </div>
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <Text
                     variant="medium"
                     color="primary"
-                    className="font-semibold"
+                    className="font-semibold text-sm sm:text-base truncate"
                   >
                     {isNative
                       ? `${nativeSymbol} (${chainInfo?.name || "Unknown Chain"})`
@@ -170,7 +170,7 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
               <Text
                 variant="small"
                 color="secondary"
-                className="font-mono bg-gray-800/50 px-3 py-1 rounded-full"
+                className="font-mono bg-gray-800/50 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm flex-shrink-0 ml-2"
               >
                 {formatBalance(token)}
               </Text>
@@ -179,11 +179,11 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
         })}
       </div>
       {selectedToken && (
-        <div className="mt-3 bg-green-900/20 border border-green-700/30 rounded-lg p-2 animate-fadeIn">
+        <div className="mt-3 bg-green-900/20 border border-green-700/30 rounded-lg p-2 sm:p-3 animate-fadeIn">
           <Text
             variant="small"
             color="positive"
-            className="flex flex-wrap items-center"
+            className="flex flex-wrap items-center text-xs sm:text-sm"
           >
             <span className="bg-green-800 text-green-100 px-2 py-0.5 rounded-full text-xs mr-2">
               Selected
