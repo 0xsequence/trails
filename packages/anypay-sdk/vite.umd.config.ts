@@ -38,9 +38,9 @@ const mainConfig = defineConfig({
       ],
       output: {
         exports: "named",
-        preserveModules: true,
-        preserveModulesRoot: "src",
+        preserveModules: false, // Disable preserveModules to avoid virtual module issues
         entryFileNames: "[name].js",
+        chunkFileNames: "[name]-[hash].js",
       },
     },
     outDir: "dist",

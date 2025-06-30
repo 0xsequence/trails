@@ -22,6 +22,7 @@ import {
   type WalletClient,
 } from "viem"
 import {
+  ANYPAY_LIFI_ATTESATION_SIGNER_ADDRESS,
   ANYPAY_LIFI_SAPIENT_SIGNER_LITE_ADDRESS,
   ANYPAY_RELAY_SAPIENT_SIGNER_LITE_ADDRESS,
 } from "./constants.js"
@@ -167,8 +168,7 @@ export function calculateIntentAddress(
     Address.from(mainSigner),
     coreCalls,
     context,
-    // AnyPay.ANYPAY_LIFI_ATTESATION_SIGNER_ADDRESS,
-    Address.from("0x0000000000000000000000000000000000000001"),
+    ANYPAY_LIFI_ATTESATION_SIGNER_ADDRESS,
     coreExecutionInfos,
     sapientType,
   )
