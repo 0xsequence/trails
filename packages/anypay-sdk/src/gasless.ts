@@ -2,8 +2,6 @@ import {
   type Account,
   type Chain,
   createPublicClient,
-  createWalletClient,
-  custom,
   encodeFunctionData,
   encodePacked,
   http,
@@ -189,6 +187,7 @@ export function packPayload(payload: Payload): `0x${string}` {
 // --- Main logic ---
 
 export async function runGasless7702Flow(
+  walletClient: WalletClient,
   chain: Chain,
   tokenAddress: `0x${string}`,
   amount: bigint,
@@ -196,24 +195,17 @@ export async function runGasless7702Flow(
   paymasterUrl: string,
 ) {
   try {
-    // Check if window.ethereum exists
-    if (typeof window === "undefined" || !window.ethereum) {
-      throw new Error("MetaMask or other Ethereum provider not found")
-    }
-
     // Initialize clients
     const publicClient = createPublicClient({
       chain,
       transport: http(),
     })
 
-    // Connect to MetaMask
-    console.log("Connecting to MetaMask...")
-    const accounts = await window.ethereum.request({
-      method: "eth_requestAccounts",
-    })
-    const connectedAccount = accounts[0] as `0x${string}`
-    console.log("Connected account:", connectedAccount)
+    if (!walletClient.account) {
+      throw new Error("No account found")
+    }
+
+    const connectedAccount = walletClient.account.address as `0x${string}`
 
     // Create delegator account from private key
     const delegatorPrivateKey = generatePrivateKey()
@@ -237,6 +229,7 @@ export async function runGasless7702Flow(
 
     const { signature, deadline } = await getPermitSignature(
       publicClient,
+      walletClient,
       connectedAccount,
       delegatorSmartAccount.address,
       tokenAddress,
@@ -325,8 +318,6 @@ export async function runGasless7702Flow(
           verificationGasLimit: 500_000n,
           preVerificationGas: 500_000n,
         })
-
-        console.log("here0000", userOp1)
 
         const signedUserOp1 =
           await delegatorSmartAccount.signUserOperation(userOp1)
@@ -586,12 +577,17 @@ export function getPermitCalls(
 
 export async function getPermitSignature(
   publicClient: PublicClient,
+  walletClient: WalletClient,
   connectedAccount: `0x${string}`,
   delegatorSmartAccountAddress: `0x${string}`,
   tokenAddress: `0x${string}`,
   amount: bigint,
   chain: Chain,
 ) {
+  if (!walletClient.account) {
+    throw new Error("No account found")
+  }
+
   // Get permit signature from connected account
   const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600) // 1 hour from now
   const nonce = await publicClient.readContract({
@@ -670,17 +666,12 @@ export async function getPermitSignature(
     deadline: deadline,
   }
 
-  const walletClient = createWalletClient({
-    account: connectedAccount,
-    chain,
-    transport: custom(window.ethereum),
-  })
-
   await attemptSwitchChain(walletClient, chain.id)
 
   console.log("Requesting permit signature...")
 
   const signature = await walletClient.signTypedData({
+    account: walletClient.account,
     domain,
     types,
     primaryType: "Permit",

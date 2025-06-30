@@ -70,8 +70,7 @@ export function getRelayerUrl(
       // Base
       relayerUrl = "http://0.0.0.0:9996"
     } else {
-      // Default fallback
-      relayerUrl = "http://0.0.0.0:9999"
+      return ""
     }
 
     return relayerUrl

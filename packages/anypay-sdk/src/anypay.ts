@@ -26,6 +26,7 @@ import {
   type WalletClient,
   zeroAddress,
 } from "viem"
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
 import * as chains from "viem/chains"
 import {
   type Connector,
@@ -1950,7 +1951,9 @@ export async function prepareSend(options: SendOptions) {
         console.log("doGasless", doGasless, paymasterUrl)
         if (doGasless) {
           if (paymasterUrl) {
+            console.log("doing gasless with paymaster")
             const txHash = await runGasless7702Flow(
+              walletClient,
               testnet ? chains.baseSepolia : chain,
               testnet
                 ? testnetOriginTokenAddress
@@ -1969,9 +1972,21 @@ export async function prepareSend(options: SendOptions) {
             console.log("receipt", receipt)
             originUserTxReceipt = receipt
           } else {
+            console.log("doing gasless with sequence wallet")
+            const delegatorPrivateKey = generatePrivateKey()
+            const delegatorAccount = privateKeyToAccount(delegatorPrivateKey)
+            const delegatorClient = createWalletClient({
+              account: delegatorAccount,
+              chain: testnet ? chains.baseSepolia : chain,
+              transport: http(),
+            })
+
+            console.log("attempting to switch chain")
             await attemptSwitchChain(walletClient, originChainId)
+
+            console.log("creating sequence wallet")
             const sequenceWalletAddress = await simpleCreateSequenceWallet(
-              account as any,
+              delegatorAccount as any,
               relayerConfig,
               sequenceProjectAccessKey,
             )
@@ -1985,19 +2000,20 @@ export async function prepareSend(options: SendOptions) {
 
             const { signature, deadline } = await getPermitSignature(
               sequencePublicClient as PublicClient,
+              walletClient,
               account.address,
               sequenceWalletAddress,
               testnet
                 ? testnetOriginTokenAddress
                 : (originTokenAddress as `0x${string}`),
-              BigInt(originTokenAmount),
+              BigInt(firstPreconditionMin),
               testnet ? chains.baseSepolia : chain,
             )
 
             const calls = getPermitCalls(
               account.address,
               sequenceWalletAddress,
-              BigInt(originTokenAmount),
+              BigInt(firstPreconditionMin),
               deadline,
               signature,
               intentAddress as `0x${string}`,
@@ -2025,7 +2041,7 @@ export async function prepareSend(options: SendOptions) {
 
             const sequenceTxHash = await sequenceSendTransaction(
               sequenceWalletAddress,
-              walletClient,
+              delegatorClient,
               sequencePublicClient as PublicClient,
               calls,
               testnet ? chains.baseSepolia : chain,
