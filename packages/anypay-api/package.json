@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@0xsequence/typescript-config": "workspace:^",
-    "@types/node": "^22.15.33",
+    "@types/node": "^22.15.34",
     "typescript": "^5.8.3"
   }
 }
