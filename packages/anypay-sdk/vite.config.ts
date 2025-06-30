@@ -29,9 +29,9 @@ export default defineConfig({
         "@0xsequence/wallet-wdk",
       ],
       output: {
-        preserveModules: true,
-        preserveModulesRoot: "src",
+        preserveModules: false, // Disable preserveModules to avoid virtual module issues
         entryFileNames: "[name].js",
+        chunkFileNames: "[name]-[hash].js",
       },
     },
     outDir: "dist/widget",
