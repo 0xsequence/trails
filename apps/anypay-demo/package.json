@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "pnpm run clean && vite",
     "build": "tsc -b && vite build",
+    "start": "vite preview",
     "lint": "biome lint ./src",
     "lint:fix": "biome lint --write ./src",
     "format": "biome format --write ./src",

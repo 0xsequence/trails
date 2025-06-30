@@ -54,10 +54,13 @@ function getRelayerUrl(config: RelayerEnvConfig, chainId: number): string {
   let relayerUrl
   if (config.env === "local") {
     // Use specific ports for different chains in local environment
-    if (chainId === 42161) {
+    if (chainId === 1) {
+      // Mainnet
+      relayerUrl = "http://0.0.0.0:9969"
+    } else if (chainId === 42161) {
       // Arbitrum
       relayerUrl = "http://0.0.0.0:9997"
-    } else if (chainId === 10) {
+    } else if (chainId === 10 || chainId === 420) {
       // Optimism
       relayerUrl = "http://0.0.0.0:9998"
     } else if (chainId === 137) {
