@@ -511,7 +511,7 @@ export const HomeIndexRoute = () => {
     <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 max-w-3xl mx-auto min-h-screen">
       <div className="text-center mb-6 sm:mb-8 animate-fadeIn">
         <h1 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 mb-2">
-          Sequence AnyPay Demo
+          Trails Demo
         </h1>
         <p className="text-gray-300 text-sm px-4">
           Connect your wallet and explore cross-chain intents

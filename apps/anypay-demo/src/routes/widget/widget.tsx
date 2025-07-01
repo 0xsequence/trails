@@ -50,11 +50,11 @@ export const Widget = () => {
     <div className="flex flex-col items-center justify-center space-y-6 py-8 px-4 sm:py-12 sm:px-6">
       <div className="text-center space-y-4 max-w-6xl w-full">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-4">
-          AnyPay Widget Demo
+          Trails Widget Demo
         </h1>
         <p className="text-sm text-white leading-relaxed max-w-3xl mx-auto font-light px-4">
           This demo showcases a multi-step transfer flow using the{" "}
-          <span className="font-medium">AnyPay SDK</span>. Connect your wallet,
+          <span className="font-medium">Trails SDK</span>. Connect your wallet,
           select a token, specify the amount and recipient, and see the
           transaction confirmation process in action.
         </p>

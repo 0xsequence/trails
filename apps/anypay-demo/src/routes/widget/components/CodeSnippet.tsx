@@ -73,21 +73,21 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
       gasless && `gasless={true}`,
     ].filter(Boolean)
 
-    return `import { AnyPayWidget } from '@0xsequence/anypay-sdk/widget'
+    return `import { TrailsWidget } from '@0xsequence/trails-sdk/widget'
 
 export const App = () => {
   return (${
     useCustomButton
       ? `
-    <AnyPayWidget
+    <TrailsWidget
       sequenceProjectAccessKey="${accessKey}"${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
     >
       <button className="custom-button-styles">
-        Pay with AnyPay
+        Pay with Trails
       </button>
-    </AnyPayWidget>`
+    </TrailsWidget>`
       : `
-    <AnyPayWidget
+    <TrailsWidget
       sequenceProjectAccessKey="${accessKey}"${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
     />`
   }
@@ -111,22 +111,15 @@ export const App = () => {
       gasless && `gasless: true`,
     ].filter(Boolean)
 
-    return `<!DOCTYPE html>
-<html>
-<head>
-    <title>AnyPay Widget Demo</title>
-    <script src="https://anypay.sequence-demos.xyz/js/anypay.min.js"></script>
-</head>
-<body>
-    <div id="anypay"></div>
-    
-    <script>
-        AnyPayWidget.render(document.getElementById('anypay'), {
-            sequenceProjectAccessKey: '${accessKey}',${props.length > 0 ? "\n            " : ""}${props.join(",\n            ")}
-        });
-    </script>
-</body>
-</html>`
+    return `<div id="trails"></div>
+
+<script src="https://trails.sequence-demos.xyz/js/trails.min.js"></script>
+<script>
+    TrailsWidget.render(document.getElementById('trails'), {
+        sequenceProjectAccessKey: '${accessKey}',${props.length > 0 ? "\n            " : ""}${props.join(",\n            ")}
+    })
+</script>
+`.trim()
   }
 
   const reactCodeExample = getReactCode()
@@ -144,6 +137,7 @@ export const App = () => {
           </p>
         </div>
         <button
+          type="button"
           onClick={handleCopy}
           className="flex items-center space-x-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 cursor-pointer rounded-lg text-gray-200 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
@@ -164,6 +158,7 @@ export const App = () => {
       {/* Tab Navigation */}
       <div className="flex space-x-1 mb-4">
         <button
+          type="button"
           onClick={() => setActiveTab("react")}
           className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
             activeTab === "react"
@@ -174,6 +169,7 @@ export const App = () => {
           React Component
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab("script")}
           className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
             activeTab === "script"
@@ -202,6 +198,7 @@ export const App = () => {
       </div>
       {children}
       <button
+        type="button"
         onClick={handleDebugMode}
         className="absolute bottom-2 right-2 text-xs text-gray-500 hover:text-gray-300 cursor-pointer transition-colors"
       >

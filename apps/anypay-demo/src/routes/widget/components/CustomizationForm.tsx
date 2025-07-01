@@ -6,7 +6,7 @@ import { defaultWalletOptions } from "@0xsequence/anypay-sdk/widget"
 import { InfoIcon, TokenImage, Tooltip } from "@0xsequence/design-system"
 import { ChevronDown } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
-import { encodeFunctionData, zeroAddress } from "viem"
+import { encodeFunctionData, parseUnits, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
 import { ChainSelector } from "./ChainSelector"
 
@@ -39,18 +39,18 @@ interface CustomizationFormProps {
 
 // Local storage keys
 export const STORAGE_KEYS = {
-  SEQUENCE_PROJECT_ACCESS_KEY: "anypay_sequence_project_access_key",
-  TO_ADDRESS: "anypay_to_address",
-  TO_AMOUNT: "anypay_to_amount",
-  TO_CHAIN_ID: "anypay_to_chain_id",
-  TO_TOKEN: "anypay_to_token",
-  TO_CALLLDATA: "anypay_to_calldata",
-  USE_CUSTOM_BUTTON: "anypay_use_custom_button",
-  RENDER_INLINE: "anypay_render_inline",
-  THEME: "anypay_theme",
-  WALLET_OPTIONS: "anypay_wallet_options",
-  PAYMASTER_URLS: "anypay_paymaster_urls",
-  GASLESS: "anypay_gasless",
+  SEQUENCE_PROJECT_ACCESS_KEY: "trails_demo_sequence_project_access_key",
+  TO_ADDRESS: "trails_demo_to_address",
+  TO_AMOUNT: "trails_demo_to_amount",
+  TO_CHAIN_ID: "trails_demo_to_chain_id",
+  TO_TOKEN: "trails_demo_to_token",
+  TO_CALLLDATA: "trails_demo_to_calldata",
+  USE_CUSTOM_BUTTON: "trails_demo_use_custom_button",
+  RENDER_INLINE: "trails_demo_render_inline",
+  THEME: "trails_demo_theme",
+  WALLET_OPTIONS: "trails_demo_wallet_options",
+  PAYMASTER_URLS: "trails_demo_paymaster_urls",
+  GASLESS: "trails_demo_gasless",
 } as const
 
 interface UseAccountButtonProps {
@@ -65,6 +65,7 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
   if (!isConnected || !address) {
     return (
       <button
+        type="button"
         disabled
         className="px-2 sm:px-3 py-1 text-xs bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed"
         title="Connect your wallet first"
@@ -76,6 +77,7 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
 
   return (
     <button
+      type="button"
       onClick={() => onAddressSelect(address)}
       className="px-2 sm:px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 cursor-pointer text-white rounded-lg transition-colors cursor-pointer"
     >
@@ -372,7 +374,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         </div>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-2">
+            <label
+              className="block text-sm font-medium text-gray-200 mb-2"
+              htmlFor="sequenceProjectAccessKey"
+            >
               Sequence Project Access Key
             </label>
             <input
@@ -387,7 +392,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-2">
+            <label
+              className="block text-sm font-medium text-gray-200 mb-2"
+              htmlFor="toAddress"
+            >
               To Address
             </label>
             <input
@@ -400,7 +408,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-2">
+            <label
+              className="block text-sm font-medium text-gray-200 mb-2"
+              htmlFor="toAmount"
+            >
               To Amount
             </label>
             <input
@@ -413,7 +424,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           </div>
 
           <div className="space-y-2" ref={tokenDropdownRef}>
-            <label className="block text-sm font-medium text-gray-200 mb-2">
+            <label
+              className="block text-sm font-medium text-gray-200 mb-2"
+              htmlFor="toToken"
+            >
               To Token
             </label>
             <div className="relative">
@@ -510,7 +524,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           </div>
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-200 mb-2">
+            <label
+              className="block text-sm font-medium text-gray-200 mb-2"
+              htmlFor="toChainId"
+            >
               To Chain ID
             </label>
             <ChainSelector
@@ -520,7 +537,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-2">
+            <label
+              className="block text-sm font-medium text-gray-200 mb-2"
+              htmlFor="toCalldata"
+            >
               To Calldata
             </label>
             <textarea
@@ -533,13 +553,17 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           </div>
 
           <div className="flex items-center justify-between py-2">
-            <label className="block text-sm font-medium text-gray-200 flex items-center gap-2">
+            <label
+              className="block text-sm font-medium text-gray-200 flex items-center gap-2"
+              htmlFor="gasless"
+            >
               Gasless
               <Tooltip message="Enable gasless transactions using Sequence Relayer based on your project access key sponsorship settings">
                 <InfoIcon size="sm" className="text-gray-400 cursor-pointer" />
               </Tooltip>
             </label>
             <button
+              type="button"
               onClick={() => setGasless(!gasless)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 gasless ? "bg-blue-500" : "bg-gray-600"
@@ -554,7 +578,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2">
+            <label
+              className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2"
+              htmlFor="paymasterUrls"
+            >
               Paymaster URLs (Chain-specific)
               <Tooltip message="Use 4337-compatible bundler/paymaster URLs for gasless transactions, such as Alchemy, Thirdweb, Pimlico, ZeroDev, etc. Set different URLs for different chains.">
                 <InfoIcon size="sm" className="text-gray-400 cursor-pointer" />
@@ -614,6 +641,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
                     {/* Remove Button - Styled like text */}
                     <button
+                      type="button"
                       onClick={() => {
                         const newPaymasterUrls = paymasterUrls.filter(
                           (p) => p.chainId !== currentChainId,
@@ -630,6 +658,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
               {/* Add Button */}
               <button
+                type="button"
                 onClick={() => {
                   // Find first available chain that's not already used
                   const usedChainIds = paymasterUrls.map((p) => p.chainId)
@@ -652,10 +681,14 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           </div>
 
           <div className="flex items-center justify-between py-2">
-            <label className="block text-sm font-medium text-gray-200">
+            <label
+              className="block text-sm font-medium text-gray-200"
+              htmlFor="useCustomButton"
+            >
               Custom Button
             </label>
             <button
+              type="button"
               onClick={() => setUseCustomButton(!useCustomButton)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer ${
                 useCustomButton ? "bg-blue-500" : "bg-gray-600"
@@ -670,10 +703,14 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           </div>
 
           <div className="flex items-center justify-between py-2">
-            <label className="block text-sm font-medium text-gray-200">
+            <label
+              className="block text-sm font-medium text-gray-200"
+              htmlFor="renderInline"
+            >
               Render Inline
             </label>
             <button
+              type="button"
               onClick={() => setRenderInline(!renderInline)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer ${
                 renderInline ? "bg-blue-500" : "bg-gray-600"
@@ -688,13 +725,17 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
-            <label className="block text-sm font-medium text-gray-200">
+            <label
+              className="block text-sm font-medium text-gray-200"
+              htmlFor="theme"
+            >
               Theme Mode
             </label>
             <div className="flex rounded-lg overflow-hidden border border-gray-600">
               {(["auto", "light", "dark"] as const).map((mode) => (
                 <button
                   key={mode}
+                  type="button"
                   onClick={() => setTheme(mode)}
                   className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
                     theme === mode
@@ -709,13 +750,17 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
-            <label className="block text-sm font-medium text-gray-200">
+            <label
+              className="block text-sm font-medium text-gray-200"
+              htmlFor="walletOptions"
+            >
               Wallet Options
             </label>
             <div className="flex flex-wrap rounded-lg overflow-hidden border border-gray-600">
               {defaultWalletOptions.map((wallet: string) => (
                 <button
                   key={wallet}
+                  type="button"
                   onClick={() => handleWalletOptionToggle(wallet)}
                   className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
                     walletOptions?.includes(wallet)
@@ -731,6 +776,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
           <div className="pt-2">
             <button
+              type="button"
               onClick={handleReset}
               className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors duration-200 text-sm font-medium border border-gray-600 hover:border-gray-500 cursor-pointer"
             >
@@ -744,6 +790,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               {/* Send USDC Example */}
               <div className="rounded-lg border border-gray-600 overflow-hidden">
                 <button
+                  type="button"
                   onClick={() => setIsSendUsdcFormOpen(!isSendUsdcFormOpen)}
                   className="w-full px-3 sm:px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors duration-200 text-sm font-medium cursor-pointer text-left flex justify-between items-center"
                 >
@@ -764,7 +811,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   <div className="p-3 sm:p-4 bg-gray-800 space-y-4">
                     <div>
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
-                        <label className="block text-sm font-medium text-gray-200">
+                        <label
+                          className="block text-sm font-medium text-gray-200"
+                          htmlFor="usdcRecipient"
+                        >
                           Recipient
                         </label>
                         <UseAccountButton onAddressSelect={setUsdcRecipient} />
@@ -780,6 +830,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       />
                     </div>
                     <button
+                      type="button"
                       onClick={() => {
                         setToAddress(usdcRecipient)
                         setToAmount("0.1")
@@ -798,6 +849,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
               <div className="rounded-lg border border-gray-600 overflow-hidden">
                 <button
+                  type="button"
                   onClick={() =>
                     setIsArbitrumNftMintFormOpen(!isArbitrumNftMintFormOpen)
                   }
@@ -820,7 +872,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   <div className="p-4 bg-gray-800 space-y-4">
                     <div>
                       <div className="flex justify-between items-center mb-2">
-                        <label className="block text-sm font-medium text-gray-200">
+                        <label
+                          className="block text-sm font-medium text-gray-200"
+                          htmlFor="nftRecipient"
+                        >
                           NFT Recipient
                         </label>
                         <UseAccountButton onAddressSelect={setNftRecipient} />
@@ -834,6 +889,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       />
                     </div>
                     <button
+                      type="button"
                       onClick={() => {
                         const formattedAddress = nftRecipient
                           ? formatAddressForCalldata(nftRecipient)
@@ -860,6 +916,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               {/* Polygon NFT Mint Example */}
               <div className="rounded-lg border border-gray-600 overflow-hidden">
                 <button
+                  type="button"
                   onClick={() =>
                     setIsPolygonNftMintFormOpen(!isPolygonNftMintFormOpen)
                   }
@@ -882,7 +939,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   <div className="p-4 bg-gray-800 space-y-4">
                     <div>
                       <div className="flex justify-between items-center mb-2">
-                        <label className="block text-sm font-medium text-gray-200">
+                        <label
+                          className="block text-sm font-medium text-gray-200"
+                          htmlFor="nftRecipient"
+                        >
                           NFT Recipient
                         </label>
                         <UseAccountButton onAddressSelect={setNftRecipient} />
@@ -896,6 +956,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       />
                     </div>
                     <button
+                      type="button"
                       onClick={() => {
                         const formattedAddress = nftRecipient
                           ? formatAddressForCalldata(nftRecipient)
@@ -922,6 +983,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               {/* Aave Deposit Example */}
               <div className="rounded-lg border border-gray-600 overflow-hidden">
                 <button
+                  type="button"
                   onClick={() =>
                     setIsAaveDepositFormOpen(!isAaveDepositFormOpen)
                   }
@@ -944,7 +1006,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   <div className="p-4 bg-gray-800 space-y-4">
                     <div>
                       <div className="flex justify-between items-center mb-2">
-                        <label className="block text-sm font-medium text-gray-200">
+                        <label
+                          className="block text-sm font-medium text-gray-200"
+                          htmlFor="aaveRecipient"
+                        >
                           On Behalf Of
                         </label>
                         <UseAccountButton onAddressSelect={setAaveRecipient} />
@@ -960,6 +1025,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       />
                     </div>
                     <button
+                      type="button"
                       onClick={() => {
                         setToAddress(
                           "0xa0d9C1E9E48Ca30c8d8C3B5D69FF5dc1f6DFfC24",
@@ -987,7 +1053,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   )
 }
 
-function encodeAaveEthDepositCalldata(recipient: string = zeroAddress) {
+export function encodeAaveEthDepositCalldata(recipient: string = zeroAddress) {
   const calldata = encodeFunctionData({
     abi: [
       {
@@ -1014,31 +1080,33 @@ function encodeAaveEthDepositCalldata(recipient: string = zeroAddress) {
   return calldata
 }
 
-// function encodeErc20AaveDepositCalldata(recipient: string = zeroAddress) {
-//   const calldata = encodeFunctionData({
-//     abi: [
-//       {
-//         type: 'function',
-//         name: 'supply',
-//         stateMutability: 'nonpayable',
-//         inputs: [
-//           { name: 'asset', type: 'address' },
-//           { name: 'amount', type: 'uint256' },
-//           { name: 'onBehalfOf', type: 'address' },
-//           { name: 'referralCode', type: 'uint16' }
-//         ],
-//         outputs: []
-//       }
-//     ],
-//     functionName: 'supply',
-//     args: [
-//       '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', // USDC on Base
-//       parseUnits('0.1', 6), // 0.1 USDC (6 decimals)
-//       recipient as `0x${string}`, // onBehalfOf
-//       0 // referralCode
-//     ]
-// });
+export function encodeErc20AaveDepositCalldata(
+  recipient: string = zeroAddress,
+) {
+  const calldata = encodeFunctionData({
+    abi: [
+      {
+        type: "function",
+        name: "supply",
+        stateMutability: "nonpayable",
+        inputs: [
+          { name: "asset", type: "address" },
+          { name: "amount", type: "uint256" },
+          { name: "onBehalfOf", type: "address" },
+          { name: "referralCode", type: "uint16" },
+        ],
+        outputs: [],
+      },
+    ],
+    functionName: "supply",
+    args: [
+      "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
+      parseUnits("0.1", 6), // 0.1 USDC (6 decimals)
+      recipient as `0x${string}`, // onBehalfOf
+      0, // referralCode
+    ],
+  })
 
-// console.log(calldata);
-// return calldata
-// }
+  console.log(calldata)
+  return calldata
+}
