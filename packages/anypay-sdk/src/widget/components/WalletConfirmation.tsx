@@ -1,10 +1,11 @@
 import type React from "react"
 import { useEffect, useState } from "react"
+import type { ActiveTheme } from "../../theme.js"
 
 interface WalletConfirmationProps {
   onBack: () => void
   onComplete: () => void
-  theme?: "light" | "dark"
+  theme?: ActiveTheme
   amount?: string
   recipient?: string
   tokenSymbol?: string

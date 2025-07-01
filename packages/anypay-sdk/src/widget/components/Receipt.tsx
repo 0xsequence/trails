@@ -1,15 +1,16 @@
 // biome-ignore lint/style/useImportType: False positive
 import React, { useEffect, useState } from "react"
-import type { TransactionState } from "../../anypay.js"
-import { getExplorerUrl } from "../../anypay.js"
+import type { TransactionState } from "../../prepareSend.js"
+import { getExplorerUrl } from "../../explorer.js"
 import { GreenCheckAnimation } from "./GreenCheckAnimation.js"
+import type { ActiveTheme } from "../../theme.js"
 
 interface ReceiptProps {
   txHash?: string
   chainId?: number
   onSendAnother: () => void
   onClose: () => void
-  theme?: "light" | "dark"
+  theme?: ActiveTheme
   renderInline?: boolean
   transactionStates?: TransactionState[]
 }

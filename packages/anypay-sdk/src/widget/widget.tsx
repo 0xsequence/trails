@@ -26,12 +26,13 @@ import {
   http,
   type TransactionReceipt,
   type WalletClient,
+  type Chain,
 } from "viem"
 import * as chains from "viem/chains"
 import { mainnet } from "viem/chains"
 import { useAccount, useConnect, useDisconnect, WagmiContext } from "wagmi"
 import { injected } from "wagmi/connectors"
-import type { TransactionState } from "../anypay.js"
+import type { TransactionState } from "../prepareSend.js"
 import { useIndexerGatewayClient } from "../indexerClient.js"
 import { ConnectWallet, type WalletOption } from "./components/ConnectWallet.js"
 import DebugScreensDropdown from "./components/DebugScreensDropdown.js"
@@ -43,6 +44,7 @@ import TransferPending from "./components/TransferPending.js"
 import WalletConfirmation from "./components/WalletConfirmation.js"
 import "@0xsequence/design-system/preset"
 import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
+import { Theme, ActiveTheme } from "../theme.js"
 import css from "./index.css?inline"
 
 type Screen =
@@ -52,8 +54,6 @@ type Screen =
   | "wallet-confirmation"
   | "pending"
   | "receipt"
-export type Theme = "light" | "dark" | "auto"
-type ActiveTheme = "light" | "dark"
 
 export const defaultWalletOptions = ["injected", "privy"]
 
@@ -470,7 +470,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   function handleTransferComplete(data?: {
     originChainId: number
     destinationChainId: number
-    originUserTxReceipt: TransactionReceipt
+    originUserTxReceipt: TransactionReceipt | null
     originMetaTxnReceipt: any
     destinationMetaTxnReceipt: any
   }) {
@@ -482,7 +482,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
       if (data.destinationMetaTxnReceipt || data.originUserTxReceipt) {
         setDestinationTxHash(
           data.destinationMetaTxnReceipt?.txnHash ||
-            data.originUserTxReceipt.transactionHash,
+            data.originUserTxReceipt?.transactionHash,
         )
       }
 
@@ -880,7 +880,7 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
     () =>
       createConfig({
         chains: [mainnet],
-        transports: Object.values(chains as unknown as any[]).reduce(
+        transports: (Object.values(chains) as Array<Chain>).reduce(
           (acc, chain) => ({
             ...acc,
             [chain.id]: http(),

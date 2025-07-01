@@ -2,10 +2,11 @@ import { ChevronDown } from "lucide-react"
 import type React from "react"
 import { useRef, useState } from "react"
 import { useQueryParams } from "../../queryParams.js"
+import type { ActiveTheme } from "../../theme.js"
 
 interface DebugScreensDropdownProps {
   onScreenSelect: (screen: string) => void
-  theme?: "light" | "dark"
+  theme?: ActiveTheme
 }
 
 const SCREENS = [
@@ -34,6 +35,7 @@ export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`p-1 rounded-full hover:bg-opacity-10 ${
           theme === "dark"
@@ -55,6 +57,7 @@ export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
           {SCREENS.map((screen) => (
             <button
               key={screen}
+              type="button"
               onClick={() => {
                 onScreenSelect(screen)
                 setIsOpen(false)

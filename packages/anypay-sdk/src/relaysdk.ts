@@ -140,3 +140,8 @@ export async function executeSimpleRelayTransaction(
     onProgress,
   })
 }
+
+export function getTxHashFromRelayResult(result: any) {
+  return result?.data?.steps?.[result?.data?.steps!.length - 1]?.items?.[0]
+    ?.txHashes?.[0]?.txHash
+}

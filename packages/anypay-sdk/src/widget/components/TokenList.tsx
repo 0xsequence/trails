@@ -2,12 +2,17 @@ import { NetworkImage, TokenImage } from "@0xsequence/design-system"
 import type { SequenceIndexerGateway } from "@0xsequence/indexer"
 import { ChevronLeft, Search } from "lucide-react"
 import { Address } from "ox"
-// biome-ignore lint/style/useImportType: False positive
 import React, { useMemo, useState } from "react"
 import { formatUnits, isAddressEqual, zeroAddress } from "viem"
-import * as chains from "viem/chains"
 import { useAccount } from "wagmi"
-import { useSourceTokenList, useTokenBalances } from "../../tokenBalances.js"
+import {
+  TokenBalanceExtended,
+  TokenBalanceWithPrice,
+  useSourceTokenList,
+  useTokenBalances,
+} from "../../tokenBalances.js"
+import { getChainInfo } from "../../chains.js"
+import type { ActiveTheme } from "../../theme.js"
 
 interface Token {
   id: number
@@ -30,15 +35,7 @@ interface TokenListProps {
   onContinue: (selectedToken: Token) => void
   onBack: () => void
   indexerGatewayClient: SequenceIndexerGateway
-  theme?: "light" | "dark"
-}
-
-// Helper to get chain info
-const getChainInfo = (chainId: number) => {
-  // TODO: Add proper type
-  return (
-    Object.values(chains).find((chain: any) => chain.id === chainId) || null
-  )
+  theme?: ActiveTheme
 }
 
 // Helper to format balance
@@ -74,18 +71,20 @@ export const TokenList: React.FC<TokenListProps> = ({
 
   const sourceTokenList = useSourceTokenList()
 
-  const sortedTokens = useMemo(() => {
-    return allSortedTokens.filter((token: any) => {
+  const sortedTokens = useMemo<Array<TokenBalanceExtended>>(() => {
+    return allSortedTokens.filter((token: TokenBalanceExtended) => {
       return (
-        !token.contractAddress ||
-        sourceTokenList.includes(token.contractInfo?.symbol || "")
+        !(token as TokenBalanceWithPrice).contractAddress ||
+        sourceTokenList.includes(
+          (token as TokenBalanceWithPrice).contractInfo?.symbol || "",
+        )
       )
     })
   }, [allSortedTokens, sourceTokenList])
 
-  const handleTokenSelect = (token: any) => {
+  const handleTokenSelect = (token: TokenBalanceExtended) => {
     const isNative = !("contractAddress" in token)
-    const chainInfo = getChainInfo(token.chainId) as any // TODO: Add proper type
+    const chainInfo = getChainInfo(token.chainId)
     const contractAddress = isNative ? zeroAddress : token.contractAddress
     const imageUrl = `https://assets.sequence.info/images/tokens/small/${token.chainId}/${contractAddress}.webp`
 
@@ -99,7 +98,7 @@ export const TokenList: React.FC<TokenListProps> = ({
         imageUrl,
         chainId: token.chainId,
         contractAddress: zeroAddress,
-        balanceUsdFormatted: token.balanceUsdFormatted,
+        balanceUsdFormatted: token.balanceUsdFormatted ?? "",
         tokenPriceUsd: token.price?.value ?? 0,
         contractInfo: {
           decimals: 18,
@@ -116,8 +115,13 @@ export const TokenList: React.FC<TokenListProps> = ({
         imageUrl,
         chainId: token.chainId,
         contractAddress: token.contractAddress,
-        contractInfo: token.contractInfo,
-        balanceUsdFormatted: token.balanceUsdFormatted,
+        contractInfo: {
+          ...token.contractInfo,
+          name: token.contractInfo?.name ?? "Unknown Token",
+          symbol: token.contractInfo?.symbol ?? "???",
+          decimals: token.contractInfo?.decimals ?? 18,
+        },
+        balanceUsdFormatted: token.balanceUsdFormatted ?? "",
         tokenPriceUsd: token.price?.value ?? 0,
       }
     }
@@ -126,7 +130,7 @@ export const TokenList: React.FC<TokenListProps> = ({
     onContinue(formattedToken)
   }
 
-  const isTokenSelected = (token: any): boolean => {
+  const isTokenSelected = (token: TokenBalanceExtended): boolean => {
     if (!selectedToken) return false
 
     const isNative = !("contractAddress" in token)
@@ -149,9 +153,9 @@ export const TokenList: React.FC<TokenListProps> = ({
     const query = searchQuery.toLowerCase().trim()
     const queryParts = query.split(/\s+/).filter((part) => part.length > 0)
 
-    return sortedTokens.filter((token: any) => {
+    return sortedTokens.filter((token: TokenBalanceExtended) => {
       const isNative = !("contractAddress" in token)
-      const chainInfo = getChainInfo(token.chainId) as any // TODO: Add proper type
+      const chainInfo = getChainInfo(token.chainId)
       const chainName = chainInfo?.name || ""
       const chainNameLower = chainName.toLowerCase()
 
@@ -214,6 +218,7 @@ export const TokenList: React.FC<TokenListProps> = ({
     <div className="space-y-6">
       <div className="flex items-center relative">
         <button
+          type="button"
           onClick={onBack}
           className={`absolute -left-2 p-2 rounded-full transition-colors cursor-pointer ${
             theme === "dark"
@@ -274,19 +279,6 @@ export const TokenList: React.FC<TokenListProps> = ({
           }`}
         >
           <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <svg
-                className={`h-5 w-5 ${theme === "dark" ? "text-red-400" : "text-red-400"}`}
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
             <div className="ml-3">
               <h3
                 className={`text-sm font-medium ${theme === "dark" ? "text-red-200" : "text-red-800"}`}
@@ -301,6 +293,7 @@ export const TokenList: React.FC<TokenListProps> = ({
                   : "Failed to fetch token balances. Please try again."}
               </p>
               <button
+                type="button"
                 onClick={() => window.location.reload()}
                 className={`mt-2 text-sm font-medium underline ${
                   theme === "dark"
@@ -335,9 +328,9 @@ export const TokenList: React.FC<TokenListProps> = ({
           theme === "dark" ? "divide-gray-700/50" : "divide-gray-200"
         } max-h-[35vh] overflow-y-auto rounded-[16px] ${theme === "dark" ? "bg-gray-800/50" : "bg-white"}`}
       >
-        {filteredTokens.map((token: any) => {
+        {filteredTokens.map((token: TokenBalanceExtended) => {
           const isNative = !("contractAddress" in token)
-          const chainInfo = getChainInfo(token.chainId) as any
+          const chainInfo = getChainInfo(token.chainId)
           const nativeSymbol = chainInfo?.nativeCurrency.symbol || "ETH"
           const tokenSymbol = isNative
             ? nativeSymbol
@@ -359,12 +352,13 @@ export const TokenList: React.FC<TokenListProps> = ({
           const balanceUsdFormatted = token.balanceUsdFormatted ?? ""
 
           return (
-            <div
+            <button
               key={
                 isNative
                   ? `${token.chainId}-native`
                   : `${token.chainId}-${token.contractAddress}`
               }
+              type="button"
               onClick={() => handleTokenSelect(token)}
               className={`py-2.5 px-3 flex items-center space-x-3 cursor-pointer transition-colors ${
                 theme === "dark"
@@ -433,13 +427,14 @@ export const TokenList: React.FC<TokenListProps> = ({
                   </p>
                 )}
               </div>
-            </div>
+            </button>
           )
         })}
       </div>
 
       <div className="space-y-4">
         <button
+          type="button"
           onClick={() => selectedToken && onContinue(selectedToken)}
           disabled={!selectedToken}
           className={`w-full font-semibold py-3 px-4 rounded-[24px] transition-colors ${

@@ -1,13 +1,13 @@
 import { X } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
-// biome-ignore lint/style/useImportType: False positive
 import React, { useEffect, useRef } from "react"
+import type { ActiveTheme } from "../../theme.js"
 
 interface ModalProps {
   isOpen: boolean
   onClose: () => void
   children: React.ReactNode
-  theme?: "light" | "dark"
+  theme?: ActiveTheme
 }
 
 const Modal: React.FC<ModalProps> = ({

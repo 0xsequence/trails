@@ -1,6 +1,6 @@
 import "./buffer"
 
-export type { Account, UseAnyPayConfig } from "./anypay.js"
+export type { WagmiAccount, UseAnyPayConfig } from "./anypay.js"
 export * from "./anypay.js"
 export * from "./apiClient.js"
 export * from "./constants.js"
@@ -26,3 +26,4 @@ export type {
 export * from "./relayer.js"
 export type { NativeTokenBalance, TokenBalance } from "./tokenBalances.js"
 export * from "./tokenBalances.js"
+export * from "./prepareSend.js"

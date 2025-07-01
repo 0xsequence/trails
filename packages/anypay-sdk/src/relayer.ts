@@ -24,8 +24,10 @@ export type RelayerConfig = {
   rpcUrl: string
 }
 
+export type RelayerEnv = "local" | "cors-anywhere" | "dev" | "prod"
+
 export type RelayerEnvConfig = {
-  env?: "local" | "cors-anywhere" | "dev" | "prod"
+  env?: RelayerEnv
   useV3Relayers?: boolean
 }
 

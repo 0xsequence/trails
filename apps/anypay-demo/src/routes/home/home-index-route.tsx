@@ -1,5 +1,5 @@
 import {
-  type Account,
+  type WagmiAccount,
   calculateIntentAddress,
   type TokenBalance,
   useAnyPay,
@@ -95,7 +95,7 @@ function useHook() {
     metaTxnBlockTimestamps,
     anypayFee,
   } = useAnyPay({
-    account: account as Account,
+    account: account as WagmiAccount,
     env: import.meta.env.VITE_ENV,
   })
 
