@@ -36,7 +36,7 @@ import type { RelayerEnv } from "../relayer.js"
 import type { ActiveTheme, Theme } from "../theme.js"
 import type { WalletOption } from "./components/ConnectWallet.js"
 import { ConnectWallet } from "./components/ConnectWallet.js"
-import DebugScreensDropdown from "./components/DebugScreensDropdown.js"
+import Footer from "./components/Footer.js"
 import Modal from "./components/Modal.js"
 import Receipt from "./components/Receipt.js"
 import SendForm from "./components/SendForm.js"
@@ -813,33 +813,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             )}
           </motion.div>
         </AnimatePresence>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15 }}
-          className={`mt-auto pt-4 text-center text-sm relative flex items-center justify-center ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
-          layout
-        >
-          <div className="absolute right-0 flex items-center h-full">
-            <DebugScreensDropdown
-              onScreenSelect={handleDebugScreenSelect}
-              theme={theme}
-            />
-          </div>
-          Powered by&nbsp;
-          <a
-            href="https://anypay.pages.dev/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`font-medium transition-colors hover:underline ${
-              theme === "dark"
-                ? "text-gray-400 hover:text-white"
-                : "text-gray-500 hover:text-black"
-            }`}
-          >
-            AnyPay
-          </a>
-        </motion.div>
+        <Footer theme={theme} onDebugScreenSelect={handleDebugScreenSelect} />
       </motion.div>
     )
   }

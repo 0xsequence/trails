@@ -59,7 +59,7 @@ export function getAccountNetworks(input: GetAccountNetworksInput) {
           relayer,
         }
       }
-    } catch (err: unknown) {
+    } catch (_err: unknown) {
       // noop
     }
     return network

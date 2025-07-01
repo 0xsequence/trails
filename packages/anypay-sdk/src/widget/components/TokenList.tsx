@@ -414,16 +414,24 @@ export const TokenList: React.FC<TokenListProps> = ({
               </div>
 
               <div className="text-right flex-shrink-0">
-                <p
-                  className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-                >
-                  {formattedBalance}
-                </p>
-                {priceUsd > 0 && (
+                {priceUsd > 0 ? (
+                  <>
+                    <p
+                      className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                    >
+                      {balanceUsdFormatted}
+                    </p>
+                    <p
+                      className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                    >
+                      {formattedBalance}
+                    </p>
+                  </>
+                ) : (
                   <p
-                    className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                    className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
                   >
-                    {balanceUsdFormatted}
+                    {formattedBalance}
                   </p>
                 )}
               </div>
