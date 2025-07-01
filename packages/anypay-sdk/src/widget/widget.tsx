@@ -1,3 +1,4 @@
+import type { MetaTxnReceipt } from "@0xsequence/anypay-relayer"
 import "@0xsequence/design-system/preset"
 import { SequenceHooksContext, SequenceHooksProvider } from "@0xsequence/hooks"
 import {
@@ -25,10 +26,13 @@ import type { Chain, TransactionReceipt, WalletClient } from "viem"
 import { createWalletClient, custom, http } from "viem"
 import * as chains from "viem/chains"
 import { mainnet } from "viem/chains"
+import type { Connector } from "wagmi"
 import { useAccount, useConnect, useDisconnect, WagmiContext } from "wagmi"
 import { injected } from "wagmi/connectors"
+import { getChainInfo } from "../chains.js"
 import { useIndexerGatewayClient } from "../indexerClient.js"
 import type { TransactionState } from "../prepareSend.js"
+import type { RelayerEnv } from "../relayer.js"
 import type { ActiveTheme, Theme } from "../theme.js"
 import type { WalletOption } from "./components/ConnectWallet.js"
 import { ConnectWallet } from "./components/ConnectWallet.js"
@@ -67,21 +71,11 @@ interface Token {
   }
 }
 
-const getChainConfig = (chainId: number) => {
-  for (const chain of Object.values(chains) as any[]) {
-    // TODO: add proper types
-    if (chain.id === chainId) {
-      return chain
-    }
-  }
-  throw new Error(`Unsupported chain ID: ${chainId}`)
-}
-
 export type AnyPayWidgetProps = {
   sequenceProjectAccessKey: string
   sequenceIndexerUrl?: string
   sequenceApiUrl?: string
-  sequenceEnv?: "local" | "cors-anywhere" | "dev" | "prod"
+  sequenceEnv?: RelayerEnv
   toAddress?: string
   toAmount?: string
   toChainId?: number | string
@@ -166,7 +160,7 @@ const useWalletManager = (
   provider: any,
   address: string | undefined,
   chainId: number | undefined,
-  connector: any,
+  connector: Connector | undefined,
 ) => {
   const [walletClient, setWalletClient] = useState<WalletClient | null>(null)
 
@@ -175,7 +169,11 @@ const useWalletManager = (
       const activeProvider = provider || (await connector?.getProvider())
 
       if (activeProvider && address && chainId) {
-        const chain = getChainConfig(chainId)
+        const chain = getChainInfo(chainId)
+        if (!chain) {
+          return
+        }
+
         const client = createWalletClient({
           account: address as `0x${string}`,
           chain,
@@ -393,7 +391,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
       .filter((id) => WALLET_CONFIGS[id as keyof typeof WALLET_CONFIGS])
       .map((id) => {
         const config = WALLET_CONFIGS[id as keyof typeof WALLET_CONFIGS]
-        if (!config) return null as any
+        if (!config) return null
         return {
           id: config.id,
           name: config.name,
@@ -401,7 +399,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
       })
       .filter(Boolean)
 
-    return availableWallets
+    return availableWallets as WalletOption[]
   }
 
   const handleTokenSelect = (token: Token) => {
@@ -466,8 +464,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     originChainId: number
     destinationChainId: number
     originUserTxReceipt: TransactionReceipt | null
-    originMetaTxnReceipt: any
-    destinationMetaTxnReceipt: any
+    originMetaTxnReceipt: MetaTxnReceipt | null
+    destinationMetaTxnReceipt: MetaTxnReceipt | null
   }) {
     if (data) {
       if (data.originUserTxReceipt) {
@@ -476,8 +474,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 
       if (data.destinationMetaTxnReceipt || data.originUserTxReceipt) {
         setDestinationTxHash(
-          data.destinationMetaTxnReceipt?.txnHash ||
-            data.originUserTxReceipt?.transactionHash,
+          (data.destinationMetaTxnReceipt as MetaTxnReceipt)?.txnHash ||
+            (data.originUserTxReceipt as TransactionReceipt)?.transactionHash,
         )
       }
 

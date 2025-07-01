@@ -1,4 +1,5 @@
 import type { TokenPrice } from "@0xsequence/anypay-api"
+import type { MetaTxnReceipt } from "@0xsequence/anypay-relayer"
 import type React from "react"
 import { useEffect, useMemo, useState } from "react"
 import {
@@ -189,8 +190,8 @@ export type OnCompleteProps = {
   originChainId: number
   destinationChainId: number
   originUserTxReceipt: TransactionReceipt | null
-  originMetaTxnReceipt: TransactionReceipt | null
-  destinationMetaTxnReceipt: TransactionReceipt | null
+  originMetaTxnReceipt: MetaTxnReceipt | null
+  destinationMetaTxnReceipt: MetaTxnReceipt | null
 }
 
 export type UseSendProps = {

@@ -1,4 +1,5 @@
 import type { SequenceAPIClient } from "@0xsequence/anypay-api"
+import type { MetaTxnReceipt } from "@0xsequence/anypay-relayer"
 import type { Relayer } from "@0xsequence/wallet-core"
 import type { Payload } from "@0xsequence/wallet-primitives"
 import type {
@@ -93,8 +94,8 @@ export type PrepareSendReturn = {
 
 export type SendReturn = {
   originUserTxReceipt: TransactionReceipt | null
-  originMetaTxnReceipt: any // TODO: Add proper type
-  destinationMetaTxnReceipt: any // TODO: Add proper type
+  originMetaTxnReceipt: MetaTxnReceipt | null
+  destinationMetaTxnReceipt: MetaTxnReceipt | null
 }
 
 export function getIsToSameChain(
