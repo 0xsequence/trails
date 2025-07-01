@@ -46,17 +46,21 @@ type GetAccountNetworksInput = {
 
 export function getAccountNetworks(input: GetAccountNetworksInput) {
   return allNetworks.map((network) => {
-    const relayerUrl = getRelayerUrl(input.relayerConfig, network.chainId)
-    if (relayerUrl) {
-      const relayer: any = {
-        provider: new ethers.JsonRpcProvider(network.rpcUrl),
-        url: relayerUrl,
-        projectAccessKey: input.sequenceProjectAccessKey,
+    try {
+      const relayerUrl = getRelayerUrl(input.relayerConfig, network.chainId)
+      if (relayerUrl) {
+        const relayer: any = {
+          provider: new ethers.JsonRpcProvider(network.rpcUrl),
+          url: relayerUrl,
+          projectAccessKey: input.sequenceProjectAccessKey,
+        }
+        return {
+          ...network,
+          relayer,
+        }
       }
-      return {
-        ...network,
-        relayer,
-      }
+    } catch (err: unknown) {
+      // noop
     }
     return network
   })
@@ -331,12 +335,9 @@ export async function sequenceSendTransaction(
       // Wait for deployment to complete
       await new Promise((resolve) => setTimeout(resolve, 6000))
     } else {
-      // Find the USDC option for fee payment
-      const option = feeOptions?.options.find(
-        (option) => option.token.symbol === "USDC",
-      )
+      const option = feeOptions?.options[0]
       if (!option) {
-        throw new Error("USDC option not found")
+        throw new Error("fee option not found")
       }
 
       console.log("option", option)

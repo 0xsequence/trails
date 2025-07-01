@@ -360,7 +360,7 @@ export const TokenList: React.FC<TokenListProps> = ({
               }
               type="button"
               onClick={() => handleTokenSelect(token)}
-              className={`py-2.5 px-3 flex items-center space-x-3 cursor-pointer transition-colors ${
+              className={`w-full py-2.5 px-3 flex items-center space-x-3 cursor-pointer transition-colors ${
                 theme === "dark"
                   ? isTokenSelected(token)
                     ? "bg-gray-800"
@@ -400,7 +400,7 @@ export const TokenList: React.FC<TokenListProps> = ({
                 </div>
               </div>
 
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 text-left">
                 <h3
                   className={`text-sm font-medium truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}
                 >

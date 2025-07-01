@@ -72,6 +72,8 @@ export interface AnypayFee {
   quoteProvider?: string
 }
 
+export type QuoteProvider = "lifi" | "relay"
+
 export type GetIntentCallsPayloadsReturn = GetIntentCallsPayloadsReturnFromAPI
 
 export type OriginCallParams = {
@@ -100,7 +102,7 @@ export function calculateIntentAddress(
   mainSigner: string,
   calls: Array<IntentCallsPayload>,
   executionInfosArg: Array<AnypayExecutionInfo> | null | undefined,
-  sapientType: "lifi" | "relay" = "relay",
+  sapientType: QuoteProvider = "relay",
 ): `0x${string}` {
   console.log("calculateIntentAddress inputs:", {
     mainSigner,
@@ -171,7 +173,7 @@ export function commitIntentConfig(
   calls: Array<IntentCallsPayload>,
   preconditions: Array<IntentPrecondition>,
   executionInfos: Array<AnypayExecutionInfo>,
-  sapientType: "lifi" | "relay" = "relay",
+  sapientType: QuoteProvider = "relay",
 ): Promise<CommitIntentConfigReturn> {
   console.log("commitIntentConfig inputs:", {
     mainSignerAddress,
@@ -424,7 +426,7 @@ export function calculateIntentConfigurationAddress(
   context: Context.Context,
   attestationSigner?: Address.Address,
   executionInfos?: Array<AnypayExecutionInfo>,
-  sapientType: "lifi" | "relay" = "relay",
+  sapientType: QuoteProvider = "relay",
 ): Address.Address {
   const config = createIntentConfiguration(
     mainSigner,
@@ -456,7 +458,7 @@ function createIntentConfiguration(
   calls: IntentCallsPayload[],
   attestationSigner?: Address.Address,
   executionInfos?: AnypayExecutionInfo[],
-  sapientType: "lifi" | "relay" = "relay",
+  sapientType: QuoteProvider = "relay",
 ): Config.Config {
   const mainSignerLeaf: Config.SignerLeaf = {
     type: "signer",
