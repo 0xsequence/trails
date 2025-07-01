@@ -258,6 +258,10 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   const [error, setError] = useState<string | null>(null)
   const [intentAddress, setIntentAddress] = useState<string | null>(null)
   const [fromAmount, setFromAmount] = useState<string | null>(null)
+  const [showWalletConfirmRetry, setShowWalletConfirmRetry] = useState(false)
+  const [walletConfirmRetryHandler, setWalletConfirmRetryHandler] = useState<
+    (() => Promise<void>) | null
+  >(null)
   const { connect } = useConnect()
 
   const {
@@ -629,10 +633,9 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   const handleSendError = (error: Error) => {
     console.error("Error sending transaction", error)
     console.log("currentScreen", currentScreen)
-    if (
-      currentScreen === "wallet-confirmation" ||
-      currentScreen === "pending"
-    ) {
+    if (error.message?.toLowerCase().includes("rejected")) {
+      setShowWalletConfirmRetry(true)
+    } else {
       setError(error.message)
     }
   }
@@ -641,9 +644,23 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
     intentAddress?: string,
     originAmount?: string,
   ) => {
+    setShowWalletConfirmRetry(false)
     setCurrentScreen("wallet-confirmation")
     setIntentAddress(intentAddress ?? null)
     setFromAmount(originAmount ?? null)
+  }
+
+  async function handleWalletConfirmRetry() {
+    if (!walletConfirmRetryHandler) {
+      return
+    }
+
+    try {
+      setShowWalletConfirmRetry(false)
+      await walletConfirmRetryHandler()
+    } catch (error) {
+      console.error("Error retrying wallet confirmation", error)
+    }
   }
 
   const renderScreenContent = () => {
@@ -692,6 +709,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             onError={handleSendError}
             paymasterUrls={paymasterUrls}
             gasless={gasless}
+            setWalletConfirmRetryHandler={setWalletConfirmRetryHandler}
           />
         ) : (
           <div
@@ -714,6 +732,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             amount={fromAmount ?? undefined}
             recipient={intentAddress ?? ""}
             tokenSymbol={selectedToken?.symbol}
+            retryEnabled={showWalletConfirmRetry}
+            onRetry={handleWalletConfirmRetry}
           />
         )
       case "pending":

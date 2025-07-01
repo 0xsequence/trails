@@ -10,6 +10,8 @@ interface WalletConfirmationProps {
   recipient?: string
   tokenSymbol?: string
   error?: string
+  retryEnabled?: boolean
+  onRetry?: () => void
 }
 
 export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
@@ -18,6 +20,8 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   recipient,
   tokenSymbol,
   error,
+  retryEnabled = false,
+  onRetry,
 }) => {
   const [showContent, setShowContent] = useState(false)
 
@@ -31,12 +35,14 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
         <div
           className={`mx-auto flex items-center justify-center transition-all duration-500 ease-out ${showContent ? "transform -translate-y-8" : ""}`}
         >
-          <div
-            className={`animate-spin rounded-full h-16 w-16 border-b-2 ${
-              theme === "dark" ? "border-blue-400" : "border-blue-500"
-            }`}
-            style={{ borderTopWidth: "2px", borderBottomWidth: "2px" }}
-          />
+          {!retryEnabled && (
+            <div
+              className={`animate-spin rounded-full h-16 w-16 border-b-2 ${
+                theme === "dark" ? "border-blue-400" : "border-blue-500"
+              }`}
+              style={{ borderTopWidth: "2px", borderBottomWidth: "2px" }}
+            />
+          )}
         </div>
 
         <div
@@ -117,6 +123,25 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
               {error}
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Retry Button */}
+      {retryEnabled && onRetry && (
+        <div
+          className={`transition-all duration-500 ease-out delay-300 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+        >
+          <button
+            type="button"
+            onClick={onRetry}
+            className={`w-full px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
+              theme === "dark"
+                ? "bg-blue-600 hover:bg-blue-700 text-white"
+                : "bg-blue-500 hover:bg-blue-600 text-white"
+            }`}
+          >
+            Try Again
+          </button>
         </div>
       )}
     </div>

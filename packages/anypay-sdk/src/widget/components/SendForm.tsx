@@ -37,6 +37,7 @@ interface SendFormProps {
   ) => void
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
+  setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
 }
 
 export const SendForm: React.FC<SendFormProps> = ({
@@ -62,6 +63,7 @@ export const SendForm: React.FC<SendFormProps> = ({
   onWaitingForWalletConfirm,
   paymasterUrls,
   gasless,
+  setWalletConfirmRetryHandler,
 }) => {
   const {
     amount,
@@ -116,6 +118,7 @@ export const SendForm: React.FC<SendFormProps> = ({
     onComplete,
     onSend,
     selectedToken,
+    setWalletConfirmRetryHandler,
   })
 
   const chainDropdownRef = useRef<HTMLDivElement>(null)

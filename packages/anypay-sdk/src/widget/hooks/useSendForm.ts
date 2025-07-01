@@ -216,6 +216,7 @@ export type UseSendProps = {
   onConfirm: () => void
   onComplete: (result: OnCompleteProps) => void
   selectedToken: Token
+  setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
 }
 
 export type UseSendReturn = {
@@ -277,6 +278,7 @@ export function useSendForm({
   onSend,
   onConfirm,
   onComplete,
+  setWalletConfirmRetryHandler,
 }: UseSendProps): UseSendReturn {
   const [amount, setAmount] = useState(toAmount ?? "")
   const [recipientInput, setRecipientInput] = useState(toRecipient ?? "")
@@ -507,21 +509,53 @@ export function useSendForm({
           selectedToken.contractInfo?.decimals ?? 18,
         ),
       )
-      // Wait for full send to complete
-      const {
-        originUserTxReceipt,
-        originMetaTxnReceipt,
-        destinationMetaTxnReceipt,
-      } = await send(onOriginSend)
 
-      // Move to receipt screen
-      onComplete({
-        originChainId: selectedToken.chainId,
-        destinationChainId: selectedChain.id,
-        originUserTxReceipt,
-        originMetaTxnReceipt,
-        destinationMetaTxnReceipt,
-      })
+      async function handleSend() {
+        console.log("handleRetry called, about to call send()")
+        // Wait for full send to complete
+        const {
+          originUserTxReceipt,
+          originMetaTxnReceipt,
+          destinationMetaTxnReceipt,
+        } = await send(onOriginSend)
+        console.log("send() completed, receipts:", {
+          originUserTxReceipt,
+          originMetaTxnReceipt,
+          destinationMetaTxnReceipt,
+        })
+
+        // Move to receipt screen
+        onComplete({
+          originChainId: selectedToken.chainId,
+          destinationChainId: selectedChain.id,
+          originUserTxReceipt,
+          originMetaTxnReceipt,
+          destinationMetaTxnReceipt,
+        })
+      }
+
+      async function walletConfirmRetryHandler() {
+        console.log("walletConfirmRetryHandler called")
+        try {
+          console.log("About to call handleRetry")
+          await handleSend()
+          console.log("handleRetry completed successfully")
+        } catch (error) {
+          console.error("Error in prepareSend:", error)
+          setError(
+            error instanceof Error
+              ? error.message
+              : "An unexpected error occurred",
+          )
+          onError(error as Error)
+        }
+      }
+
+      setWalletConfirmRetryHandler(
+        () => walletConfirmRetryHandler as unknown as Promise<void>,
+      )
+
+      await handleSend()
     } catch (error) {
       console.error("Error in prepareSend:", error)
       setError(
