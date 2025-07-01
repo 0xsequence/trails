@@ -4,10 +4,10 @@ import type {
   IntentPrecondition,
 } from "@0xsequence/anypay-api"
 import type {
-  WagmiAccount,
   AnypayFee,
   MetaTxn,
   TokenBalance,
+  WagmiAccount,
 } from "@0xsequence/anypay-sdk"
 import { NetworkImage, Text } from "@0xsequence/design-system"
 import {

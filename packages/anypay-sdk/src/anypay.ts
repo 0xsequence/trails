@@ -10,17 +10,17 @@ import type { Relayer } from "@0xsequence/wallet-core"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Address } from "ox"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import type { Hex } from "viem"
 import {
   createPublicClient,
   createWalletClient,
   custom,
-  type Hex,
   http,
   isAddressEqual,
   zeroAddress,
 } from "viem"
+import type { Connector } from "wagmi"
 import {
-  type Connector,
   useEstimateGas,
   useSendTransaction,
   useSwitchChain,
@@ -28,18 +28,21 @@ import {
 } from "wagmi"
 import { useAPIClient } from "./apiClient.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
+import { getChainInfo } from "./chains.js"
 import { getERC20TransferData } from "./encoders.js"
-import {
-  type AnypayFee,
-  calculateIntentAddress,
-  type GetIntentCallsPayloadsReturn,
-  getIntentCallsPayloads as getIntentCallsPayloadsFromIntents,
-  type OriginCallParams,
+import type {
+  AnypayFee,
+  GetIntentCallsPayloadsReturn,
+  OriginCallParams,
 } from "./intents.js"
-import { type MetaTxn, useMetaTxnsMonitor } from "./metaTxnMonitor.js"
+import {
+  calculateIntentAddress,
+  getIntentCallsPayloads as getIntentCallsPayloadsFromIntents,
+} from "./intents.js"
+import type { MetaTxn } from "./metaTxnMonitor.js"
+import { useMetaTxnsMonitor } from "./metaTxnMonitor.js"
 import { findPreconditionAddress } from "./preconditions.js"
 import { getBackupRelayer, useRelayers } from "./relayer.js"
-import { getChainInfo } from "./chains.js"
 
 export type WagmiAccount = {
   address: `0x${string}`

@@ -1,24 +1,27 @@
 import type { SequenceAPIClient } from "@0xsequence/anypay-api"
 import type { Relayer } from "@0xsequence/wallet-core"
 import type { Payload } from "@0xsequence/wallet-primitives"
+import type {
+  Account,
+  Chain,
+  PublicClient,
+  TransactionReceipt,
+  WalletClient,
+} from "viem"
 import {
-  type Account,
   createPublicClient,
   createWalletClient,
   formatUnits,
   http,
-  type PublicClient,
   parseUnits,
-  type TransactionReceipt,
-  type WalletClient,
   zeroAddress,
-  Chain,
 } from "viem"
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
 import * as chains from "viem/chains"
-import { getExplorerUrl } from "./explorer.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
+import { getChainInfo } from "./chains.js"
 import { getERC20TransferData } from "./encoders.js"
+import { getExplorerUrl } from "./explorer.js"
 import {
   getPermitCalls,
   getPermitSignature,
@@ -34,7 +37,7 @@ import { getMetaTxStatus } from "./metaTxnMonitor.js"
 import { relayerSendMetaTx } from "./metaTxns.js"
 import { findFirstPreconditionForChainId } from "./preconditions.js"
 import { getQueryParam } from "./queryParams.js"
-import { type RelayerEnvConfig } from "./relayer.js"
+import type { RelayerEnvConfig } from "./relayer.js"
 import {
   executeSimpleRelayTransaction,
   getRelaySDKQuote,
@@ -45,7 +48,6 @@ import {
   sequenceSendTransaction,
   simpleCreateSequenceWallet,
 } from "./sequenceWallet.js"
-import { getChainInfo } from "./chains.js"
 import { requestWithTimeout } from "./utils.js"
 
 export type TransactionState = {
@@ -95,18 +97,21 @@ export type SendReturn = {
   destinationMetaTxnReceipt: any // TODO: Add proper type
 }
 
-function getIsToSameChain(originChainId: number, destinationChainId: number) {
+export function getIsToSameChain(
+  originChainId: number,
+  destinationChainId: number,
+) {
   return originChainId === destinationChainId
 }
 
-function getIsToSameToken(
+export function getIsToSameToken(
   originTokenAddress: string,
   destinationTokenAddress: string,
 ) {
   return originTokenAddress === destinationTokenAddress
 }
 
-function getIsToSameChainAndToken(
+export function getIsToSameChainAndToken(
   originChainId: number,
   originTokenAddress: string,
   destinationChainId: number,
@@ -258,7 +263,6 @@ export async function prepareSend(
       originTokenAmount,
       originTokenAddress,
       destinationTokenAmount,
-      destinationTokenAddress,
       destinationCalldata,
       recipient,
       originChainId,
@@ -867,7 +871,6 @@ function sendHandlerForSameChainSameToken({
   originTokenAmount,
   originTokenAddress,
   destinationTokenAmount,
-  destinationTokenAddress,
   destinationCalldata,
   recipient,
   originChainId,
@@ -881,7 +884,6 @@ function sendHandlerForSameChainSameToken({
   originTokenAmount: string
   originTokenAddress: string
   destinationTokenAmount: string
-  destinationTokenAddress: string
   destinationCalldata?: string
   recipient: string
   originChainId: number

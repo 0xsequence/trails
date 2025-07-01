@@ -1,6 +1,7 @@
 import { X } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
-import React, { useEffect, useRef } from "react"
+import type React from "react"
+import { useEffect, useRef } from "react"
 import type { ActiveTheme } from "../../theme.js"
 
 interface ModalProps {

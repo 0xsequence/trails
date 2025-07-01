@@ -2,17 +2,17 @@ import { NetworkImage, TokenImage } from "@0xsequence/design-system"
 import type { SequenceIndexerGateway } from "@0xsequence/indexer"
 import { ChevronLeft, Search } from "lucide-react"
 import { Address } from "ox"
-import React, { useMemo, useState } from "react"
+import type React from "react"
+import { useMemo, useState } from "react"
 import { formatUnits, isAddressEqual, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
-import {
-  TokenBalanceExtended,
-  TokenBalanceWithPrice,
-  useSourceTokenList,
-  useTokenBalances,
-} from "../../tokenBalances.js"
 import { getChainInfo } from "../../chains.js"
 import type { ActiveTheme } from "../../theme.js"
+import type {
+  TokenBalanceExtended,
+  TokenBalanceWithPrice,
+} from "../../tokenBalances.js"
+import { useSourceTokenList, useTokenBalances } from "../../tokenBalances.js"
 
 interface Token {
   id: number

@@ -1,7 +1,6 @@
+import type { TokenBalance, WagmiAccount } from "@0xsequence/anypay-sdk"
 import {
-  type WagmiAccount,
   calculateIntentAddress,
-  type TokenBalance,
   useAnyPay,
   useTokenBalances,
 } from "@0xsequence/anypay-sdk"

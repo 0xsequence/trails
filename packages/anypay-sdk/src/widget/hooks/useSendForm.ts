@@ -1,27 +1,27 @@
 import type { TokenPrice } from "@0xsequence/anypay-api"
-import React, { useEffect, useMemo, useState } from "react"
+import type React from "react"
+import { useEffect, useMemo, useState } from "react"
 import {
   type Account,
   formatUnits,
   getAddress,
   isAddress,
   parseUnits,
+  type TransactionReceipt,
   type WalletClient,
   zeroAddress,
-  type TransactionReceipt,
-  Chain,
 } from "viem"
 import * as chains from "viem/chains"
 import { mainnet } from "viem/chains"
 import { useEnsAddress } from "wagmi"
 import { useAPIClient } from "../../apiClient.js"
+import { getChainInfo } from "../../chains.js"
 import { prepareSend, type TransactionState } from "../../prepareSend.js"
 import { useTokenPrices } from "../../prices.js"
 import { useQueryParams } from "../../queryParams.js"
 import { getRelayer, type RelayerEnv } from "../../relayer.js"
 import type { Theme } from "../../theme.js"
 import { formatBalance } from "../../tokenBalances.js"
-import { getChainInfo } from "../../chains.js"
 
 // Available chains
 export const SUPPORTED_TO_CHAINS: ChainInfo[] = [

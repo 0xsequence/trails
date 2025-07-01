@@ -1,11 +1,11 @@
 // biome-ignore lint/style/useImportType: Need to use React
 import React, { useState } from "react"
 import { useAccount, useDisconnect } from "wagmi"
+import type { ActiveTheme } from "../../theme.js"
 import MetaMaskFox from "../assets/MetaMask-icon-fox.svg"
 import MetaMaskLogoWhite from "../assets/MetaMask-logo-white.svg"
 import PrivyLogoBlack from "../assets/Privy_Brandmark_Black.svg"
 import PrivyLogoWhite from "../assets/Privy_Brandmark_White.svg"
-import type { ActiveTheme } from "../../theme.js"
 
 export interface WalletOption {
   id: string

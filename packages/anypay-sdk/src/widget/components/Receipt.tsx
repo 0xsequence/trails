@@ -1,9 +1,9 @@
 // biome-ignore lint/style/useImportType: False positive
 import React, { useEffect, useState } from "react"
-import type { TransactionState } from "../../prepareSend.js"
 import { getExplorerUrl } from "../../explorer.js"
-import { GreenCheckAnimation } from "./GreenCheckAnimation.js"
+import type { TransactionState } from "../../prepareSend.js"
 import type { ActiveTheme } from "../../theme.js"
+import { GreenCheckAnimation } from "./GreenCheckAnimation.js"
 
 interface ReceiptProps {
   txHash?: string

@@ -1,16 +1,16 @@
 import { NetworkImage, TokenImage } from "@0xsequence/design-system"
 import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
-import React, { useEffect, useRef } from "react"
-import { isAddress, type Account, type WalletClient } from "viem"
-import { type TransactionState } from "../../prepareSend.js"
-import { type RelayerEnv } from "../../relayer.js"
-import {
-  Token,
-  useSendForm,
-  type OnCompleteProps,
-} from "../hooks/useSendForm.js"
-import { FeeOptions } from "./FeeOptions.js"
+import type React from "react"
+import { useEffect, useRef } from "react"
+import type { Account, WalletClient } from "viem"
+import { isAddress } from "viem"
+import type { TransactionState } from "../../prepareSend.js"
+import type { RelayerEnv } from "../../relayer.js"
 import type { ActiveTheme } from "../../theme.js"
+import type { OnCompleteProps, Token } from "../hooks/useSendForm.js"
+import { useSendForm } from "../hooks/useSendForm.js"
+import { FeeOptions } from "./FeeOptions.js"
+
 interface SendFormProps {
   selectedToken: Token
   onSend: (amount: string, recipient: string) => void
