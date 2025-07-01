@@ -1,3 +1,5 @@
+import type { MetaTxnReceipt } from "@0xsequence/anypay-relayer"
+import "@0xsequence/design-system/preset"
 import { SequenceHooksContext, SequenceHooksProvider } from "@0xsequence/hooks"
 import {
   PrivyProvider,
@@ -20,20 +22,20 @@ import React, {
   useState,
 } from "react"
 import { createPortal } from "react-dom"
-import {
-  createWalletClient,
-  custom,
-  http,
-  type TransactionReceipt,
-  type WalletClient,
-} from "viem"
+import type { Chain, TransactionReceipt, WalletClient } from "viem"
+import { createWalletClient, custom, http } from "viem"
 import * as chains from "viem/chains"
 import { mainnet } from "viem/chains"
+import type { Connector } from "wagmi"
 import { useAccount, useConnect, useDisconnect, WagmiContext } from "wagmi"
 import { injected } from "wagmi/connectors"
-import type { TransactionState } from "../anypay.js"
+import { getChainInfo } from "../chains.js"
 import { useIndexerGatewayClient } from "../indexerClient.js"
-import { ConnectWallet, type WalletOption } from "./components/ConnectWallet.js"
+import type { TransactionState } from "../prepareSend.js"
+import type { RelayerEnv } from "../relayer.js"
+import type { ActiveTheme, Theme } from "../theme.js"
+import type { WalletOption } from "./components/ConnectWallet.js"
+import { ConnectWallet } from "./components/ConnectWallet.js"
 import DebugScreensDropdown from "./components/DebugScreensDropdown.js"
 import Modal from "./components/Modal.js"
 import Receipt from "./components/Receipt.js"
@@ -41,7 +43,6 @@ import SendForm from "./components/SendForm.js"
 import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPending.js"
 import WalletConfirmation from "./components/WalletConfirmation.js"
-import "@0xsequence/design-system/preset"
 import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
 import css from "./index.css?inline"
 
@@ -52,8 +53,6 @@ type Screen =
   | "wallet-confirmation"
   | "pending"
   | "receipt"
-export type Theme = "light" | "dark" | "auto"
-type ActiveTheme = "light" | "dark"
 
 export const defaultWalletOptions = ["injected", "privy"]
 
@@ -72,21 +71,11 @@ interface Token {
   }
 }
 
-const getChainConfig = (chainId: number) => {
-  for (const chain of Object.values(chains) as any[]) {
-    // TODO: add proper types
-    if (chain.id === chainId) {
-      return chain
-    }
-  }
-  throw new Error(`Unsupported chain ID: ${chainId}`)
-}
-
 export type AnyPayWidgetProps = {
-  sequenceApiKey: string
+  sequenceProjectAccessKey: string
   sequenceIndexerUrl?: string
   sequenceApiUrl?: string
-  sequenceEnv?: "local" | "cors-anywhere" | "dev" | "prod"
+  sequenceEnv?: RelayerEnv
   toAddress?: string
   toAmount?: string
   toChainId?: number | string
@@ -102,6 +91,8 @@ export type AnyPayWidgetProps = {
   privyAppId?: string
   privyClientId?: string
   useSourceTokenForButtonText?: boolean
+  paymasterUrls?: Array<{ chainId: number; url: string }>
+  gasless?: boolean
 }
 
 const queryClient = new QueryClient()
@@ -169,7 +160,7 @@ const useWalletManager = (
   provider: any,
   address: string | undefined,
   chainId: number | undefined,
-  connector: any,
+  connector: Connector | undefined,
 ) => {
   const [walletClient, setWalletClient] = useState<WalletClient | null>(null)
 
@@ -178,7 +169,11 @@ const useWalletManager = (
       const activeProvider = provider || (await connector?.getProvider())
 
       if (activeProvider && address && chainId) {
-        const chain = getChainConfig(chainId)
+        const chain = getChainInfo(chainId)
+        if (!chain) {
+          return
+        }
+
         const client = createWalletClient({
           account: address as `0x${string}`,
           chain,
@@ -233,7 +228,7 @@ const useTransactionState = (
 }
 
 const WidgetInner: React.FC<AnyPayWidgetProps> = ({
-  sequenceApiKey,
+  sequenceProjectAccessKey,
   sequenceIndexerUrl,
   sequenceApiUrl,
   sequenceEnv,
@@ -249,6 +244,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   onOriginConfirmation,
   onDestinationConfirmation,
   useSourceTokenForButtonText,
+  paymasterUrls,
+  gasless,
 }) => {
   const { address, isConnected, chainId, connector } = useAccount()
   const { disconnectAsync } = useDisconnect()
@@ -296,7 +293,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 
   const indexerGatewayClient = useIndexerGatewayClient({
     indexerGatewayUrl: sequenceIndexerUrl,
-    projectAccessKey: sequenceApiKey,
+    projectAccessKey: sequenceProjectAccessKey,
   })
 
   const handleWalletConnect = async (walletId: string) => {
@@ -390,17 +387,19 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 
   const getAvailableWallets = (): WalletOption[] => {
     const requestedWallets = walletOptions || defaultWalletOptions
-    return requestedWallets
+    const availableWallets = requestedWallets
       .filter((id) => WALLET_CONFIGS[id as keyof typeof WALLET_CONFIGS])
       .map((id) => {
         const config = WALLET_CONFIGS[id as keyof typeof WALLET_CONFIGS]
-        if (!config) return null as any
+        if (!config) return null
         return {
           id: config.id,
           name: config.name,
         }
       })
       .filter(Boolean)
+
+    return availableWallets as WalletOption[]
   }
 
   const handleTokenSelect = (token: Token) => {
@@ -464,9 +463,9 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
   function handleTransferComplete(data?: {
     originChainId: number
     destinationChainId: number
-    originUserTxReceipt: TransactionReceipt
-    originMetaTxnReceipt: any
-    destinationMetaTxnReceipt: any
+    originUserTxReceipt: TransactionReceipt | null
+    originMetaTxnReceipt: MetaTxnReceipt | null
+    destinationMetaTxnReceipt: MetaTxnReceipt | null
   }) {
     if (data) {
       if (data.originUserTxReceipt) {
@@ -475,8 +474,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
 
       if (data.destinationMetaTxnReceipt || data.originUserTxReceipt) {
         setDestinationTxHash(
-          data.destinationMetaTxnReceipt?.txnHash ||
-            data.originUserTxReceipt.transactionHash,
+          (data.destinationMetaTxnReceipt as MetaTxnReceipt)?.txnHash ||
+            (data.originUserTxReceipt as TransactionReceipt)?.transactionHash,
         )
       }
 
@@ -678,7 +677,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             onComplete={handleTransferComplete}
             selectedToken={selectedToken}
             account={walletClient.account}
-            sequenceApiKey={sequenceApiKey}
+            sequenceProjectAccessKey={sequenceProjectAccessKey}
             apiUrl={sequenceApiUrl}
             env={sequenceEnv}
             toRecipient={toAddress}
@@ -691,6 +690,8 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
             onTransactionStateChange={handleTransactionStateChange}
             useSourceTokenForButtonText={useSourceTokenForButtonText}
             onError={handleSendError}
+            paymasterUrls={paymasterUrls}
+            gasless={gasless}
           />
         ) : (
           <div
@@ -752,7 +753,7 @@ const WidgetInner: React.FC<AnyPayWidgetProps> = ({
           damping: 30,
           mass: 1,
         }}
-        className={`flex flex-col min-h-[400px] rounded-[32px] shadow-xl p-6 relative w-[400px] mx-auto ${
+        className={`flex flex-col min-h-[400px] rounded-[32px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto ${
           theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"
         }`}
         layout
@@ -872,7 +873,7 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
     () =>
       createConfig({
         chains: [mainnet],
-        transports: Object.values(chains as unknown as any[]).reduce(
+        transports: (Object.values(chains) as Array<Chain>).reduce(
           (acc, chain) => ({
             ...acc,
             [chain.id]: http(),
@@ -926,7 +927,7 @@ export const AnyPayWidget = (props: AnyPayWidgetProps) => {
           // SequenceHooksProvider missing, wrap with it
           <SequenceHooksProvider
             config={{
-              projectAccessKey: props.sequenceApiKey,
+              projectAccessKey: props.sequenceProjectAccessKey,
               env: {
                 indexerUrl: props.sequenceIndexerUrl,
                 indexerGatewayUrl: props.sequenceIndexerUrl,

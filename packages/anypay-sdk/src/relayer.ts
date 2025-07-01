@@ -24,8 +24,10 @@ export type RelayerConfig = {
   rpcUrl: string
 }
 
+export type RelayerEnv = "local" | "cors-anywhere" | "dev" | "prod"
+
 export type RelayerEnvConfig = {
-  env?: "local" | "cors-anywhere" | "dev" | "prod"
+  env?: RelayerEnv
   useV3Relayers?: boolean
 }
 
@@ -50,7 +52,10 @@ export function getBackupRelayer(
 }
 
 // TODO: add relayer url to config
-function getRelayerUrl(config: RelayerEnvConfig, chainId: number): string {
+export function getRelayerUrl(
+  config: RelayerEnvConfig,
+  chainId: number,
+): string {
   let relayerUrl
   if (config.env === "local") {
     // Use specific ports for different chains in local environment
@@ -70,8 +75,7 @@ function getRelayerUrl(config: RelayerEnvConfig, chainId: number): string {
       // Base
       relayerUrl = "http://0.0.0.0:9996"
     } else {
-      // Default fallback
-      relayerUrl = "http://0.0.0.0:9999"
+      return ""
     }
 
     return relayerUrl

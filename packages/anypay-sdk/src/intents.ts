@@ -1,7 +1,10 @@
 import type {
+  AnypayExecutionInfo,
+  CommitIntentConfigArgs,
   CommitIntentConfigReturn,
   GetIntentCallsPayloadsArgs,
   GetIntentCallsPayloadsReturn as GetIntentCallsPayloadsReturnFromAPI,
+  IntentCallsPayload,
   IntentPrecondition,
   SequenceAPIClient,
 } from "@0xsequence/anypay-api"
@@ -27,17 +30,6 @@ import {
   ANYPAY_RELAY_SAPIENT_SIGNER_LITE_ADDRESS,
 } from "./constants.js"
 import { findPreconditionAddress } from "./preconditions.js"
-
-export interface AnypayExecutionInfo {
-  originToken: Address.Address
-  amount: bigint
-  originChainId: bigint
-  destinationChainId: bigint
-}
-
-export interface IntentCallsPayload extends Payload.Calls {
-  chainId: bigint
-}
 
 export interface MetaTxnFeeDetail {
   metaTxnID: string
@@ -80,6 +72,8 @@ export interface AnypayFee {
   quoteProvider?: string
 }
 
+export type QuoteProvider = "lifi" | "relay"
+
 export type GetIntentCallsPayloadsReturn = GetIntentCallsPayloadsReturnFromAPI
 
 export type OriginCallParams = {
@@ -101,14 +95,14 @@ export async function getIntentCallsPayloads(
   apiClient: SequenceAPIClient,
   args: GetIntentCallsPayloadsArgs,
 ): Promise<GetIntentCallsPayloadsReturn> {
-  return apiClient.getIntentCallsPayloads(args as any) // TODO: Add proper type
+  return apiClient.getIntentCallsPayloads(args)
 }
 
 export function calculateIntentAddress(
   mainSigner: string,
-  calls: IntentCallsPayload[],
-  executionInfosArg: AnypayExecutionInfo[] | null | undefined,
-  sapientType: "lifi" | "relay" = "relay",
+  calls: Array<IntentCallsPayload>,
+  executionInfosArg: Array<AnypayExecutionInfo> | null | undefined,
+  sapientType: QuoteProvider = "relay",
 ): `0x${string}` {
   console.log("calculateIntentAddress inputs:", {
     mainSigner,
@@ -126,21 +120,17 @@ export function calculateIntentAddress(
 
   const coreCalls = calls.map((call) => ({
     type: "call" as const,
-    chainId: BigInt(call.chainId),
-    space: call.space ? BigInt(call.space) : 0n,
-    nonce: call.nonce ? BigInt(call.nonce) : 0n,
+    chainId: call.chainId.toString(),
+    space: call.space ? call.space.toString() : "0",
+    nonce: call.nonce ? call.nonce.toString() : "0",
     calls: call.calls.map((call) => ({
-      to: Address.from(call.to),
-      value: BigInt(call.value || "0"),
+      to: Address.from(call.to) as `0x${string}`,
+      value: call.value?.toString() || "0",
       data: Bytes.toHex(Bytes.from((call.data as Hex.Hex) || "0x")),
-      gasLimit: BigInt(call.gasLimit || "0"),
+      gasLimit: call.gasLimit?.toString() || "0",
       delegateCall: !!call.delegateCall,
       onlyFallback: !!call.onlyFallback,
-      behaviorOnError: (Number(call.behaviorOnError) === 0
-        ? "ignore"
-        : Number(call.behaviorOnError) === 1
-          ? "revert"
-          : "abort") as "ignore" | "revert" | "abort",
+      behaviorOnError: call.behaviorOnError,
     })),
   }))
 
@@ -149,9 +139,9 @@ export function calculateIntentAddress(
   const coreExecutionInfos = executionInfosArg?.map(
     (info: AnypayExecutionInfo) => ({
       originToken: Address.from(info.originToken),
-      amount: BigInt(info.amount),
-      originChainId: BigInt(info.originChainId),
-      destinationChainId: BigInt(info.destinationChainId),
+      amount: info.amount,
+      originChainId: info.originChainId,
+      destinationChainId: info.destinationChainId,
     }),
   )
 
@@ -179,21 +169,21 @@ export function calculateIntentAddress(
 
 export function commitIntentConfig(
   apiClient: SequenceAPIClient,
-  mainSigner: string,
-  calls: IntentCallsPayload[],
-  preconditions: IntentPrecondition[],
-  executionInfos: AnypayExecutionInfo[],
-  sapientType: "lifi" | "relay" = "relay",
+  mainSignerAddress: string,
+  calls: Array<IntentCallsPayload>,
+  preconditions: Array<IntentPrecondition>,
+  executionInfos: Array<AnypayExecutionInfo>,
+  sapientType: QuoteProvider = "relay",
 ): Promise<CommitIntentConfigReturn> {
   console.log("commitIntentConfig inputs:", {
-    mainSigner,
+    mainSignerAddress,
     calls: JSON.stringify(calls, null, 2),
     preconditions: JSON.stringify(preconditions, null, 2),
     executionInfos: JSON.stringify(executionInfos, null, 2),
   })
 
   const calculatedAddress = calculateIntentAddress(
-    mainSigner,
+    mainSignerAddress,
     calls,
     executionInfos,
     sapientType,
@@ -205,24 +195,24 @@ export function commitIntentConfig(
     match: isAddressEqual(Address.from(receivedAddress), calculatedAddress),
   })
 
-  const args = {
+  const args: CommitIntentConfigArgs = {
     walletAddress: calculatedAddress.toString(),
-    mainSigner: mainSigner,
+    mainSigner: mainSignerAddress,
     calls: calls,
     preconditions: preconditions,
     anypayInfos: executionInfos,
     sapientType: sapientType,
   }
   console.log("args", args)
-  return apiClient.commitIntentConfig(args as any) // TODO: Add proper type
+  return apiClient.commitIntentConfig(args)
 }
 
 export async function sendOriginTransaction(
-  wallet: Account,
-  client: WalletClient,
+  account: Account,
+  walletClient: WalletClient,
   originParams: SendOriginCallTxArgs,
 ): Promise<`0x${string}`> {
-  const chainId = await client.getChainId()
+  const chainId = await walletClient.getChainId()
   if (chainId.toString() !== originParams.chain.id.toString()) {
     console.log(
       "sendOriginTransaction: switching chain",
@@ -231,15 +221,15 @@ export async function sendOriginTransaction(
       "current:",
       chainId,
     )
-    await client.switchChain({ id: originParams.chain.id })
+    await walletClient.switchChain({ id: originParams.chain.id })
     console.log(
       "sendOriginTransaction: switched chain to",
       originParams.chain.id,
     )
   }
 
-  const hash = await client.sendTransaction({
-    account: wallet,
+  const hash = await walletClient.sendTransaction({
+    account: account,
     to: originParams.to as `0x${string}`,
     data: originParams.data as `0x${string}`,
     value: BigInt(originParams.value),
@@ -259,48 +249,73 @@ export interface DestinationTokenParam {
   amount: bigint
 }
 
-export function hashIntentParams(params: {
+export function hashIntentParams({
+  userAddress,
+  nonce,
+  originTokens,
+  destinationCalls,
+  destinationTokens,
+}: {
   userAddress: Address.Address
   nonce: bigint
   originTokens: OriginTokenParam[]
   destinationCalls: Array<IntentCallsPayload>
   destinationTokens: DestinationTokenParam[]
 }): string {
-  if (!params) throw new Error("params is nil")
   if (
-    !params.userAddress ||
-    params.userAddress === "0x0000000000000000000000000000000000000000"
+    !userAddress ||
+    userAddress === "0x0000000000000000000000000000000000000000"
   )
     throw new Error("UserAddress is zero")
-  if (typeof params.nonce !== "bigint") throw new Error("Nonce is not a bigint")
-  if (!params.originTokens || params.originTokens.length === 0)
+  if (typeof nonce !== "bigint") throw new Error("Nonce is not a bigint")
+  if (!originTokens || originTokens.length === 0)
     throw new Error("OriginTokens is empty")
-  if (!params.destinationCalls || params.destinationCalls.length === 0)
+  if (!destinationCalls || destinationCalls.length === 0)
     throw new Error("DestinationCalls is empty")
-  if (!params.destinationTokens || params.destinationTokens.length === 0)
+  if (!destinationTokens || destinationTokens.length === 0)
     throw new Error("DestinationTokens is empty")
-  for (let i = 0; i < params.destinationCalls.length; i++) {
-    const currentCall = params.destinationCalls[i]
+  for (let i = 0; i < destinationCalls.length; i++) {
+    const currentCall = destinationCalls[i]
     if (!currentCall) throw new Error(`DestinationCalls[${i}] is nil`)
     if (!currentCall.calls || currentCall.calls.length === 0) {
       throw new Error(`DestinationCalls[${i}] has no calls`)
     }
   }
 
-  const originTokensForAbi = params.originTokens.map((token) => ({
+  const originTokensForAbi = originTokens.map((token) => ({
     address: token.address,
     chainId: token.chainId,
   }))
 
   let cumulativeCallsHashBytes: Bytes.Bytes = Bytes.from(new Uint8Array(32))
 
-  for (let i = 0; i < params.destinationCalls.length; i++) {
-    const callPayload = params.destinationCalls[i]!
+  for (let i = 0; i < destinationCalls.length; i++) {
+    const callPayload = destinationCalls[i]
+    if (!callPayload) throw new Error(`DestinationCalls[${i}] is nil`)
 
     const currentDestCallPayloadHashBytes = Payload.hash(
-      Address.from("0x0000000000000000000000000000000000000000"),
-      callPayload.chainId,
-      callPayload,
+      ANYPAY_LIFI_ATTESATION_SIGNER_ADDRESS,
+      BigInt(callPayload.chainId),
+      {
+        type: "call",
+        space: callPayload.space ? BigInt(callPayload.space) : 0n,
+        nonce: callPayload.nonce ? BigInt(callPayload.nonce) : 0n,
+        calls: callPayload.calls.map((call) => ({
+          type: "call",
+          to: call.to as `0x${string}`,
+          value: BigInt(call.value?.toString() || "0"),
+          data: Bytes.toHex(Bytes.from((call.data as Hex.Hex) || "0x")),
+          gasLimit: BigInt(call.gasLimit?.toString() || "0"),
+          delegateCall: !!call.delegateCall,
+          onlyFallback: !!call.onlyFallback,
+          behaviorOnError:
+            call.behaviorOnError === 0
+              ? "ignore"
+              : call.behaviorOnError === 1
+                ? "revert"
+                : "abort",
+        })),
+      },
     )
 
     cumulativeCallsHashBytes = Hash.keccak256(
@@ -312,7 +327,7 @@ export function hashIntentParams(params: {
   }
   const cumulativeCallsHashHex = Bytes.toHex(cumulativeCallsHashBytes)
 
-  const destinationTokensForAbi = params.destinationTokens.map((token) => ({
+  const destinationTokensForAbi = destinationTokens.map((token) => ({
     address: token.address,
     chainId: token.chainId,
     amount: token.amount,
@@ -340,8 +355,8 @@ export function hashIntentParams(params: {
   ]
 
   const encodedHex = AbiParameters.encode(abiSchema, [
-    params.userAddress,
-    params.nonce,
+    userAddress,
+    nonce,
     originTokensForAbi,
     destinationTokensForAbi,
     cumulativeCallsHashHex,
@@ -407,11 +422,11 @@ export function getAnypayExecutionInfoHash(
 
 export function calculateIntentConfigurationAddress(
   mainSigner: Address.Address,
-  calls: IntentCallsPayload[],
+  calls: Array<IntentCallsPayload>,
   context: Context.Context,
   attestationSigner?: Address.Address,
-  executionInfos?: AnypayExecutionInfo[],
-  sapientType: "lifi" | "relay" = "relay",
+  executionInfos?: Array<AnypayExecutionInfo>,
+  sapientType: QuoteProvider = "relay",
 ): Address.Address {
   const config = createIntentConfiguration(
     mainSigner,
@@ -443,7 +458,7 @@ function createIntentConfiguration(
   calls: IntentCallsPayload[],
   attestationSigner?: Address.Address,
   executionInfos?: AnypayExecutionInfo[],
-  sapientType: "lifi" | "relay" = "relay",
+  sapientType: QuoteProvider = "relay",
 ): Config.Config {
   const mainSignerLeaf: Config.SignerLeaf = {
     type: "signer",
@@ -457,8 +472,27 @@ function createIntentConfiguration(
     (call) => {
       const digest = Payload.hash(
         Address.from("0x0000000000000000000000000000000000000000"),
-        call.chainId,
-        call,
+        BigInt(call.chainId),
+        {
+          type: "call",
+          space: BigInt(call.space || 0),
+          nonce: BigInt(call.nonce || 0),
+          calls: call.calls.map((call) => ({
+            type: "call",
+            to: call.to as `0x${string}`,
+            value: BigInt(call.value?.toString() || "0"),
+            data: Bytes.toHex(Bytes.from((call.data as Hex.Hex) || "0x")),
+            gasLimit: BigInt(call.gasLimit?.toString() || "0"),
+            delegateCall: !!call.delegateCall,
+            onlyFallback: !!call.onlyFallback,
+            behaviorOnError:
+              call.behaviorOnError === 0
+                ? "ignore"
+                : call.behaviorOnError === 1
+                  ? "revert"
+                  : "abort",
+          })),
+        },
       )
       console.log("digest:", Bytes.toHex(digest))
       return {

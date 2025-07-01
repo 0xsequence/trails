@@ -4,10 +4,10 @@ import type {
   IntentPrecondition,
 } from "@0xsequence/anypay-api"
 import type {
-  Account,
   AnypayFee,
   MetaTxn,
   TokenBalance,
+  WagmiAccount,
 } from "@0xsequence/anypay-sdk"
 import { NetworkImage, Text } from "@0xsequence/design-system"
 import {
@@ -50,7 +50,7 @@ interface IntentQuoteDisplayStepProps {
   anypayFee: AnypayFee | null
   intentActionType: IntentAction | null
   selectedToken: TokenBalance | null
-  account: Account | undefined
+  account: WagmiAccount | undefined
   calculatedIntentAddress: string | null
   customCallData: {
     to: string

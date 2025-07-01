@@ -1,8 +1,9 @@
 import { TokenImage } from "@0xsequence/design-system"
 import { ChevronDown } from "lucide-react"
-// biome-ignore lint/style/useImportType: False positive
-import React, { useEffect, useMemo, useRef, useState } from "react"
-import { useQueryParams } from "../hooks/useQueryParams.js"
+import type React from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { useQueryParams } from "../../queryParams.js"
+import type { ActiveTheme } from "../../theme.js"
 
 // Simulated fee amounts and prices
 const FEE_AMOUNTS = {
@@ -19,13 +20,14 @@ interface FeeToken {
   name: string
   symbol: string
   imageUrl: string
+  decimals: number
 }
 
 interface FeeOptionsProps {
   options: FeeToken[]
   selectedOption?: FeeToken
   onSelect: (option: FeeToken) => void
-  theme?: "light" | "dark"
+  theme?: ActiveTheme
 }
 
 export const FeeOptions: React.FC<FeeOptionsProps> = ({

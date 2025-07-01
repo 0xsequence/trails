@@ -6,7 +6,7 @@ interface AnyPayGlobal {
   render: (
     element: HTMLElement,
     options: {
-      sequenceApiKey: string
+      sequenceProjectAccessKey: string
       indexerUrl?: string
       apiUrl?: string
       env?: "local" | "cors-anywhere" | "dev" | "prod"

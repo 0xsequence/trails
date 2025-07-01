@@ -1,5 +1,6 @@
 import { ExternalLink } from "lucide-react"
 import React, { useEffect } from "react"
+import type { ActiveTheme } from "../../theme.js"
 
 interface TransactionState {
   transactionHash: string
@@ -10,7 +11,7 @@ interface TransactionState {
 
 interface TransferPendingProps {
   onComplete: () => void
-  theme?: "light" | "dark"
+  theme?: ActiveTheme
   transactionStates: TransactionState[]
 }
 
@@ -190,7 +191,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
             >
               {/* Steps with dotted lines */}
               {transactionStates.map((tx, index) => (
-                <React.Fragment key={index}>
+                <React.Fragment key={`${tx.transactionHash}-${index}`}>
                   {/* Step */}
                   <div className="flex flex-col items-center">
                     {renderStep(tx, index)}

@@ -1,6 +1,7 @@
 // biome-ignore lint/style/useImportType: Need to use React
 import React, { useState } from "react"
 import { useAccount, useDisconnect } from "wagmi"
+import type { ActiveTheme } from "../../theme.js"
 import MetaMaskFox from "../assets/MetaMask-icon-fox.svg"
 import MetaMaskLogoWhite from "../assets/MetaMask-logo-white.svg"
 import PrivyLogoBlack from "../assets/Privy_Brandmark_Black.svg"
@@ -16,7 +17,7 @@ export interface ConnectWalletProps {
   onConnect: (walletId: string) => void
   onDisconnect: () => void
   onContinue: () => void
-  theme?: "light" | "dark"
+  theme?: ActiveTheme
   walletOptions: WalletOption[]
 }
 
@@ -147,6 +148,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
               Continue
             </button>
             <button
+              type="button"
               onClick={handleDisconnect}
               className={`w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors border ${
                 theme === "dark"
@@ -177,6 +179,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
           )}
           {walletOptions.map((wallet) => (
             <button
+              type="button"
               key={wallet.id}
               onClick={() => onConnect(wallet.id)}
               className={`w-full flex items-center justify-center space-x-2 cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${getWalletButtonStyle(wallet.id)}`}

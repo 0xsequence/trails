@@ -1,12 +1,16 @@
-import type { SequenceAPIClient, Token } from "@0xsequence/anypay-api"
+import type {
+  SequenceAPIClient,
+  Token,
+  TokenPrice,
+} from "@0xsequence/anypay-api"
 import { useQuery } from "@tanstack/react-query"
 
 export const getTokenPrices = async (
   apiClient: SequenceAPIClient,
   tokens: Token[],
-) => {
+): Promise<TokenPrice[]> => {
   if (tokens.length === 0) {
-    return []
+    return [] as TokenPrice[]
   }
 
   const res = await apiClient.getCoinPrices({ tokens })

@@ -3,13 +3,16 @@ import {
   SUPPORTED_TO_TOKENS,
 } from "@0xsequence/anypay-sdk"
 import { defaultWalletOptions } from "@0xsequence/anypay-sdk/widget"
-import { NetworkImage, TokenImage } from "@0xsequence/design-system"
+import { InfoIcon, TokenImage, Tooltip } from "@0xsequence/design-system"
 import { ChevronDown } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { encodeFunctionData, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
+import { ChainSelector } from "./ChainSelector"
 
 interface CustomizationFormProps {
+  sequenceProjectAccessKey: string
+  setSequenceProjectAccessKey: (value: string) => void
   toAddress: string
   setToAddress: (value: string) => void
   toAmount: string
@@ -28,10 +31,15 @@ interface CustomizationFormProps {
   setTheme: (value: string | null) => void
   walletOptions: string[] | null
   setWalletOptions: (value: string[] | null) => void
+  paymasterUrls: Array<{ chainId: number; url: string }>
+  setPaymasterUrls: (value: Array<{ chainId: number; url: string }>) => void
+  gasless: boolean | null
+  setGasless: (value: boolean | null) => void
 }
 
 // Local storage keys
 export const STORAGE_KEYS = {
+  SEQUENCE_PROJECT_ACCESS_KEY: "anypay_sequence_project_access_key",
   TO_ADDRESS: "anypay_to_address",
   TO_AMOUNT: "anypay_to_amount",
   TO_CHAIN_ID: "anypay_to_chain_id",
@@ -41,6 +49,8 @@ export const STORAGE_KEYS = {
   RENDER_INLINE: "anypay_render_inline",
   THEME: "anypay_theme",
   WALLET_OPTIONS: "anypay_wallet_options",
+  PAYMASTER_URLS: "anypay_paymaster_urls",
+  GASLESS: "anypay_gasless",
 } as const
 
 interface UseAccountButtonProps {
@@ -56,7 +66,7 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
     return (
       <button
         disabled
-        className="px-3 py-1 text-xs bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed"
+        className="px-2 sm:px-3 py-1 text-xs bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed"
         title="Connect your wallet first"
       >
         Use Account
@@ -67,7 +77,7 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
   return (
     <button
       onClick={() => onAddressSelect(address)}
-      className="px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 cursor-pointer text-white rounded-lg transition-colors"
+      className="px-2 sm:px-3 py-1 text-xs bg-blue-500 hover:bg-blue-600 cursor-pointer text-white rounded-lg transition-colors cursor-pointer"
     >
       Use Account
     </button>
@@ -75,6 +85,8 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
 }
 
 export const CustomizationForm: React.FC<CustomizationFormProps> = ({
+  sequenceProjectAccessKey,
+  setSequenceProjectAccessKey,
   toAddress,
   setToAddress,
   toAmount,
@@ -93,12 +105,14 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   setTheme,
   walletOptions,
   setWalletOptions,
+  paymasterUrls,
+  setPaymasterUrls,
+  gasless,
+  setGasless,
 }) => {
   const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
-  const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
 
   const tokenDropdownRef = useRef<HTMLDivElement>(null)
-  const chainDropdownRef = useRef<HTMLDivElement>(null)
 
   // Add state for NFT mint forms
   const [isArbitrumNftMintFormOpen, setIsArbitrumNftMintFormOpen] =
@@ -111,8 +125,19 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   const [usdcRecipient, setUsdcRecipient] = useState("")
   const [aaveRecipient, setAaveRecipient] = useState("")
 
+  // Add state for editing chain
+  const [paymasterKey, setPaymasterKey] = useState(0)
+
+  // Debug useEffect for paymasterUrls
+  useEffect(() => {
+    console.log("paymasterUrls changed:", paymasterUrls)
+  }, [paymasterUrls])
+
   // Load saved values from localStorage on mount
   useEffect(() => {
+    const savedSequenceProjectAccessKey = localStorage.getItem(
+      STORAGE_KEYS.SEQUENCE_PROJECT_ACCESS_KEY,
+    )
     const savedToAddress = localStorage.getItem(STORAGE_KEYS.TO_ADDRESS)
     const savedToAmount = localStorage.getItem(STORAGE_KEYS.TO_AMOUNT)
     const savedToChainId = localStorage.getItem(STORAGE_KEYS.TO_CHAIN_ID)
@@ -124,8 +149,12 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     const savedRenderInline = localStorage.getItem(STORAGE_KEYS.RENDER_INLINE)
     const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME)
     const savedWalletOptions = localStorage.getItem(STORAGE_KEYS.WALLET_OPTIONS)
+    const savedPaymasterUrls = localStorage.getItem(STORAGE_KEYS.PAYMASTER_URLS)
+    const savedGasless = localStorage.getItem(STORAGE_KEYS.GASLESS)
 
     // Only set values if they exist in localStorage
+    if (savedSequenceProjectAccessKey !== null)
+      setSequenceProjectAccessKey(savedSequenceProjectAccessKey)
     if (savedToAddress !== null) setToAddress(savedToAddress)
     if (savedToAmount !== null) setToAmount(savedToAmount)
     if (savedToChainId !== null) setToChainId(Number(savedToChainId))
@@ -138,7 +167,28 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     if (savedTheme !== null) setTheme(savedTheme)
     if (savedWalletOptions !== null)
       setWalletOptions(JSON.parse(savedWalletOptions))
+    if (savedPaymasterUrls !== null) {
+      try {
+        const parsed = JSON.parse(savedPaymasterUrls)
+        // Handle both old object format and new array format
+        if (Array.isArray(parsed)) {
+          setPaymasterUrls(parsed)
+        } else {
+          // Convert old object format to new array format
+          const converted = Object.entries(parsed).map(([chainId, url]) => ({
+            chainId: Number(chainId),
+            url: url as string,
+          }))
+          setPaymasterUrls(converted)
+        }
+      } catch (error) {
+        console.error("Failed to parse paymasterUrls from localStorage:", error)
+        setPaymasterUrls([])
+      }
+    }
+    if (savedGasless !== null) setGasless(savedGasless === "true")
   }, [
+    setSequenceProjectAccessKey,
     setToAddress,
     setToAmount,
     setToChainId,
@@ -148,9 +198,22 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setRenderInline,
     setTheme,
     setWalletOptions,
+    setPaymasterUrls,
+    setGasless,
   ])
 
   // Save values to localStorage whenever they change
+  useEffect(() => {
+    if (sequenceProjectAccessKey) {
+      localStorage.setItem(
+        STORAGE_KEYS.SEQUENCE_PROJECT_ACCESS_KEY,
+        sequenceProjectAccessKey,
+      )
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.SEQUENCE_PROJECT_ACCESS_KEY)
+    }
+  }, [sequenceProjectAccessKey])
+
   useEffect(() => {
     if (toAddress) {
       localStorage.setItem(STORAGE_KEYS.TO_ADDRESS, toAddress)
@@ -222,6 +285,25 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
   }, [walletOptions])
 
+  // Save paymasterUrls to localStorage
+  useEffect(() => {
+    if (paymasterUrls.length > 0) {
+      localStorage.setItem(
+        STORAGE_KEYS.PAYMASTER_URLS,
+        JSON.stringify(paymasterUrls),
+      )
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.PAYMASTER_URLS)
+    }
+  }, [paymasterUrls])
+
+  // Save gasless to localStorage
+  useEffect(() => {
+    if (typeof gasless === "boolean") {
+      localStorage.setItem(STORAGE_KEYS.GASLESS, gasless.toString())
+    }
+  }, [gasless])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -229,12 +311,6 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         !tokenDropdownRef.current.contains(event.target as Node)
       ) {
         setIsTokenDropdownOpen(false)
-      }
-      if (
-        chainDropdownRef.current &&
-        !chainDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsChainDropdownOpen(false)
       }
     }
 
@@ -252,6 +328,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   const handleReset = () => {
     // Clear form state
+    setSequenceProjectAccessKey("")
     setToAddress("")
     setToAmount("")
     setToChainId(undefined)
@@ -260,6 +337,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setUseCustomButton(false)
     setRenderInline(true) // Reset to default true
     setTheme("auto") // Reset to default light
+    setPaymasterUrls([]) // Reset paymasterUrls
+    setGasless(false) // Reset gasless to default false
     // Clear localStorage
     Object.values(STORAGE_KEYS).forEach((key) => {
       localStorage.removeItem(key)
@@ -281,15 +360,32 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg p-6 h-full">
+    <div className="bg-gray-800 rounded-lg p-4 sm:p-6 h-full">
       <div className="space-y-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-200">Customize Widget</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-200">
+            Customize Widget
+          </h2>
           <p className="text-sm text-gray-400 mt-1">
             All fields are optional. Use these to preset the widget's state.
           </p>
         </div>
         <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-200 mb-2">
+              Sequence Project Access Key
+            </label>
+            <input
+              type="text"
+              value={sequenceProjectAccessKey}
+              onChange={(e) =>
+                setSequenceProjectAccessKey(e.target.value.trim())
+              }
+              placeholder="Enter your sequence project access key"
+              className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-200 mb-2">
               To Address
@@ -299,7 +395,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               value={toAddress}
               onChange={(e) => setToAddress(e.target.value.trim())}
               placeholder="0x..."
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
           </div>
 
@@ -312,7 +408,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               value={toAmount}
               onChange={(e) => setToAmount(e.target.value.trim())}
               placeholder="0.00"
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             />
           </div>
 
@@ -324,7 +420,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               <button
                 type="button"
                 onClick={() => setIsTokenDropdownOpen(!isTokenDropdownOpen)}
-                className="w-full flex items-center px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full flex items-center px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
               >
                 {toToken ? (
                   <>
@@ -337,8 +433,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         )?.imageUrl
                       }
                       size="sm"
+                      disableAnimation={true}
                     />
-                    <span className="ml-2 flex-1 text-left text-gray-200">
+                    <span className="ml-2 flex-1 text-left text-gray-200 text-sm">
                       {
                         SUPPORTED_TO_TOKENS.find(
                           (t: { symbol: string; name: string }) =>
@@ -349,7 +446,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     </span>
                   </>
                 ) : (
-                  <span className="flex-1 text-left text-gray-400">
+                  <span className="flex-1 text-left text-gray-400 text-sm">
                     Select Token
                   </span>
                 )}
@@ -359,14 +456,14 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               </button>
 
               {isTokenDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+                <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                   <button
                     type="button"
                     onClick={() => {
                       setToToken(undefined)
                       setIsTokenDropdownOpen(false)
                     }}
-                    className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 cursor-pointer ${!toToken ? "bg-gray-600 text-blue-400" : "text-gray-200"}`}
+                    className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-600 ${!toToken ? "bg-gray-600 text-blue-400" : "text-gray-200"} cursor-pointer text-sm`}
                   >
                     <span className="ml-2">Select Token</span>
                     {!toToken && (
@@ -386,7 +483,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           setToToken(token.symbol as "ETH" | "USDC")
                           setIsTokenDropdownOpen(false)
                         }}
-                        className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 ${
+                        className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-600 cursor-pointer text-sm ${
                           toToken === token.symbol
                             ? "bg-gray-600 text-blue-400"
                             : "text-gray-200"
@@ -396,6 +493,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           symbol={token.symbol}
                           src={token.imageUrl}
                           size="sm"
+                          disableAnimation={true}
                         />
                         <span className="ml-2">
                           {token.name} ({token.symbol})
@@ -411,90 +509,14 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </div>
           </div>
 
-          <div className="space-y-2" ref={chainDropdownRef}>
+          <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-200 mb-2">
               To Chain ID
             </label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
-                className="w-full flex items-center px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
-              >
-                {toChainId ? (
-                  <>
-                    <NetworkImage
-                      chainId={toChainId}
-                      size="sm"
-                      className="w-5 h-5"
-                    />
-                    <span className="ml-2 flex-1 text-left text-gray-200">
-                      {
-                        SUPPORTED_TO_CHAINS.find(
-                          (chain: { id: number; name: string }) =>
-                            chain.id === toChainId,
-                        )?.name
-                      }{" "}
-                      ({toChainId})
-                    </span>
-                  </>
-                ) : (
-                  <span className="flex-1 text-left text-gray-400">
-                    Select Chain
-                  </span>
-                )}
-                <ChevronDown
-                  className={`h-5 w-5 text-gray-400 transition-transform ${isChainDropdownOpen ? "transform rotate-180" : ""}`}
-                />
-              </button>
-
-              {isChainDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setToChainId(undefined)
-                      setIsChainDropdownOpen(false)
-                    }}
-                    className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 cursor-pointer ${!toChainId ? "bg-gray-600 text-blue-400" : "text-gray-200"}`}
-                  >
-                    <span className="ml-2">Select Chain</span>
-                    {!toChainId && (
-                      <span className="ml-auto text-blue-400">•</span>
-                    )}
-                  </button>
-                  {SUPPORTED_TO_CHAINS.map(
-                    (chain: { id: number; name: string }) => (
-                      <button
-                        key={chain.id}
-                        type="button"
-                        onClick={() => {
-                          setToChainId(chain.id)
-                          setIsChainDropdownOpen(false)
-                        }}
-                        className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 cursor-pointer ${
-                          toChainId === chain.id
-                            ? "bg-gray-600 text-blue-400"
-                            : "text-gray-200"
-                        }`}
-                      >
-                        <NetworkImage
-                          chainId={chain.id}
-                          size="sm"
-                          className="w-5 h-5"
-                        />
-                        <span className="ml-2">
-                          {chain.name} ({chain.id})
-                        </span>
-                        {toChainId === chain.id && (
-                          <span className="ml-auto text-blue-400">•</span>
-                        )}
-                      </button>
-                    ),
-                  )}
-                </div>
-              )}
-            </div>
+            <ChainSelector
+              selectedChainId={toChainId}
+              onChainSelect={setToChainId}
+            />
           </div>
 
           <div>
@@ -505,9 +527,128 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               value={toCalldata}
               onChange={(e) => setToCalldata(e.target.value.trim())}
               placeholder="0x..."
-              rows={4}
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+              rows={3}
+              className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-xs sm:text-sm"
             />
+          </div>
+
+          <div className="flex items-center justify-between py-2">
+            <label className="block text-sm font-medium text-gray-200 flex items-center gap-2">
+              Gasless
+              <Tooltip message="Enable gasless transactions using Sequence Relayer based on your project access key sponsorship settings">
+                <InfoIcon size="sm" className="text-gray-400 cursor-pointer" />
+              </Tooltip>
+            </label>
+            <button
+              onClick={() => setGasless(!gasless)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                gasless ? "bg-blue-500" : "bg-gray-600"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  gasless ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2">
+              Paymaster URLs (Chain-specific)
+              <Tooltip message="Use 4337-compatible bundler/paymaster URLs for gasless transactions, such as Alchemy, Thirdweb, Pimlico, ZeroDev, etc. Set different URLs for different chains.">
+                <InfoIcon size="sm" className="text-gray-400 cursor-pointer" />
+              </Tooltip>
+            </label>
+
+            {/* Paymaster URLs List */}
+            <div className="space-y-3">
+              {paymasterUrls.map(({ chainId, url }, index) => {
+                const currentChainId = chainId
+
+                return (
+                  <div
+                    key={`paymaster-${currentChainId}-${index}-${paymasterKey}`}
+                    className="flex flex-col sm:flex-row items-start sm:items-center gap-2"
+                  >
+                    {/* Chain Selector */}
+                    <div className="flex-shrink-0 w-full sm:w-32">
+                      <ChainSelector
+                        selectedChainId={currentChainId}
+                        onChainSelect={(newChainId) => {
+                          const newPaymasterUrls = paymasterUrls.map((p) =>
+                            p.chainId === currentChainId
+                              ? { ...p, chainId: newChainId }
+                              : p,
+                          )
+                          console.log("Updating paymaster URLs:", {
+                            currentChainId,
+                            newChainId,
+                            newPaymasterUrls,
+                          })
+
+                          setPaymasterUrls(newPaymasterUrls)
+                          setPaymasterKey((prev) => prev + 1) // Force re-render
+                        }}
+                        className="w-full sm:w-32"
+                        showIconsOnly={true}
+                      />
+                    </div>
+
+                    {/* URL Input */}
+                    <input
+                      type="text"
+                      value={url}
+                      onChange={(e) =>
+                        setPaymasterUrls(
+                          paymasterUrls.map((p) =>
+                            p.chainId === currentChainId
+                              ? { ...p, url: e.target.value.trim() }
+                              : p,
+                          ),
+                        )
+                      }
+                      placeholder="https://..."
+                      className="flex-1 px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    />
+
+                    {/* Remove Button - Styled like text */}
+                    <button
+                      onClick={() => {
+                        const newPaymasterUrls = paymasterUrls.filter(
+                          (p) => p.chainId !== currentChainId,
+                        )
+                        setPaymasterUrls(newPaymasterUrls)
+                      }}
+                      className="px-3 py-2 text-gray-400 hover:text-gray-200 transition-colors text-lg font-medium cursor-pointer self-center"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )
+              })}
+
+              {/* Add Button */}
+              <button
+                onClick={() => {
+                  // Find first available chain that's not already used
+                  const usedChainIds = paymasterUrls.map((p) => p.chainId)
+                  const availableChain = SUPPORTED_TO_CHAINS.find(
+                    (chain) => !usedChainIds.includes(chain.id),
+                  )
+                  if (availableChain) {
+                    setPaymasterUrls([
+                      ...paymasterUrls,
+                      { chainId: availableChain.id, url: "" },
+                    ])
+                  }
+                }}
+                disabled={paymasterUrls.length >= SUPPORTED_TO_CHAINS.length}
+                className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
+              >
+                + Add Paymaster URL
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center justify-between py-2">
@@ -546,7 +687,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </button>
           </div>
 
-          <div className="flex items-center justify-between py-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
             <label className="block text-sm font-medium text-gray-200">
               Theme Mode
             </label>
@@ -555,7 +696,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                 <button
                   key={mode}
                   onClick={() => setTheme(mode)}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
+                  className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
                     theme === mode
                       ? "bg-blue-500 text-white"
                       : "text-gray-300 hover:text-white hover:bg-gray-700"
@@ -567,16 +708,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center justify-between py-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
             <label className="block text-sm font-medium text-gray-200">
               Wallet Options
             </label>
-            <div className="flex rounded-lg overflow-hidden border border-gray-600">
+            <div className="flex flex-wrap rounded-lg overflow-hidden border border-gray-600">
               {defaultWalletOptions.map((wallet: string) => (
                 <button
                   key={wallet}
                   onClick={() => handleWalletOptionToggle(wallet)}
-                  className={`px-3 py-1.5 text-sm font-medium transition-colors cursor-pointer ${
+                  className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
                     walletOptions?.includes(wallet)
                       ? "bg-blue-500 text-white"
                       : "text-gray-300 hover:text-white hover:bg-gray-700"
@@ -604,7 +745,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               <div className="rounded-lg border border-gray-600 overflow-hidden">
                 <button
                   onClick={() => setIsSendUsdcFormOpen(!isSendUsdcFormOpen)}
-                  className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors duration-200 text-sm font-medium cursor-pointer text-left flex justify-between items-center"
+                  className="w-full px-3 sm:px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors duration-200 text-sm font-medium cursor-pointer text-left flex justify-between items-center"
                 >
                   <div>
                     <div>Pay USDC on Base</div>
@@ -620,9 +761,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                 </button>
 
                 {isSendUsdcFormOpen && (
-                  <div className="p-4 bg-gray-800 space-y-4">
+                  <div className="p-3 sm:p-4 bg-gray-800 space-y-4">
                     <div>
-                      <div className="flex justify-between items-center mb-2">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
                         <label className="block text-sm font-medium text-gray-200">
                           Recipient
                         </label>
@@ -635,7 +776,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           setUsdcRecipient(e.target.value.trim())
                         }
                         placeholder="0x..."
-                        className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       />
                     </div>
                     <button

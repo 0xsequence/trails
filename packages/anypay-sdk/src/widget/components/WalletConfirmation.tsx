@@ -1,10 +1,11 @@
 import type React from "react"
 import { useEffect, useState } from "react"
+import type { ActiveTheme } from "../../theme.js"
 
 interface WalletConfirmationProps {
   onBack: () => void
   onComplete: () => void
-  theme?: "light" | "dark"
+  theme?: ActiveTheme
   amount?: string
   recipient?: string
   tokenSymbol?: string
@@ -87,7 +88,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
                 <span
                   className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
                 >
-                  To:
+                  To (Intent):
                 </span>
                 <span
                   className={`font-mono text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}

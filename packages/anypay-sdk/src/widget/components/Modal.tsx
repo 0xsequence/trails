@@ -1,13 +1,14 @@
 import { X } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
-// biome-ignore lint/style/useImportType: False positive
-import React, { useEffect, useRef } from "react"
+import type React from "react"
+import { useEffect, useRef } from "react"
+import type { ActiveTheme } from "../../theme.js"
 
 interface ModalProps {
   isOpen: boolean
   onClose: () => void
   children: React.ReactNode
-  theme?: "light" | "dark"
+  theme?: ActiveTheme
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -55,7 +56,7 @@ const Modal: React.FC<ModalProps> = ({
             onClick={onClose}
           />
           <div
-            className={`fixed inset-0 flex items-center justify-center z-50 p-4 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+            className={`fixed inset-0 flex items-center justify-center z-50 p-2 sm:p-4 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
             onClick={handleClickOutside}
           >
             <motion.div

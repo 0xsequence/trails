@@ -5,6 +5,7 @@ import { nightOwl as syntaxStyle } from "react-syntax-highlighter/dist/esm/style
 
 interface CodeSnippetProps {
   children: React.ReactNode
+  sequenceProjectAccessKey: string
   toAddress: string
   toAmount: string
   toChainId: number | undefined
@@ -14,10 +15,13 @@ interface CodeSnippetProps {
   renderInline: boolean | null
   theme: string | null
   walletOptions: string[] | null
+  paymasterUrls: Array<{ chainId: number; url: string }>
+  gasless: boolean | null
 }
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   children,
+  sequenceProjectAccessKey,
   toAddress,
   toAmount,
   toChainId,
@@ -27,6 +31,8 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   renderInline,
   theme,
   walletOptions,
+  paymasterUrls,
+  gasless,
 }) => {
   const [isCopied, setIsCopied] = useState(false)
   const [activeTab, setActiveTab] = useState<"react" | "script">("react")
@@ -49,6 +55,8 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
     window.history.pushState({}, "", url.toString())
   }
 
+  const accessKey = sequenceProjectAccessKey || "key_123..."
+
   const getReactCode = () => {
     const props = [
       toAddress && `toAddress="${toAddress}"`,
@@ -56,9 +64,13 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
       toChainId && `toChainId={${toChainId}}`,
       toToken && `toToken="${toToken}"`,
       toCalldata && `toCalldata="${toCalldata}"`,
+      paymasterUrls &&
+        paymasterUrls.length > 0 &&
+        `paymasterUrls={${JSON.stringify(paymasterUrls)}}`,
       renderInline !== null && `renderInline={${renderInline}}`,
       theme && `theme="${theme}"`,
       walletOptions && `walletOptions={${JSON.stringify(walletOptions)}}`,
+      gasless && `gasless={true}`,
     ].filter(Boolean)
 
     return `import { AnyPayWidget } from '@0xsequence/anypay-sdk/widget'
@@ -68,7 +80,7 @@ export const App = () => {
     useCustomButton
       ? `
     <AnyPayWidget
-      sequenceApiKey={'key_123...'}${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
+      sequenceProjectAccessKey="${accessKey}"${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
     >
       <button className="custom-button-styles">
         Pay with AnyPay
@@ -76,7 +88,7 @@ export const App = () => {
     </AnyPayWidget>`
       : `
     <AnyPayWidget
-      sequenceApiKey={'key_123...'}${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
+      sequenceProjectAccessKey="${accessKey}"${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
     />`
   }
   )
@@ -90,9 +102,13 @@ export const App = () => {
       toChainId && `toChainId: ${toChainId}`,
       toToken && `toToken: '${toToken}'`,
       toCalldata && `toCalldata: '${toCalldata}'`,
+      paymasterUrls &&
+        paymasterUrls.length > 0 &&
+        `paymasterUrls: ${JSON.stringify(paymasterUrls)}`,
       renderInline !== null && `renderInline: ${renderInline}`,
       theme && `theme: '${theme}'`,
       walletOptions && `walletOptions: ${JSON.stringify(walletOptions)}`,
+      gasless && `gasless: true`,
     ].filter(Boolean)
 
     return `<!DOCTYPE html>
@@ -106,7 +122,7 @@ export const App = () => {
     
     <script>
         AnyPayWidget.render(document.getElementById('anypay'), {
-            sequenceApiKey: 'key_123...',${props.length > 0 ? "\n            " : ""}${props.join(",\n            ")}
+            sequenceProjectAccessKey: '${accessKey}',${props.length > 0 ? "\n            " : ""}${props.join(",\n            ")}
         });
     </script>
 </body>
@@ -117,10 +133,10 @@ export const App = () => {
   const scriptCodeExample = getScriptCode()
 
   return (
-    <div className="rounded-lg p-6 h-full relative bg-gray-800">
-      <div className="flex justify-between items-start mb-4">
+    <div className="rounded-lg p-4 sm:p-6 h-full relative bg-gray-800">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-start mb-4 gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-200">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-200">
             Integration Example
           </h2>
           <p className="text-sm text-gray-400 mt-1">
@@ -149,7 +165,7 @@ export const App = () => {
       <div className="flex space-x-1 mb-4">
         <button
           onClick={() => setActiveTab("react")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+          className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
             activeTab === "react"
               ? "bg-blue-600 text-white"
               : "bg-gray-700 text-gray-300 hover:bg-gray-600"
@@ -159,7 +175,7 @@ export const App = () => {
         </button>
         <button
           onClick={() => setActiveTab("script")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+          className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
             activeTab === "script"
               ? "bg-blue-600 text-white"
               : "bg-gray-700 text-gray-300 hover:bg-gray-600"
@@ -178,6 +194,7 @@ export const App = () => {
             borderRadius: "0.5rem",
             background: "#13141c",
             height: "100%",
+            fontSize: "12px",
           }}
         >
           {activeTab === "react" ? reactCodeExample : scriptCodeExample}

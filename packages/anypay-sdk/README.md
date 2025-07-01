@@ -20,11 +20,11 @@ The easiest way to integrate Anypay is using our pre-built React widget:
 import { AnyPayWidget } from '@0xsequence/anypay-sdk/widget'
 
 export const App = () => {
-  const sequenceApiKey = import.meta.env.VITE_SEQUENCE_API_KEY
+  const sequenceProjectAccessKey = import.meta.env.VITE_SEQUENCE_API_KEY
 
   return (
     <AnyPayWidget
-      sequenceApiKey={sequenceApiKey}
+      sequenceProjectAccessKey={sequenceProjectAccessKey}
     />
   )
 }
@@ -57,7 +57,7 @@ const options = {
   recipient: '0xYourRecipientAddress',
   destinationTokenAddress: '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', // USDC on Base
   destinationTokenAmount: '300003', // Amount in USDC decimals (6)
-  sequenceApiKey: 'your-api-key',
+  sequenceProjectAccessKey: 'your-api-key',
   fee: '5600000000000',
   client,
 }

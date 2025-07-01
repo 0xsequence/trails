@@ -9,8 +9,7 @@ import {
 import { useQuery } from "@tanstack/react-query"
 import type { Address } from "ox"
 import { useEffect, useState } from "react"
-import { type Chain, formatUnits, zeroAddress } from "viem"
-import * as chains from "viem/chains"
+import { formatUnits, zeroAddress } from "viem"
 import { useAPIClient } from "./apiClient.js"
 import { useIndexerGatewayClient } from "./indexerClient.js"
 import { useTokenPrices } from "./prices.js"
@@ -145,11 +144,7 @@ export function useTokenBalances(
         }
       } catch (error) {
         console.error("Failed to fetch token balances:", error)
-        return {
-          balances: [],
-          nativeBalances: [],
-          page: defaultPage,
-        } as GetTokenBalancesSummaryReturn
+        throw error
       }
     },
     enabled: !!address,
@@ -287,16 +282,6 @@ export function formatBalance(balance: string, decimals: number = 18) {
     console.error("Error formatting balance:", e)
     return balance
   }
-}
-
-// Helper to get chain info
-export function getChainInfo(chainId: number): Chain | null {
-  // TODO: Add proper type
-  return (
-    (Object.values(chains).find((chain: any) => chain.id === chainId) as
-      | Chain
-      | undefined) || null
-  )
 }
 
 export function getTokenBalanceUsd(
