@@ -16,6 +16,8 @@ import type {
 import {
   createPublicClient,
   createWalletClient,
+  decodeFunctionData,
+  erc20Abi,
   formatUnits,
   http,
   parseUnits,
@@ -267,8 +269,7 @@ export async function prepareSend(
   }
 
   if (isToSameChain && !isToSameToken) {
-    return sendHandlerForSameChainDifferentToken({
-      originTokenAmount,
+    return await sendHandlerForSameChainDifferentToken({
       originTokenAddress,
       destinationTokenAmount,
       destinationTokenAddress,
@@ -281,7 +282,7 @@ export async function prepareSend(
   }
 
   if (isToSameToken && isToSameChain) {
-    return sendHandlerForSameChainSameToken({
+    return await sendHandlerForSameChainSameToken({
       originTokenAddress,
       destinationTokenAmount,
       destinationCalldata,
@@ -296,7 +297,7 @@ export async function prepareSend(
     })
   }
 
-  return sendHandlerForDifferentChainAndToken({
+  return await sendHandlerForDifferentChainAndToken({
     mainSignerAddress,
     originChainId,
     originTokenAddress,
@@ -576,7 +577,7 @@ async function sendHandlerForDifferentChainAndToken({
   }
 }
 
-function sendHandlerForSameChainSameToken({
+async function sendHandlerForSameChainSameToken({
   originTokenAddress,
   destinationTokenAmount,
   destinationCalldata,
@@ -673,8 +674,7 @@ function sendHandlerForSameChainSameToken({
   }
 }
 
-function sendHandlerForSameChainDifferentToken({
-  originTokenAmount,
+async function sendHandlerForSameChainDifferentToken({
   originTokenAddress,
   destinationTokenAmount,
   destinationTokenAddress,
@@ -684,7 +684,6 @@ function sendHandlerForSameChainDifferentToken({
   walletClient,
   publicClient,
 }: {
-  originTokenAmount: string
   originTokenAddress: string
   destinationTokenAmount: string
   destinationTokenAddress: string
@@ -694,32 +693,49 @@ function sendHandlerForSameChainDifferentToken({
   walletClient: WalletClient
   publicClient: PublicClient
 }) {
-  return {
-    originSendAmount: originTokenAmount,
-    send: async (onOriginSend: () => void): Promise<SendReturn> => {
-      const destinationTxs = []
-      if (destinationCalldata) {
-        destinationTxs.push({
-          to: recipient,
-          value:
-            destinationTokenAddress === zeroAddress
-              ? destinationTokenAmount
-              : "0",
-          data: destinationCalldata,
-        })
-      }
+  const destinationTxs = []
+  if (destinationCalldata) {
+    destinationTxs.push({
+      to: recipient,
+      value:
+        destinationTokenAddress === zeroAddress ? destinationTokenAmount : "0",
+      data: destinationCalldata,
+    })
+  }
 
-      const quote = await getRelaySDKQuote({
-        wallet: walletClient,
-        chainId: originChainId,
-        amount: destinationTokenAmount,
-        currency: originTokenAddress,
-        toCurrency: destinationTokenAddress,
-        txs: destinationTxs,
+  const quote = await getRelaySDKQuote({
+    wallet: walletClient,
+    chainId: originChainId,
+    amount: destinationTokenAmount,
+    currency: originTokenAddress,
+    toCurrency: destinationTokenAddress,
+    txs: destinationTxs,
+  })
+
+  console.log("relaysdk quote", quote)
+  let depositAmount = "0"
+
+  try {
+    depositAmount = quote.steps?.[0]?.items?.[0]?.data?.value
+    if (originTokenAddress !== zeroAddress) {
+      const decoded = decodeFunctionData({
+        abi: erc20Abi,
+        data: quote.steps?.[0]?.items?.[0]?.data?.data,
       })
+      if (decoded.functionName === "approve") {
+        depositAmount = decoded.args[1].toString()
+      }
+      if (decoded.functionName === "transfer") {
+        depositAmount = decoded.args[1].toString()
+      }
+    }
+  } catch (error) {
+    console.error("Error decoding function data:", error)
+  }
 
-      console.log("relaysdk quote", quote)
-
+  return {
+    originSendAmount: depositAmount,
+    send: async (onOriginSend: () => void): Promise<SendReturn> => {
       await attemptSwitchChain(walletClient, originChainId)
 
       const result = await executeSimpleRelayTransaction(quote, walletClient)

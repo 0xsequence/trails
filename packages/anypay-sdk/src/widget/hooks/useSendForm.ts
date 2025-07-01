@@ -504,10 +504,14 @@ export function useSendForm({
       setIsWaitingForWalletConfirm(true)
       onWaitingForWalletConfirm(
         intentAddress?.toString() ?? "",
-        formatUnits(
-          BigInt(originSendAmount),
-          selectedToken.contractInfo?.decimals ?? 18,
-        ),
+        Number(
+          formatUnits(
+            BigInt(originSendAmount),
+            selectedToken.contractInfo?.decimals ?? 18,
+          ),
+        )
+          .toFixed(5)
+          .toString(),
       )
 
       async function handleSend() {
