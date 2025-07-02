@@ -7,5 +7,5 @@
   "access": "public",
   "baseBranch": "production",
   "updateInternalDependencies": "patch",
-  "ignore": ["@0xsequence/anypay-demo"]
+  "ignore": ["@0xsequence/trails-demo"]
 }
