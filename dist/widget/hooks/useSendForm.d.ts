@@ -1,0 +1,116 @@
+import type { TokenPrice } from "@0xsequence/anypay-api";
+import type { MetaTxnReceipt } from "@0xsequence/anypay-relayer";
+import type React from "react";
+import { type Account, type TransactionReceipt, type WalletClient } from "viem";
+import { type TransactionState } from "../../prepareSend.js";
+import { type RelayerEnv } from "../../relayer.js";
+import type { Theme } from "../../theme.js";
+export declare const SUPPORTED_TO_CHAINS: ChainInfo[];
+export interface Token {
+    id: number;
+    name: string;
+    symbol: string;
+    balance: string;
+    imageUrl: string;
+    chainId: number;
+    contractAddress: string;
+    tokenPriceUsd?: number;
+    balanceUsdFormatted?: string;
+    contractInfo?: {
+        decimals: number;
+        symbol: string;
+        name: string;
+    };
+}
+type TokenInfo = {
+    symbol: string;
+    name: string;
+    imageUrl: string;
+    decimals: number;
+};
+type ChainInfo = {
+    id: number;
+    name: string;
+    imageUrl?: string;
+};
+type PaymasterUrl = {
+    chainId: number;
+    url: string;
+};
+export declare const SUPPORTED_TO_TOKENS: {
+    symbol: string;
+    name: string;
+    imageUrl: string;
+    decimals: number;
+}[];
+export type OnCompleteProps = {
+    originChainId: number;
+    destinationChainId: number;
+    originUserTxReceipt: TransactionReceipt | null;
+    originMetaTxnReceipt: MetaTxnReceipt | null;
+    destinationMetaTxnReceipt: MetaTxnReceipt | null;
+};
+export type UseSendProps = {
+    account: Account;
+    sequenceProjectAccessKey: string;
+    apiUrl?: string;
+    env?: RelayerEnv;
+    toAmount?: string;
+    toRecipient?: string;
+    toChainId?: number;
+    toToken?: string;
+    toCalldata?: string;
+    walletClient: WalletClient;
+    theme: Theme;
+    onTransactionStateChange: (transactionStates: TransactionState[]) => void;
+    useSourceTokenForButtonText: boolean;
+    onError: (error: Error) => void;
+    onWaitingForWalletConfirm: (intentAddress: string, amount: string) => void;
+    paymasterUrls?: PaymasterUrl[];
+    gasless?: boolean;
+    onSend: (amount: string, recipient: string) => void;
+    onConfirm: () => void;
+    onComplete: (result: OnCompleteProps) => void;
+    selectedToken: Token;
+    setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void;
+};
+export type UseSendReturn = {
+    amount: string;
+    amountUsdFormatted: string;
+    balanceUsdFormatted: string;
+    chainInfo: ChainInfo | null;
+    error: string | null;
+    toChainId: number | undefined;
+    balanceFormatted: string;
+    handleRecipientInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleSubmit: (e: React.FormEvent) => Promise<void>;
+    isChainDropdownOpen: boolean;
+    isSubmitting: boolean;
+    isTokenDropdownOpen: boolean;
+    recipient: string;
+    recipientInput: string;
+    selectedChain: ChainInfo | null;
+    selectedDestToken: TokenInfo;
+    setAmount: (amount: string) => void;
+    setRecipient: (recipient: string) => void;
+    setRecipientInput: (recipientInput: string) => void;
+    setSelectedChain: (chain: ChainInfo) => void;
+    setSelectedDestToken: (token: TokenInfo) => void;
+    setSelectedFeeToken: (token: TokenInfo) => void;
+    FEE_TOKENS: TokenInfo[];
+    SUPPORTED_TO_TOKENS: TokenInfo[];
+    SUPPORTED_TO_CHAINS: ChainInfo[];
+    ensAddress: string | null;
+    isWaitingForWalletConfirm: boolean;
+    buttonText: string;
+    isValidRecipient: boolean;
+    useSourceTokenForButtonText: boolean;
+    destTokenPrices: TokenPrice[] | null;
+    selectedToken: Token;
+    selectedFeeToken: TokenInfo | null;
+    setIsChainDropdownOpen: (isOpen: boolean) => void;
+    setIsTokenDropdownOpen: (isOpen: boolean) => void;
+};
+export declare function useSendForm({ account, sequenceProjectAccessKey, apiUrl, env, toAmount, toRecipient, toChainId, toToken, toCalldata, walletClient, onTransactionStateChange, useSourceTokenForButtonText, onError, onWaitingForWalletConfirm, paymasterUrls, gasless, selectedToken, onSend, onConfirm, onComplete, setWalletConfirmRetryHandler, }: UseSendProps): UseSendReturn;
+export {};
+//# sourceMappingURL=useSendForm.d.ts.map
