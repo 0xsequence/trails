@@ -56,7 +56,7 @@ export function getRelayerUrl(
   config: RelayerEnvConfig,
   chainId: number,
 ): string {
-  let relayerUrl
+  let relayerUrl = ""
   if (config.env === "local") {
     // Use specific ports for different chains in local environment
     if (chainId === 1) {
@@ -99,6 +99,9 @@ export function getRelayerUrl(
     } else if (chainId === 8453) {
       // Base
       relayerUrl = "https://v3-base-relayer.sequence.app"
+    } else if (chainId === 84532) {
+      // Base Sepolia
+      relayerUrl = "https://base-sepolia-relayer.sequence.app"
     } else if (chainId === 10) {
       // Optimism
       relayerUrl = "https://v3-optimism-relayer.sequence.app"
@@ -110,7 +113,7 @@ export function getRelayerUrl(
       relayerUrl = "https://v3-mainnet-relayer.sequence.app"
     } else {
       // Fallback to general dev relayer for other chains if V3 is specified but chain not V3-supported
-      relayerUrl = `${baseUrl}${getChain(chainId).name}-relayer.sequence.app`
+      relayerUrl = `${baseUrl}${getChain(chainId).name?.replace(" ", "-")}-relayer.sequence.app`
     }
 
     return relayerUrl

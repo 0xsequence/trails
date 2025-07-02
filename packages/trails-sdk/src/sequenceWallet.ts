@@ -333,7 +333,7 @@ export async function sequenceSendTransaction(
       console.log("Deployment relayed")
 
       // Wait for deployment to complete
-      await new Promise((resolve) => setTimeout(resolve, 6000))
+      await new Promise((resolve) => setTimeout(resolve, 3000))
     } else {
       const option = feeOptions?.options[0]
       if (!option) {
@@ -383,7 +383,7 @@ export async function sequenceSendTransaction(
         )
 
         // Wait for deployment to complete
-        await new Promise((resolve) => setTimeout(resolve, 6000))
+        await new Promise((resolve) => setTimeout(resolve, 3000))
         console.log("sequence wallet deployed")
       } else {
         throw new Error(
