@@ -5,16 +5,16 @@ const path = require("node:path")
 
 // Hardcoded for your project
 const sdkPath = path.join(__dirname, "..", "package.json")
-const apiPath = path.join(__dirname, "../../anypay-api/package.json")
-const relayerPath = path.join(__dirname, "../../anypay-relayer/package.json")
+const apiPath = path.join(__dirname, "../../trails-api/package.json")
+const relayerPath = path.join(__dirname, "../../trails-relayer/package.json")
 
 const sdkPkg = JSON.parse(fs.readFileSync(sdkPath, "utf-8"))
 const apiPkg = JSON.parse(fs.readFileSync(apiPath, "utf-8"))
 const relayerPkg = JSON.parse(fs.readFileSync(relayerPath, "utf-8"))
 
 const replacements = {
-  "@0xsequence/anypay-api": apiPkg.version,
-  "@0xsequence/anypay-relayer": relayerPkg.version,
+  "@0xsequence/trails-api": apiPkg.version,
+  "@0xsequence/trails-relayer": relayerPkg.version,
 }
 
 let modified = false
@@ -33,7 +33,7 @@ let modified = false
 
 if (modified) {
   fs.writeFileSync(sdkPath, `${JSON.stringify(sdkPkg, null, 2)}\n`)
-  console.log("✅ Updated package.json in anypay-sdk")
+  console.log("✅ Updated package.json in trails-sdk")
 } else {
-  console.log("ℹ️ No changes made to anypay-sdk dependencies")
+  console.log("ℹ️ No changes made to trails-sdk dependencies")
 }

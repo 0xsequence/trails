@@ -59,7 +59,7 @@ function useHook() {
     metaTxns,
     intentCallsPayloads,
     intentPreconditions,
-    anypayInfos,
+    trailsInfos,
     committedIntentAddress,
     verificationStatus,
     committedIntentConfig,
@@ -96,7 +96,7 @@ function useHook() {
     originCallParams,
     originBlockTimestamp,
     metaTxnBlockTimestamps,
-    anypayFee,
+    trailsFee,
   } = useTrails({
     account: account as WagmiAccount,
     env: import.meta.env.VITE_ENV,
@@ -106,18 +106,18 @@ function useHook() {
     if (
       !account.address ||
       !intentCallsPayloads ||
-      !anypayInfos ||
-      !anypayFee
+      !trailsInfos ||
+      !trailsFee
     ) {
       return null
     }
     return calculateIntentAddress(
       account.address,
       intentCallsPayloads as any,
-      anypayInfos as any,
-      anypayFee.quoteProvider as QuoteProvider,
+      trailsInfos as any,
+      trailsFee.quoteProvider as QuoteProvider,
     )
-  }, [account.address, intentCallsPayloads, anypayInfos, anypayFee])
+  }, [account.address, intentCallsPayloads, trailsInfos, trailsFee])
 
   const { sortedTokens, isLoadingBalances, balanceError } = useTokenBalances(
     account.address as Address.Address,
@@ -354,12 +354,12 @@ function useHook() {
     intentCallsPayloads,
     intentPreconditions,
     metaTxns,
-    anypayInfos,
+    trailsInfos,
     committedIntentAddress,
     committedIntentConfig,
     verificationStatus,
     intentActionType,
-    anypayFee,
+    trailsFee,
 
     // Transaction State
     originCallParams,
@@ -449,12 +449,12 @@ export const HomeIndexRoute = () => {
     intentCallsPayloads,
     intentPreconditions,
     metaTxns,
-    anypayInfos,
+    trailsInfos,
     committedIntentAddress,
     committedIntentConfig,
     verificationStatus,
     intentActionType,
-    anypayFee,
+    trailsFee,
 
     // Transaction State
     originCallParams,
@@ -568,8 +568,8 @@ export const HomeIndexRoute = () => {
             intentCallsPayloads={intentCallsPayloads}
             intentPreconditions={intentPreconditions}
             metaTxns={metaTxns}
-            anypayInfos={anypayInfos}
-            anypayFee={anypayFee}
+            trailsInfos={trailsInfos}
+            trailsFee={trailsFee}
             intentActionType={intentActionType}
             selectedToken={selectedToken}
             account={account as any}
@@ -581,8 +581,8 @@ export const HomeIndexRoute = () => {
           <CommitIntentStep
             intentCallsPayloads={intentCallsPayloads}
             intentPreconditions={intentPreconditions}
-            anypayInfos={anypayInfos}
-            anypayFee={anypayFee}
+            trailsInfos={trailsInfos}
+            trailsFee={trailsFee}
             verificationStatus={verificationStatus}
             commitIntentConfigError={commitIntentConfigError}
             commitIntentConfigSuccess={commitIntentConfigSuccess}

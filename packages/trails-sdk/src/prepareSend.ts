@@ -414,7 +414,7 @@ async function sendHandlerForDifferentChainAndToken({
   if (
     !intent.preconditions?.length ||
     !intent.calls?.length ||
-    !intent.anypayInfos?.length
+    !intent.trailsInfos?.length
   ) {
     throw new Error("Invalid intent")
   }
@@ -422,8 +422,8 @@ async function sendHandlerForDifferentChainAndToken({
   const intentAddress = calculateIntentAddress(
     mainSignerAddress,
     intent.calls,
-    intent.anypayInfos,
-    intent.anypayFee?.quoteProvider as QuoteProvider,
+    intent.trailsInfos,
+    intent.trailsFee?.quoteProvider as QuoteProvider,
   )
   console.log("Calculated intent address:", intentAddress.toString())
 
@@ -432,8 +432,8 @@ async function sendHandlerForDifferentChainAndToken({
     mainSignerAddress,
     intent.calls,
     intent.preconditions,
-    intent.anypayInfos,
-    intent.anypayFee?.quoteProvider as QuoteProvider,
+    intent.trailsInfos,
+    intent.trailsFee?.quoteProvider as QuoteProvider,
   )
 
   console.log("Committed intent config")

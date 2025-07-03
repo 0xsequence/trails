@@ -54,9 +54,9 @@ export interface ExecuteQuote {
 
 export interface CrossChainFee {
   providerFee: string
-  anypaySwapFee: string
+  trailsSwapFee: string
   providerFeeUSD: number
-  anypaySwapFeeUSD: number
+  trailsSwapFeeUSD: number
   totalFeeAmount: string
   totalFeeUSD: number
 }
@@ -64,7 +64,7 @@ export interface CrossChainFee {
 export interface TrailsFee {
   executeQuote: ExecuteQuote
   crossChainFee?: CrossChainFee
-  anypayFixedFeeUSD?: number
+  trailsFixedFeeUSD?: number
   feeToken?: string
   originTokenTotalAmount?: string
   totalFeeAmount?: string
@@ -200,7 +200,7 @@ export function commitIntentConfig(
     mainSigner: mainSignerAddress,
     calls: calls,
     preconditions: preconditions,
-    anypayInfos: executionInfos,
+    trailsInfos: executionInfos,
     sapientType: sapientType,
   }
   console.log("args", args)

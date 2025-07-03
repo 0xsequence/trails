@@ -46,8 +46,8 @@ interface IntentQuoteDisplayStepProps {
   intentCallsPayloads: IntentCallsPayload[] | null
   intentPreconditions: IntentPrecondition[] | null
   metaTxns: MetaTxn[] | null
-  anypayInfos: TrailsExecutionInfo[] | null
-  anypayFee: TrailsFee | null
+  trailsInfos: TrailsExecutionInfo[] | null
+  trailsFee: TrailsFee | null
   intentActionType: IntentAction | null
   selectedToken: TokenBalance | null
   account: WagmiAccount | undefined
@@ -66,8 +66,8 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
   intentCallsPayloads,
   intentPreconditions,
   metaTxns,
-  anypayInfos,
-  anypayFee,
+  trailsInfos,
+  trailsFee,
   intentActionType,
   selectedToken,
   account,
@@ -221,7 +221,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
       !intentActionType ||
       !selectedToken ||
       !account?.address ||
-      !anypayInfos ||
+      !trailsInfos ||
       !intentPreconditions
     )
       return null
@@ -528,7 +528,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
           </div>
         )}
 
-        {anypayFee && (
+        {trailsFee && (
           <div className="mt-4">
             <Text
               variant="medium"
@@ -540,47 +540,47 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             </Text>
             <div className="space-y-2">
               <div className="bg-gray-800/50 p-4 rounded-lg border border-gray-700/50 space-y-2">
-                {anypayFee.totalFeeUSD && anypayFee.totalFeeAmount && (
+                {trailsFee.totalFeeUSD && trailsFee.totalFeeAmount && (
                   <div className="text-lg font-semibold text-white flex items-center">
                     Total Estimated Fee:{" "}
                     <span className="text-green-400">
                       $
-                      {Number(anypayFee.totalFeeUSD).toLocaleString(undefined, {
+                      {Number(trailsFee.totalFeeUSD).toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 5,
                       })}
                     </span>{" "}
                     <span className="font-medium text-gray-400 text-xs ml-1.5">
-                      (Total Fee Amount: {anypayFee.totalFeeAmount})
+                      (Total Fee Amount: {trailsFee.totalFeeAmount})
                     </span>
                   </div>
                 )}
-                {anypayFee.quoteProvider && (
+                {trailsFee.quoteProvider && (
                   <div className="text-xs font-semibold text-white flex items-center">
                     Quote Provider:
                     <span className="font-mono text-yellow-300 ml-2 text-xs font-medium bg-gray-900/50 px-2 py-1 rounded-md border border-gray-700/50">
-                      {anypayFee.quoteProvider.toLocaleUpperCase()}
+                      {trailsFee.quoteProvider.toLocaleUpperCase()}
                     </span>
                   </div>
                 )}
-                {anypayFee.feeToken && (
+                {trailsFee.feeToken && (
                   <div className="text-xs font-semibold text-white flex items-center">
                     Fee Token:
                     <span className="font-mono text-yellow-300 ml-2 text-xs font-medium bg-gray-900/50 px-2 py-1 rounded-md border border-gray-700/50">
-                      {anypayFee.feeToken}
+                      {trailsFee.feeToken}
                     </span>
                   </div>
                 )}
-                {anypayFee.anypayFixedFeeUSD && (
+                {trailsFee.trailsFixedFeeUSD && (
                   <div className="text-xs font-semibold text-white flex items-center">
                     Fixed Fee ($0.01):
                     <span className="font-mono text-yellow-300 ml-2 text-xs font-medium bg-gray-900/50 px-2 py-1 rounded-md border border-gray-700/50">
-                      {anypayFee.anypayFixedFeeUSD}
+                      {trailsFee.trailsFixedFeeUSD}
                     </span>
                   </div>
                 )}
 
-                {anypayFee.crossChainFee && (
+                {trailsFee.crossChainFee && (
                   <div>
                     <h4 className="font-semibold text-blue-300 mb-2">
                       Cross-Chain Fees
@@ -591,7 +591,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                           Provider Fee:
                         </span>{" "}
                         $
-                        {anypayFee.crossChainFee.providerFeeUSD.toLocaleString(
+                        {trailsFee.crossChainFee.providerFeeUSD.toLocaleString(
                           undefined,
                           {
                             minimumFractionDigits: 2,
@@ -607,7 +607,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                           Trails Fee:
                         </span>{" "}
                         $
-                        {anypayFee.crossChainFee.anypaySwapFeeUSD.toLocaleString(
+                        {trailsFee.crossChainFee.trailsSwapFeeUSD.toLocaleString(
                           undefined,
                           {
                             minimumFractionDigits: 2,
@@ -619,15 +619,15 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                         <span className="font-medium text-gray-400">
                           Total Fee:
                         </span>{" "}
-                        {anypayFee.crossChainFee.totalFeeAmount} (
-                        {anypayFee.feeToken})
+                        {trailsFee.crossChainFee.totalFeeAmount} (
+                        {trailsFee.feeToken})
                       </p>
                       <p>
                         <span className="font-medium text-gray-400">
                           Total Fee (USD):
                         </span>{" "}
                         $
-                        {anypayFee.crossChainFee.totalFeeUSD.toLocaleString(
+                        {trailsFee.crossChainFee.totalFeeUSD.toLocaleString(
                           undefined,
                           {
                             minimumFractionDigits: 2,
@@ -639,13 +639,13 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                   </div>
                 )}
 
-                {anypayFee.executeQuote &&
-                  anypayFee.executeQuote.chainQuotes.length > 0 && (
+                {trailsFee.executeQuote &&
+                  trailsFee.executeQuote.chainQuotes.length > 0 && (
                     <div>
                       <h4 className="font-semibold text-blue-300 mb-2">
                         Execution Fees
                       </h4>
-                      {anypayFee.executeQuote.chainQuotes.map(
+                      {trailsFee.executeQuote.chainQuotes.map(
                         (quote, index) => {
                           const chainInfo = getChainInfo(
                             parseInt(quote.chainId),
@@ -729,14 +729,14 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                   </Text>
                 </div>
                 <pre className="text-xs overflow-x-auto whitespace-pre-wrap bg-gray-900/50 p-2 rounded border border-gray-700/50 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-                  {JSON.stringify(anypayFee, null, 2)}
+                  {JSON.stringify(trailsFee, null, 2)}
                 </pre>
               </div>
             </div>
           </div>
         )}
 
-        {anypayInfos && anypayInfos.length > 0 && (
+        {trailsInfos && trailsInfos.length > 0 && (
           <div className="mt-4">
             <Text
               variant="medium"
@@ -762,7 +762,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                   </Text>
                 </div>
                 <pre className="text-xs overflow-x-auto whitespace-pre-wrap bg-gray-900/50 p-2 rounded border border-gray-700/50 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-                  {JSON.stringify(anypayInfos, null, 2)}
+                  {JSON.stringify(trailsInfos, null, 2)}
                 </pre>
               </div>
             </div>

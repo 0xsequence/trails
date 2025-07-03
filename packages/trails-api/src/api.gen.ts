@@ -238,7 +238,7 @@ export interface IntentConfig {
   mainSigner: string
   calls: Array<IntentCallsPayload>
   preconditions: Array<IntentPrecondition>
-  AnypayExecutionInfo: TrailsExecutionInfo
+  TrailsExecutionInfo: TrailsExecutionInfo
   updatedAt?: string
   createdAt?: string
 }
@@ -786,9 +786,9 @@ export interface CheckoutOptions {
 
 export interface CrossChainFee {
   providerFee: string
-  anypaySwapFee: string
+  trailsSwapFee: string
   providerFeeUSD: number
-  anypaySwapFeeUSD: number
+  trailsSwapFeeUSD: number
   totalFeeAmount: string
   totalFeeUSD: number
 }
@@ -817,7 +817,7 @@ export interface ExecuteQuote {
 export interface TrailsFee {
   executeQuote: ExecuteQuote
   crossChainFee?: CrossChainFee
-  anypayFixedFeeUSD: number
+  trailsFixedFeeUSD: number
   feeToken?: string
   originTokenTotalAmount?: string
   totalFeeAmount?: string
@@ -1564,15 +1564,15 @@ export interface GetIntentCallsPayloadsReturn {
   calls: Array<IntentCallsPayload>
   preconditions: Array<IntentPrecondition>
   metaTxns: Array<MetaTxn>
-  anypayInfos: Array<TrailsExecutionInfo>
-  anypayFee: TrailsFee  
+  trailsInfos: Array<TrailsExecutionInfo>
+  trailsFee: TrailsFee  
 }
 export interface CommitIntentConfigArgs {
   walletAddress: string
   mainSigner: string
   calls: Array<IntentCallsPayload>
   preconditions: Array<IntentPrecondition>
-  anypayInfos: Array<TrailsExecutionInfo>
+  trailsInfos: Array<TrailsExecutionInfo>
   sapientType: string
 }
 
@@ -2709,8 +2709,8 @@ export class API implements API {
           calls: <Array<IntentCallsPayload>>(_data.calls),
           preconditions: <Array<IntentPrecondition>>(_data.preconditions),
           metaTxns: <Array<MetaTxn>>(_data.metaTxns),
-          anypayInfos: <Array<TrailsExecutionInfo>>(_data.anypayInfos),
-          anypayFee: <TrailsFee>(_data.anypayFee),
+          trailsInfos: <Array<TrailsExecutionInfo>>(_data.trailsInfos),
+          trailsFee: <TrailsFee>(_data.trailsFee),
         }
       })
     }, (error) => {
