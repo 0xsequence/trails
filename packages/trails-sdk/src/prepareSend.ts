@@ -29,7 +29,11 @@ import { attemptSwitchChain } from "./chainSwitch.js"
 import { getChainInfo } from "./chains.js"
 import { getERC20TransferData } from "./encoders.js"
 import { getExplorerUrl } from "./explorer.js"
-import { getPermitCalls, getPermitSignature } from "./gasless.js"
+import {
+  getDepositToIntentCalls,
+  getPermitCalls,
+  getPermitSignature,
+} from "./gasless.js"
 import type { QuoteProvider } from "./intents.js"
 import {
   calculateIntentAddress,
@@ -789,6 +793,7 @@ async function attemptGaslessDeposit({
 }): Promise<TransactionReceipt | null> {
   let originUserTxReceipt: TransactionReceipt | null = null
   const originChainId = chain.id
+  console.log("originChainId", originChainId)
 
   if (paymasterUrl) {
     console.log("doing gasless with paymaster")
@@ -836,25 +841,53 @@ async function attemptGaslessDeposit({
       transport: http(),
     })
 
-    const { signature, deadline } = await getPermitSignature(
-      sequencePublicClient as PublicClient,
-      walletClient,
-      account.address,
-      sequenceWalletAddress,
-      depositTokenAddress as `0x${string}`,
-      BigInt(depositTokenAmount),
-      chain,
-    )
+    const intentEntrypoints: Record<number, `0x${string}`> = {
+      8453: "0x2bf4c63199eD7D8A737E8DB2cC19E0C0103F6bE3",
+      84532: "0xdcd9160492C6D43ABbd28D4d06F68ad77f1A0F2b",
+    }
 
-    const calls = getPermitCalls(
-      account.address,
-      sequenceWalletAddress,
-      BigInt(depositTokenAmount),
-      deadline,
-      signature,
-      depositRecipient as `0x${string}`,
-      depositTokenAddress as `0x${string}`,
-    )
+    let calls: Array<{
+      to: string
+      data: string
+      value: string
+    }> = []
+
+    const intentEntrypoint = intentEntrypoints[chain.id]
+    if (intentEntrypoint) {
+      calls = await getDepositToIntentCalls({
+        publicClient: sequencePublicClient as PublicClient,
+        walletClient,
+        account,
+        intentEntrypoint,
+        depositTokenAddress: depositTokenAddress as `0x${string}`,
+        depositTokenAmount: BigInt(depositTokenAmount),
+        depositRecipient: depositRecipient as `0x${string}`,
+        chain,
+      })
+    } else {
+      const { signature, deadline } = await getPermitSignature(
+        sequencePublicClient as PublicClient,
+        walletClient,
+        account.address,
+        sequenceWalletAddress,
+        depositTokenAddress as `0x${string}`,
+        BigInt(depositTokenAmount),
+        chain,
+      )
+
+      calls = getPermitCalls(
+        account.address,
+        sequenceWalletAddress,
+        BigInt(depositTokenAmount),
+        deadline,
+        signature,
+        depositRecipient as `0x${string}`,
+        depositTokenAddress as `0x${string}`,
+      )
+    }
+
+    console.log("intentEntrypoint", intentEntrypoint)
+    console.log("calls", calls)
 
     const feeOptions = await getFeeOptions(
       originRelayer,
