@@ -6,7 +6,7 @@ const path = require("node:path")
 const sdkPath = path.join(__dirname, "..", "package.json")
 
 // These must match the names in your dependency graph
-const workspaceDeps = ["@0xsequence/anypay-api", "@0xsequence/anypay-relayer"]
+const workspaceDeps = ["@0xsequence/trails-api", "@0xsequence/trails-relayer"]
 
 const sdkPkg = JSON.parse(fs.readFileSync(sdkPath, "utf-8"))
 let modified = false
@@ -25,7 +25,7 @@ let modified = false
 
 if (modified) {
   fs.writeFileSync(sdkPath, `${JSON.stringify(sdkPkg, null, 2)}\n`)
-  console.log("✅ Restored workspace:* references in anypay-sdk")
+  console.log("✅ Restored workspace:* references in trails-sdk")
 } else {
   console.log("ℹ️ No changes needed to restore workspace versions")
 }

@@ -13,8 +13,8 @@ import { SectionHeader } from "@/components/SectionHeader"
 interface CommitIntentStepProps {
   intentCallsPayloads: IntentCallsPayload[] | null
   intentPreconditions: IntentPrecondition[] | null
-  anypayInfos: TrailsExecutionInfo[] | null
-  anypayFee: TrailsFee | null
+  trailsInfos: TrailsExecutionInfo[] | null
+  trailsFee: TrailsFee | null
   verificationStatus: {
     success: boolean
     receivedAddress?: string
@@ -31,7 +31,7 @@ interface CommitIntentStepProps {
     mainSignerAddress: string
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
-    anypayInfos: TrailsExecutionInfo[]
+    trailsInfos: TrailsExecutionInfo[]
     quoteProvider: "lifi" | "relay"
   }) => void
   isCommitButtonDisabled: boolean
@@ -43,8 +43,8 @@ interface CommitIntentStepProps {
 export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
   intentCallsPayloads,
   intentPreconditions,
-  anypayInfos,
-  anypayFee,
+  trailsInfos,
+  trailsFee,
   verificationStatus,
   commitIntentConfigError,
   commitIntentConfigSuccess,
@@ -200,9 +200,9 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   !accountAddress ||
                   !intentCallsPayloads ||
                   !intentPreconditions ||
-                  !anypayInfos ||
+                  !trailsInfos ||
                   !calculatedIntentAddress ||
-                  !anypayFee
+                  !trailsFee
                 )
                   return
                 commitIntentConfig({
@@ -210,8 +210,8 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   mainSignerAddress: accountAddress,
                   calls: intentCallsPayloads,
                   preconditions: intentPreconditions,
-                  anypayInfos: anypayInfos,
-                  quoteProvider: anypayFee.quoteProvider as "lifi" | "relay",
+                  trailsInfos: trailsInfos,
+                  quoteProvider: trailsFee.quoteProvider as "lifi" | "relay",
                 })
               }}
               disabled={isCommitButtonDisabled}

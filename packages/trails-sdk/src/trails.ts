@@ -65,8 +65,8 @@ export type UseTrailsReturn = {
   metaTxns: GetIntentCallsPayloadsReturn["metaTxns"] | null
   intentCallsPayloads: GetIntentCallsPayloadsReturn["calls"] | null
   intentPreconditions: GetIntentCallsPayloadsReturn["preconditions"] | null
-  anypayInfos: GetIntentCallsPayloadsReturn["anypayInfos"] | null
-  anypayFee: TrailsFee | null
+  trailsInfos: GetIntentCallsPayloadsReturn["trailsInfos"] | null
+  trailsFee: TrailsFee | null
   txnHash: Hex | undefined
   committedIntentAddress: string | null
   verificationStatus: {
@@ -87,7 +87,7 @@ export type UseTrailsReturn = {
     mainSignerAddress: string
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
-    anypayInfos: TrailsExecutionInfo[]
+    trailsInfos: TrailsExecutionInfo[]
     quoteProvider: "lifi" | "relay"
   }) => void
   commitIntentConfigPending: boolean
@@ -99,7 +99,7 @@ export type UseTrailsReturn = {
         mainSignerAddress: string
         calls: IntentCallsPayload[]
         preconditions: IntentPrecondition[]
-        anypayInfos: TrailsExecutionInfo[]
+        trailsInfos: TrailsExecutionInfo[]
         quoteProvider: "lifi" | "relay"
       }
     | undefined
@@ -192,10 +192,10 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
   const [intentPreconditions, setIntentPreconditions] = useState<
     GetIntentCallsPayloadsReturn["preconditions"] | null
   >(null)
-  const [anypayInfos, setAnypayInfos] = useState<
-    GetIntentCallsPayloadsReturn["anypayInfos"] | null
+  const [trailsInfos, setTrailsInfos] = useState<
+    GetIntentCallsPayloadsReturn["trailsInfos"] | null
   >(null)
-  const [anypayFee, setAnypayFee] = useState<TrailsFee | null>(null)
+  const [trailsFee, setTrailsFee] = useState<TrailsFee | null>(null)
   const [txnHash, setTxnHash] = useState<Hex | undefined>()
   const [committedIntentAddress, setCommittedIntentAddress] = useState<
     string | null
@@ -245,16 +245,16 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
   })
 
   const calculatedIntentAddress = useMemo(() => {
-    if (!account.address || !intentCallsPayloads || !anypayInfos) {
+    if (!account.address || !intentCallsPayloads || !trailsInfos) {
       return null
     }
     return calculateIntentAddress(
       account.address,
       intentCallsPayloads as any[],
-      anypayInfos as any[],
-      anypayFee?.quoteProvider as QuoteProvider,
+      trailsInfos as any[],
+      trailsFee?.quoteProvider as QuoteProvider,
     ) // TODO: Add proper type
-  }, [account.address, intentCallsPayloads, anypayInfos, anypayFee])
+  }, [account.address, intentCallsPayloads, trailsInfos, trailsFee])
 
   // Add gas estimation hook with proper types
   const {
@@ -278,23 +278,23 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       mainSignerAddress: string
       calls: IntentCallsPayload[]
       preconditions: IntentPrecondition[]
-      anypayInfos: TrailsExecutionInfo[]
+      trailsInfos: TrailsExecutionInfo[]
       quoteProvider: "lifi" | "relay"
     }) => {
       if (!apiClient) throw new Error("API client not available")
-      if (!args.anypayInfos) throw new Error("AnypayInfos not available")
+      if (!args.trailsInfos) throw new Error("TrailsInfos not available")
       if (!args.quoteProvider) throw new Error("quoteProvider is required")
 
       try {
         console.log("Calculating intent address...")
         console.log("Main signer:", args.mainSignerAddress)
         console.log("Calls:", args.calls)
-        console.log("AnypayInfos:", args.anypayInfos)
+        console.log("TrailsInfos:", args.trailsInfos)
 
         const calculatedAddress = calculateIntentAddress(
           args.mainSignerAddress,
           args.calls as any[], // TODO: Add proper type
-          args.anypayInfos as any[], // TODO: Add proper type
+          args.trailsInfos as any[], // TODO: Add proper type
           args.quoteProvider,
         )
         const receivedAddress = findPreconditionAddress(args.preconditions)
@@ -324,7 +324,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
           mainSigner: args.mainSignerAddress,
           calls: args.calls,
           preconditions: args.preconditions,
-          anypayInfos: args.anypayInfos,
+          trailsInfos: args.trailsInfos,
           sapientType: args.quoteProvider,
         })
         console.log("API Commit Response:", response)
@@ -339,7 +339,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
             const calculatedAddress = calculateIntentAddress(
               args.mainSignerAddress,
               args.calls as any[], // TODO: Add proper type
-              args.anypayInfos as any[], // TODO: Add proper type
+              args.trailsInfos as any[], // TODO: Add proper type
               args.quoteProvider,
             )
             const receivedAddress = findPreconditionAddress(args.preconditions)
@@ -424,19 +424,19 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       // Reset commit state when generating a new intent
       setCommittedIntentAddress(null)
       setVerificationStatus(null)
-      setAnypayFee(null)
+      setTrailsFee(null)
       setMetaTxns(null)
       setIntentCallsPayloads(null)
       setIntentPreconditions(null)
-      setAnypayInfos(null)
+      setTrailsInfos(null)
 
       const data = await getIntentCallsPayloads(args)
 
       setMetaTxns(data.metaTxns)
       setIntentCallsPayloads(data.calls)
       setIntentPreconditions(data.preconditions)
-      setAnypayInfos(data.anypayInfos)
-      setAnypayFee(data.anypayFee!)
+      setTrailsInfos(data.trailsInfos)
+      setTrailsFee(data.trailsFee!)
       setCommittedIntentAddress(null)
 
       setVerificationStatus(null)
@@ -445,8 +445,8 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     onSuccess: (data) => {
       console.log("Intent Config Success:", data)
 
-      setAnypayFee(data.anypayFee || null)
-      setAnypayInfos(data.anypayInfos || null)
+      setTrailsFee(data.trailsFee || null)
+      setTrailsInfos(data.trailsInfos || null)
 
       if (
         data?.calls &&
@@ -471,8 +471,8 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       setIntentCallsPayloads(null)
       setIntentPreconditions(null)
       setMetaTxns(null)
-      setAnypayInfos(null)
-      setAnypayFee(null)
+      setTrailsInfos(null)
+      setTrailsFee(null)
     },
   })
 
@@ -485,8 +485,8 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     setIntentCallsPayloads(null)
     setIntentPreconditions(null)
     setMetaTxns(null)
-    setAnypayInfos(null)
-    setAnypayFee(null)
+    setTrailsInfos(null)
+    setTrailsFee(null)
     setCommittedIntentAddress(null)
     setVerificationStatus(null)
     setOperationHashes({})
@@ -935,8 +935,8 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       isAutoExecute &&
       intentCallsPayloads &&
       intentPreconditions &&
-      anypayInfos &&
-      anypayFee &&
+      trailsInfos &&
+      trailsFee &&
       account.address &&
       calculatedIntentAddress &&
       !commitIntentConfigMutation.isPending &&
@@ -948,16 +948,16 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
         mainSignerAddress: account.address,
         calls: intentCallsPayloads,
         preconditions: intentPreconditions,
-        anypayInfos: anypayInfos,
-        quoteProvider: anypayFee.quoteProvider as "lifi" | "relay",
+        trailsInfos: trailsInfos,
+        quoteProvider: trailsFee.quoteProvider as "lifi" | "relay",
       })
     }
   }, [
     isAutoExecute,
     intentCallsPayloads,
     intentPreconditions,
-    anypayInfos,
-    anypayFee,
+    trailsInfos,
+    trailsFee,
     account.address,
     calculatedIntentAddress,
     commitIntentConfigMutation,
@@ -973,20 +973,20 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
         !intentPreconditions ||
         !metaTxns ||
         !account.address ||
-        !anypayInfos
+        !trailsInfos
       ) {
         throw new Error("Missing required data for meta-transaction")
       }
 
-      if (!anypayFee?.quoteProvider) {
+      if (!trailsFee?.quoteProvider) {
         throw new Error("quoteProvider is required")
       }
 
       const intentAddress = calculateIntentAddress(
         account.address,
         intentCallsPayloads as any[],
-        anypayInfos as any[],
-        anypayFee.quoteProvider as "lifi" | "relay",
+        trailsInfos as any[],
+        trailsFee.quoteProvider as "lifi" | "relay",
       ) // TODO: Add proper type
 
       // If no specific ID is selected, send all meta transactions
@@ -1392,7 +1392,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     mainSignerAddress: string
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
-    anypayInfos: TrailsExecutionInfo[]
+    trailsInfos: TrailsExecutionInfo[]
     quoteProvider: QuoteProvider
   }) {
     console.log("commitIntentConfig", args)
@@ -1430,8 +1430,8 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     metaTxns,
     intentCallsPayloads,
     intentPreconditions,
-    anypayInfos,
-    anypayFee,
+    trailsInfos,
+    trailsFee,
     txnHash,
     committedIntentAddress,
     verificationStatus,

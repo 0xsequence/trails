@@ -32,7 +32,7 @@ export const Footer: React.FC<FooterProps> = ({
       </div>
       Powered by&nbsp;
       <a
-        href="https://anypay.sequence-demos.xyz/"
+        href="https://trails.sequence-demos.xyz/"
         target="_blank"
         rel="noopener noreferrer"
         className={`font-medium transition-colors hover:opacity-80 leading-none ${
