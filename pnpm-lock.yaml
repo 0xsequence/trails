@@ -27,14 +27,8 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
 
-  apps/anypay-demo:
+  apps/trails-demo:
     dependencies:
-      '@0xsequence/anypay-api':
-        specifier: workspace:*
-        version: link:../../packages/anypay-api
-      '@0xsequence/anypay-sdk':
-        specifier: workspace:*
-        version: link:../../packages/anypay-sdk
       '@0xsequence/design-system':
         specifier: ^2.1.15
         version: 2.1.15(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(motion@12.20.1(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -47,6 +41,12 @@ importers:
       '@0xsequence/network':
         specifier: ^2.3.20
         version: 2.3.20(ethers@6.14.4(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@0xsequence/trails-api':
+        specifier: workspace:*
+        version: link:../../packages/trails-api
+      '@0xsequence/trails-sdk':
+        specifier: workspace:*
+        version: link:../../packages/trails-sdk
       '@0xsequence/wagmi-connector':
         specifier: ^4.0.1
         version: 4.0.1(0xsequence@2.3.17(ethers@6.14.4(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(ethers@6.14.4(bufferutil@4.0.9)(utf-8-validate@5.0.10))(viem@2.31.6(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.67))(wagmi@2.15.6(@tanstack/query-core@5.81.5)(@tanstack/react-query@5.81.5(react@19.1.0))(@types/react@19.1.8)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.6(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.67))(zod@3.25.67))
@@ -156,7 +156,7 @@ importers:
 
   configurations/typescript-config: {}
 
-  packages/anypay-api:
+  packages/trails-api:
     devDependencies:
       '@0xsequence/typescript-config':
         specifier: workspace:^
@@ -168,7 +168,7 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
 
-  packages/anypay-relayer:
+  packages/trails-relayer:
     devDependencies:
       '@0xsequence/typescript-config':
         specifier: workspace:^
@@ -180,17 +180,11 @@ importers:
         specifier: ^5.8.3
         version: 5.8.3
 
-  packages/anypay-sdk:
+  packages/trails-sdk:
     dependencies:
       '@0xsequence/account':
         specifier: ^2.3.20
         version: 2.3.20(ethers@6.14.4(bufferutil@4.0.9)(utf-8-validate@5.0.10))
-      '@0xsequence/anypay-api':
-        specifier: workspace:*
-        version: link:../anypay-api
-      '@0xsequence/anypay-relayer':
-        specifier: workspace:*
-        version: link:../anypay-relayer
       '@0xsequence/core':
         specifier: ^2.3.20
         version: 2.3.20(ethers@6.14.4(bufferutil@4.0.9)(utf-8-validate@5.0.10))
@@ -212,6 +206,12 @@ importers:
       '@0xsequence/signhub':
         specifier: ^2.3.20
         version: 2.3.20(ethers@6.14.4(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@0xsequence/trails-api':
+        specifier: workspace:*
+        version: link:../trails-api
+      '@0xsequence/trails-relayer':
+        specifier: workspace:*
+        version: link:../trails-relayer
       '@0xsequence/wagmi-connector':
         specifier: ^4.0.1
         version: 4.0.1(0xsequence@2.3.17(ethers@6.14.4(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(ethers@6.14.4(bufferutil@4.0.9)(utf-8-validate@5.0.10))(viem@2.31.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(wagmi@2.15.6(@tanstack/query-core@5.81.5)(@tanstack/react-query@5.81.5(react@19.1.0))(@types/react@19.1.8)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.31.6(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.67))(zod@3.25.67))
@@ -244,7 +244,7 @@ importers:
         version: 6.14.4(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       framer-motion:
         specifier: ^12.19.2
-        version: 12.19.2(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 12.20.1(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       isomorphic-fetch:
         specifier: ^3.0.0
         version: 3.0.0(encoding@0.1.13)
@@ -3385,20 +3385,6 @@ packages:
   fraction.js@4.3.7:
     resolution: {integrity: sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew==}
 
-  framer-motion@12.19.2:
-    resolution: {integrity: sha512-0cWMLkYr+i0emeXC4hkLF+5aYpzo32nRdQ0D/5DI460B3O7biQ3l2BpDzIGsAHYuZ0fpBP0DC8XBkVf6RPAlZw==}
-    peerDependencies:
-      '@emotion/is-prop-valid': '*'
-      react: ^18.0.0 || ^19.0.0
-      react-dom: ^18.0.0 || ^19.0.0
-    peerDependenciesMeta:
-      '@emotion/is-prop-valid':
-        optional: true
-      react:
-        optional: true
-      react-dom:
-        optional: true
-
   framer-motion@12.20.1:
     resolution: {integrity: sha512-NW2t2GHQcNvLHq18JyNVY15VKrwru+nkNyhLdqf4MbxbGhxZcSDi68iNcAy6O1nG0yYAQJbLioBIH1Kmg8Xr1g==}
     peerDependencies:
@@ -3923,9 +3909,6 @@ packages:
   lokijs@1.5.12:
     resolution: {integrity: sha512-Q5ALD6JiS6xAUWCwX3taQmgwxyveCtIIuL08+ml0nHwT3k0S/GIFJN+Hd38b1qYIMaE5X++iqsqWVksz7SYW+Q==}
 
-  loupe@3.1.3:
-    resolution: {integrity: sha512-kkIp7XSkP78ZxJEsSxW3712C6teJVoeHHwgo9zJ380de7IYyJ2ISlxojcH2pC5OFLewESmnRi/+XCDIEEVyoug==}
-
   loupe@3.1.4:
     resolution: {integrity: sha512-wJzkKwJrheKtknCOKNEtDK4iqg/MxmZheEMtSTYvnzRdEYaZzmgH976nenp8WdJRdx5Vc1X/9MO0Oszl6ezeXg==}
 
@@ -4023,9 +4006,6 @@ packages:
 
   mlly@1.7.4:
     resolution: {integrity: sha512-qmdSIPC4bDJXgZTCR7XosJiNKySV7O215tsPtDN9iEO/7q/76b/ijtgRu/+epFXSJhijtTCCGp3DWS549P3xKw==}
-
-  motion-dom@12.19.0:
-    resolution: {integrity: sha512-m96uqq8VbwxFLU0mtmlsIVe8NGGSdpBvBSHbnnOJQxniPaabvVdGgxSamhuDwBsRhwX7xPxdICgVJlOpzn/5bw==}
 
   motion-dom@12.20.1:
     resolution: {integrity: sha512-XyveLJ9dmQTmaEsP9RlcuoNFxWlRIGdasdPJBB4aOwPr8bRcJdhltudAbiEjRQBmsGD30sjJdaEjhkHsAHapLQ==}
@@ -4289,10 +4269,6 @@ packages:
 
   postcss@8.4.49:
     resolution: {integrity: sha512-OCVPnIObs4N29kxTjzLfUryOkvZEq+pf8jTF0lg8E7uETuWHA+v7j3c/xJmiqpX450191LlmZfUKkXxkTry7nA==}
-    engines: {node: ^10 || ^12 || >=14}
-
-  postcss@8.5.5:
-    resolution: {integrity: sha512-d/jtm+rdNT8tpXuHY5MMtcbJFBkhXE6593XVR9UoGCH8jSFGci7jGvMGH5RYd5PBJW+00NZQt6gf7CbagJCrhg==}
     engines: {node: ^10 || ^12 || >=14}
 
   postcss@8.5.6:
@@ -10983,7 +10959,7 @@ snapshots:
       assertion-error: 2.0.1
       check-error: 2.1.1
       deep-eql: 5.0.2
-      loupe: 3.1.3
+      loupe: 3.1.4
       pathval: 2.0.0
 
   chalk@5.4.1: {}
@@ -11467,16 +11443,6 @@ snapshots:
   format@0.2.2: {}
 
   fraction.js@4.3.7: {}
-
-  framer-motion@12.19.2(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
-    dependencies:
-      motion-dom: 12.19.0
-      motion-utils: 12.19.0
-      tslib: 2.8.1
-    optionalDependencies:
-      '@emotion/is-prop-valid': 1.2.2
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
 
   framer-motion@12.20.1(@emotion/is-prop-valid@1.2.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
@@ -11964,8 +11930,6 @@ snapshots:
 
   lokijs@1.5.12: {}
 
-  loupe@3.1.3: {}
-
   loupe@3.1.4: {}
 
   lowlight@1.20.0:
@@ -12056,10 +12020,6 @@ snapshots:
       pathe: 2.0.3
       pkg-types: 1.3.1
       ufo: 1.6.1
-
-  motion-dom@12.19.0:
-    dependencies:
-      motion-utils: 12.19.0
 
   motion-dom@12.20.1:
     dependencies:
@@ -12436,12 +12396,6 @@ snapshots:
   postcss-value-parser@4.2.0: {}
 
   postcss@8.4.49:
-    dependencies:
-      nanoid: 3.3.11
-      picocolors: 1.1.1
-      source-map-js: 1.2.1
-
-  postcss@8.5.5:
     dependencies:
       nanoid: 3.3.11
       picocolors: 1.1.1
@@ -13275,7 +13229,7 @@ snapshots:
       esbuild: 0.25.5
       fdir: 6.4.6(picomatch@4.0.2)
       picomatch: 4.0.2
-      postcss: 8.5.5
+      postcss: 8.5.6
       rollup: 4.43.0
       tinyglobby: 0.2.14
     optionalDependencies:

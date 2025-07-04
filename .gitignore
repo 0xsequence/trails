@@ -43,4 +43,4 @@ yarn-error.log*
 .husky/
 
 # SDK JS build (added during build to expose umd js for script tag imports)
-apps/anypay-demo/public/js/anypay.min.js
+apps/trails-demo/public/js/trails.min.js

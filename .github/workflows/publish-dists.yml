@@ -18,7 +18,7 @@ jobs:
         run: pnpm run build
       - name: Prepare dist branch
         run: |
-          PACKAGES=("anypay-sdk")
+          PACKAGES=("trails-sdk")
 
           for PACKAGE in "${PACKAGES[@]}"; do
             BRANCH="dists/$PACKAGE"
@@ -46,7 +46,7 @@ jobs:
               const repo = "github:0xsequence/sequence.js";
 
               const versions = {
-                "@0xsequence/anypay-sdk": `${repo}#dists/packages/anypay-sdk`,
+                "@0xsequence/trails-sdk": `${repo}#dists/packages/trails-sdk`,
               };
 
               const rewrite = (deps = {}) => {
