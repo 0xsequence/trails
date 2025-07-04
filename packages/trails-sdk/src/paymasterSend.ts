@@ -1,4 +1,4 @@
-import type { Account, Chain, WalletClient } from "viem"
+import type { Account, Chain, PublicClient, WalletClient } from "viem"
 import {
   createPublicClient,
   encodeFunctionData,
@@ -25,6 +25,7 @@ import {
   getTransferFromCalldata,
 } from "./gasless.js"
 import { sendUserOperationDirectly } from "./sendUserOp.js"
+import type { ToSimpleSmartAccountReturnType } from "./toSimpleSmartAccount.js"
 import { toSimpleSmartAccount } from "./toSimpleSmartAccount.js"
 
 // --- Interfaces ---
@@ -139,69 +140,123 @@ export function packPayload(payload: Payload): `0x${string}` {
 
 // --- Main logic ---
 
-export async function sendPaymasterGaslessTransaction(
-  walletClient: WalletClient,
-  chain: Chain,
-  tokenAddress: `0x${string}`,
-  amount: bigint,
-  recipient: `0x${string}`,
-  paymasterUrl: string,
-) {
-  try {
-    // Initialize clients
-    const publicClient = createPublicClient({
-      chain,
-      transport: http(),
-    })
+export async function getDelegatorSmartAccount({
+  publicClient,
+}: {
+  publicClient: PublicClient
+}): Promise<ToSimpleSmartAccountReturnType> {
+  // Create delegator account from private key
+  const delegatorPrivateKey = generatePrivateKey()
+  const delegatorAccount = privateKeyToAccount(delegatorPrivateKey)
+  console.log("Delegator account:", delegatorAccount.address)
 
+  // Initialize delegator smart account
+  console.log("Creating smart account...")
+  const delegatorSmartAccount = await toSimpleSmartAccount({
+    client: publicClient,
+    entryPoint: {
+      address: ENTRYPOINT_ADDRESS,
+      version: "0.7",
+    },
+    owner: privateKeyToAccount(delegatorPrivateKey),
+  })
+
+  console.log("Smart account address:", delegatorSmartAccount.address)
+
+  console.log("delegatorSmartAccount.address", delegatorSmartAccount.address)
+
+  return delegatorSmartAccount
+}
+
+export async function getPaymasterGaslessTransaction({
+  walletClient,
+  chain,
+  tokenAddress,
+  amount,
+  recipient,
+  delegatorSmartAccount,
+}: {
+  walletClient: WalletClient
+  chain: Chain
+  tokenAddress: `0x${string}`
+  amount: bigint
+  recipient: `0x${string}`
+  delegatorSmartAccount: ToSimpleSmartAccountReturnType
+}): Promise<{ to: string; data: string; value: string }[]> {
+  // Initialize clients
+  const publicClient = createPublicClient({
+    chain,
+    transport: http(),
+  })
+
+  if (!walletClient.account) {
+    throw new Error("No account found")
+  }
+
+  const connectedAccount = walletClient.account.address as `0x${string}`
+
+  console.log("Transfer amount:", amount.toString())
+
+  const { signature, deadline } = await getPermitSignature(
+    publicClient,
+    walletClient,
+    connectedAccount,
+    delegatorSmartAccount.address,
+    tokenAddress,
+    amount,
+    chain,
+  )
+
+  console.log("Received signature:", signature)
+
+  // Encode permit call
+  const permitCalldata = getPermitCalldata(
+    connectedAccount,
+    delegatorSmartAccount.address,
+    amount,
+    deadline,
+    signature,
+  )
+
+  // Encode transferFrom call
+  const transferFromCalldata = getTransferFromCalldata(
+    connectedAccount,
+    delegatorSmartAccount.address,
+    amount,
+  )
+
+  // Encode transfer call to recipient
+  const transferCalldata = getTransferCalldata(recipient, amount)
+
+  const calls = [
+    { to: zeroAddress, data: "0x", value: "0x" },
+    { to: tokenAddress, data: permitCalldata, value: "0x" },
+    { to: tokenAddress, data: transferFromCalldata, value: "0x" },
+    { to: tokenAddress, data: transferCalldata, value: "0x" },
+  ]
+
+  return calls
+}
+
+export async function sendPaymasterGaslessTransaction({
+  walletClient,
+  publicClient,
+  chain,
+  paymasterUrl,
+  delegatorSmartAccount,
+  calls,
+}: {
+  walletClient: WalletClient
+  publicClient: PublicClient
+  chain: Chain
+  paymasterUrl: string
+  delegatorSmartAccount: ToSimpleSmartAccountReturnType
+  calls: { to: string; data: string; value: string }[]
+}): Promise<string> {
+  try {
     if (!walletClient.account) {
       throw new Error("No account found")
     }
-
-    const connectedAccount = walletClient.account.address as `0x${string}`
-
-    // Create delegator account from private key
-    const delegatorPrivateKey = generatePrivateKey()
-    const delegatorAccount = privateKeyToAccount(delegatorPrivateKey)
-    console.log("Delegator account:", delegatorAccount.address)
-
-    // Initialize delegator smart account
-    console.log("Creating smart account...")
-    const delegatorSmartAccount = await toSimpleSmartAccount({
-      client: publicClient,
-      entryPoint: {
-        address: ENTRYPOINT_ADDRESS,
-        version: "0.7",
-      },
-      owner: privateKeyToAccount(delegatorPrivateKey),
-    })
-
-    console.log("Smart account address:", delegatorSmartAccount.address)
-
-    console.log("Transfer amount:", amount.toString())
-
-    const { signature, deadline } = await getPermitSignature(
-      publicClient,
-      walletClient,
-      connectedAccount,
-      delegatorSmartAccount.address,
-      tokenAddress,
-      amount,
-      chain,
-    )
-
-    console.log("Received signature:", signature)
-
-    // Encode permit call
-    const permitCalldata = getPermitCalldata(
-      connectedAccount,
-      delegatorSmartAccount.address,
-      amount,
-      deadline,
-      signature,
-    )
-
-    console.log("delegatorSmartAccount.address", delegatorSmartAccount.address)
 
     // Create relayer wallet
     //  const relayerAccount = privateKeyToAccount(
@@ -229,28 +284,11 @@ export async function sendPaymasterGaslessTransaction(
     // const prefundReceipt = await publicClient.waitForTransactionReceipt({ hash: prefundTx });
     // console.log('Prefund receipt:', prefundReceipt);
 
-    // Encode transferFrom call
-    const transferFromCalldata = getTransferFromCalldata(
-      connectedAccount,
-      delegatorSmartAccount.address,
-      amount,
-    )
-
-    // Encode transfer call to recipient
-    const transferCalldata = getTransferCalldata(recipient, amount)
-
     console.log("Estimating gas fees...")
     const fees = await publicClient.estimateFeesPerGas()
 
     const maxPriorityFeePerGas = parseGwei("1") // adjustable
     const maxFeePerGas = fees.maxFeePerGas! + maxPriorityFeePerGas
-
-    const calls = [
-      { to: zeroAddress, data: "0x" },
-      { to: tokenAddress, data: permitCalldata },
-      { to: tokenAddress, data: transferFromCalldata },
-      { to: tokenAddress, data: transferCalldata },
-    ]
 
     if (paymasterUrl) {
       // alchemy bundler doesn't support paymaster client

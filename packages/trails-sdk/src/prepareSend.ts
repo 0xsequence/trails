@@ -44,7 +44,11 @@ import {
 import type { MetaTxn } from "./metaTxnMonitor.js"
 import { getMetaTxStatus } from "./metaTxnMonitor.js"
 import { relayerSendMetaTx } from "./metaTxns.js"
-import { sendPaymasterGaslessTransaction } from "./paymasterSend.js"
+import {
+  getDelegatorSmartAccount,
+  getPaymasterGaslessTransaction,
+  sendPaymasterGaslessTransaction,
+} from "./paymasterSend.js"
 import { findFirstPreconditionForChainId } from "./preconditions.js"
 import { getQueryParam } from "./queryParams.js"
 import type { RelayerEnvConfig } from "./relayer.js"
@@ -770,7 +774,6 @@ async function attemptGaslessDeposit({
   depositTokenAmount,
   depositRecipient,
   onOriginSend,
-  publicClient,
   walletClient,
   chain,
   account,
@@ -783,7 +786,6 @@ async function attemptGaslessDeposit({
   depositTokenAmount: string
   depositRecipient: string
   onOriginSend: () => void
-  publicClient: PublicClient
   walletClient: WalletClient
   chain: Chain
   account: Account
@@ -795,16 +797,64 @@ async function attemptGaslessDeposit({
   const originChainId = chain.id
   console.log("originChainId", originChainId)
 
+  const publicClient = createPublicClient({
+    chain,
+    transport: http(),
+  })
+
+  const intentEntrypoints: Record<number, `0x${string}`> = {
+    8453: "0x2bf4c63199eD7D8A737E8DB2cC19E0C0103F6bE3",
+    84532: "0xdcd9160492C6D43ABbd28D4d06F68ad77f1A0F2b",
+  }
+
+  const intentEntrypoint = intentEntrypoints[chain.id]
+  console.log("intentEntrypoint", intentEntrypoint)
+
+  let calls: Array<{
+    to: string
+    data: string
+    value: string
+  }> = []
+
   if (paymasterUrl) {
     console.log("doing gasless with paymaster")
-    const txHash = await sendPaymasterGaslessTransaction(
+    const delegatorSmartAccount = await getDelegatorSmartAccount({
+      publicClient,
+    })
+
+    if (intentEntrypoint) {
+      calls = await getDepositToIntentCalls({
+        publicClient,
+        walletClient,
+        account,
+        intentEntrypoint,
+        depositTokenAddress: depositTokenAddress as `0x${string}`,
+        depositTokenAmount: BigInt(depositTokenAmount),
+        depositRecipient: depositRecipient as `0x${string}`,
+        chain,
+      })
+    } else {
+      calls = await getPaymasterGaslessTransaction({
+        walletClient,
+        chain,
+        tokenAddress: depositTokenAddress as `0x${string}`,
+        amount: BigInt(depositTokenAmount),
+        recipient: depositRecipient as `0x${string}`,
+        delegatorSmartAccount,
+      })
+    }
+
+    console.log("calls", calls)
+
+    const txHash = await sendPaymasterGaslessTransaction({
       walletClient,
+      publicClient,
       chain,
-      depositTokenAddress as `0x${string}`,
-      BigInt(depositTokenAmount),
-      depositRecipient as `0x${string}`,
       paymasterUrl,
-    )
+      delegatorSmartAccount,
+      calls,
+    })
+
     if (onOriginSend) {
       onOriginSend()
     }
@@ -835,27 +885,9 @@ async function attemptGaslessDeposit({
     )
     console.log("sequenceWalletAddress", sequenceWalletAddress)
 
-    // Initialize clients
-    const sequencePublicClient = createPublicClient({
-      chain,
-      transport: http(),
-    })
-
-    const intentEntrypoints: Record<number, `0x${string}`> = {
-      8453: "0x2bf4c63199eD7D8A737E8DB2cC19E0C0103F6bE3",
-      84532: "0xdcd9160492C6D43ABbd28D4d06F68ad77f1A0F2b",
-    }
-
-    let calls: Array<{
-      to: string
-      data: string
-      value: string
-    }> = []
-
-    const intentEntrypoint = intentEntrypoints[chain.id]
     if (intentEntrypoint) {
       calls = await getDepositToIntentCalls({
-        publicClient: sequencePublicClient as PublicClient,
+        publicClient,
         walletClient,
         account,
         intentEntrypoint,
@@ -866,7 +898,7 @@ async function attemptGaslessDeposit({
       })
     } else {
       const { signature, deadline } = await getPermitSignature(
-        sequencePublicClient as PublicClient,
+        publicClient,
         walletClient,
         account.address,
         sequenceWalletAddress,
@@ -886,7 +918,6 @@ async function attemptGaslessDeposit({
       )
     }
 
-    console.log("intentEntrypoint", intentEntrypoint)
     console.log("calls", calls)
 
     const feeOptions = await getFeeOptions(
@@ -909,7 +940,7 @@ async function attemptGaslessDeposit({
     const sequenceTxHash = await sequenceSendTransaction(
       sequenceWalletAddress,
       delegatorClient,
-      sequencePublicClient as PublicClient,
+      publicClient,
       calls,
       chain,
       relayerConfig,
@@ -1213,7 +1244,6 @@ async function attemptUserDepositTx({
         depositTokenAmount: firstPreconditionMin,
         depositRecipient: intentAddress,
         onOriginSend,
-        publicClient,
         walletClient,
         chain,
         account,
