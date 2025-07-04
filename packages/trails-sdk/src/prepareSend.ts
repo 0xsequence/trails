@@ -286,6 +286,7 @@ export async function prepareSend(
       originChainId,
       walletClient,
       publicClient,
+      account,
     })
   }
 
@@ -458,6 +459,17 @@ async function sendHandlerForDifferentChainAndToken({
   const firstPreconditionMin = firstPrecondition?.data?.min?.toString()
   const depositAmount = firstPreconditionMin
 
+  const hasEnoughBalance = await checkAccountBalance({
+    account,
+    tokenAddress: originTokenAddress,
+    depositAmount,
+    publicClient,
+  })
+
+  if (!hasEnoughBalance) {
+    throw new Error("Account does not have enough balance for deposit")
+  }
+
   return {
     intentAddress,
     originSendAmount: depositAmount,
@@ -611,6 +623,18 @@ async function sendHandlerForSameChainSameToken({
   chain: Chain
 }) {
   console.log("isToSameToken && isToSameChain")
+
+  const hasEnoughBalance = await checkAccountBalance({
+    account,
+    tokenAddress: originTokenAddress,
+    depositAmount: destinationTokenAmount,
+    publicClient,
+  })
+
+  if (!hasEnoughBalance) {
+    throw new Error("Account does not have enough balance for deposit")
+  }
+
   return {
     originSendAmount: destinationTokenAmount,
     send: async (onOriginSend: () => void): Promise<SendReturn> => {
@@ -691,6 +715,7 @@ async function sendHandlerForSameChainDifferentToken({
   originChainId,
   walletClient,
   publicClient,
+  account,
 }: {
   originTokenAddress: string
   destinationTokenAmount: string
@@ -700,6 +725,7 @@ async function sendHandlerForSameChainDifferentToken({
   originChainId: number
   walletClient: WalletClient
   publicClient: PublicClient
+  account: Account
 }) {
   const destinationTxs = []
   if (destinationCalldata) {
@@ -739,6 +765,17 @@ async function sendHandlerForSameChainDifferentToken({
     }
   } catch (error) {
     console.error("Error decoding function data:", error)
+  }
+
+  const hasEnoughBalance = await checkAccountBalance({
+    account,
+    tokenAddress: originTokenAddress,
+    depositAmount,
+    publicClient,
+  })
+
+  if (!hasEnoughBalance) {
+    throw new Error("Account does not have enough balance for deposit")
   }
 
   return {
@@ -805,6 +842,9 @@ async function attemptGaslessDeposit({
   const intentEntrypoints: Record<number, `0x${string}`> = {
     8453: "0x2bf4c63199eD7D8A737E8DB2cC19E0C0103F6bE3",
     84532: "0xdcd9160492C6D43ABbd28D4d06F68ad77f1A0F2b",
+    421614: "0xf18A16E1C778baCA5d6f7F48cC4c9bb913e5e579",
+    42161: "0x674827B6BE8780DBdb96DC02c735275e3a982c90",
+    137: "0x4dBb20eA3A969F1A44d7653D4Dc8632B853E36DE",
   }
 
   const intentEntrypoint = intentEntrypoints[chain.id]
@@ -1347,6 +1387,47 @@ async function sendMetaTxAndWaitForReceipt({
   }
 
   return originMetaTxnReceipt
+}
+
+/**
+ * Check if the account has enough balance for the deposit amount
+ */
+async function checkAccountBalance({
+  account,
+  tokenAddress,
+  depositAmount,
+  publicClient,
+}: {
+  account: Account
+  tokenAddress: string
+  depositAmount: string
+  publicClient: PublicClient
+}): Promise<boolean> {
+  try {
+    let balance: bigint
+
+    if (tokenAddress === zeroAddress) {
+      // Native token balance
+      balance = await publicClient.getBalance({ address: account.address })
+    } else {
+      // ERC20 token balance
+      balance = await publicClient.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: erc20Abi,
+        functionName: "balanceOf",
+        args: [account.address],
+      })
+    }
+
+    const requiredAmount = BigInt(depositAmount)
+
+    console.log("balance", balance)
+    console.log("requiredAmount", requiredAmount)
+    return balance >= requiredAmount
+  } catch (error) {
+    console.error("Error checking account balance:", error)
+    return false
+  }
 }
 
 // ETH fee required by some bridges for low token amounts
