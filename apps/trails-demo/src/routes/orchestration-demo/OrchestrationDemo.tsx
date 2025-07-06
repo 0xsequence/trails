@@ -13,6 +13,7 @@ import { AbiFunction, type Address } from "ox"
 import { useEffect, useMemo, useState } from "react"
 import type { Hex } from "viem"
 import { useAccount, useConnect, useDisconnect } from "wagmi"
+import { DemoTabs } from "@/components/DemoTabs"
 import {
   MOCK_CHAIN_ID,
   MOCK_CONTRACT_ADDRESS,
@@ -137,7 +138,12 @@ function useOrchestrationDemo() {
 
     setIntentActionType(action)
 
-    let destinationCall
+    let destinationCall: {
+      chainId: number
+      to: string
+      transactionData: string
+      transactionValue: string
+    }
     if (action === "pay") {
       // ERC20 ABI functions
       const erc20Transfer = AbiFunction.from(
@@ -514,12 +520,21 @@ export const OrchestrationDemo = () => {
   return (
     <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 max-w-3xl mx-auto min-h-screen">
       <div className="text-center mb-6 sm:mb-8 animate-fadeIn">
-        <h1 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 mb-2">
-          Trails Demo
-        </h1>
-        <p className="text-gray-300 text-sm px-4">
-          Connect your wallet and explore cross-chain intents
-        </p>
+        <div className="flex justify-between items-start">
+          <div className="text-left">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+              Trails Demo
+            </h1>
+            <p className="text-gray-300 text-sm mb-2">
+              Connect your wallet and explore cross-chain intents
+            </p>
+            <p className="text-gray-400 text-xs">
+              This demo showcases the Trails SDK orchestration flow. Create an
+              intent, commit it, and execute cross-chain meta transactions.
+            </p>
+          </div>
+          <DemoTabs />
+        </div>
       </div>
 
       {/* Account Info & Connect/Disconnect - Standalone Card */}
