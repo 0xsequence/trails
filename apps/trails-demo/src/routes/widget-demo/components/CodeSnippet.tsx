@@ -4,7 +4,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { nightOwl as syntaxStyle } from "react-syntax-highlighter/dist/esm/styles/prism"
 
 interface CodeSnippetProps {
-  children: React.ReactNode
+  children?: React.ReactNode
   sequenceProjectAccessKey: string
   toAddress: string
   toAmount: string

@@ -1,4 +1,3 @@
-import { Github, Twitter } from "lucide-react"
 import DiscordColorIcon from "@/assets/DiscordColorIcon.svg"
 import GithubIcon from "@/assets/GithubIcon.svg"
 import SequenceLogo from "@/assets/sequence-logo-white.svg"

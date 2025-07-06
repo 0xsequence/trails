@@ -73,15 +73,15 @@ interface Token {
 
 export type TrailsWidgetProps = {
   sequenceProjectAccessKey: string
-  sequenceIndexerUrl?: string
-  sequenceApiUrl?: string
+  sequenceIndexerUrl?: string | null
+  sequenceApiUrl?: string | null
   sequenceEnv?: RelayerEnv
-  toAddress?: string
-  toAmount?: string
-  toChainId?: number | string
-  toToken?: string
-  toCalldata?: string
-  provider?: any
+  toAddress?: string | null
+  toAmount?: string | null
+  toChainId?: number | string | null
+  toToken?: string | null
+  toCalldata?: string | null
+  provider?: any | null
   children?: React.ReactNode
   renderInline?: boolean
   theme?: Theme
@@ -296,7 +296,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
   }, [isConnected])
 
   const indexerGatewayClient = useIndexerGatewayClient({
-    indexerGatewayUrl: sequenceIndexerUrl,
+    indexerGatewayUrl: sequenceIndexerUrl || undefined,
     projectAccessKey: sequenceProjectAccessKey,
   })
 
@@ -695,13 +695,13 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
             selectedToken={selectedToken}
             account={walletClient.account}
             sequenceProjectAccessKey={sequenceProjectAccessKey}
-            apiUrl={sequenceApiUrl}
+            apiUrl={sequenceApiUrl || undefined}
             env={sequenceEnv}
-            toRecipient={toAddress}
-            toAmount={toAmount}
+            toRecipient={toAddress || undefined}
+            toAmount={toAmount || undefined}
             toChainId={toChainId ? Number(toChainId) : undefined}
-            toToken={toToken}
-            toCalldata={toCalldata}
+            toToken={toToken || undefined}
+            toCalldata={toCalldata || undefined}
             walletClient={walletClient}
             theme={theme}
             onTransactionStateChange={handleTransactionStateChange}
@@ -923,9 +923,9 @@ export const TrailsWidget = (props: TrailsWidgetProps) => {
             config={{
               projectAccessKey: props.sequenceProjectAccessKey,
               env: {
-                indexerUrl: props.sequenceIndexerUrl,
-                indexerGatewayUrl: props.sequenceIndexerUrl,
-                apiUrl: props.sequenceApiUrl,
+                indexerUrl: props.sequenceIndexerUrl || undefined,
+                indexerGatewayUrl: props.sequenceIndexerUrl || undefined,
+                apiUrl: props.sequenceApiUrl || undefined,
               },
             }}
           >

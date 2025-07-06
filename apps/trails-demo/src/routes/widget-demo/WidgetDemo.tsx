@@ -1,4 +1,3 @@
-import { TrailsWidget } from "@0xsequence/trails-sdk/widget"
 import { useCallback, useEffect, useState } from "react"
 import { DemoTabs } from "@/components/DemoTabs"
 import { AppKitProvider, ConnectButton } from "./components/ConnectWallet"
@@ -108,7 +107,9 @@ export const WidgetDemo = () => {
           {/* Right Column - Output Screen */}
           <div className="w-full lg:w-1/2">
             <OutputScreen
-              sequenceProjectAccessKey={sequenceProjectAccessKey}
+              sequenceProjectAccessKey={
+                sequenceProjectAccessKey || defaultSequenceProjectAccessKey
+              }
               toAddress={toAddress}
               toAmount={toAmount}
               toChainId={toChainId}
@@ -120,40 +121,15 @@ export const WidgetDemo = () => {
               walletOptions={walletOptions}
               paymasterUrls={paymasterUrls}
               gasless={gasless}
+              provider={provider}
+              apiUrl={apiUrl}
+              indexerUrl={indexerUrl}
+              env={env}
+              privyAppId={privyAppId}
+              privyClientId={privyClientId}
+              defaultSequenceProjectAccessKey={defaultSequenceProjectAccessKey}
             >
-              <div className="mt-6 w-full max-w-md mx-auto px-4">
-                <TrailsWidget
-                  sequenceProjectAccessKey={
-                    sequenceProjectAccessKey || defaultSequenceProjectAccessKey
-                  }
-                  sequenceApiUrl={apiUrl}
-                  sequenceIndexerUrl={indexerUrl}
-                  sequenceEnv={env}
-                  toAddress={toAddress || undefined}
-                  toAmount={toAmount || undefined}
-                  toChainId={toChainId}
-                  toToken={toToken}
-                  toCalldata={toCalldata || undefined}
-                  provider={provider}
-                  renderInline={renderInline}
-                  theme={theme}
-                  walletOptions={walletOptions}
-                  useSourceTokenForButtonText={true}
-                  privyAppId={privyAppId}
-                  privyClientId={privyClientId}
-                  paymasterUrls={paymasterUrls}
-                  gasless={gasless}
-                >
-                  {useCustomButton ? (
-                    <button
-                      type="button"
-                      className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold shadow-lg hover:from-green-600 hover:to-emerald-600 cursor-pointer transition duration-300"
-                    >
-                      Pay with Trails
-                    </button>
-                  ) : null}
-                </TrailsWidget>
-              </div>
+              <div className="mt-6 w-full max-w-md mx-auto px-4"></div>
             </OutputScreen>
           </div>
         </div>
