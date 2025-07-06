@@ -4,7 +4,7 @@ import { CodeSnippet } from "./components/CodeSnippet"
 import { AppKitProvider, ConnectButton } from "./components/ConnectWallet"
 import { CustomizationForm, STORAGE_KEYS } from "./components/CustomizationForm"
 
-export const Widget = () => {
+export const WidgetDemo = () => {
   const defaultSequenceProjectAccessKey = import.meta.env
     .VITE_PROJECT_ACCESS_KEY
   const apiUrl = import.meta.env.VITE_API_URL

@@ -8,7 +8,7 @@ import type {
 import type { TrailsFee } from "@0xsequence/trails-sdk"
 import { AlertCircle, Loader2, Zap } from "lucide-react"
 import type React from "react"
-import { SectionHeader } from "@/routes/home/components/SectionHeader"
+import { SectionHeader } from "@/routes/orchestration-demo/components/SectionHeader"
 
 interface CommitIntentStepProps {
   intentCallsPayloads: IntentCallsPayload[] | null

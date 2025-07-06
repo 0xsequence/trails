@@ -5,7 +5,7 @@ import type {
 } from "@0xsequence/trails-api"
 import { Zap } from "lucide-react"
 import type React from "react"
-import { SectionHeader } from "@/routes/home/components/SectionHeader"
+import { SectionHeader } from "@/routes/orchestration-demo/components/SectionHeader"
 import { getChainInfo } from "@/utils/formatting"
 
 interface OriginCallParamsData {

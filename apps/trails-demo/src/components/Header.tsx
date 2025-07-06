@@ -14,24 +14,24 @@ export const Header: React.FC = () => {
         <div className="flex justify-center h-16">
           <div className="flex items-center space-x-1">
             <Link
-              to="/"
-              className={`px-8 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                isActive("/")
-                  ? "bg-blue-500 text-white shadow-md shadow-blue-500/20"
-                  : "text-gray-300 hover:text-white hover:bg-gray-800"
-              }`}
-            >
-              Demo
-            </Link>
-            <Link
               to="/widget"
               className={`px-8 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                isActive("/widget")
+                isActive("/widget") || isActive("/")
                   ? "bg-blue-500 text-white shadow-md shadow-blue-500/20"
                   : "text-gray-300 hover:text-white hover:bg-gray-800"
               }`}
             >
               Widget
+            </Link>
+            <Link
+              to="/orchestration"
+              className={`px-8 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                isActive("/orchestration")
+                  ? "bg-blue-500 text-white shadow-md shadow-blue-500/20"
+                  : "text-gray-300 hover:text-white hover:bg-gray-800"
+              }`}
+            >
+              Orchestration
             </Link>
           </div>
         </div>

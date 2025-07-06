@@ -4,7 +4,7 @@ import { AlertTriangle, PenSquare, Zap } from "lucide-react"
 import type React from "react"
 import * as chains from "viem/chains"
 import { PAY_CHAIN_ID, PAY_DISPLAY_TEXT } from "@/config"
-import { SectionHeader } from "@/routes/home/components/SectionHeader"
+import { SectionHeader } from "@/routes/orchestration-demo/components/SectionHeader"
 import type { IntentAction } from "@/types"
 
 interface ChooseActionStepProps {

@@ -5,7 +5,7 @@ import type {
   OriginCallParams,
 } from "@0xsequence/trails-sdk"
 import { Box, Layers } from "lucide-react"
-import { SectionHeader } from "@/routes/home/components/SectionHeader"
+import { SectionHeader } from "@/routes/orchestration-demo/components/SectionHeader"
 import {
   formatTimeSinceOrigin,
   getChainInfo,

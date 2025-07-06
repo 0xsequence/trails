@@ -1,9 +1,9 @@
 import { createBrowserRouter } from "react-router"
 import { ErrorRoute } from "./routes/error"
-import { Home } from "./routes/home"
 import { NotFound } from "./routes/not-found"
+import { OrchestrationDemo } from "./routes/orchestration-demo"
 import { RootLayout } from "./routes/root-layout"
-import { Widget } from "./routes/widget"
+import { WidgetDemo } from "./routes/widget-demo"
 
 export const router = createBrowserRouter([
   {
@@ -12,12 +12,17 @@ export const router = createBrowserRouter([
     ErrorBoundary: ErrorRoute,
     children: [
       {
+        path: "",
         index: true,
-        Component: Home,
+        Component: WidgetDemo,
+      },
+      {
+        path: "orchestration",
+        Component: OrchestrationDemo,
       },
       {
         path: "widget",
-        Component: Widget,
+        Component: WidgetDemo,
       },
       {
         path: "*",

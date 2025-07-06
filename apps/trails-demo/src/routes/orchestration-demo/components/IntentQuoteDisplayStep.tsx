@@ -36,7 +36,7 @@ import {
   PAY_TOKEN_DECIMALS,
   PAY_TOKEN_SYMBOL,
 } from "@/config"
-import { SectionHeader } from "@/routes/home/components/SectionHeader"
+import { SectionHeader } from "@/routes/orchestration-demo/components/SectionHeader"
 import type { IntentAction } from "@/types"
 import { getChainInfo } from "@/utils/formatting"
 

@@ -24,17 +24,17 @@ import {
   PAY_RECIPIENT_ADDRESS,
   PAY_TOKEN_ADDRESS,
 } from "@/config"
-import { AccountInfoSection } from "@/routes/home/components/AccountInfoSection"
-import { AdvancedControlsSection } from "@/routes/home/components/AdvancedControlsSection"
-import { ChooseActionStep } from "@/routes/home/components/ChooseActionStep"
-import { CommitIntentStep } from "@/routes/home/components/CommitIntentStep"
-import { IntentQuoteDisplayStep } from "@/routes/home/components/IntentQuoteDisplayStep"
-import { OriginCallStep } from "@/routes/home/components/OriginCallStep"
-import { RelayerStatusSection } from "@/routes/home/components/RelayerStatusSection"
-import { SelectOriginTokenStep } from "@/routes/home/components/SelectOriginTokenStep"
+import { AccountInfoSection } from "@/routes/orchestration-demo/components/AccountInfoSection"
+import { AdvancedControlsSection } from "@/routes/orchestration-demo/components/AdvancedControlsSection"
+import { ChooseActionStep } from "@/routes/orchestration-demo/components/ChooseActionStep"
+import { CommitIntentStep } from "@/routes/orchestration-demo/components/CommitIntentStep"
+import { IntentQuoteDisplayStep } from "@/routes/orchestration-demo/components/IntentQuoteDisplayStep"
+import { OriginCallStep } from "@/routes/orchestration-demo/components/OriginCallStep"
+import { RelayerStatusSection } from "@/routes/orchestration-demo/components/RelayerStatusSection"
+import { SelectOriginTokenStep } from "@/routes/orchestration-demo/components/SelectOriginTokenStep"
 import type { IntentAction } from "@/types"
 
-function useHomeHook() {
+function useOrchestrationDemo() {
   const account = useAccount()
   const {
     connectors,
@@ -428,7 +428,7 @@ function useHomeHook() {
   }
 }
 
-export const Home = () => {
+export const OrchestrationDemo = () => {
   const {
     // Account Management
     account,
@@ -509,7 +509,7 @@ export const Home = () => {
     sendMetaTxnPending,
     originBlockTimestamp,
     metaTxnBlockTimestamps,
-  } = useHomeHook()
+  } = useOrchestrationDemo()
 
   return (
     <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 max-w-3xl mx-auto min-h-screen">
