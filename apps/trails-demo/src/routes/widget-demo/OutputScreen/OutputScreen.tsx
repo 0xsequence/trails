@@ -56,7 +56,11 @@ export const OutputScreen = ({
     { id: "modal", label: "Component" },
     { id: "button", label: "Button" },
     { id: "code", label: "Code" },
-  ] as const
+  ]
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId as "modal" | "button" | "code")
+  }
 
   return (
     <div className="w-full bg-gray-800 rounded-2xl p-6">
@@ -64,7 +68,7 @@ export const OutputScreen = ({
         <WidgetTabs
           tabs={tabs}
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
         />
       </div>
 
