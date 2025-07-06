@@ -6,7 +6,7 @@ import {
 } from "@reown/appkit/react"
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { connect, reconnect } from "@wagmi/core"
+import { reconnect } from "@wagmi/core"
 import { useEffect, useState } from "react"
 import * as chains from "viem/chains"
 import { injected, useConnect, WagmiProvider } from "wagmi"
@@ -92,7 +92,7 @@ export function ConnectButton({ onConnect }: ConnectButtonProps) {
           console.log("connectedType", connectedType)
           if (connectedType) {
             console.log("trails-connected")
-            const provider = await appKit.getProvider("eip155")
+            const provider = appKit.getProvider("eip155")
 
             const accounts = await (provider as any).request({
               method: "eth_accounts",
@@ -121,6 +121,8 @@ export function ConnectButton({ onConnect }: ConnectButtonProps) {
         "trails-connected",
         walletInfo?.type?.toLocaleLowerCase() || "unknown",
       )
+      const provider = appKit.getProvider("eip155")
+      onConnect(provider)
     }
 
     if (events.data?.event === "DISCONNECT_SUCCESS") {
@@ -135,8 +137,6 @@ export function ConnectButton({ onConnect }: ConnectButtonProps) {
     connectors,
     lastEvent,
   ])
-
-  console.log("account", account)
 
   return (
     <div className="flex justify-center">

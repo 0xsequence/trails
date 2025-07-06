@@ -103,6 +103,7 @@ export const WidgetDemo = () => {
               setPaymasterUrls={setPaymasterUrls}
               gasless={gasless}
               setGasless={setGasless}
+              isWalletConnected={!!provider}
             />
           </div>
 

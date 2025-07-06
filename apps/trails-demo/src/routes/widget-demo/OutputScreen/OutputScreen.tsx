@@ -40,7 +40,6 @@ export const OutputScreen = ({
   walletOptions,
   paymasterUrls,
   gasless,
-  children,
   provider,
   apiUrl,
   indexerUrl,
