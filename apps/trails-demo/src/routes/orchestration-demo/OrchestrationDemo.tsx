@@ -520,12 +520,12 @@ export const OrchestrationDemo = () => {
   return (
     <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 max-w-3xl mx-auto min-h-screen">
       <div className="text-center mb-6 sm:mb-8 animate-fadeIn">
-        <div className="flex justify-between items-start">
-          <div className="text-left">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+        <div className="flex flex-col sm:flex-row justify-between items-start space-y-4 sm:space-y-0">
+          <div className="text-left w-full sm:w-auto">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">
               Trails Demo
             </h1>
-            <p className="text-gray-300 text-sm mb-2">
+            <p className="text-gray-300 text-xs sm:text-sm mb-2">
               Connect your wallet and explore cross-chain intents
             </p>
             <p className="text-gray-400 text-xs">
@@ -533,7 +533,9 @@ export const OrchestrationDemo = () => {
               intent, commit it, and execute cross-chain meta transactions.
             </p>
           </div>
-          <DemoTabs />
+          <div className="w-full sm:w-auto">
+            <DemoTabs />
+          </div>
         </div>
       </div>
 

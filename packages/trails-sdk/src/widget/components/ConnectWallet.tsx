@@ -138,6 +138,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
               </div>
             )}
             <button
+              type="button"
               onClick={onContinue}
               className={`w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${
                 theme === "dark"

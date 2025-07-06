@@ -9,7 +9,7 @@ export const DemoTabs: React.FC = () => {
   }
 
   return (
-    <header className="bg-gray-900">
+    <header>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-center h-16">
           <div className="flex items-center">

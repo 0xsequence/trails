@@ -49,12 +49,12 @@ export const WidgetDemo = () => {
   const content = (
     <div className="flex flex-col items-center justify-center space-y-6 py-8 px-4 sm:py-12 sm:px-6">
       <div className="text-center space-y-4 max-w-6xl w-full">
-        <div className="flex justify-between items-start">
-          <div className="text-left">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start space-y-4 sm:space-y-0">
+          <div className="text-left w-full sm:w-auto">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white mb-3 sm:mb-4">
               Trails Widget Demo
             </h1>
-            <p className="text-sm text-white leading-relaxed max-w-3xl font-light mb-2">
+            <p className="text-xs sm:text-sm text-white leading-relaxed max-w-3xl font-light mb-2">
               This demo showcases the{" "}
               <span className="font-medium">Trails SDK</span> widget. Connect
               your wallet and try the payment flow.
@@ -64,11 +64,13 @@ export const WidgetDemo = () => {
               test the complete payment flow.
             </p>
           </div>
-          <DemoTabs />
+          <div className="w-full sm:w-auto">
+            <DemoTabs />
+          </div>
         </div>
       </div>
 
-      <div className="flex justify-center mt-8">
+      <div className="flex justify-center mt-6 sm:mt-8">
         <ConnectButton onConnect={handleConnect} />
       </div>
 
