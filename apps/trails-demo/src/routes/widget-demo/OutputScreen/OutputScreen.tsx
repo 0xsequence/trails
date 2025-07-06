@@ -60,7 +60,7 @@ export const OutputScreen = ({
   ] as const
 
   return (
-    <div className="w-full bg-gray-800 rounded-lg p-6">
+    <div className="w-full bg-gray-800 rounded-2xl p-6">
       <div className="w-fit mb-4">
         <WidgetTabs
           tabs={tabs}

@@ -10,6 +10,20 @@ import { encodeFunctionData, parseUnits, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
 import { ChainSelector } from "./ChainSelector"
 
+// Reusable Checkmark Component
+const Checkmark: React.FC<{ className?: string }> = ({
+  className = "w-4 h-4",
+}) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 20 20">
+    <title>Selected</title>
+    <path
+      fillRule="evenodd"
+      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+      clipRule="evenodd"
+    />
+  </svg>
+)
+
 interface CustomizationFormProps {
   sequenceProjectAccessKey: string
   setSequenceProjectAccessKey: (value: string) => void
@@ -362,7 +376,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4 sm:p-6 h-full">
+    <div className="bg-gray-800 rounded-2xl p-4 sm:p-6 h-full">
       <div className="space-y-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-gray-200">
@@ -373,24 +387,6 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           </p>
         </div>
         <div className="space-y-4">
-          <div>
-            <label
-              className="block text-sm font-medium text-gray-200 mb-2"
-              htmlFor="sequenceProjectAccessKey"
-            >
-              Sequence Project Access Key
-            </label>
-            <input
-              type="text"
-              value={sequenceProjectAccessKey}
-              onChange={(e) =>
-                setSequenceProjectAccessKey(e.target.value.trim())
-              }
-              placeholder="Enter your sequence project access key"
-              className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-            />
-          </div>
-
           <div>
             <label
               className="block text-sm font-medium text-gray-200 mb-2"
@@ -407,119 +403,121 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             />
           </div>
 
-          <div>
-            <label
-              className="block text-sm font-medium text-gray-200 mb-2"
-              htmlFor="toAmount"
-            >
-              To Amount
-            </label>
-            <input
-              type="text"
-              value={toAmount}
-              onChange={(e) => setToAmount(e.target.value.trim())}
-              placeholder="0.00"
-              className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-            />
-          </div>
-
-          <div className="space-y-2" ref={tokenDropdownRef}>
-            <label
-              className="block text-sm font-medium text-gray-200 mb-2"
-              htmlFor="toToken"
-            >
-              To Token
-            </label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsTokenDropdownOpen(!isTokenDropdownOpen)}
-                className="w-full flex items-center px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label
+                className="block text-sm font-medium text-gray-200 mb-2"
+                htmlFor="toAmount"
               >
-                {toToken ? (
-                  <>
-                    <TokenImage
-                      symbol={toToken}
-                      src={
-                        SUPPORTED_TO_TOKENS.find(
-                          (t: { symbol: string; imageUrl: string }) =>
-                            t.symbol === toToken,
-                        )?.imageUrl
-                      }
-                      size="sm"
-                      disableAnimation={true}
-                    />
-                    <span className="ml-2 flex-1 text-left text-gray-200 text-sm">
-                      {
-                        SUPPORTED_TO_TOKENS.find(
-                          (t: { symbol: string; name: string }) =>
-                            t.symbol === toToken,
-                        )?.name
-                      }{" "}
-                      ({toToken})
-                    </span>
-                  </>
-                ) : (
-                  <span className="flex-1 text-left text-gray-400 text-sm">
-                    Select Token
-                  </span>
-                )}
-                <ChevronDown
-                  className={`h-5 w-5 text-gray-400 transition-transform ${isTokenDropdownOpen ? "transform rotate-180" : ""}`}
-                />
-              </button>
+                To Amount
+              </label>
+              <input
+                type="text"
+                value={toAmount}
+                onChange={(e) => setToAmount(e.target.value.trim())}
+                placeholder="0.00"
+                className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              />
+            </div>
 
-              {isTokenDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setToToken(undefined)
-                      setIsTokenDropdownOpen(false)
-                    }}
-                    className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-600 ${!toToken ? "bg-gray-600 text-blue-400" : "text-gray-200"} cursor-pointer text-sm`}
-                  >
-                    <span className="ml-2">Select Token</span>
-                    {!toToken && (
-                      <span className="ml-auto text-blue-400">•</span>
-                    )}
-                  </button>
-                  {SUPPORTED_TO_TOKENS.map(
-                    (token: {
-                      symbol: string
-                      name: string
-                      imageUrl: string
-                    }) => (
-                      <button
-                        key={token.symbol}
-                        type="button"
-                        onClick={() => {
-                          setToToken(token.symbol as "ETH" | "USDC")
-                          setIsTokenDropdownOpen(false)
-                        }}
-                        className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-600 cursor-pointer text-sm ${
-                          toToken === token.symbol
-                            ? "bg-gray-600 text-blue-400"
-                            : "text-gray-200"
-                        }`}
-                      >
-                        <TokenImage
-                          symbol={token.symbol}
-                          src={token.imageUrl}
-                          size="sm"
-                          disableAnimation={true}
-                        />
-                        <span className="ml-2">
-                          {token.name} ({token.symbol})
-                        </span>
-                        {toToken === token.symbol && (
-                          <span className="ml-auto text-blue-400">•</span>
-                        )}
-                      </button>
-                    ),
+            <div className="flex-1 space-y-2" ref={tokenDropdownRef}>
+              <label
+                className="block text-sm font-medium text-gray-200 mb-2"
+                htmlFor="toToken"
+              >
+                To Token
+              </label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsTokenDropdownOpen(!isTokenDropdownOpen)}
+                  className="w-full flex items-center px-3 sm:px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+                >
+                  {toToken ? (
+                    <>
+                      <TokenImage
+                        symbol={toToken}
+                        src={
+                          SUPPORTED_TO_TOKENS.find(
+                            (t: { symbol: string; imageUrl: string }) =>
+                              t.symbol === toToken,
+                          )?.imageUrl
+                        }
+                        size="sm"
+                        disableAnimation={true}
+                      />
+                      <span className="ml-2 flex-1 text-left text-gray-200 text-sm">
+                        {
+                          SUPPORTED_TO_TOKENS.find(
+                            (t: { symbol: string; name: string }) =>
+                              t.symbol === toToken,
+                          )?.name
+                        }{" "}
+                        ({toToken})
+                      </span>
+                    </>
+                  ) : (
+                    <span className="flex-1 text-left text-gray-400 text-sm">
+                      Select Token
+                    </span>
                   )}
-                </div>
-              )}
+                  <ChevronDown
+                    className={`h-5 w-5 text-gray-400 transition-transform ${isTokenDropdownOpen ? "transform rotate-180" : ""}`}
+                  />
+                </button>
+
+                {isTokenDropdownOpen && (
+                  <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setToToken(undefined)
+                        setIsTokenDropdownOpen(false)
+                      }}
+                      className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-600 ${!toToken ? "bg-gray-600 text-blue-400" : "text-gray-200"} cursor-pointer text-sm`}
+                    >
+                      <span className="ml-2">Select Token</span>
+                      {!toToken && (
+                        <span className="ml-auto text-blue-400">•</span>
+                      )}
+                    </button>
+                    {SUPPORTED_TO_TOKENS.map(
+                      (token: {
+                        symbol: string
+                        name: string
+                        imageUrl: string
+                      }) => (
+                        <button
+                          key={token.symbol}
+                          type="button"
+                          onClick={() => {
+                            setToToken(token.symbol as "ETH" | "USDC")
+                            setIsTokenDropdownOpen(false)
+                          }}
+                          className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-600 cursor-pointer text-sm ${
+                            toToken === token.symbol
+                              ? "bg-gray-600 text-blue-400"
+                              : "text-gray-200"
+                          }`}
+                        >
+                          <TokenImage
+                            symbol={token.symbol}
+                            src={token.imageUrl}
+                            size="sm"
+                            disableAnimation={true}
+                          />
+                          <span className="ml-2">
+                            {token.name} ({token.symbol})
+                          </span>
+                          {toToken === token.symbol && (
+                            <span className="ml-auto text-blue-400">•</span>
+                          )}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -680,6 +678,75 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </div>
           </div>
 
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
+            <label
+              className="block text-sm font-medium text-gray-200"
+              htmlFor="walletOptions"
+            >
+              Wallet Options
+            </label>
+            <div className="flex flex-wrap gap-3">
+              {defaultWalletOptions.map((wallet: string) => {
+                const isSelected = walletOptions?.includes(wallet)
+                return (
+                  <div key={wallet} className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => handleWalletOptionToggle(wallet)}
+                      className={`w-7 h-7 rounded border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
+                        isSelected
+                          ? "bg-blue-500 border-blue-500 text-white"
+                          : "bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-600"
+                      }`}
+                    >
+                      {isSelected && <Checkmark />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleWalletOptionToggle(wallet)}
+                      className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
+                    >
+                      {wallet.charAt(0).toUpperCase() + wallet.slice(1)}
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
+            <label
+              className="block text-sm font-medium text-gray-200"
+              htmlFor="theme"
+            >
+              Theme Mode
+            </label>
+            <div className="flex space-x-4">
+              {(["auto", "light", "dark"] as const).map((mode) => (
+                <div key={mode} className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setTheme(mode)}
+                    className={`w-7 h-7 rounded-full border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
+                      theme === mode
+                        ? "bg-blue-500 border-blue-500 text-white"
+                        : "bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-600"
+                    }`}
+                  >
+                    {theme === mode && <Checkmark />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTheme(mode)}
+                    className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
+                  >
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <div className="flex items-center justify-between py-2">
             <label
               className="block text-sm font-medium text-gray-200"
@@ -702,7 +769,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </button>
           </div>
 
-          <div className="flex items-center justify-between py-2">
+          <div
+            className="flex items-center justify-between py-2"
+            style={{ display: "none" }}
+          >
             <label
               className="block text-sm font-medium text-gray-200"
               htmlFor="renderInline"
@@ -724,54 +794,26 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </button>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
-            <label
-              className="block text-sm font-medium text-gray-200"
-              htmlFor="theme"
-            >
-              Theme Mode
-            </label>
-            <div className="flex rounded-lg overflow-hidden border border-gray-600">
-              {(["auto", "light", "dark"] as const).map((mode) => (
-                <button
-                  key={mode}
-                  type="button"
-                  onClick={() => setTheme(mode)}
-                  className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
-                    theme === mode
-                      ? "bg-blue-500 text-white"
-                      : "text-gray-300 hover:text-white hover:bg-gray-700"
-                  }`}
-                >
-                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
-            <label
-              className="block text-sm font-medium text-gray-200"
-              htmlFor="walletOptions"
-            >
-              Wallet Options
-            </label>
-            <div className="flex flex-wrap rounded-lg overflow-hidden border border-gray-600">
-              {defaultWalletOptions.map((wallet: string) => (
-                <button
-                  key={wallet}
-                  type="button"
-                  onClick={() => handleWalletOptionToggle(wallet)}
-                  className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
-                    walletOptions?.includes(wallet)
-                      ? "bg-blue-500 text-white"
-                      : "text-gray-300 hover:text-white hover:bg-gray-700"
-                  }`}
-                >
-                  {wallet.charAt(0).toUpperCase() + wallet.slice(1)}
-                </button>
-              ))}
-            </div>
+          <div className="pt-2">
+            <details className="group">
+              <summary className="flex items-center justify-between cursor-pointer list-none py-2">
+                <span className="text-sm font-medium text-gray-200">
+                  Sequence Project Access Key
+                </span>
+                <ChevronDown className="h-5 w-5 text-gray-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <div className="mt-3">
+                <input
+                  type="text"
+                  value={sequenceProjectAccessKey}
+                  onChange={(e) =>
+                    setSequenceProjectAccessKey(e.target.value.trim())
+                  }
+                  placeholder="Enter your sequence project access key"
+                  className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+              </div>
+            </details>
           </div>
 
           <div className="pt-2">

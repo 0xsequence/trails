@@ -72,15 +72,15 @@ export const SiteFooter = () => {
           </a>
         </div>
 
-        {/* Center - Social Icons */}
+        {/* Center - Social Media Icons */}
         <div className="flex items-center space-x-6">
           <a
-            href="https://x.com/0xsequence"
+            href="https://twitter.com/0xsequence"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-white transition-colors"
           >
-            <img src={TwitterIcon} alt="Twitter" className="w-5 h-5" />
+            <img src={TwitterIcon} alt="Twitter" className="w-6 h-6" />
           </a>
           <a
             href="https://discord.gg/sequence"
@@ -88,7 +88,7 @@ export const SiteFooter = () => {
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-white transition-colors"
           >
-            <img src={DiscordColorIcon} alt="Discord" className="w-5 h-5" />
+            <img src={DiscordColorIcon} alt="Discord" className="w-6 h-6" />
           </a>
           <a
             href="https://github.com/0xsequence"
@@ -96,7 +96,7 @@ export const SiteFooter = () => {
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-white transition-colors"
           >
-            <img src={GithubIcon} alt="GitHub" className="w-5 h-5" />
+            <img src={GithubIcon} alt="GitHub" className="w-6 h-6" />
           </a>
         </div>
 
