@@ -25,7 +25,6 @@ import {
 import { Address as OxAddress } from "ox"
 import type React from "react"
 import { formatUnits, type Hex, isAddressEqual, zeroAddress } from "viem"
-import { SectionHeader } from "@/components/SectionHeader"
 import {
   MOCK_CHAIN_ID,
   MOCK_CONTRACT_ADDRESS,
@@ -37,6 +36,7 @@ import {
   PAY_TOKEN_DECIMALS,
   PAY_TOKEN_SYMBOL,
 } from "@/config"
+import { SectionHeader } from "@/routes/home/components/SectionHeader"
 import type { IntentAction } from "@/types"
 import { getChainInfo } from "@/utils/formatting"
 

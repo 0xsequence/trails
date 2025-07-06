@@ -2,7 +2,7 @@ import { Button, NetworkImage, Text } from "@0xsequence/design-system"
 import { AlertTriangle } from "lucide-react"
 import type { Address } from "viem"
 import type { Connector, UseAccountReturnType, useConnect } from "wagmi"
-import { SectionHeader } from "@/components/SectionHeader"
+import { SectionHeader } from "@/routes/home/components/SectionHeader"
 
 interface AccountInfoSectionProps {
   account: {

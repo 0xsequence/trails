@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router"
 import { ErrorRoute } from "./routes/error"
-import { HomeIndexRoute } from "./routes/home/home-index-route"
+import { Home } from "./routes/home"
 import { NotFound } from "./routes/not-found"
 import { RootLayout } from "./routes/root-layout"
 import { Widget } from "./routes/widget"
@@ -13,7 +13,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        Component: HomeIndexRoute,
+        Component: Home,
       },
       {
         path: "widget",

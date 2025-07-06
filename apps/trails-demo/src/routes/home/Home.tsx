@@ -13,14 +13,6 @@ import { AbiFunction, type Address } from "ox"
 import { useEffect, useMemo, useState } from "react"
 import type { Hex } from "viem"
 import { useAccount, useConnect, useDisconnect } from "wagmi"
-import { AccountInfoSection } from "@/components/AccountInfoSection"
-import { AdvancedControlsSection } from "@/components/AdvancedControlsSection"
-import { ChooseActionStep } from "@/components/ChooseActionStep"
-import { CommitIntentStep } from "@/components/CommitIntentStep"
-import { IntentQuoteDisplayStep } from "@/components/IntentQuoteDisplayStep"
-import { OriginCallStep } from "@/components/OriginCallStep"
-import { RelayerStatusSection } from "@/components/RelayerStatusSection"
-import { SelectOriginTokenStep } from "@/components/SelectOriginTokenStep"
 import {
   MOCK_CHAIN_ID,
   MOCK_CONTRACT_ADDRESS,
@@ -32,9 +24,17 @@ import {
   PAY_RECIPIENT_ADDRESS,
   PAY_TOKEN_ADDRESS,
 } from "@/config"
+import { AccountInfoSection } from "@/routes/home/components/AccountInfoSection"
+import { AdvancedControlsSection } from "@/routes/home/components/AdvancedControlsSection"
+import { ChooseActionStep } from "@/routes/home/components/ChooseActionStep"
+import { CommitIntentStep } from "@/routes/home/components/CommitIntentStep"
+import { IntentQuoteDisplayStep } from "@/routes/home/components/IntentQuoteDisplayStep"
+import { OriginCallStep } from "@/routes/home/components/OriginCallStep"
+import { RelayerStatusSection } from "@/routes/home/components/RelayerStatusSection"
+import { SelectOriginTokenStep } from "@/routes/home/components/SelectOriginTokenStep"
 import type { IntentAction } from "@/types"
 
-function useHook() {
+function useHomeHook() {
   const account = useAccount()
   const {
     connectors,
@@ -428,7 +428,7 @@ function useHook() {
   }
 }
 
-export const HomeIndexRoute = () => {
+export const Home = () => {
   const {
     // Account Management
     account,
@@ -509,7 +509,7 @@ export const HomeIndexRoute = () => {
     sendMetaTxnPending,
     originBlockTimestamp,
     metaTxnBlockTimestamps,
-  } = useHook()
+  } = useHomeHook()
 
   return (
     <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 max-w-3xl mx-auto min-h-screen">

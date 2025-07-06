@@ -1,3 +1,1 @@
-import { Widget } from "./widget"
-
-export { Widget }
+export * from "./Widget"

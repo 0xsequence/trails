@@ -2,7 +2,7 @@ import { NetworkImage, Text } from "@0xsequence/design-system"
 import type { NativeTokenBalance, TokenBalance } from "@0xsequence/trails-sdk"
 import type React from "react"
 import { type Hex, zeroAddress } from "viem"
-import { SectionHeader } from "@/components/SectionHeader"
+import { SectionHeader } from "@/routes/home/components/SectionHeader"
 import { formatBalance, getChainInfo } from "@/utils/formatting"
 
 interface SelectOriginTokenStepProps {
