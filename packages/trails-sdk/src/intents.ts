@@ -8,6 +8,13 @@ import type {
   SequenceAPIClient,
   TrailsExecutionInfo,
 } from "@0xsequence/trails-api"
+
+export type {
+  IntentCallsPayload,
+  IntentPrecondition,
+  TrailsExecutionInfo,
+} from "@0xsequence/trails-api"
+
 import type { Context as ContextLike } from "@0xsequence/wallet-primitives"
 import { Config, type Context, Payload } from "@0xsequence/wallet-primitives"
 import {
