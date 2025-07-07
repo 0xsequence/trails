@@ -72,30 +72,6 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
     }
   }
 
-  // If no valid wallet options are available, show a simple message
-  if (!walletOptions.length) {
-    return (
-      <div className="space-y-6">
-        <div className="flex items-center relative">
-          <h2
-            className={`text-lg font-semibold w-full text-center ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-          >
-            Connect a Wallet
-          </h2>
-        </div>
-        <div
-          className={`text-center p-4 rounded-lg ${
-            theme === "dark"
-              ? "text-gray-300 bg-gray-800"
-              : "text-gray-600 bg-gray-50"
-          }`}
-        >
-          Please connect wallet in dapp
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center relative">
@@ -178,33 +154,58 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
               </p>
             </div>
           )}
-          {walletOptions.map((wallet) => (
-            <button
-              type="button"
-              key={wallet.id}
-              onClick={() => onConnect(wallet.id)}
-              className={`w-full flex items-center justify-center space-x-2 cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${getWalletButtonStyle(wallet.id)}`}
-            >
-              {wallet.id === "privy" ? (
-                <img
-                  src={theme === "dark" ? PrivyLogoBlack : PrivyLogoWhite}
-                  alt="Privy"
-                  className="h-6"
-                />
-              ) : wallet.id === "injected" && window.ethereum?.isMetaMask ? (
-                <div className="flex items-center space-x-2">
+          {walletOptions.length > 0 ? (
+            walletOptions.map((wallet) => (
+              <button
+                type="button"
+                key={wallet.id}
+                onClick={() => onConnect(wallet.id)}
+                className={`w-full flex items-center justify-center space-x-2 cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${getWalletButtonStyle(wallet.id)}`}
+              >
+                {wallet.id === "privy" ? (
                   <img
-                    src={MetaMaskFox}
-                    alt="MetaMask Fox"
-                    className="h-6 w-6"
+                    src={theme === "dark" ? PrivyLogoBlack : PrivyLogoWhite}
+                    alt="Privy"
+                    className="h-6"
                   />
-                  <img src={MetaMaskLogoWhite} alt="MetaMask" className="h-6" />
-                </div>
-              ) : (
-                <span>{wallet.name}</span>
-              )}
-            </button>
-          ))}
+                ) : wallet.id === "injected" && window.ethereum?.isMetaMask ? (
+                  <div className="flex items-center space-x-2">
+                    <img
+                      src={MetaMaskFox}
+                      alt="MetaMask Fox"
+                      className="h-6 w-6"
+                    />
+                    <img
+                      src={MetaMaskLogoWhite}
+                      alt="MetaMask"
+                      className="h-6"
+                    />
+                  </div>
+                ) : (
+                  <span>{wallet.name}</span>
+                )}
+              </button>
+            ))
+          ) : (
+            <div className="space-y-6">
+              <div className="flex items-center relative">
+                <h2
+                  className={`text-lg font-semibold w-full text-center ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                >
+                  Connect a Wallet
+                </h2>
+              </div>
+              <div
+                className={`text-center p-4 rounded-lg ${
+                  theme === "dark"
+                    ? "text-gray-300 bg-gray-800"
+                    : "text-gray-600 bg-gray-50"
+                }`}
+              >
+                Please connect wallet in dapp
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -49,7 +49,6 @@ interface CustomizationFormProps {
   setPaymasterUrls: (value: Array<{ chainId: number; url: string }>) => void
   gasless: boolean | null
   setGasless: (value: boolean | null) => void
-  isWalletConnected?: boolean
 }
 
 // Local storage keys
@@ -127,9 +126,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   setPaymasterUrls,
   gasless,
   setGasless,
-  isWalletConnected = false,
 }) => {
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
   const [isScenarioDropdownOpen, setIsScenarioDropdownOpen] = useState(false)
   const [selectedScenario, setSelectedScenario] = useState("")
@@ -164,7 +162,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   // Function to apply scenario settings
   const applyScenario = (scenario: string) => {
     // Set recipient to connected account if available
-    if (isWalletConnected && address) {
+    if (isConnected && address) {
       setToRecipient(address)
     }
 
@@ -223,7 +221,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
     // Use toRecipient if set, otherwise use connected account address
     const effectiveRecipient =
-      toRecipient || (isWalletConnected && address ? address : zeroAddress)
+      toRecipient || (isConnected && address ? address : zeroAddress)
     if (!effectiveRecipient) return
 
     switch (selectedScenario) {
@@ -247,7 +245,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     selectedScenario,
     toRecipient,
     setToCalldata,
-    isWalletConnected,
+    isConnected,
     address,
     formatAddressForCalldata,
   ])
@@ -509,12 +507,12 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             <button
               type="button"
               onClick={() =>
-                isWalletConnected &&
+                isConnected &&
                 setIsScenarioDropdownOpen(!isScenarioDropdownOpen)
               }
-              disabled={!isWalletConnected}
+              disabled={!isConnected}
               className={`w-full flex items-center px-3 sm:px-4 py-3 border rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                isWalletConnected
+                isConnected
                   ? "bg-gray-700 border-gray-600 hover:border-gray-500 text-gray-200"
                   : "bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed"
               }`}
@@ -525,10 +523,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               <ChevronDown
                 className={`h-5 w-5 transition-transform ${
                   isScenarioDropdownOpen ? "transform rotate-180" : ""
-                } ${isWalletConnected ? "text-gray-400" : "text-gray-600"}`}
+                } ${isConnected ? "text-gray-400" : "text-gray-600"}`}
               />
             </button>
-            {!isWalletConnected && (
+            {!isConnected && (
               <p className="mt-1 text-xs text-gray-500">
                 Connect your wallet to select a scenario
               </p>
