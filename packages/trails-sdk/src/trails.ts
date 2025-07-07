@@ -88,7 +88,7 @@ export type UseTrailsReturn = {
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
     trailsInfos: TrailsExecutionInfo[]
-    quoteProvider: "lifi" | "relay"
+    quoteProvider: "lifi" | "relay" | "cctp"
   }) => void
   commitIntentConfigPending: boolean
   commitIntentConfigSuccess: boolean
@@ -100,7 +100,7 @@ export type UseTrailsReturn = {
         calls: IntentCallsPayload[]
         preconditions: IntentPrecondition[]
         trailsInfos: TrailsExecutionInfo[]
-        quoteProvider: "lifi" | "relay"
+        quoteProvider: "lifi" | "relay" | "cctp"
       }
     | undefined
   getIntentCallsPayloads: (
@@ -279,7 +279,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       calls: IntentCallsPayload[]
       preconditions: IntentPrecondition[]
       trailsInfos: TrailsExecutionInfo[]
-      quoteProvider: "lifi" | "relay"
+      quoteProvider: QuoteProvider
     }) => {
       if (!apiClient) throw new Error("API client not available")
       if (!args.trailsInfos) throw new Error("TrailsInfos not available")

@@ -32,9 +32,10 @@ import {
   type WalletClient,
 } from "viem"
 import {
-  TRAILS_LIFI_ATTESATION_SIGNER_ADDRESS,
-  TRAILS_LIFI_SAPIENT_SIGNER_LITE_ADDRESS,
-  TRAILS_RELAY_SAPIENT_SIGNER_LITE_ADDRESS,
+  ATTESATION_SIGNER_ADDRESS,
+  TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
+  TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
+  TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS,
 } from "./constants.js"
 import { findPreconditionAddress } from "./preconditions.js"
 
@@ -166,7 +167,7 @@ export function calculateIntentAddress(
     Address.from(mainSigner),
     coreCalls,
     context,
-    TRAILS_LIFI_ATTESATION_SIGNER_ADDRESS,
+    ATTESATION_SIGNER_ADDRESS,
     coreExecutionInfos,
     sapientType,
   )
@@ -302,7 +303,7 @@ export function hashIntentParams({
     if (!callPayload) throw new Error(`DestinationCalls[${i}] is nil`)
 
     const currentDestCallPayloadHashBytes = Payload.hash(
-      TRAILS_LIFI_ATTESATION_SIGNER_ADDRESS,
+      ATTESATION_SIGNER_ADDRESS,
       BigInt(callPayload.chainId),
       {
         type: "call",
@@ -521,8 +522,10 @@ function createIntentConfiguration(
         type: "sapient-signer",
         address:
           sapientType === "lifi"
-            ? TRAILS_LIFI_SAPIENT_SIGNER_LITE_ADDRESS
-            : TRAILS_RELAY_SAPIENT_SIGNER_LITE_ADDRESS,
+            ? TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS
+            : sapientType === "cctp"
+              ? TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS
+              : TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS,
         weight: 1n,
         imageHash: getTrailsExecutionInfoHash(
           executionInfos,
