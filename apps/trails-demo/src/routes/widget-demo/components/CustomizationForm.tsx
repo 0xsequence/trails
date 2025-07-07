@@ -152,16 +152,36 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   const { address, isConnected } = useAccount()
   const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
   const [isScenarioDropdownOpen, setIsScenarioDropdownOpen] = useState(false)
-  const [selectedScenario, setSelectedScenario] = useState("")
+  const [selectedScenario, setSelectedScenario] = useState<string>("")
 
   const tokenDropdownRef = useRef<HTMLDivElement>(null)
 
+  // Scenario keys
+  const SCENARIO_KEYS = {
+    PAY_USDC_BASE: "pay_usdc_base",
+    MINT_NFT_ARBITRUM: "mint_nft_arbitrum",
+    MINT_NFT_POLYGON: "mint_nft_polygon",
+    DEPOSIT_AAVE_BASE: "deposit_aave_base",
+  } as const
+
   // Scenario options based on example subtitles
   const scenarioOptions = [
-    "Pay USDC on Base to a recipient",
-    "Mint an NFT on Arbitrum with ETH",
-    "Mint an NFT on Polygon with BAT",
-    "Deposit ETH to Aave lending pool on Base",
+    {
+      key: SCENARIO_KEYS.PAY_USDC_BASE,
+      label: "Pay USDC on Base to a recipient",
+    },
+    {
+      key: SCENARIO_KEYS.MINT_NFT_ARBITRUM,
+      label: "Mint an NFT on Arbitrum with ETH",
+    },
+    {
+      key: SCENARIO_KEYS.MINT_NFT_POLYGON,
+      label: "Mint an NFT on Polygon with BAT",
+    },
+    {
+      key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE,
+      label: "Deposit ETH to Aave lending pool on Base",
+    },
   ]
 
   // Scenario recipient
@@ -183,14 +203,14 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   // Function to apply scenario settings
   const applyScenario = useCallback(
-    (scenario: string, skipRecipientSet = false) => {
+    (scenarioKey: string, skipRecipientSet = false) => {
       // Set recipient to connected account if available (but not when called due to toRecipient changes)
       if (!skipRecipientSet && isConnected && address) {
         setToRecipient(address)
       }
 
-      switch (scenario) {
-        case "Pay USDC on Base to a recipient": {
+      switch (scenarioKey) {
+        case SCENARIO_KEYS.PAY_USDC_BASE: {
           setToAmount("0.1")
           setToToken("USDC")
           setToChainId(8453)
@@ -199,11 +219,11 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           if (toRecipient) {
             setToAddress(toRecipient)
           } else {
-            setToAddress(zeroAddress)
+            setToAddress("")
           }
           break
         }
-        case "Mint an NFT on Arbitrum with ETH": {
+        case SCENARIO_KEYS.MINT_NFT_ARBITRUM: {
           setToAddress("0xAA3df3c86EdB6aA4D03b75092b4dd0b99515EC83")
           setToAmount("0.00002")
           setToToken("ETH")
@@ -213,7 +233,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToCalldata(arbitrumCalldata)
           break
         }
-        case "Mint an NFT on Polygon with BAT": {
+        case SCENARIO_KEYS.MINT_NFT_POLYGON: {
           setToAddress("0x15e68e3Cdf84ea8bB2CeF2c3b49976903543F708")
           setToAmount("1")
           setToToken("BAT")
@@ -223,7 +243,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToCalldata(polygonCalldata)
           break
         }
-        case "Deposit ETH to Aave lending pool on Base": {
+        case SCENARIO_KEYS.DEPOSIT_AAVE_BASE: {
           setToAddress("0xa0d9C1E9E48Ca30c8d8C3B5D69FF5dc1f6DFfC24")
           setToAmount("0.00004")
           setToToken("ETH")
@@ -247,6 +267,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       setToCalldata,
       setToAddress,
       formatAddressForCalldata,
+      SCENARIO_KEYS,
     ],
   )
 
@@ -260,17 +281,17 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     if (!effectiveRecipient) return
 
     switch (selectedScenario) {
-      case "Mint an NFT on Arbitrum with ETH": {
+      case SCENARIO_KEYS.MINT_NFT_ARBITRUM: {
         const arbitrumCalldata = `0x6a627842000000000000000000000000${formatAddressForCalldata(effectiveRecipient)}`
         setToCalldata(arbitrumCalldata)
         break
       }
-      case "Mint an NFT on Polygon with BAT": {
+      case SCENARIO_KEYS.MINT_NFT_POLYGON: {
         const polygonCalldata = `0x6a627842000000000000000000000000${formatAddressForCalldata(effectiveRecipient)}`
         setToCalldata(polygonCalldata)
         break
       }
-      case "Deposit ETH to Aave lending pool on Base": {
+      case SCENARIO_KEYS.DEPOSIT_AAVE_BASE: {
         const aaveCalldata = encodeAaveEthDepositCalldata(effectiveRecipient)
         setToCalldata(aaveCalldata)
         break
@@ -283,6 +304,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     isConnected,
     address,
     formatAddressForCalldata,
+    SCENARIO_KEYS,
   ])
 
   // Update calldata when toRecipient changes
@@ -597,21 +619,21 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                 </button>
                 {scenarioOptions.map((scenario) => (
                   <button
-                    key={scenario}
+                    key={scenario.key}
                     type="button"
                     onClick={() => {
-                      setSelectedScenario(scenario)
+                      setSelectedScenario(scenario.key)
                       setIsScenarioDropdownOpen(false)
-                      applyScenario(scenario)
+                      applyScenario(scenario.key)
                     }}
                     className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-600 cursor-pointer text-sm ${
-                      selectedScenario === scenario
+                      selectedScenario === scenario.key
                         ? "bg-gray-600 text-blue-400"
                         : "text-gray-200"
                     }`}
                   >
-                    <span className="ml-2">{scenario}</span>
-                    {selectedScenario === scenario && (
+                    <span className="ml-2">{scenario.label}</span>
+                    {selectedScenario === scenario.key && (
                       <span className="ml-auto text-blue-400">•</span>
                     )}
                   </button>
