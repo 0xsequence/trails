@@ -56,8 +56,8 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
   }[] = [
     {
       id: "relay" as QuoteProvider,
-      label: "Sequence Relay",
-      description: "Use Sequence's native relayer for liquidity.",
+      label: "Relay",
+      description: "Use Relay.link for filling liquidity.",
     },
     {
       id: "lifi" as QuoteProvider,
