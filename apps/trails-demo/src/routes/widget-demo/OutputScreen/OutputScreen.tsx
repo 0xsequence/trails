@@ -74,7 +74,7 @@ export const OutputScreen = ({
 
       <div className="mt-4 py-4">
         {activeTab === "modal" && (
-          <div className="flex justify-center">
+          <div className="w-full">
             <TrailsWidget
               sequenceProjectAccessKey={
                 sequenceProjectAccessKey || defaultSequenceProjectAccessKey

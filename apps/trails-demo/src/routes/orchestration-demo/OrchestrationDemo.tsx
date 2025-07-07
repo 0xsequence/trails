@@ -528,14 +528,14 @@ export const OrchestrationDemo = () => {
   } = useOrchestrationDemo()
 
   return (
-    <div className="p-4 sm:p-6 space-y-6 sm:space-y-8 max-w-3xl mx-auto min-h-screen">
-      <div className="text-center mb-6 sm:mb-8 animate-fadeIn">
+    <div className="flex flex-col items-center justify-center space-y-6 py-8 px-4 sm:py-12 sm:px-6">
+      <div className="text-center space-y-4 max-w-6xl w-full mb-20">
         <div className="flex flex-col sm:flex-row justify-between items-start space-y-4 sm:space-y-0">
           <div className="text-left w-full sm:w-auto">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white mb-3 sm:mb-4">
               Trails Demo
             </h1>
-            <p className="text-gray-300 text-xs sm:text-sm mb-2">
+            <p className="text-xs sm:text-sm text-white leading-relaxed max-w-3xl font-light mb-2">
               Connect your wallet and explore cross-chain intents
             </p>
             <p className="text-gray-400 text-xs">
@@ -550,122 +550,124 @@ export const OrchestrationDemo = () => {
       </div>
 
       {/* Account Info & Connect/Disconnect - Standalone Card */}
-      <AccountInfoSection
-        account={account}
-        connectors={connectors}
-        connect={connect}
-        disconnect={disconnect}
-        connectStatus={connectStatus}
-        connectError={connectError}
-      />
-
-      {/* Main Workflow Card - Container for Steps 2-6 */}
-      {account.status === "connected" && (
-        <div className="bg-gray-800/80 rounded-xl shadow-lg border border-gray-700/50 backdrop-blur-sm space-y-4 sm:space-y-6 transition-all duration-300 hover:shadow-blue-900/20 mb-6">
-          {/* Step 2: Select Origin Token */}
-          <SelectOriginTokenStep
-            isLoadingBalances={isLoadingBalances}
-            balanceError={balanceError}
-            sortedTokens={sortedTokens}
-            selectedToken={selectedToken}
-            setSelectedToken={setSelectedToken}
-            clearIntent={clearIntent}
-          />
-
-          {/* Step 3: Choose Action */}
-          <ChooseActionStep
-            isAutoExecuteEnabled={isAutoExecuteEnabled}
-            setIsAutoExecuteEnabled={setIsAutoExecuteEnabled}
-            handleActionClick={handleActionClick}
-            selectedToken={selectedToken}
-            createIntentPending={createIntentPending}
-            intentActionType={intentActionType}
-            createIntentArgs={createIntentArgs}
-            showCustomCallForm={showCustomCallForm}
-            setShowCustomCallForm={setShowCustomCallForm}
-            customCallData={customCallData}
-            setCustomCallData={setCustomCallData}
-            handleCustomCallSubmit={handleCustomCallSubmit}
-            quoteProvider={quoteProvider}
-            setQuoteProvider={setQuoteProvider}
-          />
-
-          {/* Step 4: Intent Quote Display */}
-          <IntentQuoteDisplayStep
-            createIntentPending={createIntentPending}
-            createIntentError={createIntentError}
-            intentCallsPayloads={intentCallsPayloads}
-            intentPreconditions={intentPreconditions}
-            metaTxns={metaTxns}
-            trailsInfos={trailsInfos}
-            trailsFee={trailsFee}
-            intentActionType={intentActionType}
-            selectedToken={selectedToken}
-            account={account as any}
-            calculatedIntentAddress={calculatedIntentAddress}
-            customCallData={customCallData}
-          />
-
-          {/* Step 5: Commit Intent */}
-          <CommitIntentStep
-            intentCallsPayloads={intentCallsPayloads}
-            intentPreconditions={intentPreconditions}
-            trailsInfos={trailsInfos}
-            trailsFee={trailsFee}
-            verificationStatus={verificationStatus}
-            commitIntentConfigError={commitIntentConfigError}
-            commitIntentConfigSuccess={commitIntentConfigSuccess}
-            committedIntentAddress={committedIntentAddress}
-            isLoadingCommittedConfig={isLoadingCommittedConfig}
-            committedConfigError={committedConfigError}
-            committedIntentConfigData={committedIntentConfig}
-            commitIntentConfig={commitIntentConfig}
-            isCommitButtonDisabled={isCommitButtonDisabled}
-            commitButtonText={commitButtonText}
-            calculatedIntentAddress={calculatedIntentAddress}
-            accountAddress={account?.address}
-          />
-
-          {/* Step 6: Origin Call - Replace with Component */}
-          <OriginCallStep
-            intentCallsPayloads={intentCallsPayloads}
-            intentPreconditions={intentPreconditions}
-            accountAddress={account?.address}
-            originCallParams={originCallParams}
-            isSendButtonDisabled={isSendButtonDisabled}
-            sendButtonText={sendButtonText}
-            handleSendOriginCall={handleSendOriginCall}
-          />
-
-          {/* Replace Preview Calculated Address and Manual Meta Txn Controls with Component */}
-          <AdvancedControlsSection
-            accountAddress={account?.address}
-            intentCallsPayloads={intentCallsPayloads}
-            metaTxns={metaTxns}
-            calculatedIntentAddress={calculatedIntentAddress}
-            intentActionType={intentActionType}
-            customCallData={customCallData}
-            isManualMetaTxnEnabled={isManualMetaTxnEnabled}
-            setIsManualMetaTxnEnabled={setIsManualMetaTxnEnabled}
-            selectedMetaTxnId={selectedMetaTxnId}
-            setSelectedMetaTxnId={setSelectedMetaTxnId}
-            handleSendMetaTxn={handleSendMetaTxn}
-            sendMetaTxnPending={sendMetaTxnPending}
-          />
-        </div>
-      )}
-
-      {account.status === "connected" && (
-        <RelayerStatusSection
-          originCallStatus={originCallStatus}
-          isWaitingForReceipt={isWaitingForReceipt}
-          metaTxns={metaTxns}
-          metaTxnMonitorStatuses={metaTxnMonitorStatuses}
-          originBlockTimestamp={originBlockTimestamp}
-          metaTxnBlockTimestamps={metaTxnBlockTimestamps}
-          originCallParams={originCallParams}
+      <div className="w-full max-w-3xl">
+        <AccountInfoSection
+          account={account}
+          connectors={connectors}
+          connect={connect}
+          disconnect={disconnect}
+          connectStatus={connectStatus}
+          connectError={connectError}
         />
-      )}
+
+        {/* Main Workflow Card - Container for Steps 2-6 */}
+        {account.status === "connected" && (
+          <div className="bg-gray-800/80 rounded-xl shadow-lg border border-gray-700/50 backdrop-blur-sm space-y-4 sm:space-y-6 transition-all duration-300 hover:shadow-blue-900/20 mb-6">
+            {/* Step 2: Select Origin Token */}
+            <SelectOriginTokenStep
+              isLoadingBalances={isLoadingBalances}
+              balanceError={balanceError}
+              sortedTokens={sortedTokens}
+              selectedToken={selectedToken}
+              setSelectedToken={setSelectedToken}
+              clearIntent={clearIntent}
+            />
+
+            {/* Step 3: Choose Action */}
+            <ChooseActionStep
+              isAutoExecuteEnabled={isAutoExecuteEnabled}
+              setIsAutoExecuteEnabled={setIsAutoExecuteEnabled}
+              handleActionClick={handleActionClick}
+              selectedToken={selectedToken}
+              createIntentPending={createIntentPending}
+              intentActionType={intentActionType}
+              createIntentArgs={createIntentArgs}
+              showCustomCallForm={showCustomCallForm}
+              setShowCustomCallForm={setShowCustomCallForm}
+              customCallData={customCallData}
+              setCustomCallData={setCustomCallData}
+              handleCustomCallSubmit={handleCustomCallSubmit}
+              quoteProvider={quoteProvider}
+              setQuoteProvider={setQuoteProvider}
+            />
+
+            {/* Step 4: Intent Quote Display */}
+            <IntentQuoteDisplayStep
+              createIntentPending={createIntentPending}
+              createIntentError={createIntentError}
+              intentCallsPayloads={intentCallsPayloads}
+              intentPreconditions={intentPreconditions}
+              metaTxns={metaTxns}
+              trailsInfos={trailsInfos}
+              trailsFee={trailsFee}
+              intentActionType={intentActionType}
+              selectedToken={selectedToken}
+              account={account as any}
+              calculatedIntentAddress={calculatedIntentAddress}
+              customCallData={customCallData}
+            />
+
+            {/* Step 5: Commit Intent */}
+            <CommitIntentStep
+              intentCallsPayloads={intentCallsPayloads}
+              intentPreconditions={intentPreconditions}
+              trailsInfos={trailsInfos}
+              trailsFee={trailsFee}
+              verificationStatus={verificationStatus}
+              commitIntentConfigError={commitIntentConfigError}
+              commitIntentConfigSuccess={commitIntentConfigSuccess}
+              committedIntentAddress={committedIntentAddress}
+              isLoadingCommittedConfig={isLoadingCommittedConfig}
+              committedConfigError={committedConfigError}
+              committedIntentConfigData={committedIntentConfig}
+              commitIntentConfig={commitIntentConfig}
+              isCommitButtonDisabled={isCommitButtonDisabled}
+              commitButtonText={commitButtonText}
+              calculatedIntentAddress={calculatedIntentAddress}
+              accountAddress={account?.address}
+            />
+
+            {/* Step 6: Origin Call - Replace with Component */}
+            <OriginCallStep
+              intentCallsPayloads={intentCallsPayloads}
+              intentPreconditions={intentPreconditions}
+              accountAddress={account?.address}
+              originCallParams={originCallParams}
+              isSendButtonDisabled={isSendButtonDisabled}
+              sendButtonText={sendButtonText}
+              handleSendOriginCall={handleSendOriginCall}
+            />
+
+            {/* Replace Preview Calculated Address and Manual Meta Txn Controls with Component */}
+            <AdvancedControlsSection
+              accountAddress={account?.address}
+              intentCallsPayloads={intentCallsPayloads}
+              metaTxns={metaTxns}
+              calculatedIntentAddress={calculatedIntentAddress}
+              intentActionType={intentActionType}
+              customCallData={customCallData}
+              isManualMetaTxnEnabled={isManualMetaTxnEnabled}
+              setIsManualMetaTxnEnabled={setIsManualMetaTxnEnabled}
+              selectedMetaTxnId={selectedMetaTxnId}
+              setSelectedMetaTxnId={setSelectedMetaTxnId}
+              handleSendMetaTxn={handleSendMetaTxn}
+              sendMetaTxnPending={sendMetaTxnPending}
+            />
+          </div>
+        )}
+
+        {account.status === "connected" && (
+          <RelayerStatusSection
+            originCallStatus={originCallStatus}
+            isWaitingForReceipt={isWaitingForReceipt}
+            metaTxns={metaTxns}
+            metaTxnMonitorStatuses={metaTxnMonitorStatuses}
+            originBlockTimestamp={originBlockTimestamp}
+            metaTxnBlockTimestamps={metaTxnBlockTimestamps}
+            originCallParams={originCallParams}
+          />
+        )}
+      </div>
     </div>
   )
 }

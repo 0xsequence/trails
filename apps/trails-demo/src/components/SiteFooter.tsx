@@ -13,7 +13,7 @@ import {
 export const SiteFooter = () => {
   return (
     <footer className="py-6 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-[1200px] mx-auto flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
+      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
         {/* Left side - Trails Logo */}
         <div className="flex items-center">
           <a
