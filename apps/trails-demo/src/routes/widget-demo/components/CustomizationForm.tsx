@@ -866,271 +866,293 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           />
         </div>
 
-        <div className="flex items-center justify-between py-2">
-          <label
-            className="block text-sm font-medium text-gray-200 flex items-center gap-2"
-            htmlFor="gasless"
-          >
-            Gasless
-            <Tooltip message="Enable gasless transactions using Sequence Relayer based on your project access key sponsorship settings">
-              <InfoIcon size="sm" className="text-gray-400 cursor-pointer" />
-            </Tooltip>
-          </label>
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => setGasless(!gasless)}
-              className={`w-7 h-7 rounded border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
-                gasless
-                  ? "bg-blue-500 border-blue-500 text-white"
-                  : "bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-600"
-              }`}
-            >
-              {gasless && <Checkmark />}
-            </button>
-            <button
-              type="button"
-              onClick={() => setGasless(!gasless)}
-              className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
-            >
-              Enable
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label
-            className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2"
-            htmlFor="paymasterUrls"
-          >
-            Paymaster URLs (Chain-specific)
-            <Tooltip message="Use 4337-compatible bundler/paymaster URLs for gasless transactions, such as Alchemy, Thirdweb, Pimlico, ZeroDev, etc. Set different URLs for different chains.">
-              <InfoIcon size="sm" className="text-gray-400 cursor-pointer" />
-            </Tooltip>
-          </label>
-
-          {/* Paymaster URLs List */}
-          <div className="space-y-3">
-            {paymasterUrls.map(({ chainId, url }, index) => {
-              const currentChainId = chainId
-
-              return (
-                <div
-                  key={`paymaster-${currentChainId}-${index}-${paymasterKey}`}
-                  className="flex flex-col sm:flex-row items-start sm:items-center gap-2"
+        <div className="pt-2">
+          <details className="group">
+            <summary className="flex items-center cursor-pointer list-none py-2">
+              <span className="text-sm font-medium text-gray-200">
+                Gas & Wallet Settings
+              </span>
+              <span className="text-gray-400 text-lg font-medium group-open:hidden ml-2">
+                +
+              </span>
+              <span className="text-gray-400 text-lg font-medium hidden group-open:inline ml-2">
+                −
+              </span>
+            </summary>
+            <div className="mt-3 space-y-4">
+              <div className="flex items-center justify-between py-2">
+                <label
+                  className="block text-sm font-medium text-gray-200 flex items-center gap-2"
+                  htmlFor="gasless"
                 >
-                  {/* Chain Selector */}
-                  <div className="flex-shrink-0 w-full sm:w-32">
-                    <ChainSelector
-                      selectedChainId={currentChainId}
-                      onChainSelect={(newChainId) => {
-                        const newPaymasterUrls = paymasterUrls.map((p) =>
-                          p.chainId === currentChainId
-                            ? { ...p, chainId: newChainId }
-                            : p,
-                        )
-                        console.log("Updating paymaster URLs:", {
-                          currentChainId,
-                          newChainId,
-                          newPaymasterUrls,
-                        })
-
-                        setPaymasterUrls(newPaymasterUrls)
-                        setPaymasterKey((prev) => prev + 1) // Force re-render
-                      }}
-                      className="w-full sm:w-32"
-                      showIconsOnly={true}
+                  Gasless
+                  <Tooltip message="Enable gasless transactions using Sequence Relayer based on your project access key sponsorship settings">
+                    <InfoIcon
+                      size="sm"
+                      className="text-gray-400 cursor-pointer"
                     />
-                  </div>
-
-                  {/* URL Input */}
-                  <input
-                    type="text"
-                    value={url}
-                    onChange={(e) =>
-                      setPaymasterUrls(
-                        paymasterUrls.map((p) =>
-                          p.chainId === currentChainId
-                            ? { ...p, url: e.target.value.trim() }
-                            : p,
-                        ),
-                      )
-                    }
-                    placeholder="https://..."
-                    className="flex-1 px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-                  />
-
-                  {/* Remove Button - Styled like text */}
+                  </Tooltip>
+                </label>
+                <div className="flex items-center space-x-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      const newPaymasterUrls = paymasterUrls.filter(
-                        (p) => p.chainId !== currentChainId,
-                      )
-                      setPaymasterUrls(newPaymasterUrls)
-                    }}
-                    className="px-3 py-2 text-gray-400 hover:text-gray-200 transition-colors text-lg font-medium cursor-pointer self-center"
-                  >
-                    ×
-                  </button>
-                </div>
-              )
-            })}
-
-            {/* Add Button */}
-            <button
-              type="button"
-              onClick={() => {
-                // Find first available chain that's not already used
-                const usedChainIds = paymasterUrls.map((p) => p.chainId)
-                const availableChain = SUPPORTED_TO_CHAINS.find(
-                  (chain) => !usedChainIds.includes(chain.id),
-                )
-                if (availableChain) {
-                  setPaymasterUrls([
-                    ...paymasterUrls,
-                    { chainId: availableChain.id, url: "" },
-                  ])
-                }
-              }}
-              disabled={paymasterUrls.length >= SUPPORTED_TO_CHAINS.length}
-              className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
-            >
-              + Add Paymaster URL
-            </button>
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
-          <label
-            className="block text-sm font-medium text-gray-200"
-            htmlFor="walletOptions"
-          >
-            Wallet Options
-          </label>
-          <div className="flex flex-wrap gap-3">
-            {defaultWalletOptions.map((wallet: string) => {
-              const isSelected = walletOptions?.includes(wallet)
-              return (
-                <div key={wallet} className="flex items-center space-x-2">
-                  <button
-                    type="button"
-                    onClick={() => handleWalletOptionToggle(wallet)}
+                    onClick={() => setGasless(!gasless)}
                     className={`w-7 h-7 rounded border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
-                      isSelected
+                      gasless
                         ? "bg-blue-500 border-blue-500 text-white"
                         : "bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-600"
                     }`}
                   >
-                    {isSelected && <Checkmark />}
+                    {gasless && <Checkmark />}
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleWalletOptionToggle(wallet)}
+                    onClick={() => setGasless(!gasless)}
                     className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
                   >
-                    {wallet.charAt(0).toUpperCase() + wallet.slice(1)}
+                    Enable
                   </button>
                 </div>
-              )
-            })}
-          </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
-          <label
-            className="block text-sm font-medium text-gray-200"
-            htmlFor="theme"
-          >
-            Theme Mode
-          </label>
-          <div className="flex space-x-4">
-            {(["auto", "light", "dark"] as const).map((mode) => (
-              <div key={mode} className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setTheme(mode)}
-                  className={`w-7 h-7 rounded-full border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
-                    theme === mode
-                      ? "bg-blue-500 border-blue-500 text-white"
-                      : "bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-600"
-                  }`}
-                >
-                  {theme === mode && <Checkmark />}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTheme(mode)}
-                  className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
-                >
-                  {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                </button>
               </div>
-            ))}
-          </div>
-        </div>
 
-        <div className="flex items-center justify-between py-2">
-          <label
-            className="block text-sm font-medium text-gray-200"
-            htmlFor="useCustomButton"
-          >
-            Custom Button
-          </label>
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => setUseCustomButton(!useCustomButton)}
-              className={`w-7 h-7 rounded border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
-                useCustomButton
-                  ? "bg-blue-500 border-blue-500 text-white"
-                  : "bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-600"
-              }`}
-            >
-              {useCustomButton && <Checkmark />}
-            </button>
-            <button
-              type="button"
-              onClick={() => setUseCustomButton(!useCustomButton)}
-              className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
-            >
-              Enable
-            </button>
-          </div>
-        </div>
+              <div>
+                <label
+                  className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2"
+                  htmlFor="paymasterUrls"
+                >
+                  Paymaster URLs (Chain-specific)
+                  <Tooltip message="Use 4337-compatible bundler/paymaster URLs for gasless transactions, such as Alchemy, Thirdweb, Pimlico, ZeroDev, etc. Set different URLs for different chains.">
+                    <InfoIcon
+                      size="sm"
+                      className="text-gray-400 cursor-pointer"
+                    />
+                  </Tooltip>
+                </label>
 
-        <div
-          className="flex items-center justify-between py-2"
-          style={{ display: "none" }}
-        >
-          <label
-            className="block text-sm font-medium text-gray-200"
-            htmlFor="renderInline"
-          >
-            Render Inline
-          </label>
-          <button
-            type="button"
-            onClick={() => setRenderInline(!renderInline)}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer ${
-              renderInline ? "bg-blue-500" : "bg-gray-600"
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                renderInline ? "translate-x-6" : "translate-x-1"
-              }`}
-            />
-          </button>
+                {/* Paymaster URLs List */}
+                <div className="space-y-3">
+                  {paymasterUrls.map(({ chainId, url }, index) => {
+                    const currentChainId = chainId
+
+                    return (
+                      <div
+                        key={`paymaster-${currentChainId}-${index}-${paymasterKey}`}
+                        className="flex flex-col sm:flex-row items-start sm:items-center gap-2"
+                      >
+                        {/* Chain Selector */}
+                        <div className="flex-shrink-0 w-full sm:w-32">
+                          <ChainSelector
+                            selectedChainId={currentChainId}
+                            onChainSelect={(newChainId) => {
+                              const newPaymasterUrls = paymasterUrls.map((p) =>
+                                p.chainId === currentChainId
+                                  ? { ...p, chainId: newChainId }
+                                  : p,
+                              )
+                              console.log("Updating paymaster URLs:", {
+                                currentChainId,
+                                newChainId,
+                                newPaymasterUrls,
+                              })
+
+                              setPaymasterUrls(newPaymasterUrls)
+                              setPaymasterKey((prev) => prev + 1) // Force re-render
+                            }}
+                            className="w-full sm:w-32"
+                            showIconsOnly={true}
+                          />
+                        </div>
+
+                        {/* URL Input */}
+                        <input
+                          type="text"
+                          value={url}
+                          onChange={(e) =>
+                            setPaymasterUrls(
+                              paymasterUrls.map((p) =>
+                                p.chainId === currentChainId
+                                  ? { ...p, url: e.target.value.trim() }
+                                  : p,
+                              ),
+                            )
+                          }
+                          placeholder="https://..."
+                          className="flex-1 px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                        />
+
+                        {/* Remove Button - Styled like text */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newPaymasterUrls = paymasterUrls.filter(
+                              (p) => p.chainId !== currentChainId,
+                            )
+                            setPaymasterUrls(newPaymasterUrls)
+                          }}
+                          className="px-3 py-2 text-gray-400 hover:text-gray-200 transition-colors text-lg font-medium cursor-pointer self-center"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )
+                  })}
+
+                  {/* Add Button */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Find first available chain that's not already used
+                      const usedChainIds = paymasterUrls.map((p) => p.chainId)
+                      const availableChain = SUPPORTED_TO_CHAINS.find(
+                        (chain) => !usedChainIds.includes(chain.id),
+                      )
+                      if (availableChain) {
+                        setPaymasterUrls([
+                          ...paymasterUrls,
+                          { chainId: availableChain.id, url: "" },
+                        ])
+                      }
+                    }}
+                    disabled={
+                      paymasterUrls.length >= SUPPORTED_TO_CHAINS.length
+                    }
+                    className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
+                  >
+                    + Add Paymaster URL
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
+                <label
+                  className="block text-sm font-medium text-gray-200"
+                  htmlFor="walletOptions"
+                >
+                  Wallet Options
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  {defaultWalletOptions.map((wallet: string) => {
+                    const isSelected = walletOptions?.includes(wallet)
+                    return (
+                      <div key={wallet} className="flex items-center space-x-2">
+                        <button
+                          type="button"
+                          onClick={() => handleWalletOptionToggle(wallet)}
+                          className={`w-7 h-7 rounded border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
+                            isSelected
+                              ? "bg-blue-500 border-blue-500 text-white"
+                              : "bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-600"
+                          }`}
+                        >
+                          {isSelected && <Checkmark />}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleWalletOptionToggle(wallet)}
+                          className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
+                        >
+                          {wallet.charAt(0).toUpperCase() + wallet.slice(1)}
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </details>
         </div>
 
         <div className="pt-2">
           <details className="group">
-            <summary className="flex items-center justify-between cursor-pointer list-none py-2">
+            <summary className="flex items-center cursor-pointer list-none py-2">
+              <span className="text-sm font-medium text-gray-200">
+                UI & Interaction Settings
+              </span>
+              <span className="text-gray-400 text-lg font-medium group-open:hidden ml-2">
+                +
+              </span>
+              <span className="text-gray-400 text-lg font-medium hidden group-open:inline ml-2">
+                −
+              </span>
+            </summary>
+            <div className="mt-3 space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
+                <label
+                  className="block text-sm font-medium text-gray-200"
+                  htmlFor="theme"
+                >
+                  Theme Mode
+                </label>
+                <div className="flex space-x-4">
+                  {(["auto", "light", "dark"] as const).map((mode) => (
+                    <div key={mode} className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => setTheme(mode)}
+                        className={`w-7 h-7 rounded-full border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
+                          theme === mode
+                            ? "bg-blue-500 border-blue-500 text-white"
+                            : "bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-600"
+                        }`}
+                      >
+                        {theme === mode && <Checkmark />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTheme(mode)}
+                        className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
+                      >
+                        {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between py-2">
+                <label
+                  className="block text-sm font-medium text-gray-200"
+                  htmlFor="useCustomButton"
+                >
+                  Custom Button
+                </label>
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => setUseCustomButton(!useCustomButton)}
+                    className={`w-7 h-7 rounded border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
+                      useCustomButton
+                        ? "bg-blue-500 border-blue-500 text-white"
+                        : "bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-600"
+                    }`}
+                  >
+                    {useCustomButton && <Checkmark />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUseCustomButton(!useCustomButton)}
+                    className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
+                  >
+                    Enable
+                  </button>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div className="pt-2">
+          <details className="group">
+            <summary className="flex items-center cursor-pointer list-none py-2">
               <span className="text-sm font-medium text-gray-200">
                 Sequence Project Access Key
               </span>
-              <ChevronDown className="h-5 w-5 text-gray-400 transition-transform group-open:rotate-180" />
+              <span className="text-gray-400 text-lg font-medium group-open:hidden ml-2">
+                +
+              </span>
+              <span className="text-gray-400 text-lg font-medium hidden group-open:inline ml-2">
+                −
+              </span>
             </summary>
             <div className="mt-3">
               <input
