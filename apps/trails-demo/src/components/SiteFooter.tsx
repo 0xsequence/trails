@@ -2,6 +2,13 @@ import DiscordColorIcon from "@/assets/DiscordColorIcon.svg"
 import GithubIcon from "@/assets/GithubIcon.svg"
 import SequenceLogo from "@/assets/sequence-logo-white.svg"
 import TwitterIcon from "@/assets/TwitterIcon.svg"
+import {
+  DEMOS_URL,
+  DISCORD_URL,
+  GITHUB_URL,
+  SEQUENCE_URL,
+  TWITTER_URL,
+} from "@/config"
 
 export const SiteFooter = () => {
   return (
@@ -10,7 +17,7 @@ export const SiteFooter = () => {
         {/* Left side - Trails Logo */}
         <div className="flex items-center">
           <a
-            href="https://trails.sequence-demos.xyz/"
+            href={DEMOS_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:opacity-80 transition-opacity"
@@ -76,7 +83,7 @@ export const SiteFooter = () => {
         {/* Center - Social Media Icons */}
         <div className="flex items-center space-x-6">
           <a
-            href="https://twitter.com/0xsequence"
+            href={TWITTER_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-white transition-colors"
@@ -84,7 +91,7 @@ export const SiteFooter = () => {
             <img src={TwitterIcon} alt="Twitter" className="w-6 h-6" />
           </a>
           <a
-            href="https://discord.gg/sequence"
+            href={DISCORD_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-white transition-colors"
@@ -92,7 +99,7 @@ export const SiteFooter = () => {
             <img src={DiscordColorIcon} alt="Discord" className="w-6 h-6" />
           </a>
           <a
-            href="https://github.com/0xsequence"
+            href={GITHUB_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-white transition-colors"
@@ -105,7 +112,7 @@ export const SiteFooter = () => {
         <div className="flex items-center text-gray-400 text-xs space-x-2">
           <span>Powered by</span>
           <a
-            href="https://sequence.xyz/"
+            href={SEQUENCE_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:opacity-80 transition-opacity"

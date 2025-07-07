@@ -1,3 +1,5 @@
+import { DEMOS_URL, DOCS_URL } from "@/config"
+
 export const SiteHeader = () => {
   return (
     <header className="bg-white border-b border-gray-200 py-3 px-4 sm:px-6 lg:px-8">
@@ -62,13 +64,13 @@ export const SiteHeader = () => {
 
           <div className="flex items-center space-x-6">
             <a
-              href="https://trails.sequence-demos.xyz/"
+              href={DEMOS_URL}
               className="text-blue-600 hover:text-blue-700 transition-colors font-medium text-sm"
             >
               Demos
             </a>
             <a
-              href="https://github.com/0xsequence/trails"
+              href={DOCS_URL}
               className="text-black hover:text-gray-600 transition-colors font-medium text-sm"
             >
               Docs
@@ -79,7 +81,7 @@ export const SiteHeader = () => {
         {/* Right side - Start Building Button */}
         <div className="flex items-center">
           <a
-            href="https://github.com/0xsequence/trails"
+            href={DOCS_URL}
             className="px-4 py-1.5 border border-gray-400 text-black font-medium rounded-full transition-colors text-sm hover:border-gray-500"
           >
             Start building

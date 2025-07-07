@@ -1,6 +1,15 @@
 import type { Hex } from "viem"
 import * as chains from "viem/chains"
 
+export const LANDING_PAGE_URL =
+  "https://anypay-marketing.0xsequence.workers.dev/"
+export const DOCS_URL = "https://github.com/0xsequence/trails"
+export const DEMOS_URL = "https://trails.sequence-demos.xyz/"
+export const TWITTER_URL = "https://x.com/0xsequence"
+export const DISCORD_URL = "https://discord.gg/sequence"
+export const GITHUB_URL = "https://github.com/0xsequence"
+export const SEQUENCE_URL = "https://sequence.xyz/"
+
 // Mock Data for 'mock_interaction' action
 export const MOCK_CONTRACT_ADDRESS =
   "0x0000000000000000000000000000000000000000"
