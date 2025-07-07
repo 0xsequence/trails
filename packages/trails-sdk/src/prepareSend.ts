@@ -88,8 +88,8 @@ export type SendOptions = {
   client?: WalletClient
   dryMode: boolean
   apiClient: SequenceAPIClient
-  originRelayer: Relayer.Rpc.RpcRelayer
-  destinationRelayer: Relayer.Rpc.RpcRelayer
+  originRelayer: Relayer.Standard.Rpc.RpcRelayer
+  destinationRelayer: Relayer.Standard.Rpc.RpcRelayer
   destinationCalldata?: string
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   sourceTokenPriceUsd?: number | null
@@ -387,8 +387,8 @@ async function sendHandlerForDifferentChainAndToken({
   destinationTokenDecimals: number
   gasless: boolean
   paymasterUrl?: string
-  originRelayer: Relayer.Rpc.RpcRelayer
-  destinationRelayer: Relayer.Rpc.RpcRelayer
+  originRelayer: Relayer.Standard.Rpc.RpcRelayer
+  destinationRelayer: Relayer.Standard.Rpc.RpcRelayer
   sequenceProjectAccessKey: string
   relayerConfig: RelayerEnvConfig
   walletClient: WalletClient
@@ -828,7 +828,7 @@ async function attemptGaslessDeposit({
   account: Account
   relayerConfig: RelayerEnvConfig
   sequenceProjectAccessKey: string
-  originRelayer: Relayer.Rpc.RpcRelayer
+  originRelayer: Relayer.Standard.Rpc.RpcRelayer
 }): Promise<TransactionReceipt | null> {
   let originUserTxReceipt: TransactionReceipt | null = null
   const originChainId = chain.id
@@ -1258,7 +1258,7 @@ async function attemptUserDepositTx({
   account: Account
   relayerConfig: RelayerEnvConfig
   sequenceProjectAccessKey: string
-  originRelayer: Relayer.Rpc.RpcRelayer
+  originRelayer: Relayer.Standard.Rpc.RpcRelayer
   firstPreconditionMin: string
   intentAddress: string
   onOriginSend: () => void
@@ -1357,7 +1357,7 @@ async function sendMetaTxAndWaitForReceipt({
   precondition,
 }: {
   metaTx: MetaTxn
-  relayer: Relayer.Rpc.RpcRelayer
+  relayer: Relayer.Standard.Rpc.RpcRelayer
   precondition: IntentPrecondition
 }): Promise<MetaTxnReceipt | null> {
   let originMetaTxnReceipt: MetaTxnReceipt | null = null

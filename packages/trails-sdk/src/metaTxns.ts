@@ -4,7 +4,7 @@ import type { Hex } from "viem"
 import type { MetaTxn } from "./metaTxnMonitor.js"
 
 export async function relayerSendMetaTx(
-  relayer: Relayer.Rpc.RpcRelayer,
+  relayer: Relayer.Standard.Rpc.RpcRelayer,
   metaTx: MetaTxn,
   preconditions: IntentPrecondition[],
 ): Promise<Hex> {

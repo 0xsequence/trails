@@ -471,7 +471,7 @@ export class StaticSigner implements signers.SapientSigner {
 }
 
 export async function getFeeOptions(
-  relayer: Relayer.Rpc.RpcRelayer,
+  relayer: Relayer.Standard.Rpc.RpcRelayer,
   wallet: string,
   chainId: number,
   calls: Payload.Call[],
