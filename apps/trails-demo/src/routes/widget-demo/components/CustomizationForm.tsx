@@ -70,12 +70,21 @@ export const STORAGE_KEYS = {
 
 interface UseAccountButtonProps {
   onAddressSelect: (address: string) => void
+  currentRecipient?: string
 }
 
 const UseAccountButton: React.FC<UseAccountButtonProps> = ({
   onAddressSelect,
+  currentRecipient = "",
 }) => {
   const { address, isConnected } = useAccount()
+
+  // Check if connected address matches current recipient (case-insensitive)
+  const isAddressAlreadySet =
+    isConnected &&
+    address &&
+    currentRecipient &&
+    address.toLowerCase() === currentRecipient.toLowerCase()
 
   if (!isConnected || !address) {
     return (
@@ -84,6 +93,19 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
         disabled
         className="px-2 sm:px-3 py-1 text-xs bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed"
         title="Connect your wallet first"
+      >
+        Use Account
+      </button>
+    )
+  }
+
+  if (isAddressAlreadySet) {
+    return (
+      <button
+        type="button"
+        disabled
+        className="px-2 sm:px-3 py-1 text-xs bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed"
+        title="Account address already set"
       >
         Use Account
       </button>
@@ -160,60 +182,73 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   }, [])
 
   // Function to apply scenario settings
-  const applyScenario = (scenario: string) => {
-    // Set recipient to connected account if available
-    if (isConnected && address) {
-      setToRecipient(address)
-    }
+  const applyScenario = useCallback(
+    (scenario: string, skipRecipientSet = false) => {
+      // Set recipient to connected account if available (but not when called due to toRecipient changes)
+      if (!skipRecipientSet && isConnected && address) {
+        setToRecipient(address)
+      }
 
-    switch (scenario) {
-      case "Pay USDC on Base to a recipient": {
-        setToAmount("0.1")
-        setToToken("USDC")
-        setToChainId(8453)
-        setToCalldata("")
-        // For scenarios without calldata, recipient becomes the toAddress
-        if (toRecipient) {
-          setToAddress(toRecipient)
-        } else {
-          setToAddress(zeroAddress)
+      switch (scenario) {
+        case "Pay USDC on Base to a recipient": {
+          setToAmount("0.1")
+          setToToken("USDC")
+          setToChainId(8453)
+          setToCalldata("")
+          // For scenarios without calldata, recipient becomes the toAddress
+          if (toRecipient) {
+            setToAddress(toRecipient)
+          } else {
+            setToAddress(zeroAddress)
+          }
+          break
         }
-        break
+        case "Mint an NFT on Arbitrum with ETH": {
+          setToAddress("0xAA3df3c86EdB6aA4D03b75092b4dd0b99515EC83")
+          setToAmount("0.00002")
+          setToToken("ETH")
+          setToChainId(42161)
+          // Encode recipient into calldata if set
+          const arbitrumCalldata = `0x6a627842000000000000000000000000${formatAddressForCalldata(toRecipient || zeroAddress)}`
+          setToCalldata(arbitrumCalldata)
+          break
+        }
+        case "Mint an NFT on Polygon with BAT": {
+          setToAddress("0x15e68e3Cdf84ea8bB2CeF2c3b49976903543F708")
+          setToAmount("1")
+          setToToken("BAT")
+          setToChainId(137)
+          // Encode recipient into calldata if set
+          const polygonCalldata = `0x6a627842000000000000000000000000${formatAddressForCalldata(toRecipient || zeroAddress)}`
+          setToCalldata(polygonCalldata)
+          break
+        }
+        case "Deposit ETH to Aave lending pool on Base": {
+          setToAddress("0xa0d9C1E9E48Ca30c8d8C3B5D69FF5dc1f6DFfC24")
+          setToAmount("0.00004")
+          setToToken("ETH")
+          setToChainId(8453)
+          // Encode recipient into calldata if set
+          const aaveCalldata = encodeAaveEthDepositCalldata(
+            toRecipient || zeroAddress,
+          )
+          setToCalldata(aaveCalldata)
+          break
+        }
       }
-      case "Mint an NFT on Arbitrum with ETH": {
-        setToAddress("0xAA3df3c86EdB6aA4D03b75092b4dd0b99515EC83")
-        setToAmount("0.00002")
-        setToToken("ETH")
-        setToChainId(42161)
-        // Encode recipient into calldata if set
-        const arbitrumCalldata = `0x6a627842000000000000000000000000${formatAddressForCalldata(toRecipient || zeroAddress)}`
-        setToCalldata(arbitrumCalldata)
-        break
-      }
-      case "Mint an NFT on Polygon with BAT": {
-        setToAddress("0x15e68e3Cdf84ea8bB2CeF2c3b49976903543F708")
-        setToAmount("1")
-        setToToken("BAT")
-        setToChainId(137)
-        // Encode recipient into calldata if set
-        const polygonCalldata = `0x6a627842000000000000000000000000${formatAddressForCalldata(toRecipient || zeroAddress)}`
-        setToCalldata(polygonCalldata)
-        break
-      }
-      case "Deposit ETH to Aave lending pool on Base": {
-        setToAddress("0xa0d9C1E9E48Ca30c8d8C3B5D69FF5dc1f6DFfC24")
-        setToAmount("0.00004")
-        setToToken("ETH")
-        setToChainId(8453)
-        // Encode recipient into calldata if set
-        const aaveCalldata = encodeAaveEthDepositCalldata(
-          toRecipient || zeroAddress,
-        )
-        setToCalldata(aaveCalldata)
-        break
-      }
-    }
-  }
+    },
+    [
+      isConnected,
+      address,
+      toRecipient,
+      setToAmount,
+      setToToken,
+      setToChainId,
+      setToCalldata,
+      setToAddress,
+      formatAddressForCalldata,
+    ],
+  )
 
   // Function to update calldata when toRecipient changes
   const updateCalldataForRecipient = useCallback(() => {
@@ -254,6 +289,13 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   useEffect(() => {
     updateCalldataForRecipient()
   }, [updateCalldataForRecipient])
+
+  // Reapply scenario when toRecipient changes
+  useEffect(() => {
+    if (selectedScenario && toRecipient) {
+      applyScenario(selectedScenario, true) // Skip setting recipient to avoid infinite loop
+    }
+  }, [toRecipient, selectedScenario, applyScenario])
 
   // Load saved values from localStorage on mount
   useEffect(() => {
@@ -595,7 +637,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                 placeholder="0x..."
                 className="flex-1 px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               />
-              <UseAccountButton onAddressSelect={setToRecipient} />
+              <UseAccountButton
+                onAddressSelect={setToRecipient}
+                currentRecipient={toRecipient}
+              />
             </div>
             <p className="mt-1 text-xs text-gray-500">
               Customize the recipient address for this scenario
