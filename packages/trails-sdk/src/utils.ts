@@ -10,3 +10,7 @@ export async function requestWithTimeout<T>(
     ),
   ])
 }
+
+export function bigintToString(n: bigint): string {
+  return n.toString()
+}

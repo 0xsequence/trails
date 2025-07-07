@@ -18,7 +18,7 @@ export type MetaTxnStatus = {
 const POLL_INTERVAL = 3_000 // 3 seconds
 
 export const getMetaTxStatus = async (
-  relayer: Relayer.Rpc.RpcRelayer,
+  relayer: Relayer.Standard.Rpc.RpcRelayer,
   metaTxId: string,
   chainId: number,
 ): Promise<Relayer.OperationStatus> => {
@@ -27,7 +27,7 @@ export const getMetaTxStatus = async (
 
 export const useMetaTxnsMonitor = (
   metaTxns: MetaTxn[] | undefined,
-  getRelayer: (chainId: number) => Relayer.Rpc.RpcRelayer,
+  getRelayer: (chainId: number) => Relayer.Standard.Rpc.RpcRelayer,
 ) => {
   const results = useQueries({
     queries: (metaTxns || []).map((metaTxn) => {

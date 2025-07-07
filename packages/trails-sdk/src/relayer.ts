@@ -5,7 +5,7 @@ import type { Chain } from "viem"
 import * as chains from "viem/chains"
 
 export type RelayerOperationStatus = Relayer.OperationStatus
-export type RpcRelayer = Relayer.Rpc.RpcRelayer
+export type RpcRelayer = Relayer.Standard.Rpc.RpcRelayer
 
 // Helper to get chain info
 function getChain(chainId: number): Chain {
@@ -33,15 +33,15 @@ export type RelayerEnvConfig = {
 
 export function getBackupRelayer(
   chainId: number,
-): Relayer.Rpc.RpcRelayer | undefined {
+): Relayer.Standard.Rpc.RpcRelayer | undefined {
   if (chainId === 42161) {
-    return new Relayer.Rpc.RpcRelayer(
+    return new Relayer.Standard.Rpc.RpcRelayer(
       "https://a1b4a8c5d856.ngrok.app/",
       chainId,
       "https://nodes.sequence.app/arbitrum",
     )
   } else if (chainId === 8453) {
-    return new Relayer.Rpc.RpcRelayer(
+    return new Relayer.Standard.Rpc.RpcRelayer(
       "https://644a6aeb891e.ngrok.app/",
       chainId,
       "https://nodes.sequence.app/base",
@@ -151,7 +151,7 @@ export function getRelayerUrl(
 export function getRelayer(
   config: RelayerEnvConfig,
   chainId: number,
-): Relayer.Rpc.RpcRelayer {
+): Relayer.Standard.Rpc.RpcRelayer {
   const chain = getChain(chainId)
 
   if (!chain) {
@@ -165,20 +165,24 @@ export function getRelayer(
 
   const relayerUrl = getRelayerUrl(config, chainId)
 
-  return new Relayer.Rpc.RpcRelayer(relayerUrl, chainId, rpcUrl, fetch)
+  return new Relayer.Standard.Rpc.RpcRelayer(relayerUrl, chainId, rpcUrl, fetch)
 }
 
 export function useRelayers(config: RelayerEnvConfig): {
-  relayers: Map<number, Relayer.Rpc.RpcRelayer>
-  getRelayer: (chainId: number) => Relayer.Rpc.RpcRelayer
-  getBackupRelayer: (chainId: number) => Relayer.Rpc.RpcRelayer | undefined
+  relayers: Map<number, Relayer.Standard.Rpc.RpcRelayer>
+  getRelayer: (chainId: number) => Relayer.Standard.Rpc.RpcRelayer
+  getBackupRelayer: (
+    chainId: number,
+  ) => Relayer.Standard.Rpc.RpcRelayer | undefined
 } {
   const relayers = useMemo(() => {
-    const relayerMap = new Map<number, Relayer.Rpc.RpcRelayer>()
+    const relayerMap = new Map<number, Relayer.Standard.Rpc.RpcRelayer>()
     return relayerMap
   }, [])
 
-  const getCachedRelayer = (chainId: number): Relayer.Rpc.RpcRelayer => {
+  const getCachedRelayer = (
+    chainId: number,
+  ): Relayer.Standard.Rpc.RpcRelayer => {
     let relayer = relayers.get(chainId)
 
     if (!relayer) {

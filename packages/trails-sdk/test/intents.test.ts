@@ -19,12 +19,13 @@ import {
   type IntentCallsPayload,
   type TrailsExecutionInfo,
 } from "../src/intents.js"
+import { bigintToString } from "../src/utils.js"
 
 const _LOCAL_RPC_URL = process.env.LOCAL_RPC_URL || "http://localhost:8545"
 const { RPC_URL, PRIVATE_KEY } = process.env
 const CAN_RUN_LIVE = !!RPC_URL && !!PRIVATE_KEY
 
-const LocalRelayer = Relayer.Local.LocalRelayer
+const LocalRelayer = Relayer.Standard.LocalRelayer
 const {
   NativeBalancePrecondition,
   Erc20BalancePrecondition,
@@ -350,19 +351,18 @@ describe.skip("Trails Preconditions", () => {
 
     // Create a test operation
     const payload: IntentCallsPayload = {
-      chainId: 1n,
-      type: "call",
-      space: 0n,
-      nonce: 0n,
+      chainId: bigintToString(1n),
+      space: bigintToString(0n),
+      nonce: bigintToString(0n),
       calls: [
         {
           to: ERC20_IMPLICIT_MINT_CONTRACT,
-          value: 0n,
+          value: bigintToString(0n),
           data: "0x" as Hex.Hex,
-          gasLimit: 0n,
+          gasLimit: bigintToString(0n),
           delegateCall: false,
           onlyFallback: false,
-          behaviorOnError: "ignore",
+          behaviorOnError: 1,
         },
       ],
     }
@@ -452,7 +452,7 @@ describe.skip("Trails Preconditions", () => {
     //               gasLimit: 0n,
     //               delegateCall: false,
     //               onlyFallback: false,
-    //               behaviorOnError: "ignore",
+    //               behaviorOnError: 1,
     //             },
     //           ]),
     //         ),
@@ -471,19 +471,18 @@ describe.skip("Trails Preconditions", () => {
 
       // Create a test operation
       const payload: IntentCallsPayload = {
-        chainId: 1n,
-        type: "call",
-        space: 0n,
-        nonce: 0n,
+        chainId: bigintToString(1n),
+        space: bigintToString(0n),
+        nonce: bigintToString(0n),
         calls: [
           {
             to: ERC20_IMPLICIT_MINT_CONTRACT,
-            value: 0n,
+            value: bigintToString(0n),
             data: "0x" as Hex.Hex,
-            gasLimit: 0n,
+            gasLimit: bigintToString(0n),
             delegateCall: false,
             onlyFallback: false,
-            behaviorOnError: "ignore",
+            behaviorOnError: 1,
           },
         ],
       }
@@ -584,19 +583,18 @@ describe.skip("Trails Preconditions", () => {
 
       // Create a test operation
       const payload: IntentCallsPayload = {
-        chainId: 1n,
-        type: "call",
-        space: 0n,
-        nonce: 0n,
+        chainId: bigintToString(1n),
+        space: bigintToString(0n),
+        nonce: bigintToString(0n),
         calls: [
           {
             to: ERC20_IMPLICIT_MINT_CONTRACT,
-            value: 0n,
+            value: bigintToString(0n),
             data: "0x" as Hex.Hex,
-            gasLimit: 0n,
+            gasLimit: bigintToString(0n),
             delegateCall: false,
             onlyFallback: false,
-            behaviorOnError: "ignore",
+            behaviorOnError: 1,
           },
         ],
       }
@@ -665,27 +663,26 @@ describe.skip("Intent Configuration Address with LifiInfo", () => {
   const executionInfos: TrailsExecutionInfo[] = [
     {
       originToken: Address.from("0x1111111111111111111111111111111111111111"),
-      amount: 100n,
-      originChainId: 1n,
-      destinationChainId: 10n,
+      amount: bigintToString(100n),
+      originChainId: bigintToString(1n),
+      destinationChainId: bigintToString(10n),
     },
   ]
 
   it("should calculate address for single operation with lifiInfo", () => {
     const payload: IntentCallsPayload = {
-      chainId: 1n,
-      type: "call",
-      space: 0n,
-      nonce: 0n,
+      chainId: bigintToString(1n),
+      space: bigintToString(0n),
+      nonce: bigintToString(0n),
       calls: [
         {
           to: Address.from("0x0000000000000000000000000000000000000000"),
-          value: 0n,
+          value: bigintToString(0n),
           data: "0x1234" as Hex.Hex,
-          gasLimit: 0n,
+          gasLimit: bigintToString(0n),
           delegateCall: false,
           onlyFallback: false,
-          behaviorOnError: "revert" as const,
+          behaviorOnError: 0,
         },
       ],
     }
@@ -707,37 +704,35 @@ describe.skip("Intent Configuration Address with LifiInfo", () => {
 
   it("should calculate address for multiple operations with lifiInfo", () => {
     const payload1: IntentCallsPayload = {
-      chainId: 1n,
-      type: "call",
-      space: 0n,
-      nonce: 0n,
+      chainId: bigintToString(1n),
+      space: bigintToString(0n),
+      nonce: bigintToString(0n),
       calls: [
         {
           to: Address.from("0x0000000000000000000000000000000000000000"),
-          value: 0n,
+          value: bigintToString(0n),
           data: "0x1234" as Hex.Hex,
-          gasLimit: 0n,
+          gasLimit: bigintToString(0n),
           delegateCall: false,
           onlyFallback: false,
-          behaviorOnError: "revert" as const,
+          behaviorOnError: 0,
         },
       ],
     }
 
     const payload2: IntentCallsPayload = {
-      chainId: 1n,
-      type: "call",
-      space: 0n,
-      nonce: 0n,
+      chainId: bigintToString(1n),
+      space: bigintToString(0n),
+      nonce: bigintToString(0n),
       calls: [
         {
           to: Address.from("0x0000000000000000000000000000000000000000"),
-          value: 0n,
+          value: bigintToString(0n),
           data: "0x5678" as Hex.Hex,
-          gasLimit: 0n,
+          gasLimit: bigintToString(0n),
           delegateCall: false,
           onlyFallback: false,
-          behaviorOnError: "revert" as const,
+          behaviorOnError: 0,
         },
       ],
     }
@@ -776,19 +771,18 @@ describe.skip("Intent Configuration Address", () => {
 
     // Create a single operation matching Go test
     const payload: IntentCallsPayload = {
-      chainId: 1n,
-      type: "call",
-      space: 0n,
-      nonce: 0n,
+      chainId: bigintToString(1n),
+      space: bigintToString(0n),
+      nonce: bigintToString(0n),
       calls: [
         {
           to: Address.from("0x0000000000000000000000000000000000000000"),
-          value: 0n,
+          value: bigintToString(0n),
           data: Bytes.toHex(Bytes.fromString("data1")) as Hex.Hex,
-          gasLimit: 0n,
+          gasLimit: bigintToString(0n),
           delegateCall: false,
           onlyFallback: false,
-          behaviorOnError: "ignore" as const,
+          behaviorOnError: 1,
         },
       ],
     }
@@ -825,37 +819,35 @@ describe.skip("Intent Configuration Address", () => {
 
     // Create multiple operations matching Go test
     const payload1: IntentCallsPayload = {
-      chainId: 1n,
-      type: "call",
-      space: 0n,
-      nonce: 0n,
+      chainId: bigintToString(1n),
+      space: bigintToString(0n),
+      nonce: bigintToString(0n),
       calls: [
         {
           to: Address.from("0x0000000000000000000000000000000000000000"),
-          value: 0n,
+          value: bigintToString(0n),
           data: Bytes.toHex(Bytes.fromString("data1")) as Hex.Hex,
-          gasLimit: 0n,
+          gasLimit: bigintToString(0n),
           delegateCall: false,
           onlyFallback: false,
-          behaviorOnError: "ignore" as const,
+          behaviorOnError: 1,
         },
       ],
     }
 
     const payload2: IntentCallsPayload = {
-      chainId: 1n,
-      type: "call",
-      space: 0n,
-      nonce: 0n,
+      chainId: bigintToString(1n),
+      space: bigintToString(0n),
+      nonce: bigintToString(0n),
       calls: [
         {
           to: Address.from("0x0000000000000000000000000000000000000000"),
-          value: 0n,
+          value: bigintToString(0n),
           data: Bytes.toHex(Bytes.fromString("data2")) as Hex.Hex,
-          gasLimit: 0n,
+          gasLimit: bigintToString(0n),
           delegateCall: false,
           onlyFallback: false,
-          behaviorOnError: "ignore" as const,
+          behaviorOnError: 1,
         },
       ],
     }
@@ -892,37 +884,35 @@ describe.skip("Intent Configuration Address", () => {
 
     // Create multi-chain operations
     const arbitrumPayload: IntentCallsPayload = {
-      chainId: 42161n,
-      type: "call",
-      space: 0n,
-      nonce: 0n,
+      chainId: bigintToString(42161n),
+      space: bigintToString(0n),
+      nonce: bigintToString(0n),
       calls: [
         {
           to: Address.from("0x1231deb6f5749ef6ce6943a275a1d3e7486f4eae"),
-          value: 16618237n,
-          data: "0xa6010a660000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000022000000000000000000000000000000000000000000000000000000000000005801784da62343d604885e1181a759647447f13330cc2b8c925cda864b1ac1ce8fc000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000af88d065e77c8cc2239327c5edb3a432268e58310000000000000000000000008456195dd0793c621c7f9245edf0fef85b1b879c00000000000000000000000000000000000000000000000000000000000073ac000000000000000000000000000000000000000000000000000000000000210500000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d737461726761746556324275730000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000086c6966692d61706900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000111111125421ca6dc452d289314280a0f8842a65000000000000000000000000111111125421ca6dc452d289314280a0f8842a650000000000000000000000000000000000000000000000000000000000000000000000000000000000000000af88d065e77c8cc2239327c5edb3a432268e583100000000000000000000000000000000000000000000000000000f42af44fef500000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000020807ed2379000000000000000000000000de9e4fe32b049f821c7f3e9802381aa470ffca73000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee000000000000000000000000af88d065e77c8cc2239327c5edb3a432268e5831000000000000000000000000de9e4fe32b049f821c7f3e9802381aa470ffca730000000000000000000000001231deb6f5749ef6ce6943a275a1d3e7486f4eae00000000000000000000000000000000000000000000000000000f42af44fef500000000000000000000000000000000000000000000000000000000000075320000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000ba00000000000000000000000000000000000000000000000000000000009c4160de632c3a214d5f14c1d8ddf0b92f8bcd188fee4500242668dfaa000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007532000000000000000000000000111111125421ca6dc452d289314280a0f8842a650000000000002a94d114000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000077368def90800000000000000000000000000000000000000000000000000000000000000000000000000000000000000008456195dd0793c621c7f9245edf0fef85b1b879c00000000000000000000000000000000000000000000000000000000000075e80000000000000000000000008456195dd0793c621c7f9245edf0fef85b1b879c0000000000000000000000000000000000000000000000000000000000007532000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000" as Hex.Hex,
-          gasLimit: 0n,
+          value: bigintToString(16618237n),
+          data: "0xa6010a660000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000022000000000000000000000000000000000000000000000000000000000000005801784da62343d604885e1181a759647447f13330cc2b8c925cda864b1ac1ce8fc000000000000000000000000000000000000000000000000000000000000014000000000000000000000000000000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000af88d065e77c8cc2239327c5edb3a432268e58310000000000000000000000008456195dd0793c621c7f9245edf0fef85b1b879c00000000000000000000000000000000000000000000000000000000000073ac000000000000000000000000000000000000000000000000000000000000210500000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d737461726761746556324275730000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000086c6966692d61706900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000111111125421ca6dc452d289314280a0f8842a65000000000000000000000000111111125421ca6dc452d289314280a0f8842a650000000000000000000000000000000000000000000000000000000000000000000000000000000000000000af88d065e77c8cc2239327c5edb3a432268e583100000000000000000000000000000000000000000000000000000f42af44fef500000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000020807ed2379000000000000000000000000de9e4fe32b049f821c7f3e9802381aa470ffca73000000000000000000000000eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee000000000000000000000000af88d065e77c8cc2239327c5edb3a432268e5831000000000000000000000000de9e4fe32b049f821c7f3e9802381aa470ffca730000000000000000000000001231deb6f5749ef6ce6943a275a1d3e7486f4eae00000000000000000000000000000000000000000000000000000f42af44fef500000000000000000000000000000000000000000000000000000000000075320000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000ba00000000000000000000000000000000000000000000000000000000009c4160de632c3a214d5f14c1d8ddf0b92f8bcd188fee4500242668dfaa000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007532000000000000000000000000111111125421ca6dc452d289314280a0f8842a650000000000002a94d114000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000077368def908000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008456195dd0793c621c7f9245edf0fef85b1b879c00000000000000000000000000000000000000000000000000000000000075e80000000000000000000000008456195dd0793c621c7f9245edf0fef85b1b879c0000000000000000000000000000000000000000000000000000000000007532000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000120000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000" as Hex.Hex,
+          gasLimit: bigintToString(0n),
           delegateCall: false,
           onlyFallback: false,
-          behaviorOnError: "ignore" as const,
+          behaviorOnError: 1,
         },
       ],
     }
 
     const basePayload: IntentCallsPayload = {
-      chainId: 8453n,
-      type: "call",
-      space: 0n,
-      nonce: 0n,
+      chainId: bigintToString(8453n),
+      space: bigintToString(0n),
+      nonce: bigintToString(0n),
       calls: [
         {
           to: Address.from("0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"),
-          value: 0n,
+          value: bigintToString(0n),
           data: "0xa9059cbb000000000000000000000000d8da6bf26964af9d7eed9e03e53415d37aa960450000000000000000000000000000000000000000000000000000000000007530" as Hex.Hex,
-          gasLimit: 0n,
+          gasLimit: bigintToString(0n),
           delegateCall: false,
           onlyFallback: false,
-          behaviorOnError: "ignore" as const,
+          behaviorOnError: 1,
         },
       ],
     }
@@ -960,18 +950,17 @@ describe.skip("HashIntentParams", () => {
   it("should match hash for single call", () => {
     const call = {
       to: Address.from("0x1111111111111111111111111111111111111111"),
-      value: 123n,
+      value: bigintToString(123n),
       data: Bytes.toHex(Bytes.fromString("data1")) as Hex.Hex,
-      gasLimit: 0n,
+      gasLimit: bigintToString(0n),
       delegateCall: false,
       onlyFallback: false,
-      behaviorOnError: "ignore" as const,
+      behaviorOnError: 1,
     }
     const payload: IntentCallsPayload = {
-      chainId: 1n,
-      type: "call",
-      space: 0n,
-      nonce: 0n,
+      chainId: bigintToString(1n),
+      space: bigintToString(0n),
+      nonce: bigintToString(0n),
       calls: [call],
     }
     const params = {
@@ -1002,34 +991,32 @@ describe.skip("HashIntentParams", () => {
   it("should match hash for multiple calls", () => {
     const call1 = {
       to: Address.from("0x1111111111111111111111111111111111111111"),
-      value: 123n,
+      value: bigintToString(123n),
       data: Bytes.toHex(Bytes.fromString("data1")) as Hex.Hex,
-      gasLimit: 0n,
+      gasLimit: bigintToString(0n),
       delegateCall: false,
       onlyFallback: false,
-      behaviorOnError: "ignore" as const,
+      behaviorOnError: 1,
     }
     const call2 = {
       to: Address.from("0x5555555555555555555555555555555555555555"),
-      value: 456n,
+      value: bigintToString(456n),
       data: Bytes.toHex(Bytes.fromString("data2")) as Hex.Hex,
-      gasLimit: 0n,
+      gasLimit: bigintToString(0n),
       delegateCall: false,
       onlyFallback: false,
-      behaviorOnError: "ignore" as const,
+      behaviorOnError: 1,
     }
     const payload1: IntentCallsPayload = {
-      chainId: 1n,
-      type: "call",
-      space: 0n,
-      nonce: 0n,
+      chainId: bigintToString(1n),
+      space: bigintToString(0n),
+      nonce: bigintToString(0n),
       calls: [call1],
     }
     const payload2: IntentCallsPayload = {
-      chainId: 1n,
-      type: "call",
-      space: 0n,
-      nonce: 0n,
+      chainId: bigintToString(1n),
+      space: bigintToString(0n),
+      nonce: bigintToString(0n),
       calls: [call2],
     }
     const params = {
@@ -1062,9 +1049,9 @@ describe("GetTrailsExecutionInfoHash", () => {
     const executionInfos: TrailsExecutionInfo[] = [
       {
         originToken: Address.from("0x1111111111111111111111111111111111111111"),
-        amount: 100n,
-        originChainId: 1n,
-        destinationChainId: 10n,
+        amount: bigintToString(100n),
+        originChainId: bigintToString(1n),
+        destinationChainId: bigintToString(10n),
       },
     ]
     const attestationAddress = Address.from(
@@ -1081,15 +1068,15 @@ describe("GetTrailsExecutionInfoHash", () => {
     const executionInfos: TrailsExecutionInfo[] = [
       {
         originToken: Address.from("0x1111111111111111111111111111111111111111"),
-        amount: 100n,
-        originChainId: 1n,
-        destinationChainId: 10n,
+        amount: bigintToString(100n),
+        originChainId: bigintToString(1n),
+        destinationChainId: bigintToString(10n),
       },
       {
         originToken: Address.from("0x2222222222222222222222222222222222222222"),
-        amount: 200n,
-        originChainId: 137n,
-        destinationChainId: 42161n,
+        amount: bigintToString(200n),
+        originChainId: bigintToString(137n),
+        destinationChainId: bigintToString(42161n),
       },
     ]
     const attestationAddress = Address.from(
@@ -1115,9 +1102,9 @@ describe("GetTrailsExecutionInfoHash", () => {
     const executionInfos: TrailsExecutionInfo[] = [
       {
         originToken: Address.from("0x1111111111111111111111111111111111111111"),
-        amount: 100n,
-        originChainId: 1n,
-        destinationChainId: 10n,
+        amount: bigintToString(100n),
+        originChainId: bigintToString(1n),
+        destinationChainId: bigintToString(10n),
       },
     ]
     const attestationAddress = Address.from(
