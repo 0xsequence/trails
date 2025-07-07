@@ -188,13 +188,6 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
             ))
           ) : (
             <div className="space-y-6">
-              <div className="flex items-center relative">
-                <h2
-                  className={`text-lg font-semibold w-full text-center ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-                >
-                  Connect a Wallet
-                </h2>
-              </div>
               <div
                 className={`text-center p-4 rounded-lg ${
                   theme === "dark"

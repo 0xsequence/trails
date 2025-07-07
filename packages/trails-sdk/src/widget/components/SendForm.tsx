@@ -70,7 +70,6 @@ export const SendForm: React.FC<SendFormProps> = ({
     amountUsdFormatted,
     balanceUsdFormatted,
     chainInfo,
-    error,
     balanceFormatted,
     handleRecipientInputChange,
     handleSubmit,
@@ -584,19 +583,6 @@ export const SendForm: React.FC<SendFormProps> = ({
 
         {/* Error and Submit Button */}
         <div className="flex flex-col space-y-3 pt-2">
-          {error && (
-            <div
-              className={`px-3 py-2 rounded-lg max-h-80 overflow-y-auto ${
-                theme === "dark" ? "bg-red-900/20" : "bg-red-50"
-              }`}
-            >
-              <p
-                className={`text-sm break-words ${theme === "dark" ? "text-red-200" : "text-red-600"}`}
-              >
-                {error}
-              </p>
-            </div>
-          )}
           <button
             type="submit"
             disabled={!amount || !isValidRecipient || isSubmitting}
