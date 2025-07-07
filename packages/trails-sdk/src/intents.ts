@@ -79,7 +79,8 @@ export interface TrailsFee {
   quoteProvider?: string
 }
 
-export type QuoteProvider = "lifi" | "relay"
+// QuoteProvider defines the possible liquidity providers.
+export type QuoteProvider = "lifi" | "relay" | "cctp"
 
 export type GetIntentCallsPayloadsReturn = GetIntentCallsPayloadsReturnFromAPI
 

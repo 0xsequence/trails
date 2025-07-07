@@ -45,6 +45,7 @@ function useOrchestrationDemo() {
   } = useConnect()
   const { disconnect } = useDisconnect()
   const [selectedToken, setSelectedToken] = useState<TokenBalance | null>(null)
+  const [quoteProvider, setQuoteProvider] = useState<QuoteProvider>("relay")
   const [isAutoExecuteEnabled, setIsAutoExecuteEnabled] = useState(true)
   const [showCustomCallForm, setShowCustomCallForm] = useState(false)
   const [customCallData, setCustomCallData] = useState({
@@ -235,6 +236,7 @@ function useOrchestrationDemo() {
           : action === "mock_interaction"
             ? MOCK_TOKEN_AMOUNT
             : destinationCall.transactionValue,
+      provider: quoteProvider,
     }
 
     return args
@@ -356,6 +358,10 @@ function useOrchestrationDemo() {
     isLoadingBalances,
     balanceError,
 
+    // Provider Management
+    quoteProvider,
+    setQuoteProvider,
+
     // Intent State
     intentCallsPayloads,
     intentPreconditions,
@@ -450,6 +456,10 @@ export const OrchestrationDemo = () => {
     sortedTokens,
     isLoadingBalances,
     balanceError,
+
+    // Provider Management
+    quoteProvider,
+    setQuoteProvider,
 
     // Intent State
     intentCallsPayloads,
@@ -576,6 +586,8 @@ export const OrchestrationDemo = () => {
             customCallData={customCallData}
             setCustomCallData={setCustomCallData}
             handleCustomCallSubmit={handleCustomCallSubmit}
+            quoteProvider={quoteProvider}
+            setQuoteProvider={setQuoteProvider}
           />
 
           {/* Step 4: Intent Quote Display */}

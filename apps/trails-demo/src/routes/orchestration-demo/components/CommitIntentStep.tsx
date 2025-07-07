@@ -5,7 +5,7 @@ import type {
   IntentPrecondition,
   TrailsExecutionInfo,
 } from "@0xsequence/trails-api"
-import type { TrailsFee } from "@0xsequence/trails-sdk"
+import type { QuoteProvider, TrailsFee } from "@0xsequence/trails-sdk"
 import { AlertCircle, Loader2, Zap } from "lucide-react"
 import type React from "react"
 import { SectionHeader } from "@/routes/orchestration-demo/components/SectionHeader"
@@ -32,7 +32,7 @@ interface CommitIntentStepProps {
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
     trailsInfos: TrailsExecutionInfo[]
-    quoteProvider: "lifi" | "relay"
+    quoteProvider: QuoteProvider
   }) => void
   isCommitButtonDisabled: boolean
   commitButtonText: React.ReactNode
@@ -211,7 +211,7 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   calls: intentCallsPayloads,
                   preconditions: intentPreconditions,
                   trailsInfos: trailsInfos,
-                  quoteProvider: trailsFee.quoteProvider as "lifi" | "relay",
+                  quoteProvider: trailsFee.quoteProvider as QuoteProvider,
                 })
               }}
               disabled={isCommitButtonDisabled}

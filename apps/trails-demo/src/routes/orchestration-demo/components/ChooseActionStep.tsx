@@ -1,8 +1,10 @@
 import { Button, NetworkImage, Text } from "@0xsequence/design-system"
-import type { TokenBalance } from "@0xsequence/trails-sdk"
-import { AlertTriangle, PenSquare, Zap } from "lucide-react"
+import type { QuoteProvider, TokenBalance } from "@0xsequence/trails-sdk"
+import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group"
+import { AlertTriangle, PenSquare, Waves, Zap } from "lucide-react"
 import type React from "react"
 import * as chains from "viem/chains"
+
 import { PAY_CHAIN_ID, PAY_DISPLAY_TEXT } from "@/config"
 import { SectionHeader } from "@/routes/orchestration-demo/components/SectionHeader"
 import type { IntentAction } from "@/types"
@@ -27,6 +29,8 @@ interface ChooseActionStepProps {
   }
   setCustomCallData: (data: ChooseActionStepProps["customCallData"]) => void
   handleCustomCallSubmit: (e: React.FormEvent) => void
+  quoteProvider: QuoteProvider
+  setQuoteProvider: (provider: QuoteProvider) => void
 }
 
 export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
@@ -42,7 +46,30 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
   customCallData,
   setCustomCallData,
   handleCustomCallSubmit,
+  quoteProvider,
+  setQuoteProvider,
 }) => {
+  const providers: {
+    id: QuoteProvider
+    label: string
+    description: string
+  }[] = [
+    {
+      id: "relay" as QuoteProvider,
+      label: "Sequence Relay",
+      description: "Use Sequence's native relayer for liquidity.",
+    },
+    {
+      id: "lifi" as QuoteProvider,
+      label: "Li.fi",
+      description: "Use Li.fi for cross-chain swaps and bridging.",
+    },
+    {
+      id: "cctp" as QuoteProvider,
+      label: "CCTP",
+      description: "Use Circle's CCTP for USDC transfers.",
+    },
+  ]
   return (
     <SectionHeader
       noFrame={true}
@@ -101,6 +128,59 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
               />
             </div>
           </div>
+        </div>
+      </div>
+      {/* Liquidity Provider Selection */}
+      <div className="bg-gray-800/50 p-3 sm:p-4 rounded-lg border border-gray-700/30">
+        <div className="flex flex-col space-y-3">
+          <div className="flex items-center">
+            <Waves className="h-4 w-4 mr-2 text-orange-400" />
+            <Text variant="medium" color="primary">
+              Select Liquidity Provider
+            </Text>
+          </div>
+          <RadioGroup
+            value={quoteProvider}
+            onValueChange={(value: string) =>
+              setQuoteProvider(value as QuoteProvider)
+            }
+            className="grid grid-cols-1 md:grid-cols-3 gap-3"
+            disabled={createIntentPending}
+          >
+            {providers.map((provider) => (
+              <label
+                key={provider.id}
+                className={`flex items-center space-x-3 rounded-lg border p-3 cursor-pointer transition-all ${
+                  quoteProvider === provider.id
+                    ? "border-orange-500 bg-orange-900/20"
+                    : "border-gray-700 hover:bg-gray-700/50"
+                } ${
+                  createIntentPending
+                    ? "cursor-not-allowed opacity-50"
+                    : "hover:scale-[1.02]"
+                }`}
+              >
+                <RadioGroupItem
+                  value={provider.id}
+                  id={provider.id}
+                  className="h-4 w-4 rounded-full border-2 border-gray-500 text-orange-500"
+                >
+                  <div className="flex items-center justify-center">
+                    <div
+                      className={`h-2 w-2 rounded-full ${
+                        quoteProvider === provider.id ? "bg-orange-500" : ""
+                      }`}
+                    />
+                  </div>
+                </RadioGroupItem>
+                <div className="flex flex-col">
+                  <Text variant="small" color="primary">
+                    {provider.label}
+                  </Text>
+                </div>
+              </label>
+            ))}
+          </RadioGroup>
         </div>
       </div>
       <div className="flex flex-wrap gap-2 sm:gap-3">
