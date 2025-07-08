@@ -1,4 +1,5 @@
 import type {
+  AddressOverrides,
   GetIntentCallsPayloadsArgs,
   GetIntentConfigReturn,
   IntentCallsPayload,
@@ -94,6 +95,7 @@ export type UseTrailsReturn = {
     preconditions: IntentPrecondition[]
     trailsInfos: TrailsExecutionInfo[]
     quoteProvider: "lifi" | "relay" | "cctp"
+    addressOverrides?: AddressOverrides
   }) => void
   commitIntentConfigPending: boolean
   commitIntentConfigSuccess: boolean
@@ -106,6 +108,7 @@ export type UseTrailsReturn = {
         preconditions: IntentPrecondition[]
         trailsInfos: TrailsExecutionInfo[]
         quoteProvider: "lifi" | "relay" | "cctp"
+        addressOverrides?: AddressOverrides
       }
     | undefined
   getIntentCallsPayloads: (
@@ -285,6 +288,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       preconditions: IntentPrecondition[]
       trailsInfos: TrailsExecutionInfo[]
       quoteProvider: QuoteProvider
+      addressOverrides?: AddressOverrides
     }) => {
       if (!apiClient) throw new Error("API client not available")
       if (!args.trailsInfos) throw new Error("TrailsInfos not available")
@@ -331,6 +335,14 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
           preconditions: args.preconditions,
           trailsInfos: args.trailsInfos,
           sapientType: args.quoteProvider,
+          addressOverrides: {
+            trailsLiFiSapientSignerAddress: TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
+            trailsRelaySapientSignerAddress:
+              TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS,
+            trailsCCTPV2SapientSignerAddress:
+              TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
+            ...args.addressOverrides,
+          },
         })
         console.log("API Commit Response:", response)
         return { calculatedAddress: calculatedAddress.toString(), response }
@@ -1407,6 +1419,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     preconditions: IntentPrecondition[]
     trailsInfos: TrailsExecutionInfo[]
     quoteProvider: QuoteProvider
+    addressOverrides?: AddressOverrides
   }) {
     console.log("commitIntentConfig", args)
     commitIntentConfigMutation.mutate(args)
