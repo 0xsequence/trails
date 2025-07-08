@@ -29,6 +29,11 @@ import {
 import { useAPIClient } from "./apiClient.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
 import { getChainInfo } from "./chains.js"
+import {
+  TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
+  TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
+  TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS,
+} from "./constants.js"
 import { getERC20TransferData } from "./encoders.js"
 import type {
   GetIntentCallsPayloadsReturn,
@@ -107,7 +112,7 @@ export type UseTrailsReturn = {
     args: GetIntentCallsPayloadsArgs,
   ) => Promise<GetIntentCallsPayloadsReturn>
   operationHashes: { [key: string]: Hex }
-  callIntentCallsPayload: (args: any) => void // TODO: Add proper type
+  callIntentCallsPayload: (args: GetIntentCallsPayloadsArgs) => void
   sendOriginTransaction: () => Promise<void>
   switchChain: any // TODO: Add proper type
   isSwitchingChain: boolean
@@ -147,11 +152,11 @@ export type UseTrailsReturn = {
   sendMetaTxnArgs: { selectedId: string | null } | undefined
   clearIntent: () => void
   metaTxnMonitorStatuses: { [key: string]: Relayer.OperationStatus }
-  createIntent: (args: any) => void // TODO: Add proper type
+  createIntent: (args: GetIntentCallsPayloadsArgs) => void
   createIntentPending: boolean
   createIntentSuccess: boolean
   createIntentError: Error | null
-  createIntentArgs: any // TODO: Add proper type
+  createIntentArgs: GetIntentCallsPayloadsArgs | undefined
   originCallParams: OriginCallParams | null
   updateOriginCallParams: (
     args: { originChainId: number; tokenAddress: string } | null,
@@ -430,7 +435,15 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       setIntentPreconditions(null)
       setTrailsInfos(null)
 
-      const data = await getIntentCallsPayloads(args)
+      const data = await getIntentCallsPayloads({
+        ...args,
+        addressOverrides: {
+          trailsLiFiSapientSignerAddress: TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
+          trailsRelaySapientSignerAddress: TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS,
+          trailsCCTPV2SapientSignerAddress: TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
+          ...args.addressOverrides,
+        },
+      })
 
       setMetaTxns(data.metaTxns)
       setIntentCallsPayloads(data.calls)
