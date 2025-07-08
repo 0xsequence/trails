@@ -414,7 +414,15 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
   })
 
   async function getIntentCallsPayloads(args: GetIntentCallsPayloadsArgs) {
-    return getIntentCallsPayloadsFromIntents(apiClient, args)
+    return getIntentCallsPayloadsFromIntents(apiClient, {
+      ...args,
+      addressOverrides: {
+        trailsLiFiSapientSignerAddress: TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
+        trailsRelaySapientSignerAddress: TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS,
+        trailsCCTPV2SapientSignerAddress: TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
+        ...args.addressOverrides,
+      },
+    })
   }
 
   // TODO: Add type for args
@@ -447,15 +455,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       setIntentPreconditions(null)
       setTrailsInfos(null)
 
-      const data = await getIntentCallsPayloads({
-        ...args,
-        addressOverrides: {
-          trailsLiFiSapientSignerAddress: TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
-          trailsRelaySapientSignerAddress: TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS,
-          trailsCCTPV2SapientSignerAddress: TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
-          ...args.addressOverrides,
-        },
-      })
+      const data = await getIntentCallsPayloads(args)
 
       setMetaTxns(data.metaTxns)
       setIntentCallsPayloads(data.calls)
@@ -974,7 +974,8 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
         calls: intentCallsPayloads,
         preconditions: intentPreconditions,
         trailsInfos: trailsInfos,
-        quoteProvider: trailsFee.quoteProvider as "lifi" | "relay",
+        quoteProvider: trailsFee.quoteProvider as QuoteProvider,
+        addressOverrides: createIntentMutation.variables?.addressOverrides,
       })
     }
   }, [
@@ -988,6 +989,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     commitIntentConfigMutation,
     commitIntentConfigMutation.isPending,
     commitIntentConfigMutation.isSuccess,
+    createIntentMutation.variables,
   ])
 
   // Update the sendMetaTxn mutation
@@ -1011,7 +1013,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
         account.address,
         intentCallsPayloads as any[],
         trailsInfos as any[],
-        trailsFee.quoteProvider as "lifi" | "relay",
+        trailsFee.quoteProvider as QuoteProvider,
       ) // TODO: Add proper type
 
       // If no specific ID is selected, send all meta transactions
