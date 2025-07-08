@@ -10,7 +10,6 @@ interface WalletConfirmationProps {
   amount?: string
   recipient?: string
   tokenSymbol?: string
-  error?: string
   retryEnabled?: boolean
   onRetry?: () => void
 }
@@ -20,7 +19,6 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   amount,
   recipient,
   tokenSymbol,
-  error,
   retryEnabled = false,
   onRetry,
   onBack,
@@ -123,25 +121,6 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
             </div>
           </div>
         </div>
-
-        {/* Error Display */}
-        {error && (
-          <div
-            className={`transition-all duration-500 ease-out delay-200 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-          >
-            <div
-              className={`px-3 py-2 rounded-lg max-h-80 overflow-y-auto ${
-                theme === "dark" ? "bg-red-900/20" : "bg-red-50"
-              }`}
-            >
-              <p
-                className={`text-sm break-words ${theme === "dark" ? "text-red-200" : "text-red-600"}`}
-              >
-                {error}
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Retry Button */}
         {retryEnabled && onRetry && (

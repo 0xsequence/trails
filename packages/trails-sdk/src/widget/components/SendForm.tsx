@@ -33,7 +33,14 @@ interface SendFormProps {
   onError: (error: Error) => void
   onWaitingForWalletConfirm: (
     intentAddress?: string,
-    originAmount?: string,
+    originTokenInfo?: {
+      amount: string
+      amountUsd: string
+      tokenSymbol: string
+      tokenName: string
+      chainId: number
+      imageUrl: string
+    },
   ) => void
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean

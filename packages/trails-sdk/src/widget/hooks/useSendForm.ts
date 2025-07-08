@@ -1,7 +1,7 @@
 import type { TokenPrice } from "@0xsequence/trails-api"
 import type { MetaTxnReceipt } from "@0xsequence/trails-relayer"
 import type React from "react"
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import {
   type Account,
   formatUnits,
@@ -22,7 +22,7 @@ import { useTokenPrices } from "../../prices.js"
 import { useQueryParams } from "../../queryParams.js"
 import { getRelayer, type RelayerEnv } from "../../relayer.js"
 import type { Theme } from "../../theme.js"
-import { formatBalance } from "../../tokenBalances.js"
+import { formatBalance, formatUsdValue } from "../../tokenBalances.js"
 import { getTokenAddress } from "./useTokenAddress.js"
 
 // Available chains
@@ -143,7 +143,17 @@ export type UseSendProps = {
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   useSourceTokenForButtonText: boolean
   onError: (error: Error) => void
-  onWaitingForWalletConfirm: (intentAddress: string, amount: string) => void
+  onWaitingForWalletConfirm: (
+    intentAddress: string,
+    details: {
+      amount: string
+      amountUsd: string
+      tokenSymbol: string
+      tokenName: string
+      chainId: number
+      imageUrl: string
+    },
+  ) => void
   paymasterUrls?: PaymasterUrl[]
   gasless?: boolean
   onSend: (amount: string, recipient: string) => void
@@ -328,7 +338,7 @@ export function useSendForm({
     selectedToken.contractInfo?.decimals,
   )
   const balanceUsdFormatted = selectedToken.balanceUsdFormatted ?? ""
-  const relayerConfig = { env, useV3Relayers: true }
+  const relayerConfig = useMemo(() => ({ env, useV3Relayers: true }), [env])
 
   const isValidRecipient = Boolean(recipient && isAddress(recipient))
 
@@ -349,11 +359,9 @@ export function useSendForm({
   const { hasParam } = useQueryParams()
   const isDryMode = hasParam("dryMode", "true")
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-
+  const processSend = useCallback(async () => {
     try {
+      setError(null)
       setIsSubmitting(true)
       const decimals = selectedDestToken?.decimals
       const parsedAmount = parseUnits(amount, decimals).toString()
@@ -390,6 +398,10 @@ export function useSendForm({
         return
       }
 
+      const sourceTokenPriceUsd = selectedToken.tokenPriceUsd ?? null
+      const destinationTokenPriceUsd =
+        destTokenPrices?.[0]?.price?.value ?? null
+
       const options = {
         account,
         originTokenAddress: selectedToken.contractAddress,
@@ -411,8 +423,8 @@ export function useSendForm({
         onTransactionStateChange: (transactionStates: TransactionState[]) => {
           onTransactionStateChange(transactionStates)
         },
-        sourceTokenPriceUsd: selectedToken.tokenPriceUsd ?? null,
-        destinationTokenPriceUsd: destTokenPrices?.[0]?.price?.value ?? null,
+        sourceTokenPriceUsd,
+        destinationTokenPriceUsd,
         sourceTokenDecimals,
         destinationTokenDecimals,
         paymasterUrl:
@@ -435,18 +447,25 @@ export function useSendForm({
         onSend(amount, recipient)
       }
 
-      setIsWaitingForWalletConfirm(true)
-      onWaitingForWalletConfirm(
-        intentAddress?.toString() ?? "",
-        Number(
-          formatUnits(
-            BigInt(originSendAmount),
-            selectedToken.contractInfo?.decimals ?? 18,
-          ),
-        )
-          .toFixed(5)
-          .toString(),
+      const originSendAmountFormatted = Number(
+        formatUnits(
+          BigInt(originSendAmount),
+          selectedToken.contractInfo?.decimals ?? 18,
+        ),
       )
+
+      const originSendAmountUsdFormatted =
+        originSendAmountFormatted * (sourceTokenPriceUsd ?? 0)
+
+      setIsWaitingForWalletConfirm(true)
+      onWaitingForWalletConfirm(intentAddress?.toString() ?? "", {
+        amount: originSendAmountFormatted.toFixed(5).toString(),
+        amountUsd: formatUsdValue(originSendAmountUsdFormatted),
+        tokenSymbol: selectedToken.symbol,
+        tokenName: selectedToken.name,
+        chainId: selectedToken.chainId,
+        imageUrl: selectedToken.imageUrl,
+      })
 
       async function handleSend() {
         console.log("handleRetry called, about to call send()")
@@ -504,6 +523,34 @@ export function useSendForm({
 
     setIsSubmitting(false)
     setIsWaitingForWalletConfirm(false)
+  }, [
+    amount,
+    selectedToken,
+    onError,
+    onSend,
+    onConfirm,
+    onComplete,
+    walletClient,
+    apiClient,
+    relayerConfig,
+    isDryMode,
+    selectedDestToken,
+    selectedChain,
+    toCalldata,
+    paymasterUrls,
+    gasless,
+    sequenceProjectAccessKey,
+    account,
+    destTokenPrices,
+    setWalletConfirmRetryHandler,
+    onWaitingForWalletConfirm,
+    recipient,
+    onTransactionStateChange,
+  ])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    processSend().catch(onError)
   }
 
   // Get button text based on recipient and calldata

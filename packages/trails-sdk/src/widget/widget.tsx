@@ -42,7 +42,7 @@ import Modal from "./components/Modal.js"
 import Receipt from "./components/Receipt.js"
 import SendForm from "./components/SendForm.js"
 import TokenList from "./components/TokenList.js"
-import TransferPending from "./components/TransferPending.js"
+import TransferPending from "./components/TransferPendingVertical.js"
 import WalletConfirmation from "./components/WalletConfirmation.js"
 import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
 import { useAmountUsd } from "./hooks/useAmountUsd.js"
@@ -259,7 +259,14 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
   const [selectedToken, setSelectedToken] = useState<Token | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [intentAddress, setIntentAddress] = useState<string | null>(null)
-  const [fromAmount, setFromAmount] = useState<string | null>(null)
+  const [originTokenInfo, setOriginTokenInfo] = useState<{
+    amount: string
+    amountUsd: string
+    tokenSymbol: string
+    tokenName: string
+    chainId: number
+    imageUrl: string
+  } | null>(null)
   const [showWalletConfirmRetry, setShowWalletConfirmRetry] = useState(false)
   const [walletConfirmRetryHandler, setWalletConfirmRetryHandler] = useState<
     (() => Promise<void>) | null
@@ -439,7 +446,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
     setDestinationChainId(null)
     setTransactionStates([])
     setIntentAddress(null)
-    setFromAmount(null)
+    setOriginTokenInfo(null)
   }
 
   const handleCloseModal = () => {
@@ -564,7 +571,15 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
 
         setCurrentScreen("wallet-confirmation")
         setIntentAddress("0x5A0fb747531bC369367CB031472b89ea4D5c6Df7")
-        setFromAmount("1")
+        setOriginTokenInfo({
+          amount: "1",
+          amountUsd: "$0.01",
+          tokenSymbol: "USDC",
+          tokenName: "USD Coin",
+          chainId: 137,
+          imageUrl:
+            "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        })
         setTransactionStates([])
         break
       case "pending":
@@ -584,7 +599,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
             explorerUrl:
               "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
             chainId: 137,
-            state: "confirmed",
+            state: "pending",
           },
           {
             transactionHash:
@@ -595,6 +610,15 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
             state: "pending",
           },
         ])
+        setOriginTokenInfo({
+          amount: "10000",
+          amountUsd: "$0.01",
+          tokenSymbol: "USDC",
+          tokenName: "USD Coin",
+          chainId: 137,
+          imageUrl:
+            "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        })
         setCurrentScreen("pending")
         break
       case "receipt":
@@ -649,12 +673,19 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
 
   const handleWaitingForWalletConfirm = (
     intentAddress?: string,
-    originAmount?: string,
+    details?: {
+      amount: string
+      amountUsd: string
+      tokenSymbol: string
+      tokenName: string
+      chainId: number
+      imageUrl: string
+    },
   ) => {
     setShowWalletConfirmRetry(false)
     setCurrentScreen("wallet-confirmation")
     setIntentAddress(intentAddress ?? null)
-    setFromAmount(originAmount ?? null)
+    setOriginTokenInfo(details ?? null)
   }
 
   async function handleWalletConfirmRetry() {
@@ -741,10 +772,9 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
         return (
           <WalletConfirmation
             onBack={handleBack}
-            error={error as string}
             onComplete={() => setCurrentScreen("pending")}
             theme={theme}
-            amount={fromAmount ?? undefined}
+            amount={originTokenInfo?.amount ?? undefined}
             recipient={intentAddress ?? ""}
             tokenSymbol={selectedToken?.symbol}
             retryEnabled={showWalletConfirmRetry}
@@ -757,6 +787,12 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
             onComplete={handleTransferComplete}
             theme={theme}
             transactionStates={transactionStates}
+            fromAmount={originTokenInfo?.amount || ""}
+            fromAmountUsd={originTokenInfo?.amountUsd || ""}
+            fromTokenSymbol={originTokenInfo?.tokenSymbol || ""}
+            fromTokenName={originTokenInfo?.tokenName || ""}
+            fromChainId={originTokenInfo?.chainId || 0}
+            fromTokenImageUrl={originTokenInfo?.imageUrl || ""}
           />
         )
       case "receipt":
