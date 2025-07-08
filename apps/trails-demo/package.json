@@ -28,8 +28,8 @@
     "@0xsequence/wallet-primitives": "github:0xsequence/sequence.js#dists/wallet/primitives",
     "@0xsequence/wallet-wdk": "github:0xsequence/sequence.js#dists/wallet/wdk",
     "@radix-ui/react-popover": "^1.1.14",
-    "@reown/appkit": "^1.7.12",
-    "@reown/appkit-adapter-wagmi": "^1.7.12",
+    "@reown/appkit": "^1.7.13",
+    "@reown/appkit-adapter-wagmi": "^1.7.13",
     "@tanstack/react-query": "^5.81.5",
     "@types/react-syntax-highlighter": "^15.5.13",
     "@wagmi/core": "^2.17.3",
@@ -59,6 +59,6 @@
     "rimraf": "^6.0.1",
     "typescript": "~5.7.3",
     "vite": "^6.3.5",
-    "zod": "^3.25.74"
+    "zod": "^3.25.75"
   }
 }
