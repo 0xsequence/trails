@@ -297,15 +297,19 @@ export function getTokenBalanceUsd(
   return Number(formattedBalance) * priceUsd
 }
 
+export function formatUsdValue(value: number): string {
+  return Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(value)
+}
+
 export function getTokenBalanceUsdFormatted(
   token: TokenBalance | NativeTokenBalance,
   tokenPrice: Price,
 ): string {
   const balanceUsd = getTokenBalanceUsd(token, tokenPrice)
-  return Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(balanceUsd)
+  return formatUsdValue(balanceUsd)
 }
 
 export function useTokenBalanceUsdFormat(

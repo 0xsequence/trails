@@ -1,6 +1,6 @@
-import type { MetaTxnReceipt } from "@0xsequence/trails-relayer"
 import "@0xsequence/design-system/preset"
 import { SequenceHooksContext, SequenceHooksProvider } from "@0xsequence/hooks"
+import type { MetaTxnReceipt } from "@0xsequence/trails-relayer"
 import {
   PrivyProvider,
   useLogin,
@@ -29,6 +29,7 @@ import { mainnet } from "viem/chains"
 import type { Connector } from "wagmi"
 import { useAccount, useConnect, useDisconnect, WagmiContext } from "wagmi"
 import { injected } from "wagmi/connectors"
+import { useAPIClient } from "../apiClient.js"
 import { getChainInfo } from "../chains.js"
 import { useIndexerGatewayClient } from "../indexerClient.js"
 import type { TransactionState } from "../prepareSend.js"
@@ -44,6 +45,7 @@ import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPending.js"
 import WalletConfirmation from "./components/WalletConfirmation.js"
 import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
+import { useAmountUsd } from "./hooks/useAmountUsd.js"
 import css from "./index.css?inline"
 
 type Screen =
@@ -297,6 +299,11 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
 
   const indexerGatewayClient = useIndexerGatewayClient({
     indexerGatewayUrl: sequenceIndexerUrl || undefined,
+    projectAccessKey: sequenceProjectAccessKey,
+  })
+
+  const apiClient = useAPIClient({
+    apiUrl: sequenceApiUrl || undefined,
     projectAccessKey: sequenceProjectAccessKey,
   })
 
@@ -663,6 +670,13 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
     }
   }
 
+  const toAmountUsd = useAmountUsd({
+    amount: toAmount,
+    token: toToken,
+    chainId: Number(toChainId),
+    apiClient: apiClient,
+  })
+
   const renderScreenContent = () => {
     switch (currentScreen) {
       case "connect":
@@ -682,6 +696,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
             onBack={handleBack}
             indexerGatewayClient={indexerGatewayClient}
             theme={theme}
+            toAmountUsd={toAmountUsd}
           />
         )
       case "send":

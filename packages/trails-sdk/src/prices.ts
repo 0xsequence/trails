@@ -18,6 +18,14 @@ export const getTokenPrices = async (
   return res?.tokenPrices || []
 }
 
+export const getTokenPrice = async (
+  apiClient: SequenceAPIClient,
+  token: Token,
+): Promise<TokenPrice | null> => {
+  const res = await apiClient.getCoinPrices({ tokens: [token] })
+  return res?.tokenPrices?.[0] || null
+}
+
 export const useTokenPrices = (
   tokens: Token[],
   apiClient: SequenceAPIClient,
@@ -30,5 +38,18 @@ export const useTokenPrices = (
     retry: true,
     staleTime: 60_000,
     enabled: tokens.length > 0,
+  })
+}
+
+export const useTokenPrice = (
+  token: Token | null,
+  apiClient: SequenceAPIClient,
+) => {
+  return useQuery({
+    queryKey: ["coinPrice", token],
+    queryFn: () => (token ? getTokenPrice(apiClient, token) : null),
+    enabled: !!token,
+    retry: true,
+    staleTime: 60_000,
   })
 }
