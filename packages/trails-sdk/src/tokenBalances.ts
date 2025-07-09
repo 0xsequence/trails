@@ -250,12 +250,7 @@ export async function getSourceTokenList(): Promise<string[]> {
     "OP",
     "ARB",
     "MATIC",
-    "XDAI",
-    "AVAX",
-    "BNB",
-    "OKB",
     "BAT",
-    "ARB",
   ]
   return allowedTokens
 }

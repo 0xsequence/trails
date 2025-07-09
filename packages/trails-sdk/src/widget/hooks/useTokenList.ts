@@ -5,6 +5,7 @@ import { useMemo, useState } from "react"
 import { isAddressEqual, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
 import { getChainInfo } from "../../chains.js"
+import { SUPPORTED_TO_CHAINS } from "../../constants.js"
 import type {
   TokenBalanceExtended,
   TokenBalanceWithPrice,
@@ -76,8 +77,16 @@ export function useTokenList({
 
   const sourceTokenList = useSourceTokenList()
 
+  const supportedChainIds = useMemo(
+    () => new Set(SUPPORTED_TO_CHAINS.map((c) => c.id)),
+    [],
+  )
+
   const sortedTokens = useMemo<Array<TokenBalanceExtended>>(() => {
     return allSortedTokens.filter((token: TokenBalanceExtended) => {
+      if (!supportedChainIds.has(token.chainId)) {
+        return false
+      }
       return (
         !(token as TokenBalanceWithPrice).contractAddress ||
         sourceTokenList.includes(
@@ -85,7 +94,7 @@ export function useTokenList({
         )
       )
     })
-  }, [allSortedTokens, sourceTokenList])
+  }, [allSortedTokens, sourceTokenList, supportedChainIds])
 
   const handleTokenSelect = (token: TokenBalanceExtended) => {
     const isNative = !("contractAddress" in token)
