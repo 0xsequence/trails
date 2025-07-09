@@ -60,7 +60,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
         className={`text-center transition-all duration-500 ease-out delay-100 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
       >
         <a
-          href={getExplorerUrl(txHash, chainId)}
+          href={getExplorerUrl({ txHash, chainId })}
           target="_blank"
           rel="noopener noreferrer"
           className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-md font-medium transition-colors border text-sm

@@ -13,50 +13,14 @@ import {
   maxUint256,
   parseAbi,
 } from "viem"
+import { PERMIT_ABI, TRANSFER_ABI, TRANSFER_FROM_ABI } from "./abi.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
 
-// --- ABIs ---
-
-const PERMIT_ABI = {
-  name: "permit",
-  type: "function",
-  stateMutability: "nonpayable",
-  inputs: [
-    { name: "owner", type: "address" },
-    { name: "spender", type: "address" },
-    { name: "value", type: "uint256" },
-    { name: "deadline", type: "uint256" },
-    { name: "v", type: "uint8" },
-    { name: "r", type: "bytes32" },
-    { name: "s", type: "bytes32" },
-  ],
-  outputs: [],
-}
-
-const TRANSFER_FROM_ABI = {
-  name: "transferFrom",
-  type: "function",
-  stateMutability: "nonpayable",
-  inputs: [
-    { name: "from", type: "address" },
-    { name: "to", type: "address" },
-    { name: "amount", type: "uint256" },
-  ],
-  outputs: [{ name: "", type: "bool" }],
-}
-
-const TRANSFER_ABI = {
-  name: "transfer",
-  type: "function",
-  stateMutability: "nonpayable",
-  inputs: [
-    { name: "to", type: "address" },
-    { name: "amount", type: "uint256" },
-  ],
-  outputs: [{ name: "", type: "bool" }],
-}
-
-export function splitSignature(signature: `0x${string}`) {
+export function splitSignature(signature: `0x${string}`): {
+  r: `0x${string}`
+  s: `0x${string}`
+  v: number
+} {
   const sig = signature.slice(2)
   const r = `0x${sig.slice(0, 64)}` as `0x${string}`
   const s = `0x${sig.slice(64, 128)}` as `0x${string}`
@@ -64,13 +28,21 @@ export function splitSignature(signature: `0x${string}`) {
   return { r, s, v }
 }
 
-export function getPermitCalldata(
-  connectedAccount: `0x${string}`,
-  spender: `0x${string}`,
-  amount: bigint,
-  deadline: bigint,
-  signature: `0x${string}`,
-) {
+export type PermitCalldataParams = {
+  signer: `0x${string}`
+  spender: `0x${string}`
+  amount: bigint
+  deadline: bigint
+  signature: `0x${string}`
+}
+
+export function getPermitCalldata({
+  signer,
+  spender,
+  amount,
+  deadline,
+  signature,
+}: PermitCalldataParams): Hex {
   const { r, s, v } = splitSignature(signature)
   console.log("Split signature:", { r, s, v })
 
@@ -78,28 +50,42 @@ export function getPermitCalldata(
   const permitCalldata = encodeFunctionData({
     abi: [PERMIT_ABI],
     functionName: "permit",
-    args: [connectedAccount, spender, amount, deadline, v, r, s],
+    args: [signer, spender, amount, deadline, v, r, s],
   })
 
   return permitCalldata
 }
 
-export function getTransferFromCalldata(
-  connectedAccount: `0x${string}`,
-  spender: `0x${string}`,
-  amount: bigint,
-) {
+export type TransferFromCalldataParams = {
+  signer: `0x${string}`
+  spender: `0x${string}`
+  amount: bigint
+}
+
+export function getTransferFromCalldata({
+  signer,
+  spender,
+  amount,
+}: TransferFromCalldataParams): Hex {
   // Encode transferFrom call
   const transferFromCalldata = encodeFunctionData({
     abi: [TRANSFER_FROM_ABI],
     functionName: "transferFrom",
-    args: [connectedAccount, spender, amount],
+    args: [signer, spender, amount],
   })
 
   return transferFromCalldata
 }
 
-export function getTransferCalldata(recipient: `0x${string}`, amount: bigint) {
+export type TransferCalldataParams = {
+  recipient: `0x${string}`
+  amount: bigint
+}
+
+export function getTransferCalldata({
+  recipient,
+  amount,
+}: TransferCalldataParams): Hex {
   // Encode transfer call to recipient
   const transferCalldata = encodeFunctionData({
     abi: [TRANSFER_ABI],
@@ -118,20 +104,20 @@ export function getPermitCalls(
   signature: `0x${string}`,
   recipient: `0x${string}`,
   tokenAddress: `0x${string}`,
-) {
-  const permitCalldata = getPermitCalldata(
-    connectedAccount,
-    delegatorSmartAccountAddress,
+): { to: `0x${string}`; data: `0x${string}`; value: string }[] {
+  const permitCalldata = getPermitCalldata({
+    signer: connectedAccount,
+    spender: delegatorSmartAccountAddress,
     amount,
     deadline,
     signature,
-  )
-  const transferFromCalldata = getTransferFromCalldata(
-    connectedAccount,
-    delegatorSmartAccountAddress,
+  })
+  const transferFromCalldata = getTransferFromCalldata({
+    signer: connectedAccount,
+    spender: delegatorSmartAccountAddress,
     amount,
-  )
-  const transferCalldata = getTransferCalldata(recipient, amount)
+  })
+  const transferCalldata = getTransferCalldata({ recipient, amount })
 
   return [permitCalldata, transferFromCalldata, transferCalldata].map(
     (call) => ({
@@ -142,16 +128,33 @@ export function getPermitCalls(
   )
 }
 
-export async function getPermitSignature(
-  publicClient: PublicClient,
-  walletClient: WalletClient,
-  connectedAccount: `0x${string}`,
-  delegatorSmartAccountAddress: `0x${string}`,
-  tokenAddress: `0x${string}`,
-  amount: bigint,
-  chain: Chain,
-  deadline: bigint = BigInt(Math.floor(Date.now() / 1000) + 3600), // 1 hour from now
-) {
+export type GetPermitSignatureParams = {
+  publicClient: PublicClient
+  walletClient: WalletClient
+  signer: `0x${string}`
+  spender: `0x${string}`
+  tokenAddress: `0x${string}`
+  amount: bigint
+  chain: Chain
+  deadline?: bigint
+}
+
+export async function getPermitSignature({
+  publicClient,
+  walletClient,
+  signer,
+  spender,
+  tokenAddress,
+  amount,
+  chain,
+  deadline = BigInt(Math.floor(Date.now() / 1000) + 3600), // 1 hour from now
+}: GetPermitSignatureParams): Promise<{
+  signature: `0x${string}`
+  deadline: bigint
+  v: number
+  r: `0x${string}`
+  s: `0x${string}`
+}> {
   if (!walletClient.account) {
     throw new Error("No account found")
   }
@@ -169,7 +172,7 @@ export async function getPermitSignature(
       },
     ],
     functionName: "nonces",
-    args: [connectedAccount],
+    args: [signer],
   })
 
   console.log("Nonce:", nonce.toString())
@@ -226,14 +229,17 @@ export async function getPermitSignature(
 
   // Create permit data
   const permitData = {
-    owner: connectedAccount,
-    spender: delegatorSmartAccountAddress,
+    owner: signer,
+    spender: spender,
     value: amount,
     nonce: nonce,
     deadline: deadline,
   }
 
-  await attemptSwitchChain(walletClient, chain.id)
+  await attemptSwitchChain({
+    walletClient,
+    desiredChainId: chain.id,
+  })
 
   console.log("Requesting permit signature...")
 
@@ -250,7 +256,7 @@ export async function getPermitSignature(
   return { signature, deadline, v, r, s }
 }
 
-export function getDepositToIntentWithPermitCalldata(params: {
+export type GetDepositToIntentWithPermitCalldataParams = {
   user: `0x${string}`
   token: `0x${string}`
   amount: bigint
@@ -265,25 +271,25 @@ export function getDepositToIntentWithPermitCalldata(params: {
   sigV: number
   sigR: `0x${string}`
   sigS: `0x${string}`
-}): Hex {
+}
+
+export function getDepositToIntentWithPermitCalldata({
+  user,
+  token,
+  amount,
+  intentAddress,
+  deadline,
+  permitAmount,
+  v,
+  r,
+  s,
+  sigV,
+  sigR,
+  sigS,
+}: GetDepositToIntentWithPermitCalldataParams): Hex {
   const abi = parseAbi([
     "function depositToIntentWithPermit(address user, address token, uint256 amount, uint256 permitAmount, address intentAddress, uint256 deadline, uint8 v, bytes32 r, bytes32 s, uint8 sigV, bytes32 sigR, bytes32 sigS)",
   ])
-
-  const {
-    user,
-    token,
-    amount,
-    permitAmount,
-    intentAddress,
-    deadline,
-    v,
-    r,
-    s, // permit signature
-    sigV,
-    sigR,
-    sigS, // intent signature
-  } = params
 
   return encodeFunctionData({
     abi,
@@ -305,7 +311,7 @@ export function getDepositToIntentWithPermitCalldata(params: {
   })
 }
 
-export function getDepositToIntentWithoutPermitCalldata(params: {
+export type GetDepositToIntentWithoutPermitCalldataParams = {
   user: `0x${string}`
   token: `0x${string}`
   amount: bigint
@@ -314,19 +320,38 @@ export function getDepositToIntentWithoutPermitCalldata(params: {
   sigV: number
   sigR: `0x${string}`
   sigS: `0x${string}`
-}): Hex {
+}
+
+export function getDepositToIntentWithoutPermitCalldata({
+  user,
+  token,
+  amount,
+  intentAddress,
+  deadline,
+  sigV,
+  sigR,
+  sigS,
+}: GetDepositToIntentWithoutPermitCalldataParams): Hex {
   const abi = parseAbi([
     "function depositToIntent(address user, address token, uint256 amount, address intentAddress, uint256 deadline, uint8 sigV, bytes32 sigR, bytes32 sigS)",
   ])
-
-  const { user, token, amount, intentAddress, deadline, sigV, sigR, sigS } =
-    params
 
   return encodeFunctionData({
     abi,
     functionName: "depositToIntent",
     args: [user, token, amount, intentAddress, deadline, sigV, sigR, sigS],
   })
+}
+
+export type GetDepositToIntentCallsParams = {
+  publicClient: PublicClient
+  walletClient: WalletClient
+  account: Account
+  intentEntrypoint: `0x${string}`
+  depositTokenAddress: `0x${string}`
+  depositTokenAmount: bigint
+  depositRecipient: `0x${string}`
+  chain: Chain
 }
 
 export async function getDepositToIntentCalls({
@@ -338,16 +363,7 @@ export async function getDepositToIntentCalls({
   depositTokenAmount,
   depositRecipient,
   chain,
-}: {
-  publicClient: PublicClient
-  walletClient: WalletClient
-  account: Account
-  intentEntrypoint: `0x${string}`
-  depositTokenAddress: `0x${string}`
-  depositTokenAmount: bigint
-  depositRecipient: `0x${string}`
-  chain: Chain
-}): Promise<
+}: GetDepositToIntentCallsParams): Promise<
   Array<{ to: `0x${string}`; data: `0x${string}`; value: `0x${string}` }>
 > {
   const permitAmount = maxUint256
@@ -363,30 +379,33 @@ export async function getDepositToIntentCalls({
 
   let approvalSignature = null
   if (needsApproval) {
-    approvalSignature = await getPermitSignature(
-      publicClient as PublicClient,
+    approvalSignature = await getPermitSignature({
+      publicClient,
       walletClient,
-      account.address,
-      intentEntrypoint,
-      depositTokenAddress as `0x${string}`,
-      permitAmount,
+      signer: account.address,
+      spender: intentEntrypoint,
+      tokenAddress: depositTokenAddress as `0x${string}`,
+      amount: permitAmount,
       chain,
       deadline,
-    )
+    })
   }
 
   const {
     v: signedIntentV,
     r: signedIntentR,
     s: signedIntentS,
-  } = await signIntent(walletClient, {
-    user: account.address,
-    token: depositTokenAddress as `0x${string}`,
-    amount: BigInt(depositTokenAmount),
-    intentAddress: depositRecipient as `0x${string}`,
-    deadline,
-    chainId: chain.id,
-    contractAddress: intentEntrypoint,
+  } = await signIntent({
+    client: walletClient,
+    intentParams: {
+      user: account.address,
+      token: depositTokenAddress as `0x${string}`,
+      amount: BigInt(depositTokenAmount),
+      intentAddress: depositRecipient as `0x${string}`,
+      deadline,
+      chainId: chain.id,
+      contractAddress: intentEntrypoint,
+    },
   })
 
   let calldata = null
@@ -429,19 +448,21 @@ export async function getDepositToIntentCalls({
   return calls
 }
 
+export type GetNeedsIntentEntrypointApprovalParams = {
+  client: PublicClient
+  token: Address
+  account: Address
+  entrypoint: Address
+  amount: bigint
+}
+
 export async function getNeedsIntentEntrypointApproval({
   client,
   token,
   account,
   entrypoint,
   amount,
-}: {
-  client: PublicClient
-  token: Address
-  account: Address
-  entrypoint: Address
-  amount: bigint
-}): Promise<boolean> {
+}: GetNeedsIntentEntrypointApprovalParams): Promise<boolean> {
   console.log(client.chain)
   const allowance = await client.readContract({
     address: token,
@@ -453,9 +474,31 @@ export async function getNeedsIntentEntrypointApproval({
   return allowance < amount
 }
 
-export async function signIntent(
-  client: WalletClient,
-  {
+export type IntentParams = {
+  user: `0x${string}`
+  token: `0x${string}`
+  amount: bigint
+  intentAddress: `0x${string}`
+  deadline: bigint
+  chainId: number
+  contractAddress: `0x${string}`
+}
+
+export type SignIntentParams = {
+  client: WalletClient
+  intentParams: IntentParams
+}
+
+export async function signIntent({
+  client,
+  intentParams,
+}: SignIntentParams): Promise<{
+  signature: `0x${string}`
+  v: number
+  r: `0x${string}`
+  s: `0x${string}`
+}> {
+  const {
     user,
     token,
     amount,
@@ -463,21 +506,8 @@ export async function signIntent(
     deadline,
     chainId,
     contractAddress,
-  }: {
-    user: `0x${string}`
-    token: `0x${string}`
-    amount: bigint
-    intentAddress: `0x${string}`
-    deadline: bigint
-    chainId: number
-    contractAddress: `0x${string}`
-  },
-): Promise<{
-  signature: `0x${string}`
-  v: number
-  r: `0x${string}`
-  s: `0x${string}`
-}> {
+  } = intentParams
+
   const domain = {
     name: "IntentEntrypoint",
     version: "1",

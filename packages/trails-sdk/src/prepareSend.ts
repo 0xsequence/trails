@@ -56,7 +56,7 @@ import {
   executeSimpleRelayTransaction,
   getRelaySDKQuote,
   getTxHashFromRelayResult,
-} from "./relaysdk.js"
+} from "./relaySdk.js"
 import {
   getFeeOptions,
   sequenceSendTransaction,
@@ -165,7 +165,10 @@ function getIntentArgs(
     destinationCalldata ||
     (destinationTokenAddress === zeroAddress
       ? "0x"
-      : getERC20TransferData(recipient, BigInt(destinationTokenAmount)))
+      : getERC20TransferData({
+          recipient,
+          amount: BigInt(destinationTokenAmount),
+        }))
   const _destinationToAddress = destinationCalldata
     ? recipient
     : destinationTokenAddress === zeroAddress
@@ -500,10 +503,10 @@ async function sendHandlerForDifferentChainAndToken({
       //   data:
       //     originTokenAddress === zeroAddress
       //       ? "0x"
-      //       : getERC20TransferData(
-      //           firstPreconditionAddress,
-      //           BigInt(firstPreconditionMin) + BigInt(fee),
-      //         ),
+      //       : getERC20TransferData({
+      //           recipient: firstPreconditionAddress,
+      //           amount: BigInt(firstPreconditionMin) + BigInt(fee),
+      //         }),
       //   value:
       //     originTokenAddress === zeroAddress
       //       ? BigInt(firstPreconditionMin) + BigInt(fee)
@@ -648,7 +651,10 @@ async function sendHandlerForSameChainSameToken({
           destinationCalldata ||
           (originTokenAddress === zeroAddress
             ? "0x"
-            : getERC20TransferData(recipient, BigInt(destinationTokenAmount))),
+            : getERC20TransferData({
+                recipient,
+                amount: BigInt(destinationTokenAmount),
+              })),
         value:
           originTokenAddress === zeroAddress
             ? BigInt(destinationTokenAmount)
@@ -663,7 +669,10 @@ async function sendHandlerForSameChainSameToken({
       const originMetaTxnReceipt: MetaTxnReceipt | null = null
       const destinationMetaTxnReceipt: MetaTxnReceipt | null = null
 
-      await attemptSwitchChain(walletClient, originChainId)
+      await attemptSwitchChain({
+        walletClient,
+        desiredChainId: originChainId,
+      })
       if (!dryMode) {
         onTransactionStateChange([
           {
@@ -781,7 +790,10 @@ async function sendHandlerForSameChainDifferentToken({
   return {
     originSendAmount: depositAmount,
     send: async (onOriginSend: () => void): Promise<SendReturn> => {
-      await attemptSwitchChain(walletClient, originChainId)
+      await attemptSwitchChain({
+        walletClient,
+        desiredChainId: originChainId,
+      })
 
       const result = await executeSimpleRelayTransaction(quote, walletClient)
       console.log("relaysdk result", result)
@@ -915,7 +927,10 @@ async function attemptGaslessDeposit({
     })
 
     console.log("attempting to switch chain")
-    await attemptSwitchChain(walletClient, originChainId)
+    await attemptSwitchChain({
+      walletClient,
+      desiredChainId: originChainId,
+    })
 
     console.log("creating sequence wallet")
     const sequenceWalletAddress = await simpleCreateSequenceWallet(
@@ -937,15 +952,15 @@ async function attemptGaslessDeposit({
         chain,
       })
     } else {
-      const { signature, deadline } = await getPermitSignature(
+      const { signature, deadline } = await getPermitSignature({
         publicClient,
         walletClient,
-        account.address,
-        sequenceWalletAddress,
-        depositTokenAddress as `0x${string}`,
-        BigInt(depositTokenAmount),
+        signer: account.address,
+        spender: sequenceWalletAddress,
+        tokenAddress: depositTokenAddress as `0x${string}`,
+        amount: BigInt(depositTokenAmount),
         chain,
-      )
+      })
 
       calls = getPermitCalls(
         account.address,
@@ -1059,10 +1074,10 @@ export async function attemptNonGaslessUserDeposit({
     data:
       originTokenAddress === zeroAddress
         ? "0x"
-        : getERC20TransferData(
-            intentAddress,
-            BigInt(firstPreconditionMin) + BigInt(fee),
-          ),
+        : getERC20TransferData({
+            recipient: intentAddress,
+            amount: BigInt(firstPreconditionMin) + BigInt(fee),
+          }),
     value:
       originTokenAddress === zeroAddress
         ? BigInt(firstPreconditionMin) + BigInt(fee)
@@ -1071,7 +1086,10 @@ export async function attemptNonGaslessUserDeposit({
     chain,
   }
 
-  await attemptSwitchChain(walletClient, originChainId)
+  await attemptSwitchChain({
+    walletClient,
+    desiredChainId: originChainId,
+  })
 
   let useSendCalls = false
   const moreThan1Tx = needsNativeFee
@@ -1345,7 +1363,7 @@ function getTransactionStateFromReceipt(
 
   return {
     transactionHash: txHash,
-    explorerUrl: getExplorerUrl(txHash, chainId),
+    explorerUrl: getExplorerUrl({ txHash, chainId }),
     chainId,
     state,
   }

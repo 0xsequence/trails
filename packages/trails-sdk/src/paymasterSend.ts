@@ -197,36 +197,36 @@ export async function getPaymasterGaslessTransaction({
 
   console.log("Transfer amount:", amount.toString())
 
-  const { signature, deadline } = await getPermitSignature(
+  const { signature, deadline } = await getPermitSignature({
     publicClient,
     walletClient,
-    connectedAccount,
-    delegatorSmartAccount.address,
+    signer: connectedAccount,
+    spender: delegatorSmartAccount.address,
     tokenAddress,
     amount,
     chain,
-  )
+  })
 
   console.log("Received signature:", signature)
 
   // Encode permit call
-  const permitCalldata = getPermitCalldata(
-    connectedAccount,
-    delegatorSmartAccount.address,
+  const permitCalldata = getPermitCalldata({
+    signer: connectedAccount,
+    spender: delegatorSmartAccount.address,
     amount,
     deadline,
     signature,
-  )
+  })
 
   // Encode transferFrom call
-  const transferFromCalldata = getTransferFromCalldata(
-    connectedAccount,
-    delegatorSmartAccount.address,
+  const transferFromCalldata = getTransferFromCalldata({
+    signer: connectedAccount,
+    spender: delegatorSmartAccount.address,
     amount,
-  )
+  })
 
   // Encode transfer call to recipient
-  const transferCalldata = getTransferCalldata(recipient, amount)
+  const transferCalldata = getTransferCalldata({ recipient, amount })
 
   const calls = [
     { to: zeroAddress, data: "0x", value: "0x" },
@@ -271,7 +271,7 @@ export async function sendPaymasterGaslessTransaction({
     //   console.log("Relayer address:", relayerAccount.address)
 
     // console.log('Staking on entry point...')
-    // await stakeOnEntryPoint(relayerClient, relayerAccount, delegatorAccount.address)
+    // await stakeOnEntryPoint({ relayerClient, relayerAccount, delegatorAddress: delegatorAccount.address, chain })
 
     // const prefundTx = await relayerClient.sendTransaction({
     //   to: delegatorSmartAccount.address,
@@ -422,12 +422,19 @@ export async function sendPaymasterGaslessTransaction({
   }
 }
 
-export async function stakeOnEntryPoint(
-  relayerClient: WalletClient,
-  relayerAccount: Account,
-  delegatorAddress: `0x${string}`,
-  chain: Chain,
-) {
+export type stakeOnEntryPointParams = {
+  relayerClient: WalletClient
+  relayerAccount: Account
+  delegatorAddress: `0x${string}`
+  chain: Chain
+}
+
+export async function stakeOnEntryPoint({
+  relayerClient,
+  relayerAccount,
+  delegatorAddress,
+  chain,
+}: stakeOnEntryPointParams) {
   const STAKE_AMOUNT = parseEther("0.01")
 
   const addStakeAbi = parseAbi([

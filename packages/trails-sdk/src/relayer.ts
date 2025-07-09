@@ -1,22 +1,10 @@
 import { Relayer } from "@0xsequence/wallet-core"
 import fetch from "isomorphic-fetch"
 import { useMemo } from "react"
-import type { Chain } from "viem"
-import * as chains from "viem/chains"
+import { getChainInfo } from "./chains.js"
 
 export type RelayerOperationStatus = Relayer.OperationStatus
 export type RpcRelayer = Relayer.Standard.Rpc.RpcRelayer
-
-// Helper to get chain info
-function getChain(chainId: number): Chain {
-  const chain = Object.values(chains as unknown as Record<string, Chain>).find(
-    (c: Chain) => c.id === chainId,
-  )
-  if (!chain) {
-    throw new Error(`Chain with id ${chainId} not found`)
-  }
-  return chain
-}
 
 export type RelayerConfig = {
   hostname: string
@@ -30,6 +18,8 @@ export type RelayerEnvConfig = {
   env?: RelayerEnv
   useV3Relayers?: boolean
 }
+
+export type { Relayer }
 
 export function getBackupRelayer(
   chainId: number,
@@ -113,7 +103,7 @@ export function getRelayerUrl(
       relayerUrl = "https://v3-mainnet-relayer.sequence.app"
     } else {
       // Fallback to general dev relayer for other chains if V3 is specified but chain not V3-supported
-      relayerUrl = `${baseUrl}${getChain(chainId).name?.replace(" ", "-")}-relayer.sequence.app`
+      relayerUrl = `${baseUrl}${getChainInfo(chainId)!.name?.replace(" ", "-")}-relayer.sequence.app`
     }
 
     return relayerUrl
@@ -152,7 +142,7 @@ export function getRelayer(
   config: RelayerEnvConfig,
   chainId: number,
 ): Relayer.Standard.Rpc.RpcRelayer {
-  const chain = getChain(chainId)
+  const chain = getChainInfo(chainId)
 
   if (!chain) {
     throw new Error(`Chain with id ${chainId} not found`)
@@ -199,5 +189,3 @@ export function useRelayers(config: RelayerEnvConfig): {
     getBackupRelayer,
   }
 }
-
-export type { Relayer }

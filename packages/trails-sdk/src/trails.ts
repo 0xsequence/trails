@@ -599,7 +599,10 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       })
 
       try {
-        await attemptSwitchChain(walletClient, originCallParams.chainId)
+        await attemptSwitchChain({
+          walletClient,
+          desiredChainId: originCallParams.chainId,
+        })
         setIsChainSwitchRequired(false)
       } catch (error: unknown) {
         console.error("Chain switch failed:", error)
@@ -734,7 +737,10 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
             chain: getChainInfo(chainId)!,
             transport: custom((await account.connector!.getProvider()) as any), // TODO: Add proper type
           })
-          await attemptSwitchChain(walletClient, chainId)
+          await attemptSwitchChain({
+            walletClient,
+            desiredChainId: chainId,
+          })
         } catch (error) {
           console.error("Chain switch failed:", error)
         }
@@ -1192,7 +1198,10 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
             "Could not find ERC20 balance precondition or min amount",
           )
         }
-        calcData = getERC20TransferData(recipientAddress, erc20MinAmount)
+        calcData = getERC20TransferData({
+          recipient: recipientAddress,
+          amount: BigInt(erc20MinAmount),
+        })
         calcTo = tokenAddress as Address.Address
       }
 

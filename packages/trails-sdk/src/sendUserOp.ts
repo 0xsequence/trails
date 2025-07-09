@@ -17,7 +17,7 @@ import {
 } from "viem"
 import { privateKeyToAccount } from "viem/accounts"
 
-type UserOperation = {
+export type UserOperation = {
   sender: Address
   nonce: bigint
   initCode: Hex
@@ -37,7 +37,7 @@ type UserOperation = {
 }
 
 // Minimal EntryPoint ABI for handleOps
-const ENTRYPOINT_ABI = [
+export const ENTRYPOINT_ABI = [
   {
     inputs: [
       {
@@ -170,7 +170,7 @@ const ENTRYPOINT_ABI = [
   },
 ]
 
-const ENTRYPOINT_ADDRESS = "0x0000000071727De22E5E9d8BAf0edAc6f37da032"
+export const ENTRYPOINT_ADDRESS = "0x0000000071727De22E5E9d8BAf0edAc6f37da032"
 
 export async function sendUserOperationDirectly({
   userOp,
@@ -235,7 +235,7 @@ export async function sendUserOperationDirectly({
   return receipt.transactionHash
 }
 
-type PackedUserOperation = {
+export type PackedUserOperation = {
   sender: `0x${string}`
   nonce: bigint
   initCode: `0x${string}`
@@ -247,7 +247,7 @@ type PackedUserOperation = {
   signature: `0x${string}`
 }
 
-type UserOperationV07 = {
+export type UserOperationV07 = {
   sender: `0x${string}`
   nonce: bigint
   initCode: `0x${string}`
@@ -267,7 +267,7 @@ type UserOperationV07 = {
 }
 
 // Helper to encode account gas limits as bytes32
-function getAccountGasLimits(op: UserOperationV07) {
+export function getAccountGasLimits(op: UserOperationV07) {
   if (!op.verificationGasLimit) {
     throw new Error("verificationGasLimit is required")
   }
@@ -281,7 +281,7 @@ function getAccountGasLimits(op: UserOperationV07) {
 }
 
 // Helper to encode fee parameters as bytes32
-function getGasFees(op: UserOperationV07) {
+export function getGasFees(op: UserOperationV07) {
   if (!op.maxPriorityFeePerGas) {
     throw new Error("maxPriorityFeePerGas is required")
   }
@@ -295,7 +295,7 @@ function getGasFees(op: UserOperationV07) {
 }
 
 // Helper to encode initCode
-function getInitCode(op: UserOperationV07) {
+export function getInitCode(op: UserOperationV07) {
   if (!op.factory) return "0x"
   return concat([
     op.factory === "0x7702"
@@ -306,7 +306,7 @@ function getInitCode(op: UserOperationV07) {
 }
 
 // Helper to encode paymasterAndData field
-function getPaymasterAndData(op: UserOperationV07) {
+export function getPaymasterAndData(op: UserOperationV07) {
   if (!op.paymaster) return "0x"
   if (!op.paymasterVerificationGasLimit) {
     throw new Error("paymasterVerificationGasLimit is required")
@@ -460,9 +460,27 @@ export const packUserOps = (userOps: UserOperation[]) => {
   return packedUserOps as PackedUserOperation[]
 }
 
+export type UnpackedUserOperation = {
+  sender: Address
+  nonce: bigint
+  callData: Hex
+  callGasLimit: bigint
+  factory: Address | null
+  factoryData: Hex | null
+  verificationGasLimit: bigint
+  preVerificationGas: bigint
+  maxFeePerGas: bigint
+  maxPriorityFeePerGas: bigint
+  paymaster: Address | null
+  paymasterVerificationGasLimit: bigint | null
+  paymasterPostOpGasLimit: bigint | null
+  paymasterData: Hex | null
+  signature: Hex
+}
+
 export function toUnpackedUserOperation(
   packedUserOperation: PackedUserOperation,
-): any {
+): UnpackedUserOperation {
   const { factory, factoryData } = unPackInitCode(packedUserOperation.initCode)
 
   const { callGasLimit, verificationGasLimit } = unpackAccountGasLimits(

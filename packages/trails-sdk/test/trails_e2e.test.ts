@@ -72,10 +72,10 @@ async function prepareSend(options: SendOptions) {
     destinationToAddress: destinationTokenAddress,
     destinationTokenAddress: destinationTokenAddress,
     destinationTokenAmount: destinationTokenAmount,
-    destinationCallData: getERC20TransferData(
+    destinationCallData: getERC20TransferData({
       recipient,
-      BigInt(destinationTokenAmount),
-    ),
+      amount: BigInt(destinationTokenAmount),
+    }),
     destinationCallValue: "0",
   }
 

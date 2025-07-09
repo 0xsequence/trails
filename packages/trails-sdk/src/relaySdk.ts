@@ -7,10 +7,15 @@ import {
 import type { WalletClient } from "viem"
 import * as chains from "viem/chains"
 
+export type Chain = any
+export type RelayQuote = any
+export type RelayExecuteResult = any
+export type RelayProgressData = any
+
 createClient({
   baseApiUrl: MAINNET_RELAY_API,
   source: "Trails",
-  chains: Object.values(chains).map((chain: any) =>
+  chains: Object.values(chains).map((chain: Chain) =>
     convertViemChainToRelayChain(chain),
   ),
 })
@@ -32,15 +37,17 @@ export interface RelayQuoteOptions {
 }
 
 export interface RelayExecuteOptions {
-  quote: any
+  quote: RelayQuote
   wallet: WalletClient
-  onProgress?: (data: any) => void
+  onProgress?: (data: RelayProgressData) => void
 }
 
 /**
  * Get a quote for a relay transaction
  */
-export async function getRelaySDKQuote(options: RelayQuoteOptions) {
+export async function getRelaySDKQuote(
+  options: RelayQuoteOptions,
+): Promise<RelayQuote> {
   try {
     const client = getClient()
     if (!client) {
@@ -72,7 +79,9 @@ export async function getRelaySDKQuote(options: RelayQuoteOptions) {
 /**
  * Execute a relay transaction
  */
-export async function relaySDKExecute(options: RelayExecuteOptions) {
+export async function relaySDKExecute(
+  options: RelayExecuteOptions,
+): Promise<RelayExecuteResult> {
   try {
     const client = getClient()
     if (!client) {
@@ -108,7 +117,7 @@ export async function createSimpleRelayTransaction(
   value: string,
   chainId: number,
   currency: string = "0x0000000000000000000000000000000000000000", // ETH
-) {
+): Promise<RelayQuote> {
   const options: RelayQuoteOptions = {
     wallet,
     chainId,
@@ -130,10 +139,10 @@ export async function createSimpleRelayTransaction(
  * Helper function to execute a simple relay transaction
  */
 export async function executeSimpleRelayTransaction(
-  quote: any,
+  quote: RelayQuote,
   wallet: WalletClient,
   onProgress?: RelayExecuteOptions["onProgress"],
-) {
+): Promise<RelayExecuteResult> {
   return await relaySDKExecute({
     quote,
     wallet,
@@ -141,7 +150,7 @@ export async function executeSimpleRelayTransaction(
   })
 }
 
-export function getTxHashFromRelayResult(result: any) {
+export function getTxHashFromRelayResult(result: RelayExecuteResult): string {
   return result?.data?.steps?.[result?.data?.steps!.length - 1]?.items?.[0]
     ?.txHashes?.[0]?.txHash
 }

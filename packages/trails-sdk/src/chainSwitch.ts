@@ -1,9 +1,14 @@
 import type { WalletClient } from "viem"
 
-export async function attemptSwitchChain(
-  walletClient: WalletClient,
-  desiredChainId: number,
-): Promise<void> {
+export type AttemptSwitchChainParams = {
+  walletClient: WalletClient
+  desiredChainId: number
+}
+
+export async function attemptSwitchChain({
+  walletClient,
+  desiredChainId,
+}: AttemptSwitchChainParams): Promise<void> {
   try {
     // Check if the chain was switched successfully
     let currentChainId = await walletClient.getChainId()

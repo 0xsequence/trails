@@ -20,7 +20,7 @@ export type { NativeTokenBalance, TokenBalance }
 const defaultPage = { page: 1, pageSize: 10, more: false }
 
 // Type guard for native token balance
-function isNativeToken(
+export function isNativeToken(
   token: TokenBalance | NativeTokenBalance,
 ): token is NativeTokenBalance {
   if ("contractAddress" in token) {

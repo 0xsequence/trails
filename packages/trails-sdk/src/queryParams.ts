@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react"
 
+export function getQueryParam(key: string): string | null {
+  if (typeof window === "undefined") return null
+  return new URLSearchParams(window.location.search).get(key)
+}
+
 export function useQueryParams() {
   const [queryParams, setQueryParams] = useState<URLSearchParams>(
     typeof window !== "undefined"
@@ -72,9 +77,4 @@ export function useQueryParams() {
     setParam,
     removeParam,
   }
-}
-
-export function getQueryParam(key: string): string | null {
-  if (typeof window === "undefined") return null
-  return new URLSearchParams(window.location.search).get(key)
 }
