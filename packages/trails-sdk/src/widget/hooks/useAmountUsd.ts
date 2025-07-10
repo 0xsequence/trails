@@ -1,5 +1,5 @@
 import type { SequenceAPIClient } from "@0xsequence/trails-api"
-import { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useTokenPrice } from "../../prices.js"
 import { formatUsdValue } from "../../tokenBalances.js"
 import { useTokenAddress } from "./useTokenAddress.js"
@@ -20,7 +20,6 @@ export function useAmountUsd({
   amountUsd: number | null
   amountUsdFormatted: string
 } {
-  const [amountUsd, setAmountUsd] = useState<number | null>(null)
   const tokenAddress = useTokenAddress({ chainId, tokenSymbol: token })
 
   const { data: tokenPrice } = useTokenPrice(
@@ -34,23 +33,22 @@ export function useAmountUsd({
     apiClient,
   )
 
-  useEffect(() => {
-    if (!amount || !tokenPrice) {
-      return
-    }
+  const { data: amountUsd } = useQuery({
+    queryKey: ["amountUsd", amount, tokenPrice?.price?.value],
+    queryFn: () => {
+      if (!amount || !tokenPrice?.price?.value) {
+        return null
+      }
 
-    const tokenPriceValue = tokenPrice?.price?.value
-
-    if (!tokenPriceValue) {
-      return
-    }
-
-    const value = Number(amount) * tokenPriceValue
-    setAmountUsd(value)
-  }, [amount, tokenPrice])
+      const tokenPriceValue = tokenPrice.price.value
+      const value = Number(amount) * tokenPriceValue
+      return value
+    },
+    enabled: !!amount && !!tokenPrice?.price?.value,
+  })
 
   return {
-    amountUsd,
+    amountUsd: amountUsd || null,
     amountUsdFormatted: formatUsdValue(amountUsd || 0),
   }
 }

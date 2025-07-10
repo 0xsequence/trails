@@ -43,6 +43,7 @@ export type TokenFormatted = Token &
     isNative: boolean
     tokenName: string
     priceUsd: number
+    isSufficientBalance: boolean
   }
 
 export type UseTokenListProps = {
@@ -54,7 +55,7 @@ export type UseTokenListProps = {
 export type UseTokenListReturn = {
   selectedToken: Token | null
   searchQuery: string
-  handleTokenSelect: (token: TokenBalanceExtended) => void
+  handleTokenSelect: (token: TokenFormatted) => void
   filteredTokens: TokenBalanceExtended[]
   isLoadingSortedTokens: boolean
   balanceError: Error | null
@@ -115,7 +116,7 @@ export function useTokenList({
     })
   }, [allSortedTokens, sourceTokenList, supportedChainIds])
 
-  const handleTokenSelect = (token: TokenBalanceExtended) => {
+  const handleTokenSelect = (token: TokenFormatted) => {
     const isNative = !("contractAddress" in token)
     const chainInfo = getChainInfo(token.chainId)
     const contractAddress = isNative ? zeroAddress : token.contractAddress
@@ -124,15 +125,16 @@ export function useTokenList({
     let formattedToken: Token
     if (isNative) {
       formattedToken = {
-        id: token.chainId,
+        id: (token as TokenBalanceExtended).chainId,
         name: chainInfo?.nativeCurrency.name || "Native Token",
         symbol: chainInfo?.nativeCurrency.symbol || "ETH",
-        balance: token.balance,
+        balance: (token as TokenBalanceExtended).balance,
         imageUrl,
-        chainId: token.chainId,
+        chainId: (token as TokenBalanceExtended).chainId,
         contractAddress: zeroAddress,
-        balanceUsdFormatted: token.balanceUsdFormatted ?? "",
-        tokenPriceUsd: token.price?.value ?? 0,
+        balanceUsdFormatted:
+          (token as TokenBalanceExtended).balanceUsdFormatted ?? "",
+        tokenPriceUsd: (token as TokenBalanceExtended).price?.value ?? 0,
         contractInfo: {
           decimals: 18,
           symbol: chainInfo?.nativeCurrency.symbol || "ETH",
@@ -160,7 +162,10 @@ export function useTokenList({
     }
 
     setSelectedToken(formattedToken)
-    if (!targetAmountUsd || (targetAmountUsd && hasSufficientBalanceUsd)) {
+    if (
+      (!targetAmountUsd || (targetAmountUsd && hasSufficientBalanceUsd)) &&
+      token.isSufficientBalance
+    ) {
       onContinue(formattedToken)
     }
   }
@@ -273,6 +278,10 @@ export function useTokenList({
       const priceUsd = Number(token.price?.value) ?? 0
       const balanceUsdFormatted = token.balanceUsdFormatted ?? ""
       const decimals = isNative ? 18 : (token.contractInfo?.decimals ?? 18)
+      let isSufficientBalance = true
+      if (targetAmountUsd) {
+        isSufficientBalance = (token.balanceUsd ?? 0) >= targetAmountUsd
+      }
 
       return {
         ...token,
@@ -325,9 +334,10 @@ export function useTokenList({
         isNative: isNative,
         tokenName: tokenName,
         priceUsd: priceUsd,
+        isSufficientBalance,
       }
     })
-  }, [filteredTokens])
+  }, [filteredTokens, targetAmountUsd])
 
   return {
     selectedToken,

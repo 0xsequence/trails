@@ -182,6 +182,7 @@ export const TokenList: React.FC<TokenListProps> = ({
             tokenName,
             priceUsd,
             balanceFormatted,
+            isSufficientBalance,
           } = token
 
           return (
@@ -189,7 +190,12 @@ export const TokenList: React.FC<TokenListProps> = ({
               key={`${chainId}-${contractAddress}`}
               type="button"
               onClick={() => handleTokenSelect(token)}
-              className={`w-full py-2.5 px-3 flex items-center space-x-3 cursor-pointer transition-colors ${
+              title={
+                !isSufficientBalance
+                  ? "Insufficient balance for this token"
+                  : undefined
+              }
+              className={`w-full py-2.5 px-3 flex items-center space-x-3 transition-colors ${
                 theme === "dark"
                   ? isTokenSelected(token)
                     ? "bg-gray-800"
@@ -197,7 +203,7 @@ export const TokenList: React.FC<TokenListProps> = ({
                   : isTokenSelected(token)
                     ? "bg-gray-100"
                     : "hover:bg-gray-50"
-              }`}
+              } ${!isSufficientBalance ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
             >
               <div className="relative flex-shrink-0">
                 <div
@@ -231,12 +237,16 @@ export const TokenList: React.FC<TokenListProps> = ({
 
               <div className="flex-1 min-w-0 text-left">
                 <h3
-                  className={`text-sm font-medium truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                  className={`text-sm font-medium truncate ${
+                    theme === "dark" ? "text-white" : "text-gray-900"
+                  } ${!isSufficientBalance ? (theme === "dark" ? "text-gray-500" : "text-gray-400") : ""}`}
                 >
                   {tokenName}
                 </h3>
                 <p
-                  className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                  className={`text-xs ${
+                    theme === "dark" ? "text-gray-400" : "text-gray-500"
+                  } ${!isSufficientBalance ? (theme === "dark" ? "text-gray-600" : "text-gray-400") : ""}`}
                 >
                   {symbol}
                 </p>
@@ -246,19 +256,25 @@ export const TokenList: React.FC<TokenListProps> = ({
                 {priceUsd > 0 ? (
                   <>
                     <p
-                      className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                      className={`text-sm font-medium ${
+                        theme === "dark" ? "text-white" : "text-gray-900"
+                      } ${!isSufficientBalance ? (theme === "dark" ? "text-gray-500" : "text-gray-400") : ""}`}
                     >
                       {balanceUsdFormatted}
                     </p>
                     <p
-                      className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                      className={`text-xs ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-500"
+                      } ${!isSufficientBalance ? (theme === "dark" ? "text-gray-600" : "text-gray-400") : ""}`}
                     >
                       {balanceFormatted}
                     </p>
                   </>
                 ) : (
                   <p
-                    className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                    className={`text-sm font-medium ${
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    } ${!isSufficientBalance ? (theme === "dark" ? "text-gray-500" : "text-gray-400") : ""}`}
                   >
                     {balanceFormatted}
                   </p>
