@@ -581,7 +581,185 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
         })
         setTransactionStates([])
         break
-      case "pending":
+      case "pending 1-item-0-confirmed":
+        // Set dummy transaction states for debug mode - showing all steps
+        setTransactionStates([
+          {
+            transactionHash:
+              "0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            chainId: 137,
+            state: "pending",
+          },
+        ])
+        setOriginTokenInfo({
+          amount: "10000",
+          amountUsd: "$0.01",
+          tokenSymbol: "USDC",
+          tokenName: "USD Coin",
+          chainId: 137,
+          imageUrl:
+            "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        })
+        setCurrentScreen("pending")
+        break
+      case "pending 1-item-1-confirmed":
+        // Set dummy transaction states for debug mode - showing all steps
+        setTransactionStates([
+          {
+            transactionHash:
+              "0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            chainId: 137,
+            state: "confirmed",
+          },
+        ])
+        setOriginTokenInfo({
+          amount: "10000",
+          amountUsd: "$0.01",
+          tokenSymbol: "USDC",
+          tokenName: "USD Coin",
+          chainId: 137,
+          imageUrl:
+            "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        })
+        setCurrentScreen("pending")
+        break
+      case "pending 2-item-0-confirmed":
+        // Set dummy transaction states for debug mode - showing all steps
+        setTransactionStates([
+          {
+            transactionHash:
+              "0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            chainId: 137,
+            state: "pending",
+          },
+          {
+            transactionHash:
+              "0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            chainId: 137,
+            state: "pending",
+          },
+        ])
+        setOriginTokenInfo({
+          amount: "10000",
+          amountUsd: "$0.01",
+          tokenSymbol: "USDC",
+          tokenName: "USD Coin",
+          chainId: 137,
+          imageUrl:
+            "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        })
+        setCurrentScreen("pending")
+        break
+      case "pending 2-item-1-confirmed":
+        // Set dummy transaction states for debug mode - showing all steps
+        setTransactionStates([
+          {
+            transactionHash:
+              "0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            chainId: 137,
+            state: "confirmed",
+          },
+          {
+            transactionHash:
+              "0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            chainId: 137,
+            state: "pending",
+          },
+        ])
+        setOriginTokenInfo({
+          amount: "10000",
+          amountUsd: "$0.01",
+          tokenSymbol: "USDC",
+          tokenName: "USD Coin",
+          chainId: 137,
+          imageUrl:
+            "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        })
+        setCurrentScreen("pending")
+        break
+      case "pending 2-item-2-confirmed":
+        // Set dummy transaction states for debug mode - showing all steps
+        setTransactionStates([
+          {
+            transactionHash:
+              "0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            chainId: 137,
+            state: "confirmed",
+          },
+          {
+            transactionHash:
+              "0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            chainId: 137,
+            state: "confirmed",
+          },
+        ])
+        setOriginTokenInfo({
+          amount: "10000",
+          amountUsd: "$0.01",
+          tokenSymbol: "USDC",
+          tokenName: "USD Coin",
+          chainId: 137,
+          imageUrl:
+            "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        })
+        setCurrentScreen("pending")
+        break
+      case "pending 3-item-0-confirmed":
+        // Set dummy transaction states for debug mode - showing all steps
+        setTransactionStates([
+          {
+            transactionHash:
+              "0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            chainId: 137,
+            state: "pending",
+          },
+          {
+            transactionHash:
+              "0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            chainId: 137,
+            state: "pending",
+          },
+          {
+            transactionHash:
+              "0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
+            explorerUrl:
+              "https://arbiscan.io/tx/0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
+            chainId: 42161,
+            state: "pending",
+          },
+        ])
+        setOriginTokenInfo({
+          amount: "10000",
+          amountUsd: "$0.01",
+          tokenSymbol: "USDC",
+          tokenName: "USD Coin",
+          chainId: 137,
+          imageUrl:
+            "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        })
+        setCurrentScreen("pending")
+        break
+      case "pending 3-item-1-confirmed":
         // Set dummy transaction states for debug mode - showing all steps
         setTransactionStates([
           {
@@ -607,6 +785,84 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://arbiscan.io/tx/0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
             chainId: 42161,
             state: "pending",
+          },
+        ])
+        setOriginTokenInfo({
+          amount: "10000",
+          amountUsd: "$0.01",
+          tokenSymbol: "USDC",
+          tokenName: "USD Coin",
+          chainId: 137,
+          imageUrl:
+            "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        })
+        setCurrentScreen("pending")
+        break
+      case "pending 3-item-2-confirmed":
+        // Set dummy transaction states for debug mode - showing all steps
+        setTransactionStates([
+          {
+            transactionHash:
+              "0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            chainId: 137,
+            state: "confirmed",
+          },
+          {
+            transactionHash:
+              "0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            chainId: 137,
+            state: "confirmed",
+          },
+          {
+            transactionHash:
+              "0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
+            explorerUrl:
+              "https://arbiscan.io/tx/0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
+            chainId: 42161,
+            state: "pending",
+          },
+        ])
+        setOriginTokenInfo({
+          amount: "10000",
+          amountUsd: "$0.01",
+          tokenSymbol: "USDC",
+          tokenName: "USD Coin",
+          chainId: 137,
+          imageUrl:
+            "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        })
+        setCurrentScreen("pending")
+        break
+      case "pending 3-item-3-confirmed":
+        // Set dummy transaction states for debug mode - showing all steps
+        setTransactionStates([
+          {
+            transactionHash:
+              "0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+            chainId: 137,
+            state: "confirmed",
+          },
+          {
+            transactionHash:
+              "0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            explorerUrl:
+              "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+            chainId: 137,
+            state: "confirmed",
+          },
+          {
+            transactionHash:
+              "0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
+            explorerUrl:
+              "https://arbiscan.io/tx/0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
+            chainId: 42161,
+            state: "confirmed",
           },
         ])
         setOriginTokenInfo({

@@ -14,7 +14,15 @@ const SCREENS = [
   "Tokens",
   "Send",
   "Wallet Confirmation",
-  "Pending",
+  "Pending 1-item-0-confirmed",
+  "Pending 1-item-1-confirmed",
+  "Pending 2-item-0-confirmed",
+  "Pending 2-item-1-confirmed",
+  "Pending 2-item-2-confirmed",
+  "Pending 3-item-0-confirmed",
+  "Pending 3-item-1-confirmed",
+  "Pending 3-item-2-confirmed",
+  "Pending 3-item-3-confirmed",
   "Receipt",
 ] as const
 

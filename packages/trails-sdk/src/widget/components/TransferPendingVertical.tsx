@@ -1,7 +1,7 @@
 import { TokenImage } from "@0xsequence/design-system"
 import { ExternalLink } from "lucide-react"
 import type React from "react"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import type { ActiveTheme } from "../../theme.js"
 
 interface TransactionState {
@@ -46,6 +46,11 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
   fromTokenImageUrl,
   timestamp,
 }) => {
+  const [showContent, setShowContent] = useState(false)
+  const [activePendingIndex, setActivePendingIndex] = useState(-1)
+  const [showDots, setShowDots] = useState(false)
+  const [showLine, setShowLine] = useState(false)
+
   useEffect(() => {
     const timer = setTimeout(() => {
       onComplete()
@@ -53,6 +58,92 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
 
     return () => clearTimeout(timer)
   }, [onComplete])
+
+  useEffect(() => {
+    // Animate content in
+    const contentTimer = setTimeout(() => {
+      setShowContent(true)
+    }, 200)
+
+    return () => clearTimeout(contentTimer)
+  }, [])
+
+  useEffect(() => {
+    // Show dots first, then animate them in
+    const dotsTimer = setTimeout(() => {
+      setShowDots(true)
+    }, 400)
+
+    // Show line after dots are visible
+    const lineTimer = setTimeout(() => {
+      setShowLine(true)
+    }, 800)
+
+    return () => {
+      clearTimeout(dotsTimer)
+      clearTimeout(lineTimer)
+    }
+  }, [])
+
+  useEffect(() => {
+    // Update active pending index with animation
+    const newActiveIndex = transactionStates.findIndex(
+      (tx) => tx.state === "pending",
+    )
+    if (newActiveIndex !== activePendingIndex) {
+      setActivePendingIndex(newActiveIndex)
+    }
+  }, [transactionStates, activePendingIndex])
+
+  // Add CSS animation for draw effect
+  useEffect(() => {
+    const style = document.createElement("style")
+    style.textContent = `
+      @keyframes draw {
+        from {
+          stroke-dasharray: 0 100;
+        }
+        to {
+          stroke-dasharray: 100 0;
+        }
+      }
+      
+      .animate-draw {
+        animation: draw 0.6s ease-out forwards;
+      }
+
+      @keyframes slideInFromTop {
+        from {
+          transform: translateY(-20px);
+        }
+        to {
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes lineGrow {
+        from {
+          height: 0;
+        }
+        to {
+          height: 100%;
+        }
+      }
+
+      .animate-slide-in {
+        animation: slideInFromTop 0.3s ease-out forwards;
+      }
+
+      .animate-line-grow {
+        animation: lineGrow 0.6s ease-out forwards;
+      }
+    `
+    document.head.appendChild(style)
+
+    return () => {
+      document.head.removeChild(style)
+    }
+  }, [])
 
   // Calculate time difference
   const getTimeAgo = () => {
@@ -78,15 +169,8 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
     return `Sent ${diffInDays} days ago`
   }
 
-  // Find the first pending transaction index
-  const activePendingIndex = transactionStates.findIndex(
-    (tx) => tx.state === "pending",
-  )
-
   const renderStep = (tx: TransactionState, index: number) => {
-    // const isPending = tx.state === "pending"
     const isActivePending = index === activePendingIndex
-    // const isAfterPending = activePendingIndex !== -1 && index > activePendingIndex
     const isCompleted = tx.state === "confirmed"
     const isFailed = tx.state === "failed"
 
@@ -105,25 +189,25 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
     // Circle styles based on state
     const getCircleStyles = () => {
       const baseStyles =
-        "w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300"
+        "w-5 h-5 rounded-full flex items-center justify-center transition-all duration-500 ease-out"
 
       switch (stepState) {
         case "completed":
           return `${baseStyles} ${
             theme === "dark" ? "bg-green-500" : "bg-green-600"
-          }`
+          } scale-100`
         case "active":
           return `${baseStyles} ${
             theme === "dark" ? "bg-blue-500" : "bg-blue-600"
-          }`
+          } scale-110`
         case "failed":
           return `${baseStyles} ${
             theme === "dark" ? "bg-red-500" : "bg-red-600"
-          }`
+          } scale-100`
         case "pending":
           return `${baseStyles} ${
             theme === "dark" ? "bg-gray-600" : "bg-gray-300"
-          }`
+          } scale-100`
       }
     }
 
@@ -137,6 +221,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
+          className="animate-draw"
         />
       </svg>
     )
@@ -151,6 +236,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
+          className="animate-draw"
         />
       </svg>
     )
@@ -180,7 +266,8 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
 
     // Text styles based on state
     const getTextStyles = () => {
-      const baseStyles = "text-sm font-medium transition-colors duration-300"
+      const baseStyles =
+        "text-sm font-medium transition-all duration-500 ease-out"
 
       // Use regular colors instead of state-based colors
       return `${baseStyles} ${
@@ -206,7 +293,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
               {getStepLabel(index, transactionStates.length)}
             </span>
             {stepState === "completed" && (
-              <ExternalLink className="w-4 h-4 text-gray-400" />
+              <ExternalLink className="w-4 h-4 text-gray-400 transition-opacity duration-300" />
             )}
           </div>
         </div>
@@ -219,7 +306,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
           href={tx.explorerUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="block hover:opacity-80 transition-opacity"
+          className="block hover:opacity-80 transition-all duration-300 ease-out"
         >
           {content}
         </a>
@@ -232,14 +319,18 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
   return (
     <div className="space-y-8 flex flex-col items-center justify-center py-8">
       <h2
-        className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+        className={`text-2xl font-bold transition-all duration-500 ease-out ${
+          showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+        } ${theme === "dark" ? "text-white" : "text-gray-900"}`}
       >
         Transaction status
       </h2>
 
       {/* Transfer Information */}
       <div
-        className={`w-full max-w-md p-4 rounded-lg ${
+        className={`w-full max-w-sm p-3 rounded-lg transition-all duration-500 ease-out delay-100 ${
+          showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+        } ${
           theme === "dark"
             ? "bg-gray-800/50 text-gray-200"
             : "bg-gray-50 text-gray-700"
@@ -247,22 +338,22 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
       >
         <div className="flex items-start justify-between">
           {/* Left side - Chain and Token images with token name */}
-          <div className="flex items-start space-x-3">
+          <div className="flex items-start space-x-2">
             {/* Token Image and Name */}
             <div className="flex items-center space-x-2">
-              <div style={{ width: "48px", height: "48px" }}>
+              <div style={{ width: "24px", height: "24px" }}>
                 <TokenImage
                   src={fromTokenImageUrl}
                   symbol={fromTokenSymbol}
-                  size="md"
-                  className="w-48 h-48 w-full h-full"
+                  size="sm"
+                  className="w-24 h-24 w-full h-full"
                   withNetwork={fromChainId}
                   disableAnimation={true}
                 />
               </div>
               <div className="flex flex-col">
                 <span
-                  className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                  className={`text-xs font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
                 >
                   {fromTokenName}
                 </span>
@@ -278,12 +369,12 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
           {/* Right side - USD value and amount */}
           <div className="text-right">
             <div
-              className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+              className={`text-xs font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
             >
               {fromAmountUsd}
             </div>
             <div
-              className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
+              className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
             >
               {fromAmount} {fromTokenSymbol}
             </div>
@@ -292,19 +383,19 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
       </div>
 
       {/* Vertical Stepper */}
-      <div className="w-full max-w-[200px] mx-auto">
+      <div className="w-full mx-auto" style={{ width: "auto" }}>
         <div className="relative">
           {/* Vertical line connecting all steps */}
           <div
-            className={`absolute left-2.5 top-5 bottom-5 w-0.5 ${
+            className={`absolute left-2.5 top-5 bottom-5 w-0.5 transition-all duration-500 ease-out ${
               theme === "dark" ? "bg-gray-700" : "bg-gray-300"
-            }`}
+            } ${showLine ? "animate-line-grow" : "h-0"}`}
           />
 
           {/* Progress line for completed steps */}
-          {activePendingIndex > 0 && (
+          {activePendingIndex > 0 && showLine && (
             <div
-              className="absolute left-2.5 top-5 w-0.5 bg-green-500 transition-all duration-500"
+              className="absolute left-2.5 top-5 w-0.5 bg-green-500 transition-all duration-1000 ease-out"
               style={{
                 height: `${(activePendingIndex / (transactionStates.length - 1)) * 80}%`,
                 maxHeight: "calc(100% - 20px)",
@@ -315,7 +406,15 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
           {/* Steps */}
           <div className="space-y-6">
             {transactionStates.map((tx, index) => (
-              <div key={`${tx.transactionHash}-${index}`} className="relative">
+              <div
+                key={`${tx.transactionHash}-${index}`}
+                className="relative transition-all duration-300 ease-out"
+                style={{
+                  transitionDelay: showDots ? `${index * 100}ms` : "0ms",
+                  transform: showDots ? "translateY(0)" : "translateY(-20px)",
+                  visibility: showDots ? "visible" : "hidden",
+                }}
+              >
                 {renderStep(tx, index)}
               </div>
             ))}
