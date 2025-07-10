@@ -230,6 +230,30 @@ export async function simpleCreateSequenceWallet(
   return wallet.address as `0x${string}`
 }
 
+export async function getIsWalletDeployed(
+  wallet: `0x${string}`,
+  publicClient: PublicClient,
+): Promise<boolean> {
+  const hasCode = await publicClient?.getCode({
+    address: wallet as `0x${string}`,
+  })
+
+  const isDeployed = hasCode !== undefined || hasCode !== "0x"
+  return isDeployed
+}
+
+export async function waitForWalletDeployment(
+  wallet: `0x${string}`,
+  publicClient: PublicClient,
+): Promise<void> {
+  while (true) {
+    const isDeployed = await getIsWalletDeployed(wallet, publicClient)
+    if (isDeployed) {
+      break
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500))
+  }
+}
 export async function sequenceSendTransaction(
   sequenceWalletAddress: string,
   accountClient: WalletClient,
@@ -287,11 +311,11 @@ export async function sequenceSendTransaction(
   console.log("[trails-sdk] sequence wallet1", wallet)
 
   console.log("[trails-sdk] sequence wallet", wallet)
-  const hasCode = await publicClient?.getCode({
-    address: wallet.address as `0x${string}`,
-  })
 
-  const isDeployed = hasCode !== undefined
+  const isDeployed = await getIsWalletDeployed(
+    wallet.address as `0x${string}`,
+    publicClient,
+  )
   if (!isDeployed) {
     console.log("[trails-sdk] deploying sequence wallet")
 
@@ -332,8 +356,11 @@ export async function sequenceSendTransaction(
 
       console.log("[trails-sdk] Deployment relayed")
 
-      // Wait for deployment to complete
-      await new Promise((resolve) => setTimeout(resolve, 5000))
+      await waitForWalletDeployment(
+        wallet.address as `0x${string}`,
+        publicClient,
+      )
+      console.log("[trails-sdk] sequence wallet deployed")
     } else {
       const option = feeOptions?.options[0]
       if (!option) {
@@ -391,8 +418,12 @@ export async function sequenceSendTransaction(
           quote,
         )
 
-        // Wait for deployment to complete
-        await new Promise((resolve) => setTimeout(resolve, 5000))
+        console.log("[trails-sdk] relayed deployment")
+
+        await waitForWalletDeployment(
+          wallet.address as `0x${string}`,
+          publicClient,
+        )
         console.log("[trails-sdk] sequence wallet deployed")
       } else {
         throw new Error(

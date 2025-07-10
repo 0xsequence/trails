@@ -240,6 +240,8 @@ export async function sendOriginTransaction(
     )
   }
 
+  console.log("[trails-sdk] sending origin tx")
+  console.time("[trails-sdk] sendTx")
   const hash = await walletClient.sendTransaction({
     account: account,
     to: originParams.to as `0x${string}`,
@@ -247,6 +249,8 @@ export async function sendOriginTransaction(
     value: BigInt(originParams.value),
     chain: originParams.chain,
   })
+  console.timeEnd("[trails-sdk] sendTx")
+
   return hash
 }
 

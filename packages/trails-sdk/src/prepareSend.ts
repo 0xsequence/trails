@@ -27,6 +27,7 @@ import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
 import * as chains from "viem/chains"
 import { attemptSwitchChain } from "./chainSwitch.js"
 import { getChainInfo } from "./chains.js"
+import { intentEntrypoints } from "./constants.js"
 import { getERC20TransferData } from "./encoders.js"
 import { getExplorerUrl } from "./explorer.js"
 import {
@@ -697,6 +698,7 @@ async function sendHandlerForSameChainSameToken({
           walletClient,
           originCallParams as any,
         ) // TODO: Add proper type
+
         console.log("[trails-sdk] origin tx", txHash)
 
         if (onOriginSend) {
@@ -859,14 +861,6 @@ async function attemptGaslessDeposit({
     chain,
     transport: http(),
   })
-
-  const intentEntrypoints: Record<number, `0x${string}`> = {
-    8453: "0x2bf4c63199eD7D8A737E8DB2cC19E0C0103F6bE3",
-    84532: "0xdcd9160492C6D43ABbd28D4d06F68ad77f1A0F2b",
-    421614: "0xf18A16E1C778baCA5d6f7F48cC4c9bb913e5e579",
-    42161: "0x674827B6BE8780DBdb96DC02c735275e3a982c90",
-    137: "0x4dBb20eA3A969F1A44d7653D4Dc8632B853E36DE",
-  }
 
   const intentEntrypoint = intentEntrypoints[chain.id]
   console.log("[trails-sdk] intentEntrypoint", intentEntrypoint)

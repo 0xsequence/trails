@@ -442,6 +442,7 @@ export function useSendForm({
       console.log("[trails-sdk] Intent address:", intentAddress?.toString())
 
       function onOriginSend() {
+        console.log("[trails-sdk] onOriginSend called")
         onConfirm()
         setIsWaitingForWalletConfirm(false)
         onSend(amount, recipient)

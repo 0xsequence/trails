@@ -325,33 +325,33 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
       if (walletId === "injected") {
         await connect({ connector: config.connector() })
       } else if (walletId === "privy") {
-        console.log("Privy ready", privyReady)
+        console.log("[trails-sdk] Privy ready", privyReady)
         if (!privyReady) {
           return
         }
         try {
           await disconnectAsync()
         } catch (error) {
-          console.error("Failed to disconnect", error)
+          console.error("[trails-sdk] Failed to disconnect", error)
         }
         if (usePrivyLogin) {
           try {
             await privyLogout()
           } catch (error) {
-            console.error("Failed to logout Privy", error)
+            console.error("[trails-sdk] Failed to logout Privy", error)
           }
           try {
             await loginPrivy()
           } catch (error) {
-            console.error("Failed to login Privy", error)
+            console.error("[trails-sdk] Failed to login Privy", error)
           }
         } else {
           await privyConnectWallet()
         }
       }
-      console.log(`Connected to ${config.name}`)
+      console.log(`[trails-sdk] Connected to ${config.name}`)
     } catch (error) {
-      console.error("Failed to connect:", error)
+      console.error("[trails-sdk] Failed to connect:", error)
       setError(
         error instanceof Error ? error.message : "Failed to connect wallet",
       )
@@ -363,7 +363,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
       (a, b) => a.connectedAt - b.connectedAt,
     )?.[0]
     if (latestWallet) {
-      console.log("Setting Privy active wallet", latestWallet)
+      console.log("[trails-sdk] Setting Privy active wallet", latestWallet)
       setPrivyActiveWallet(latestWallet)
     }
   }, [privyWallets, setPrivyActiveWallet])
@@ -377,14 +377,14 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
           try {
             await disconnectAsync()
           } catch (error) {
-            console.error("Failed to disconnect", error)
+            console.error("[trails-sdk] Failed to disconnect", error)
           }
         })
         .then(async () => {
           try {
             await privyLogout()
           } catch (error) {
-            console.error("Failed to logout Privy", error)
+            console.error("[trails-sdk] Failed to logout Privy", error)
           }
         })
         .then(async () => {
@@ -430,7 +430,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
   }
 
   const handleOnSend = async (amount: string, recipient: string) => {
-    console.log("handleOnSend", amount, recipient)
+    console.log("[trails-sdk] handleOnSend", amount, recipient)
   }
 
   const handleSendAnother = () => {
@@ -507,7 +507,10 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
   function handleTransactionStateChange(
     _transactionStates: TransactionState[],
   ) {
-    console.log("transactionStates from widget", _transactionStates)
+    console.log(
+      "[trails-sdk] transactionStates from widget",
+      _transactionStates,
+    )
     setTransactionStates([..._transactionStates])
   }
 
@@ -917,8 +920,8 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
   }
 
   const handleSendError = (error: Error) => {
-    console.error("Error sending transaction", error)
-    console.log("currentScreen", currentScreen)
+    console.error("[trails-sdk] Error sending transaction", error)
+    console.log("[trails-sdk] currentScreen", currentScreen)
     if (error.message?.toLowerCase().includes("rejected")) {
       setShowWalletConfirmRetry(true)
     } else {
@@ -952,7 +955,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
       setShowWalletConfirmRetry(false)
       await walletConfirmRetryHandler()
     } catch (error) {
-      console.error("Error retrying wallet confirmation", error)
+      console.error("[trails-sdk] Error retrying wallet confirmation", error)
     }
   }
 
