@@ -1,0 +1,1527 @@
+
+> @0xsequence/trails-sdk@0.0.5 build /home/runner/work/trails/trails/packages/trails-sdk
+> npm run build:react && npm run build:umd && npm run build:copy-js && npm run build:ts
+
+
+> @0xsequence/trails-sdk@0.0.5 build:react
+> vite build --config vite.config.ts && tsc -p tsconfig.build.json
+
+[36mvite v5.4.19 [32mbuilding for production...[36m[39m
+transforming...
+../../node_modules/.pnpm/ox@0.7.2_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Address.js (6:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.7.2_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Address.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.7.2_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Base64.js (6:27): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.7.2_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Base64.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:29436): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:34019): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:35565): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:36409): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:37394): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:55375): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:92161): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:106622): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:106918): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:142996): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:148284): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (3:287): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (3:1401): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (4:12770): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (4:12906): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (5:269): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (6:3510): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (6:4496): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (6:4705): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (6:4946): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (7:325): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (7:482): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (7:2623): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (8:6573): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (8:8792): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (8:10890): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (8:11568): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (8:22740): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (10:13354): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (10:16427): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (10:16605): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (10:16784): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (11:1644): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (11:3988): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (11:6422): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:1291): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:3759): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:6539): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:9505): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:12904): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:15609): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:20786): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:25396): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (14:2003): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (14:4608): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (14:5684): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (15:692): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (15:831): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (15:1390): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (15:2341): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (15:2807): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (16:1027): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:2251): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:16223): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:16310): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:16792): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:23395): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:24987): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:25485): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:30280): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:31469): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:32772): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:40005): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:41759): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (18:5808): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (18:8375): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (18:16706): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:416): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:7559): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:8414): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:11291): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:13152): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:16499): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:20496): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:22344): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:52874): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:52919): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:53172): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (20:3634): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (20:5192): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (20:11747): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (20:19187): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:517): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:5793): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:6122): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:6680): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:11519): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:12316): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:12640): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:13439): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:17317): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:23476): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (23:6837): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (23:12263): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:925): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:11267): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:20227): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:21020): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:27935): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:28838): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:39818): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:50826): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:56150): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:56433): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:58914): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:63403): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (25:2178): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (25:14786): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (25:20443): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (25:22601): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (25:27813): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:2318): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:3198): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:3712): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:4965): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:6376): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:9279): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:13702): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:18939): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:21606): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:21824): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:22397): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:23060): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:23770): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:30496): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:31690): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:35726): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (27:64331): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.7.2_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/internal/cursor.js (2:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.7.2_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/internal/cursor.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.8.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Base64.js (6:27): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.8.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Base64.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.8.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Address.js (6:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.8.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Address.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.8.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/internal/cursor.js (2:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.8.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/internal/cursor.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+[32m✓[39m 7114 modules transformed.
+rendering chunks...
+[33m 
+[vite-plugin-css-injected-by-js] has identified "widget/index.js" as one of the multiple output files marked as "entry" to put the CSS injection code.However, if this is not the intended file to add the CSS injection code, you can use the "jsAssetsFilterFunction" parameter to specify the desired output file (read docs). [39m
+computing gzip size...
+[2mdist/widget/[22m[36mConstantsUtil-B-_-u8aQ.js              [39m[1m[2m    0.11 kB[22m[1m[22m[2m │ gzip:   0.12 kB[22m
+[2mdist/widget/[22m[36mcursor-CR29pI2N.js                     [39m[1m[2m    0.25 kB[22m[1m[22m[2m │ gzip:   0.22 kB[22m
+[2mdist/widget/[22m[36mcircle--fuVrTwj.js                     [39m[1m[2m    0.28 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+[2mdist/widget/[22m[36mchevron-left-cngMjbeo.js               [39m[1m[2m    0.39 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/widget/[22m[36mchevron-top-B2WExMLP.js                [39m[1m[2m    0.39 kB[22m[1m[22m[2m │ gzip:   0.27 kB[22m
+[2mdist/widget/[22m[36mexternal-link-YclLmHgH.js              [39m[1m[2m    0.39 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/widget/[22m[36mchevron-bottom-B42MUBdh.js             [39m[1m[2m    0.39 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/widget/[22m[36mchevron-right-D4nU9DSS.js              [39m[1m[2m    0.39 kB[22m[1m[22m[2m │ gzip:   0.27 kB[22m
+[2mdist/widget/[22m[36marrow-top-zB2uT3Tz.js                  [39m[1m[2m    0.40 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/widget/[22m[36marrow-bottom-DdwFV84C.js               [39m[1m[2m    0.40 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/widget/[22m[36marrow-left-ZyPEpVIp.js                 [39m[1m[2m    0.40 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/widget/[22m[36marrow-right-Cypc12oW.js                [39m[1m[2m    0.41 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/widget/[22m[36msearch-KD6DFBoh.js                     [39m[1m[2m    0.43 kB[22m[1m[22m[2m │ gzip:   0.29 kB[22m
+[2mdist/widget/[22m[36mclose-CqZWtoWQ.js                      [39m[1m[2m    0.43 kB[22m[1m[22m[2m │ gzip:   0.28 kB[22m
+[2mdist/widget/[22m[36mall-wallets-C1dWaXWb.js                [39m[1m[2m    0.44 kB[22m[1m[22m[2m │ gzip:   0.26 kB[22m
+[2mdist/widget/[22m[36mfilters-CiU_s0lM.js                    [39m[1m[2m    0.44 kB[22m[1m[22m[2m │ gzip:   0.27 kB[22m
+[2mdist/widget/[22m[36minfo-circle-UVN-N8Va.js                [39m[1m[2m    0.46 kB[22m[1m[22m[2m │ gzip:   0.29 kB[22m
+[2mdist/widget/[22m[36mmore-Bd_SpX6Q.js                       [39m[1m[2m    0.48 kB[22m[1m[22m[2m │ gzip:   0.30 kB[22m
+[2mdist/widget/[22m[36mrefresh-CxJ8C4FC.js                    [39m[1m[2m    0.48 kB[22m[1m[22m[2m │ gzip:   0.32 kB[22m
+[2mdist/widget/[22m[36mwarning-circle-79vef5Aj.js             [39m[1m[2m    0.49 kB[22m[1m[22m[2m │ gzip:   0.31 kB[22m
+[2mdist/widget/[22m[36mcoinPlaceholder-C_EwbaZD.js            [39m[1m[2m    0.49 kB[22m[1m[22m[2m │ gzip:   0.34 kB[22m
+[2mdist/widget/[22m[36mcompass-BJv6QQ9e.js                    [39m[1m[2m    0.51 kB[22m[1m[22m[2m │ gzip:   0.34 kB[22m
+[2mdist/widget/[22m[36mswapVertical-XN6F9n5Q.js               [39m[1m[2m    0.54 kB[22m[1m[22m[2m │ gzip:   0.33 kB[22m
+[2mdist/widget/[22m[36mswapHorizontal-D8RRRl7u.js             [39m[1m[2m    0.54 kB[22m[1m[22m[2m │ gzip:   0.33 kB[22m
+[2mdist/widget/[22m[36mx-CFSHjkAh.js                          [39m[1m[2m    0.56 kB[22m[1m[22m[2m │ gzip:   0.38 kB[22m
+[2mdist/widget/[22m[36mcursor-transparent-DhYv5iUk.js         [39m[1m[2m    0.57 kB[22m[1m[22m[2m │ gzip:   0.35 kB[22m
+[2mdist/widget/[22m[36mtwitterIcon-CITwCAnD.js                [39m[1m[2m    0.57 kB[22m[1m[22m[2m │ gzip:   0.37 kB[22m
+[2mdist/widget/[22m[36mmobile-DyUUEyxJ.js                     [39m[1m[2m    0.58 kB[22m[1m[22m[2m │ gzip:   0.32 kB[22m
+[2mdist/widget/[22m[36mcheckmark-bold-DrKyA02x.js             [39m[1m[2m    0.64 kB[22m[1m[22m[2m │ gzip:   0.43 kB[22m
+[2mdist/widget/[22m[36metherscan-BScesEQ0.js                  [39m[1m[2m    0.69 kB[22m[1m[22m[2m │ gzip:   0.44 kB[22m
+[2mdist/widget/[22m[36mcheckmark-diJXdqj5.js                  [39m[1m[2m    0.69 kB[22m[1m[22m[2m │ gzip:   0.46 kB[22m
+[2mdist/widget/[22m[36mhelp-circle-kGYT0czm.js                [39m[1m[2m    0.70 kB[22m[1m[22m[2m │ gzip:   0.42 kB[22m
+[2mdist/widget/[22m[36mwallet-D89vTT0A.js                     [39m[1m[2m    0.71 kB[22m[1m[22m[2m │ gzip:   0.41 kB[22m
+[2mdist/widget/[22m[36mplus-DDebA4WM.js                       [39m[1m[2m    0.75 kB[22m[1m[22m[2m │ gzip:   0.42 kB[22m
+[2mdist/widget/[22m[36mverify-filled-Cp4SdEoR.js              [39m[1m[2m    0.76 kB[22m[1m[22m[2m │ gzip:   0.46 kB[22m
+[2mdist/widget/[22m[36madd-CWxBGSgT.js                        [39m[1m[2m    0.76 kB[22m[1m[22m[2m │ gzip:   0.42 kB[22m
+[2mdist/widget/[22m[36mx-mark-D1J4OGt2.js                     [39m[1m[2m    0.78 kB[22m[1m[22m[2m │ gzip:   0.42 kB[22m
+[2mdist/widget/[22m[36mgoogle-8Ek3SXlN.js                     [39m[1m[2m    0.80 kB[22m[1m[22m[2m │ gzip:   0.45 kB[22m
+[2mdist/widget/[22m[36mthree-dots-mtHxR6ok.js                 [39m[1m[2m    0.83 kB[22m[1m[22m[2m │ gzip:   0.40 kB[22m
+[2mdist/widget/[22m[36mclock-BswrLayM.js                      [39m[1m[2m    0.83 kB[22m[1m[22m[2m │ gzip:   0.47 kB[22m
+[2mdist/widget/[22m[36mdisconnect-7J7Mjp1u.js                 [39m[1m[2m    0.88 kB[22m[1m[22m[2m │ gzip:   0.50 kB[22m
+[2mdist/widget/[22m[36mtwitch-BYqizrpl.js                     [39m[1m[2m    0.89 kB[22m[1m[22m[2m │ gzip:   0.50 kB[22m
+[2mdist/widget/[22m[36mbank-DG1L85Kz.js                       [39m[1m[2m    0.93 kB[22m[1m[22m[2m │ gzip:   0.52 kB[22m
+[2mdist/widget/[22m[36mapple-govKWqnK.js                      [39m[1m[2m    0.95 kB[22m[1m[22m[2m │ gzip:   0.52 kB[22m
+[2mdist/widget/[22m[36mplay-store-B0UFzOgS.js                 [39m[1m[2m    1.00 kB[22m[1m[22m[2m │ gzip:   0.51 kB[22m
+[2mdist/widget/[22m[36mfarcaster-BnSobu7v.js                  [39m[1m[2m    1.01 kB[22m[1m[22m[2m │ gzip:   0.53 kB[22m
+[2mdist/widget/[22m[36moff-C5zCwt03.js                        [39m[1m[2m    1.05 kB[22m[1m[22m[2m │ gzip:   0.55 kB[22m
+[2mdist/widget/[22m[36methereum-BlQ9gmb_.js                   [39m[1m[2m    1.08 kB[22m[1m[22m[2m │ gzip:   0.44 kB[22m
+[2mdist/widget/[22m[36marrow-bottom-circle-U_ekEEbJ.js        [39m[1m[2m    1.12 kB[22m[1m[22m[2m │ gzip:   0.52 kB[22m
+[2mdist/widget/[22m[36mgithub-BJTkkkW2.js                     [39m[1m[2m    1.12 kB[22m[1m[22m[2m │ gzip:   0.59 kB[22m
+[2mdist/widget/[22m[36mswapHorizontalBold-DiWZBbps.js         [39m[1m[2m    1.15 kB[22m[1m[22m[2m │ gzip:   0.61 kB[22m
+[2mdist/widget/[22m[36mtransactions-cgbQc_rj.js               [39m[1m[2m    1.15 kB[22m[1m[22m[2m │ gzip:   0.64 kB[22m
+[2mdist/widget/[22m[36mapp-store-Dhso4psv.js                  [39m[1m[2m    1.19 kB[22m[1m[22m[2m │ gzip:   0.67 kB[22m
+[2mdist/widget/[22m[36mmail-BG4WnWSw.js                       [39m[1m[2m    1.20 kB[22m[1m[22m[2m │ gzip:   0.65 kB[22m
+[2mdist/widget/[22m[36mfacebook-QqwbtXT0.js                   [39m[1m[2m    1.22 kB[22m[1m[22m[2m │ gzip:   0.64 kB[22m
+[2mdist/widget/[22m[36mwallet-placeholder-CiqXAnsi.js         [39m[1m[2m    1.25 kB[22m[1m[22m[2m │ gzip:   0.59 kB[22m
+[2mdist/widget/[22m[36mdesktop-Bp-sLNbM.js                    [39m[1m[2m    1.26 kB[22m[1m[22m[2m │ gzip:   0.64 kB[22m
+[2mdist/widget/[22m[36mref-CNbTEWmU.js                        [39m[1m[2m    1.28 kB[22m[1m[22m[2m │ gzip:   0.60 kB[22m
+[2mdist/widget/[22m[36mdiscord-rC8wtlf-.js                    [39m[1m[2m    1.29 kB[22m[1m[22m[2m │ gzip:   0.65 kB[22m
+[2mdist/widget/[22m[36mswapHorizontalMedium-C2DP3TMm.js       [39m[1m[2m    1.29 kB[22m[1m[22m[2m │ gzip:   0.67 kB[22m
+[2mdist/widget/[22m[36mrecycle-horizontal-D2JnRN2N.js         [39m[1m[2m    1.33 kB[22m[1m[22m[2m │ gzip:   0.69 kB[22m
+[2mdist/widget/[22m[36mindex-DXGTMJiM.js                      [39m[1m[2m    1.42 kB[22m[1m[22m[2m │ gzip:   0.75 kB[22m
+[2mdist/widget/[22m[36mextension-Czm058hf.js                  [39m[1m[2m    1.42 kB[22m[1m[22m[2m │ gzip:   0.69 kB[22m
+[2mdist/widget/[22m[36mtelegram-DpZ9YrlL.js                   [39m[1m[2m    1.44 kB[22m[1m[22m[2m │ gzip:   0.83 kB[22m
+[2mdist/widget/[22m[36mswapHorizontalRoundedBold-3on2DEP0.js  [39m[1m[2m    1.45 kB[22m[1m[22m[2m │ gzip:   0.76 kB[22m
+[2mdist/widget/[22m[36mverify-Buioqep3.js                     [39m[1m[2m    1.46 kB[22m[1m[22m[2m │ gzip:   0.70 kB[22m
+[2mdist/widget/[22m[36mqr-code-Cmw-P4Cq.js                    [39m[1m[2m    1.51 kB[22m[1m[22m[2m │ gzip:   0.52 kB[22m
+[2mdist/widget/[22m[36mbrowser-CcnQsfO7.js                    [39m[1m[2m    1.57 kB[22m[1m[22m[2m │ gzip:   0.78 kB[22m
+[2mdist/widget/[22m[36mnetwork-placeholder-rciuDkI7.js        [39m[1m[2m    1.64 kB[22m[1m[22m[2m │ gzip:   0.73 kB[22m
+[2mdist/widget/[22m[36mindex-CyUx-1CD.js                      [39m[1m[2m    1.66 kB[22m[1m[22m[2m │ gzip:   0.79 kB[22m
+[2mdist/widget/[22m[36mindex-mwT4fXZs.js                      [39m[1m[2m    1.67 kB[22m[1m[22m[2m │ gzip:   0.80 kB[22m
+[2mdist/widget/[22m[36mindex-CQQ9uFth.js                      [39m[1m[2m    1.73 kB[22m[1m[22m[2m │ gzip:   0.86 kB[22m
+[2mdist/widget/[22m[36mid-BTAw_JAQ.js                         [39m[1m[2m    1.74 kB[22m[1m[22m[2m │ gzip:   0.80 kB[22m
+[2mdist/widget/[22m[36mnftPlaceholder-Bos4726n.js             [39m[1m[2m    1.74 kB[22m[1m[22m[2m │ gzip:   0.86 kB[22m
+[2mdist/widget/[22m[36mbin-BooFqjOj.js                        [39m[1m[2m    1.75 kB[22m[1m[22m[2m │ gzip:   0.87 kB[22m
+[2mdist/widget/[22m[36mindex-CndrU6Y3.js                      [39m[1m[2m    1.91 kB[22m[1m[22m[2m │ gzip:   0.85 kB[22m
+[2mdist/widget/[22m[36mbitcoin-CYPm6i-j.js                    [39m[1m[2m    2.03 kB[22m[1m[22m[2m │ gzip:   1.11 kB[22m
+[2mdist/widget/[22m[36mindex-D0K3U8xs.js                      [39m[1m[2m    2.16 kB[22m[1m[22m[2m │ gzip:   0.94 kB[22m
+[2mdist/widget/[22m[36mindex-BJYWKRmD.js                      [39m[1m[2m    2.19 kB[22m[1m[22m[2m │ gzip:   0.93 kB[22m
+[2mdist/widget/[22m[36mindex-CHCn1O1S.js                      [39m[1m[2m    2.22 kB[22m[1m[22m[2m │ gzip:   1.05 kB[22m
+[2mdist/widget/[22m[36mindex-DVTD0Rmi.js                      [39m[1m[2m    2.24 kB[22m[1m[22m[2m │ gzip:   0.89 kB[22m
+[2mdist/widget/[22m[36minfo-esFEe6Ns.js                       [39m[1m[2m    2.25 kB[22m[1m[22m[2m │ gzip:   1.13 kB[22m
+[2mdist/widget/[22m[36mexclamation-triangle-B_kZA-af.js       [39m[1m[2m    2.41 kB[22m[1m[22m[2m │ gzip:   1.13 kB[22m
+[2mdist/widget/[22m[36msend-CW661ll5.js                       [39m[1m[2m    2.41 kB[22m[1m[22m[2m │ gzip:   1.27 kB[22m
+[2mdist/widget/[22m[36msolana-BZKpWOie.js                     [39m[1m[2m    2.53 kB[22m[1m[22m[2m │ gzip:   1.20 kB[22m
+[2mdist/widget/[22m[36mindex-eYBHLPlg.js                      [39m[1m[2m    2.54 kB[22m[1m[22m[2m │ gzip:   0.97 kB[22m
+[2mdist/widget/[22m[36mcard-BimJbyPU.js                       [39m[1m[2m    2.58 kB[22m[1m[22m[2m │ gzip:   1.16 kB[22m
+[2mdist/widget/[22m[36mchrome-store-Ds6Zor00.js               [39m[1m[2m    2.58 kB[22m[1m[22m[2m │ gzip:   1.01 kB[22m
+[2mdist/widget/[22m[36mreown-logo-KW3jbJbu.js                 [39m[1m[2m    2.59 kB[22m[1m[22m[2m │ gzip:   1.06 kB[22m
+[2mdist/widget/[22m[36mlightbulb-BS-Vwaqc.js                  [39m[1m[2m    2.70 kB[22m[1m[22m[2m │ gzip:   1.21 kB[22m
+[2mdist/widget/[22m[36mindex-D6HnP1d3.js                      [39m[1m[2m    3.03 kB[22m[1m[22m[2m │ gzip:   1.15 kB[22m
+[2mdist/widget/[22m[36mimage-D3L84yMx.js                      [39m[1m[2m    3.48 kB[22m[1m[22m[2m │ gzip:   1.50 kB[22m
+[2mdist/widget/[22m[36mcopy-BHtztu9S.js                       [39m[1m[2m    3.81 kB[22m[1m[22m[2m │ gzip:   1.47 kB[22m
+[2mdist/widget/[22m[36mwalletconnect-WCag_vFx.js              [39m[1m[2m    4.06 kB[22m[1m[22m[2m │ gzip:   1.66 kB[22m
+[2mdist/widget/[22m[36mindex-V0JpqYAC.js                      [39m[1m[2m    4.10 kB[22m[1m[22m[2m │ gzip:   1.51 kB[22m
+[2mdist/widget/[22m[36mindex-PdBuXxu1.js                      [39m[1m[2m    4.67 kB[22m[1m[22m[2m │ gzip:   1.28 kB[22m
+[2mdist/widget/[22m[36mindex-d1KYboYp.js                      [39m[1m[2m    5.07 kB[22m[1m[22m[2m │ gzip:   1.64 kB[22m
+[2mdist/widget/[22m[36mindex-D8nvDwvj.js                      [39m[1m[2m    5.15 kB[22m[1m[22m[2m │ gzip:   1.89 kB[22m
+[2mdist/widget/[22m[36mwidget/index.js                        [39m[1m[2m    5.62 kB[22m[1m[22m[2m │ gzip:   1.36 kB[22m
+[2mdist/widget/[22m[36mccip-Cd5coVW9.js                       [39m[1m[2m    6.16 kB[22m[1m[22m[2m │ gzip:   2.25 kB[22m
+[2mdist/widget/[22m[36mindex-DUwwE8bI.js                      [39m[1m[2m    6.18 kB[22m[1m[22m[2m │ gzip:   2.33 kB[22m
+[2mdist/widget/[22m[36mreceive-CCKzdnIW.js                    [39m[1m[2m    6.19 kB[22m[1m[22m[2m │ gzip:   2.16 kB[22m
+[2mdist/widget/[22m[36mindex-BPBPRvCC.js                      [39m[1m[2m    6.24 kB[22m[1m[22m[2m │ gzip:   1.79 kB[22m
+[2mdist/widget/[22m[36mindex-C3sR6HP6.js                      [39m[1m[2m    6.74 kB[22m[1m[22m[2m │ gzip:   1.87 kB[22m
+[2mdist/widget/[22m[36mindex-v0SQ9r7I.js                      [39m[1m[2m    7.22 kB[22m[1m[22m[2m │ gzip:   1.70 kB[22m
+[2mdist/widget/[22m[36mindex-Cf3qqtou.js                      [39m[1m[2m    9.13 kB[22m[1m[22m[2m │ gzip:   2.39 kB[22m
+[2mdist/widget/[22m[36mindex-MAjzTT21.js                      [39m[1m[2m    9.35 kB[22m[1m[22m[2m │ gzip:   2.66 kB[22m
+[2mdist/widget/[22m[36mindex-DLZ5P3J-.js                      [39m[1m[2m    9.45 kB[22m[1m[22m[2m │ gzip:   2.30 kB[22m
+[2mdist/widget/[22m[36mindex-BUCcjXbd.js                      [39m[1m[2m    9.75 kB[22m[1m[22m[2m │ gzip:   2.87 kB[22m
+[2mdist/widget/[22m[36mlit-html-jz-94mx9.js                   [39m[1m[2m   10.07 kB[22m[1m[22m[2m │ gzip:   3.65 kB[22m
+[2mdist/widget/[22m[36mindex-3AinhQAV.js                      [39m[1m[2m   10.09 kB[22m[1m[22m[2m │ gzip:   2.08 kB[22m
+[2mdist/widget/[22m[36membedded-wallet-BlPohzty.js            [39m[1m[2m   15.56 kB[22m[1m[22m[2m │ gzip:   4.27 kB[22m
+[2mdist/widget/[22m[36mindex-D766_Hmj.js                      [39m[1m[2m   17.69 kB[22m[1m[22m[2m │ gzip:   5.50 kB[22m
+[2mdist/widget/[22m[36mindex-Qz3tG4xl.js                      [39m[1m[2m   17.71 kB[22m[1m[22m[2m │ gzip:   4.69 kB[22m
+[2mdist/widget/[22m[36mindex-BrrcoI8n.js                      [39m[1m[2m   19.42 kB[22m[1m[22m[2m │ gzip:   6.08 kB[22m
+[2mdist/widget/[22m[36msocials-DP5B9PpJ.js                    [39m[1m[2m   20.37 kB[22m[1m[22m[2m │ gzip:   4.92 kB[22m
+[2mdist/widget/[22m[36mindex-CQJ3NY-w.js                      [39m[1m[2m   21.00 kB[22m[1m[22m[2m │ gzip:   5.45 kB[22m
+[2mdist/widget/[22m[36memail-DGnCOwmA.js                      [39m[1m[2m   24.68 kB[22m[1m[22m[2m │ gzip:   5.51 kB[22m
+[2mdist/widget/[22m[36mif-defined-CulHeU7H.js                 [39m[1m[2m   25.06 kB[22m[1m[22m[2m │ gzip:   6.99 kB[22m
+[2mdist/widget/[22m[36mindex-Drgoddlj.js                      [39m[1m[2m   27.84 kB[22m[1m[22m[2m │ gzip:   7.14 kB[22m
+[2mdist/widget/[22m[36mindex.js                               [39m[1m[2m   28.61 kB[22m[1m[22m[2m │ gzip:   7.98 kB[22m
+[2mdist/widget/[22m[36mw3m-modal-B_R_3sms.js                  [39m[1m[2m   31.99 kB[22m[1m[22m[2m │ gzip:   7.69 kB[22m
+[2mdist/widget/[22m[36mbrowser-CLY50hjK.js                    [39m[1m[2m   33.42 kB[22m[1m[22m[2m │ gzip:  10.37 kB[22m
+[2mdist/widget/[22m[36msend-BfuEQEo6.js                       [39m[1m[2m   33.95 kB[22m[1m[22m[2m │ gzip:   6.94 kB[22m
+[2mdist/widget/[22m[36monramp-B2aPRSi8.js                     [39m[1m[2m   40.92 kB[22m[1m[22m[2m │ gzip:   8.56 kB[22m
+[2mdist/widget/[22m[36mindex-DuXhMJ8H.js                      [39m[1m[2m   52.87 kB[22m[1m[22m[2m │ gzip:  15.32 kB[22m
+[2mdist/widget/[22m[36mswaps-DUFZH8m_.js                      [39m[1m[2m   55.61 kB[22m[1m[22m[2m │ gzip:   9.86 kB[22m
+[2mdist/widget/[22m[36mindex-BdZdATaZ.js                      [39m[1m[2m  138.71 kB[22m[1m[22m[2m │ gzip:  37.18 kB[22m
+[2mdist/widget/[22m[36mindex-DRVtdukn.js                      [39m[1m[2m  280.20 kB[22m[1m[22m[2m │ gzip:  49.11 kB[22m
+[2mdist/widget/[22m[36mindex-C5WaG16p.js                      [39m[1m[33m  865.92 kB[39m[22m[2m │ gzip: 201.04 kB[22m
+[2mdist/widget/[22m[36mtokenBalances-CTsCfgjB.js              [39m[1m[33m1,549.77 kB[39m[22m[2m │ gzip: 374.68 kB[22m
+[2mdist/widget/[22m[36mindex-DYwTnu1D.js                      [39m[1m[33m3,009.78 kB[39m[22m[2m │ gzip: 772.90 kB[22m
+[32m✓ built in 16.97s[39m
+
+> @0xsequence/trails-sdk@0.0.5 build:umd
+> BUILD_MODE=umd vite build --config vite.umd.config.ts
+
+[36mvite v5.4.19 [32mbuilding for production...[36m[39m
+transforming...
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:29436): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:34019): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:35565): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:36409): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:37394): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:55375): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:92161): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:106622): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:106918): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:142996): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (1:148284): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (3:287): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (3:1401): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (4:12770): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (4:12906): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (5:269): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (6:3510): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (6:4496): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (6:4705): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (6:4946): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (7:325): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (7:482): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (7:2623): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (8:6573): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (8:8792): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (8:10890): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (8:11568): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (8:22740): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (10:13354): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (10:16427): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (10:16605): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (10:16784): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (11:1644): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (11:3988): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (11:6422): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:1291): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:3759): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:6539): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:9505): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:12904): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:15609): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:20786): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (12:25396): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (14:2003): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (14:4608): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (14:5684): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (15:692): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (15:831): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (15:1390): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (15:2341): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (15:2807): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (16:1027): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:2251): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:16223): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:16310): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:16792): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:23395): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:24987): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:25485): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:30280): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:31469): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:32772): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:40005): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (17:41759): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (18:5808): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (18:8375): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (18:16706): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:416): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:7559): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:8414): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:11291): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:13152): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:16499): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:20496): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:22344): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:52874): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:52919): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (19:53172): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (20:3634): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (20:5192): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (20:11747): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (20:19187): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:517): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:5793): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:6122): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:6680): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:11519): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:12316): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:12640): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:13439): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:17317): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (22:23476): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (23:6837): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (23:12263): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:925): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:11267): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:20227): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:21020): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:27935): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:28838): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:39818): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:50826): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:56150): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:56433): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:58914): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (24:63403): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (25:2178): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (25:14786): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (25:20443): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (25:22601): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (25:27813): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:2318): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:3198): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:3712): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:4965): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:6376): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:9279): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:13702): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:18939): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:21606): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:21824): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:22397): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:23060): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:23770): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:30496): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:31690): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (26:35726): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs (27:64331): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/@privy-io+react-auth@2.17.3_@solana+web3.js@1.98.2_bufferutil@4.0.9_encoding@0.1.13_typ_f7299bb0f3c3cf3f145eadfa321dc10d/node_modules/@privy-io/react-auth/dist/esm/privy-provider-C8x4T-HJ.mjs" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.7.2_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Address.js (6:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.7.2_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Address.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.7.2_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Base64.js (6:27): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.7.2_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Base64.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.7.2_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/internal/cursor.js (2:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.7.2_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/internal/cursor.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.8.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Address.js (6:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.8.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Address.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.8.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/internal/cursor.js (2:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.8.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/internal/cursor.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.8.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Base64.js (6:27): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.8.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Base64.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.6.7_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Address.js (6:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.6.7_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Address.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.6.7_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/internal/cursor.js (2:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.6.7_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/internal/cursor.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.7.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Address.js (6:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.7.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/Address.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../node_modules/.pnpm/ox@0.7.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/internal/cursor.js (2:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../node_modules/.pnpm/ox@0.7.1_typescript@5.8.3_zod@3.25.76/node_modules/ox/_esm/core/internal/cursor.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+[32m✓[39m 8225 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/umd/[22m[36mtrails.min.js  [39m[1m[33m5,663.03 kB[39m[22m[2m │ gzip: 1,587.99 kB[22m[2m │ map: 19,516.08 kB[22m
+[32m✓ built in 21.88s[39m
+
+> @0xsequence/trails-sdk@0.0.5 build:copy-js
+> mkdir -p ../../apps/trails-demo/public/js && cp ./dist/umd/trails.min.js ../../apps/trails-demo/public/js/trails.min.js
+
+
+> @0xsequence/trails-sdk@0.0.5 build:ts
+> tsc -p tsconfig.json
+

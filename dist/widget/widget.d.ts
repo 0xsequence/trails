@@ -1,0 +1,36 @@
+import "@0xsequence/design-system/preset";
+import React from "react";
+import type { RelayerEnv } from "../relayer.js";
+import type { Theme } from "../theme.js";
+export declare const defaultWalletOptions: string[];
+export type TrailsWidgetProps = {
+    sequenceProjectAccessKey: string;
+    sequenceIndexerUrl?: string | null;
+    sequenceApiUrl?: string | null;
+    sequenceEnv?: RelayerEnv;
+    toAddress?: string | null;
+    toAmount?: string | null;
+    toChainId?: number | string | null;
+    toToken?: string | null;
+    toCalldata?: string | null;
+    children?: React.ReactNode;
+    renderInline?: boolean;
+    theme?: Theme;
+    walletOptions?: string[];
+    onOriginConfirmation?: (txHash: string) => void;
+    onDestinationConfirmation?: (txHash: string) => void;
+    privyAppId?: string;
+    privyClientId?: string;
+    useSourceTokenForButtonText?: boolean;
+    paymasterUrls?: Array<{
+        chainId: number;
+        url: string;
+    }>;
+    gasless?: boolean;
+};
+export declare const TrailsWidget: (props: TrailsWidgetProps) => import("react/jsx-runtime").JSX.Element;
+export declare function ShadowPortal({ children }: {
+    children: React.ReactNode;
+}): import("react/jsx-runtime").JSX.Element;
+export default TrailsWidget;
+//# sourceMappingURL=widget.d.ts.map
