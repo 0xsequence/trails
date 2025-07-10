@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { DemoTabs } from "@/components/DemoTabs"
-import { AppKitProvider, ConnectButton } from "./components/ConnectWallet"
+import { ConnectButton } from "./components/ConnectButton"
 import { CustomizationForm, STORAGE_KEYS } from "./components/CustomizationForm"
 import { OutputScreen } from "./components/OutputScreen"
 
@@ -21,18 +21,12 @@ export const WidgetDemo = () => {
   const [toCalldata, setToCalldata] = useState("")
   const [renderInline, setRenderInline] = useState<boolean | null>(null)
   const [useCustomButton, setUseCustomButton] = useState<boolean | null>(null)
-  const [provider, setProvider] = useState<any>(null)
   const [theme, setTheme] = useState<string | null>(null)
   const [walletOptions, setWalletOptions] = useState<string[] | null>(null)
   const [paymasterUrls, setPaymasterUrls] = useState<
     Array<{ chainId: number; url: string }>
   >([])
   const [gasless, setGasless] = useState<boolean | null>(null)
-
-  const handleConnect = useCallback((provider: any) => {
-    console.log("provider", provider)
-    setProvider(provider)
-  }, [])
 
   useEffect(() => {
     if (!localStorage.getItem(STORAGE_KEYS.RENDER_INLINE)) {
@@ -46,7 +40,7 @@ export const WidgetDemo = () => {
     }
   }, [])
 
-  const content = (
+  return (
     <div className="flex flex-col items-center justify-center space-y-6 py-8 px-4 sm:py-12 sm:px-6">
       <div className="text-center space-y-4 max-w-6xl w-full">
         <div className="flex flex-col sm:flex-row justify-between items-start space-y-4 sm:space-y-0">
@@ -71,7 +65,7 @@ export const WidgetDemo = () => {
       </div>
 
       <div className="flex justify-center mt-6 sm:mt-8">
-        <ConnectButton onConnect={handleConnect} />
+        <ConnectButton />
       </div>
 
       <div className="w-full max-w-6xl">
@@ -123,7 +117,6 @@ export const WidgetDemo = () => {
               walletOptions={walletOptions}
               paymasterUrls={paymasterUrls}
               gasless={gasless}
-              provider={provider}
               apiUrl={apiUrl}
               indexerUrl={indexerUrl}
               env={env}
@@ -138,6 +131,4 @@ export const WidgetDemo = () => {
       </div>
     </div>
   )
-
-  return <AppKitProvider>{content}</AppKitProvider>
 }

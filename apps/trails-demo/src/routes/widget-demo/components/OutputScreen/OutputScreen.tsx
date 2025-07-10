@@ -18,8 +18,6 @@ interface OutputScreenProps {
   paymasterUrls: Array<{ chainId: number; url: string }>
   gasless: boolean | null
   children: React.ReactNode
-  // Add missing props
-  provider: any
   apiUrl: string
   indexerUrl: string
   env: string
@@ -41,7 +39,6 @@ export const OutputScreen = ({
   walletOptions,
   paymasterUrls,
   gasless,
-  provider,
   apiUrl,
   indexerUrl,
   env,
@@ -104,7 +101,6 @@ export const OutputScreen = ({
               toChainId={toChainId}
               toToken={toToken}
               toCalldata={toCalldata}
-              provider={provider}
               renderInline={true}
               theme={theme}
               walletOptions={walletOptions}
@@ -131,7 +127,6 @@ export const OutputScreen = ({
               toChainId={toChainId}
               toToken={toToken}
               toCalldata={toCalldata}
-              provider={provider}
               renderInline={false}
               theme={theme}
               walletOptions={walletOptions}

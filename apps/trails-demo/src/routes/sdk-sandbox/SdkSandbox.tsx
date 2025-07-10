@@ -9,10 +9,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { Link } from "react-router"
 import { useAccount } from "wagmi"
-import {
-  AppKitProvider,
-  ConnectButton,
-} from "@/routes/widget-demo/components/ConnectWallet"
+import { ConnectButton } from "@/routes/widget-demo/components/ConnectButton"
 
 export function SdkSandbox() {
   const { address, isConnected } = useAccount()
@@ -76,11 +73,7 @@ export function SdkSandbox() {
         : null,
   })
 
-  const handleConnect = () => {
-    console.log("connect")
-  }
-
-  const content = (
+  return (
     <div className="max-w-6xl mx-auto p-8 space-y-8 bg-gray-900">
       <div className="flex items-center justify-between mb-12">
         <Link
@@ -121,7 +114,7 @@ export function SdkSandbox() {
 
         {!isConnected && (
           <div className="flex justify-center mt-6 sm:mt-8">
-            <ConnectButton onConnect={handleConnect} />
+            <ConnectButton />
           </div>
         )}
       </div>
@@ -546,6 +539,4 @@ export function SdkSandbox() {
       </div>
     </div>
   )
-
-  return <AppKitProvider>{content}</AppKitProvider>
 }

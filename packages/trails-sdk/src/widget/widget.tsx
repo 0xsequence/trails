@@ -8,7 +8,7 @@ import {
   useWallets as usePrivyWallets,
 } from "@privy-io/react-auth"
 import {
-  createConfig,
+  createConfig as createPrivyWagmiConfig,
   useSetActiveWallet,
   WagmiProvider,
 } from "@privy-io/wagmi"
@@ -24,10 +24,15 @@ import React, {
 import { createPortal } from "react-dom"
 import type { Chain, TransactionReceipt, WalletClient } from "viem"
 import { createWalletClient, custom, http } from "viem"
-import * as chains from "viem/chains"
 import { mainnet } from "viem/chains"
 import type { Connector } from "wagmi"
-import { useAccount, useConnect, useDisconnect, WagmiContext } from "wagmi"
+import {
+  createConfig,
+  useAccount,
+  useConnect,
+  useDisconnect,
+  WagmiContext,
+} from "wagmi"
 import { injected } from "wagmi/connectors"
 import { useAPIClient } from "../apiClient.js"
 import { getChainInfo } from "../chains.js"
@@ -83,7 +88,6 @@ export type TrailsWidgetProps = {
   toChainId?: number | string | null
   toToken?: string | null
   toCalldata?: string | null
-  provider?: any | null
   children?: React.ReactNode
   renderInline?: boolean
   theme?: Theme
@@ -159,7 +163,6 @@ const useThemeManager = (initialTheme: Theme) => {
 
 // Create a custom hook for wallet management
 const useWalletManager = (
-  provider: any,
   address: string | undefined,
   chainId: number | undefined,
   connector: Connector | undefined,
@@ -168,25 +171,32 @@ const useWalletManager = (
 
   useEffect(() => {
     const connect = async () => {
-      const activeProvider = provider || (await connector?.getProvider())
-
-      if (activeProvider && address && chainId) {
-        const chain = getChainInfo(chainId)
-        if (!chain) {
+      try {
+        if (!connector) {
           return
         }
+        const activeProvider = await connector.getProvider?.()
 
-        const client = createWalletClient({
-          account: address as `0x${string}`,
-          chain,
-          transport: custom(activeProvider),
-        })
+        if (activeProvider && address && chainId) {
+          const chain = getChainInfo(chainId)
+          if (!chain) {
+            return
+          }
 
-        setWalletClient(client)
+          const client = createWalletClient({
+            account: address as `0x${string}`,
+            chain,
+            transport: custom(activeProvider as any),
+          })
+
+          setWalletClient(client)
+        }
+      } catch (error) {
+        console.error("[trails-sdk] Failed to connect wallet", error)
       }
     }
     connect().catch(console.error)
-  }, [provider, address, chainId, connector])
+  }, [address, chainId, connector])
 
   return walletClient
 }
@@ -284,7 +294,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
   const { setActiveWallet: setPrivyActiveWallet } = useSetActiveWallet()
   const usePrivyLogin = true // Set to true to use Privy email login options
 
-  const walletClient = useWalletManager(undefined, address, chainId, connector)
+  const walletClient = useWalletManager(address, chainId, connector)
 
   const {
     setOriginTxHash,
@@ -298,11 +308,21 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
 
   // Update screen based on connection state
   useEffect(() => {
-    if (isConnected) {
+    if (error) {
       setError(null)
-      setCurrentScreen("tokens")
     }
-  }, [isConnected])
+    if (isConnected) {
+      if (currentScreen === "connect") {
+        setCurrentScreen("tokens")
+      }
+    } else {
+      if (currentScreen !== "connect") {
+        setTimeout(() => {
+          setCurrentScreen("connect")
+        }, 0)
+      }
+    }
+  }, [isConnected, currentScreen, error])
 
   const indexerGatewayClient = useIndexerGatewayClient({
     indexerGatewayUrl: sequenceIndexerUrl || undefined,
@@ -359,6 +379,9 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
   }
 
   useEffect(() => {
+    if (privyWallets?.length === 0 || !walletOptions?.includes("privy")) {
+      return
+    }
     const latestWallet = privyWallets?.sort(
       (a, b) => a.connectedAt - b.connectedAt,
     )?.[0]
@@ -366,7 +389,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
       console.log("[trails-sdk] Setting Privy active wallet", latestWallet)
       setPrivyActiveWallet(latestWallet)
     }
-  }, [privyWallets, setPrivyActiveWallet])
+  }, [privyWallets, setPrivyActiveWallet, walletOptions])
 
   const handleWalletDisconnect = () => {
     setError(null)
@@ -1176,51 +1199,39 @@ export const TrailsWidget = (props: TrailsWidgetProps) => {
   const wagmiContext = useContext(WagmiContext)
   const sequenceHooksContext = useContext(SequenceHooksContext)
 
-  const wagmiConfig = React.useMemo(
-    () =>
-      createConfig({
-        chains: [mainnet],
-        transports: (Object.values(chains) as Array<Chain>).reduce(
-          (acc, chain) => ({
-            ...acc,
-            [chain.id]: http(),
-          }),
-          {},
-        ) as Record<number, ReturnType<typeof http>>,
-      }),
-    [],
-  )
+  // Check if privy is in walletOptions
+  // const walletOptions = props.walletOptions || defaultWalletOptions
+  const shouldUsePrivy = true // walletOptions.includes('privy') // TODO: need to disable all privy hooks if walletOptions.includes('privy') is false
 
-  // Create the widget content without providers
-  const widgetContent = <WidgetInner {...props} />
+  const wagmiConfig = React.useMemo(() => {
+    const chains = [mainnet] as const
+    const baseConfig = {
+      chains,
+      transports: (Object.values(chains) as Array<Chain>).reduce(
+        (acc, chain) => ({
+          ...acc,
+          [chain.id]: http(),
+        }),
+        {},
+      ) as Record<number, ReturnType<typeof http>>,
+    }
+
+    if (shouldUsePrivy) {
+      return createPrivyWagmiConfig(baseConfig)
+    } else {
+      return createConfig({
+        ...baseConfig,
+        connectors: [injected()],
+      })
+    }
+  }, [])
 
   // Create content with only the providers that don't exist in parent
-  const content = (
-    <QueryClientProvider client={queryClient}>
-      <PrivyProvider
-        appId={props.privyAppId || defaultPrivyAppId}
-        clientId={props.privyClientId || defaultPrivyClientId}
-        config={{
-          embeddedWallets: {
-            createOnLogin: "users-without-wallets",
-            requireUserPasswordOnCreate: true,
-            showWalletUIs: true,
-          },
-          loginMethods: ["google", "wallet", "email", "sms"],
-          appearance: {
-            showWalletLoginFirst: false,
-            walletList: [
-              "detected_wallets",
-              "metamask",
-              "coinbase_wallet",
-              "rainbow",
-              "zerion",
-              "uniswap",
-              "wallet_connect",
-            ],
-          },
-        }}
-      >
+  const content = (() => {
+    const widgetContent = <WidgetInner {...props} />
+
+    const baseContent = (
+      <QueryClientProvider client={queryClient}>
         {sequenceHooksContext ? (
           // SequenceHooksProvider exists in parent, don't wrap
           wagmiContext ? (
@@ -1253,9 +1264,43 @@ export const TrailsWidget = (props: TrailsWidgetProps) => {
             )}
           </SequenceHooksProvider>
         )}
-      </PrivyProvider>
-    </QueryClientProvider>
-  )
+      </QueryClientProvider>
+    )
+
+    // Only wrap with PrivyProvider if privy is in walletOptions
+    if (shouldUsePrivy) {
+      return (
+        <PrivyProvider
+          appId={props.privyAppId || defaultPrivyAppId}
+          clientId={props.privyClientId || defaultPrivyClientId}
+          config={{
+            embeddedWallets: {
+              createOnLogin: "users-without-wallets",
+              requireUserPasswordOnCreate: true,
+              showWalletUIs: true,
+            },
+            loginMethods: ["google", "wallet", "email", "sms"],
+            appearance: {
+              showWalletLoginFirst: false,
+              walletList: [
+                "detected_wallets",
+                "metamask",
+                "coinbase_wallet",
+                "rainbow",
+                "zerion",
+                "uniswap",
+                "wallet_connect",
+              ],
+            },
+          }}
+        >
+          {baseContent}
+        </PrivyProvider>
+      )
+    }
+
+    return baseContent
+  })()
 
   return (
     <ShadowPortal>
