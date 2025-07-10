@@ -25,6 +25,7 @@ import {
 } from "viem"
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
 import * as chains from "viem/chains"
+import { cctpTransfer } from "./cctp.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
 import { getChainInfo } from "./chains.js"
 import { intentEntrypoints } from "./constants.js"
@@ -404,6 +405,51 @@ async function sendHandlerForDifferentChainAndToken({
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   transactionStates: TransactionState[]
 }): Promise<PrepareSendReturn> {
+  const useCctp = false
+  if (useCctp) {
+    return {
+      intentAddress: "",
+      originSendAmount: "",
+      send: async (onOriginSend: () => void): Promise<SendReturn> => {
+        const testnet = isTestnetDebugMode()
+
+        const privateKey = "" // TODO: use relayer
+        const account = privateKeyToAccount(privateKey)
+        const destinationChain = getChainInfo(
+          testnet ? chains.arbitrumSepolia.id : destinationChainId,
+        )!
+
+        const relayerClient = createWalletClient({
+          account,
+          chain: destinationChain,
+          transport: http(),
+        })
+
+        const txHash = await cctpTransfer({
+          walletClient,
+          relayerClient,
+          originChain: testnet ? chains.baseSepolia : chain,
+          destinationChain,
+          amount: BigInt(destinationTokenAmount),
+        })
+
+        if (onOriginSend) {
+          onOriginSend()
+        }
+
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash,
+        })
+
+        return {
+          originUserTxReceipt: receipt,
+          originMetaTxnReceipt: null,
+          destinationMetaTxnReceipt: null,
+        }
+      },
+    }
+  }
+
   const intentArgs = getIntentArgs(
     mainSignerAddress,
     originChainId,
