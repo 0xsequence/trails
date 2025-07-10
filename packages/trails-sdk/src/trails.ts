@@ -1213,7 +1213,10 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
         error: undefined,
       })
     } catch (error: unknown) {
-      console.error("Failed to calculate origin call params for UI:", error)
+      console.error(
+        "[trails-sdk] Failed to calculate origin call params for UI:",
+        error,
+      )
       setOriginCallParams({
         to: null,
         data: null,
@@ -1239,24 +1242,24 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
   //       try {
   //         const chainIdString = precondition.chainId
   //         if (!chainIdString) {
-  //           console.warn('Precondition missing chainId:', precondition)
+  //           console.warn('[trails-sdk] Precondition missing chainId:', precondition)
   //           return false
   //         }
   //         const chainId = parseInt(chainIdString)
   //         if (isNaN(chainId) || chainId <= 0) {
-  //           console.warn('Precondition has invalid chainId:', chainIdString, precondition)
+  //           console.warn('[trails-sdk] Precondition has invalid chainId:', chainIdString, precondition)
   //           return false
   //         }
 
   //         const chainRelayer = getRelayer(chainId)
   //         if (!chainRelayer) {
-  //           console.error(`No relayer found for chainId: ${chainId}`)
+  //           console.error(`[trails-sdk] No relayer found for chainId: ${chainId}`)
   //           return false
   //         }
 
   //         return await chainRelayer.checkPrecondition(precondition)
   //       } catch (error) {
-  //         console.error('Error checking precondition:', error, 'Precondition:', precondition)
+  //         console.error('[trails-sdk] Error checking precondition:', error, 'Precondition:', precondition)
   //         return false
   //       }
   //     }),
@@ -1301,13 +1304,16 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
 
   // Effect to fetch meta-transaction block timestamps
   useEffect(() => {
-    console.log("[Trails] Running meta-transaction block timestamp effect:", {
-      metaTxnsLength: metaTxns?.length,
-      monitorStatusesLength: Object.keys(metaTxnMonitorStatuses).length,
-    })
+    console.log(
+      "[trails-sdk] Running meta-transaction block timestamp effect:",
+      {
+        metaTxnsLength: metaTxns?.length,
+        monitorStatusesLength: Object.keys(metaTxnMonitorStatuses).length,
+      },
+    )
 
     if (!metaTxns || metaTxns.length === 0) {
-      console.log("[Trails] No meta transactions, clearing timestamps")
+      console.log("[trails-sdk] No meta transactions, clearing timestamps")
       processedTxns.current.clear()
       if (Object.keys(metaTxnBlockTimestamps).length > 0) {
         setMetaTxnBlockTimestamps({})
@@ -1316,7 +1322,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     }
 
     if (!Object.keys(metaTxnMonitorStatuses).length) {
-      console.log("[Trails] No monitor statuses yet, waiting...")
+      console.log("[trails-sdk] No monitor statuses yet, waiting...")
       return
     }
 
@@ -1326,7 +1332,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       // Skip if already processed
       if (processedTxns.current.has(operationKey)) {
         console.log(
-          `[Trails] MetaTxn ${operationKey}: Already processed, skipping`,
+          `[trails-sdk] MetaTxn ${operationKey}: Already processed, skipping`,
         )
         return
       }
@@ -1334,7 +1340,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       const monitorStatus = metaTxnMonitorStatuses[operationKey]
       if (!monitorStatus || monitorStatus.status !== "confirmed") {
         console.log(
-          `[Trails] MetaTxn ${operationKey}: Status not confirmed, skipping`,
+          `[trails-sdk] MetaTxn ${operationKey}: Status not confirmed, skipping`,
         )
         return
       }
@@ -1343,13 +1349,13 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       const transactionHash = monitorStatus.transactionHash as Hex | undefined
       if (!transactionHash) {
         console.log(
-          `[Trails] MetaTxn ${operationKey}: No transaction hash, skipping`,
+          `[trails-sdk] MetaTxn ${operationKey}: No transaction hash, skipping`,
         )
         return
       }
 
       console.log(
-        `[Trails] MetaTxn ${operationKey}: Processing transaction ${transactionHash}`,
+        `[trails-sdk] MetaTxn ${operationKey}: Processing transaction ${transactionHash}`,
       )
       processedTxns.current.add(operationKey)
 
@@ -1376,7 +1382,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
             blockNumber: receipt.blockNumber,
           })
           console.log(
-            `[Trails] MetaTxn ${operationKey}: Got block timestamp ${block.timestamp}`,
+            `[trails-sdk] MetaTxn ${operationKey}: Got block timestamp ${block.timestamp}`,
           )
           setMetaTxnBlockTimestamps((prev) => ({
             ...prev,
@@ -1387,7 +1393,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
           }))
         } else {
           console.warn(
-            `[Trails] MetaTxn ${operationKey}: No block number in receipt`,
+            `[trails-sdk] MetaTxn ${operationKey}: No block number in receipt`,
           )
           setMetaTxnBlockTimestamps((prev) => ({
             ...prev,
@@ -1398,7 +1404,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
           }))
         }
       } catch (error: any) {
-        console.error(`[Trails] MetaTxn ${operationKey}: Error:`, error)
+        console.error(`[trails-sdk] MetaTxn ${operationKey}: Error:`, error)
         setMetaTxnBlockTimestamps((prev) => ({
           ...prev,
           [operationKey]: {
@@ -1432,7 +1438,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     quoteProvider: QuoteProvider
     addressOverrides?: AddressOverrides
   }) {
-    console.log("commitIntentConfig", args)
+    console.log("[trails-sdk] commitIntentConfig", args)
     commitIntentConfigMutation.mutate(args)
   }
 

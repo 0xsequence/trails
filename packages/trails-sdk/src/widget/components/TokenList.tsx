@@ -11,7 +11,8 @@ interface TokenListProps {
   onBack: () => void
   indexerGatewayClient: SequenceIndexerGateway
   theme?: ActiveTheme
-  toAmountUsd?: string | null
+  targetAmountUsd?: number | null
+  targetAmountUsdFormatted?: string | null
 }
 
 export const TokenList: React.FC<TokenListProps> = ({
@@ -19,7 +20,8 @@ export const TokenList: React.FC<TokenListProps> = ({
   onBack,
   indexerGatewayClient,
   theme = "light",
-  toAmountUsd,
+  targetAmountUsd,
+  targetAmountUsdFormatted,
 }) => {
   const {
     searchQuery,
@@ -32,33 +34,49 @@ export const TokenList: React.FC<TokenListProps> = ({
     selectedToken,
     showContinueButton,
     filteredTokensFormatted,
+    totalBalanceUsd,
+    totalBalanceUsdFormatted,
+    showInsufficientBalance,
   } = useTokenList({
     onContinue,
+    targetAmountUsd,
     indexerGatewayClient,
   })
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center relative">
-        {!toAmountUsd && (
-          <button
-            type="button"
-            onClick={onBack}
-            className={`absolute -left-2 p-2 rounded-full transition-colors cursor-pointer ${
-              theme === "dark"
-                ? "hover:bg-gray-800 text-gray-400"
-                : "hover:bg-gray-100 text-gray-600"
-            }`}
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </button>
-        )}
+      <div className="flex items-center justify-between relative">
+        <div className="flex items-center">
+          {!targetAmountUsd && (
+            <button
+              type="button"
+              onClick={onBack}
+              className={`p-2 rounded-full transition-colors cursor-pointer ${
+                theme === "dark"
+                  ? "hover:bg-gray-800 text-gray-400"
+                  : "hover:bg-gray-100 text-gray-600"
+              }`}
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+          )}
 
-        <h2
-          className={`text-lg font-semibold w-full ${toAmountUsd ? "text-left" : "text-center"} ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-        >
-          {toAmountUsd ? `Pay ${toAmountUsd} with` : "Select Token"}
-        </h2>
+          <h2
+            className={`text-lg font-semibold ${targetAmountUsd ? "text-left" : "text-center"} ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+          >
+            {targetAmountUsd
+              ? `Pay ${targetAmountUsdFormatted} with:`
+              : "Select Token"}
+          </h2>
+        </div>
+
+        {totalBalanceUsd > 0 && (
+          <p
+            className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+          >
+            Total balance: {totalBalanceUsdFormatted}
+          </p>
+        )}
       </div>
 
       {/* Search Field */}
@@ -250,6 +268,27 @@ export const TokenList: React.FC<TokenListProps> = ({
           )
         })}
       </div>
+
+      {showInsufficientBalance && (
+        <div
+          className={`text-left py-3 px-4 rounded-lg ${
+            theme === "dark"
+              ? "bg-amber-500/10 border border-amber-500/30"
+              : "bg-amber-50 border border-amber-200"
+          }`}
+        >
+          <p
+            className={`text-xs font-medium ${theme === "dark" ? "text-amber-400" : "text-amber-700"}`}
+          >
+            Insufficient balance
+          </p>
+          <p
+            className={`text-xs mt-1 ${theme === "dark" ? "text-amber-300" : "text-amber-600"}`}
+          >
+            You do not have enough funds to reach the target amount
+          </p>
+        </div>
+      )}
 
       {showContinueButton && (
         <div className="space-y-4">

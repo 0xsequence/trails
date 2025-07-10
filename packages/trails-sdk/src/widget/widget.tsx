@@ -359,7 +359,6 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
   }
 
   useEffect(() => {
-    console.log("Privy wallets change", privyWallets)
     const latestWallet = privyWallets?.sort(
       (a, b) => a.connectedAt - b.connectedAt,
     )?.[0]
@@ -701,7 +700,10 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
     }
   }
 
-  const toAmountUsd = useAmountUsd({
+  const {
+    amountUsd: targetAmountUsd,
+    amountUsdFormatted: targetAmountUsdFormatted,
+  } = useAmountUsd({
     amount: toAmount,
     token: toToken,
     chainId: Number(toChainId),
@@ -727,7 +729,8 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
             onBack={handleBack}
             indexerGatewayClient={indexerGatewayClient}
             theme={theme}
-            toAmountUsd={toAmountUsd}
+            targetAmountUsd={targetAmountUsd}
+            targetAmountUsdFormatted={targetAmountUsdFormatted}
           />
         )
       case "send":

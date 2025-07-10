@@ -582,7 +582,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               }`}
             >
               <span className="flex-1 text-left text-sm">
-                {selectedScenario || "Select a scenario"}
+                {selectedScenario
+                  ? scenarioOptions.find((s) => s.key === selectedScenario)
+                      ?.label || selectedScenario
+                  : "Select a scenario"}
               </span>
               <ChevronDown
                 className={`h-5 w-5 transition-transform ${
@@ -1205,7 +1208,6 @@ export function encodeAaveEthDepositCalldata(recipient: string = zeroAddress) {
     ],
   })
 
-  console.log(calldata)
   return calldata
 }
 
@@ -1236,6 +1238,5 @@ export function encodeErc20AaveDepositCalldata(
     ],
   })
 
-  console.log(calldata)
   return calldata
 }

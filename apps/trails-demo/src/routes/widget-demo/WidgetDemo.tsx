@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import { DemoTabs } from "@/components/DemoTabs"
 import { AppKitProvider, ConnectButton } from "./components/ConnectWallet"
 import { CustomizationForm, STORAGE_KEYS } from "./components/CustomizationForm"
-import { OutputScreen } from "./OutputScreen"
+import { OutputScreen } from "./components/OutputScreen"
 
 export const WidgetDemo = () => {
   const defaultSequenceProjectAccessKey = import.meta.env

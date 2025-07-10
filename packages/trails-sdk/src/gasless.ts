@@ -44,7 +44,6 @@ export function getPermitCalldata({
   signature,
 }: PermitCalldataParams): Hex {
   const { r, s, v } = splitSignature(signature)
-  console.log("Split signature:", { r, s, v })
 
   // Encode permit call
   const permitCalldata = encodeFunctionData({
@@ -175,8 +174,6 @@ export async function getPermitSignature({
     args: [signer],
   })
 
-  console.log("Nonce:", nonce.toString())
-
   const name = (await publicClient.readContract({
     address: tokenAddress as `0x${string}`,
     abi: [
@@ -207,7 +204,9 @@ export async function getPermitSignature({
       functionName: "version",
     })) as string
   } catch {
-    console.warn('Token does not implement version(), defaulting to "1"')
+    console.warn(
+      "[trails-sdk] Token does not implement version(), defaulting to '1'",
+    )
   }
 
   const domain = {
@@ -241,7 +240,7 @@ export async function getPermitSignature({
     desiredChainId: chain.id,
   })
 
-  console.log("Requesting permit signature...")
+  console.log("[trails-sdk] Requesting permit signature...")
 
   const signature = await walletClient.signTypedData({
     account: walletClient.account,
@@ -463,7 +462,6 @@ export async function getNeedsIntentEntrypointApproval({
   entrypoint,
   amount,
 }: GetNeedsIntentEntrypointApprovalParams): Promise<boolean> {
-  console.log(client.chain)
   const allowance = await client.readContract({
     address: token,
     abi: erc20Abi,

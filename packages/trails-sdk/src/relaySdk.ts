@@ -54,7 +54,7 @@ export async function getRelaySDKQuote(
       throw new Error("Relay client not available")
     }
 
-    console.log("getRelaySDKQuote", options)
+    console.log("[trails-sdk] getRelaySDKQuote", options)
 
     const quote = await client.actions.getQuote({
       wallet: options.wallet,
@@ -71,7 +71,7 @@ export async function getRelaySDKQuote(
 
     return quote
   } catch (error) {
-    console.error("Error getting relay quote:", error)
+    console.error("[trails-sdk] Error getting relay quote:", error)
     throw error
   }
 }
@@ -88,7 +88,7 @@ export async function relaySDKExecute(
       throw new Error("Relay client not available")
     }
 
-    console.log("relaysdkclient", client.chains, options.quote)
+    console.log("[trails-sdk] relaysdkclient", client.chains, options.quote)
 
     const result = await client.actions.execute({
       quote: options.quote,
@@ -96,13 +96,13 @@ export async function relaySDKExecute(
       onProgress:
         options.onProgress ||
         ((data) => {
-          console.log("Relay progress:", data)
+          console.log("[trails-sdk] Relay progress:", data)
         }),
     })
 
     return result
   } catch (error) {
-    console.error("Error executing relay transaction:", error)
+    console.error("[trails-sdk] Error executing relay transaction:", error)
     throw error
   }
 }

@@ -44,7 +44,7 @@ type GetAccountNetworksInput = {
   sequenceProjectAccessKey: string
 }
 
-export function getAccountNetworks(input: GetAccountNetworksInput) {
+export function getAccountNetworks(input: GetAccountNetworksInput): any[] {
   return allNetworks.map((network) => {
     try {
       const relayerUrl = getRelayerUrl(input.relayerConfig, network.chainId)
@@ -128,7 +128,7 @@ export function accountFor(args: {
   signatures?: { signer: string; signature: string }[]
   relayerConfig: RelayerEnvConfig
   sequenceProjectAccessKey: string
-}) {
+}): Account {
   const signers: signers.SapientSigner[] = []
 
   if (args.signatures) {
@@ -148,7 +148,7 @@ export function accountFor(args: {
     }
   }
 
-  console.log("signers", signers)
+  console.log("[trails-sdk] signers", signers)
 
   return new Account({
     address: args.address,
@@ -205,7 +205,7 @@ export function recoverSigner(
       const r = commons.signer.recoverSigner(subdigest, signature)
       res.push({ signer: r, signature: signature })
     } catch (e) {
-      console.error("Failed to recover signature", e)
+      console.error("[trails-sdk] Failed to recover signature", e)
     }
   }
 
@@ -216,7 +216,7 @@ export async function simpleCreateSequenceWallet(
   account: Account,
   relayerConfig: RelayerEnvConfig,
   sequenceProjectAccessKey: string,
-) {
+): Promise<`0x${string}`> {
   const signer = account.address
   const threshold = 1
   const weight = 1
@@ -238,7 +238,7 @@ export async function sequenceSendTransaction(
   chain: Chain,
   relayerConfig: RelayerEnvConfig,
   sequenceProjectAccessKey: string,
-) {
+): Promise<string | null> {
   const chainId = chain.id
   if (!accountClient?.account?.address || !sequenceWalletAddress) {
     throw new Error("Privy signer or sequence wallet address not available")
@@ -284,35 +284,35 @@ export async function sequenceSendTransaction(
   const status = await sequenceAccount.status(chainId)
   const wallet = sequenceAccount.walletForStatus(chainId, status)
 
-  console.log("sequence wallet1", wallet)
+  console.log("[trails-sdk] sequence wallet1", wallet)
 
-  console.log("sequence wallet", wallet)
+  console.log("[trails-sdk] sequence wallet", wallet)
   const hasCode = await publicClient?.getCode({
     address: wallet.address as `0x${string}`,
   })
 
   const isDeployed = hasCode !== undefined
   if (!isDeployed) {
-    console.log("deploying sequence wallet")
+    console.log("[trails-sdk] deploying sequence wallet")
 
     const deployTx = await wallet.buildDeployTransaction()
     if (!wallet.relayer) throw new Error("Wallet deploy requires a relayer")
-    console.log("deploy Tx", deployTx)
-    console.log("deployTx entrypoint:", deployTx!.entrypoint)
-    console.log("deployTx transactions:", deployTx!.transactions)
+    console.log("[trails-sdk] deploy Tx", deployTx)
+    console.log("[trails-sdk] deployTx entrypoint:", deployTx!.entrypoint)
+    console.log("[trails-sdk] deployTx transactions:", deployTx!.transactions)
 
-    console.log("getting fee options 0")
+    console.log("[trails-sdk] getting fee options 0")
     const feeOptions = await wallet.relayer.getFeeOptions(
       wallet.address as `0x${string}`,
       ...deployTx!.transactions,
     )
 
     const quote = feeOptions?.quote
-    console.log("feeOptions", feeOptions)
+    console.log("[trails-sdk] feeOptions", feeOptions)
 
     // Check if deployment is whitelisted (no fees required)
     if (feeOptions?.options.length === 0) {
-      console.log("Deployment is whitelisted - no fees required")
+      console.log("[trails-sdk] Deployment is whitelisted - no fees required")
 
       const bytes = new Uint8Array(32)
       crypto.getRandomValues(bytes)
@@ -330,7 +330,7 @@ export async function sequenceSendTransaction(
         quote,
       )
 
-      console.log("Deployment relayed")
+      console.log("[trails-sdk] Deployment relayed")
 
       // Wait for deployment to complete
       await new Promise((resolve) => setTimeout(resolve, 5000))
@@ -340,18 +340,21 @@ export async function sequenceSendTransaction(
         throw new Error("fee option not found")
       }
 
-      console.log("option", option)
+      console.log("[trails-sdk] option", option)
 
       if (option) {
-        console.log("Using native token for deployment fee")
+        console.log("[trails-sdk] Using native token for deployment fee")
 
         // Use encodeGasRefundTransaction to create the fee transaction
         const feeTransactions = encodeGasRefundTransaction(option)
-        console.log("Fee transactions:", feeTransactions)
+        console.log("[trails-sdk] Fee transactions:", feeTransactions)
 
         // Include both deployment and fee transactions
         const allTransactions = [...deployTx!.transactions]
-        console.log("All transactions (deployment + fees):", allTransactions)
+        console.log(
+          "[trails-sdk] All transactions (deployment + fees):",
+          allTransactions,
+        )
 
         const predecorated = await sequenceAccount.predecorateTransactions(
           allTransactions,
@@ -363,8 +366,14 @@ export async function sequenceSendTransaction(
           chainId,
         )
 
-        console.log("signed transactions with fees:", signed.transactions)
-        console.log("signed entrypoint with fees:", signed.entrypoint)
+        console.log(
+          "[trails-sdk] signed transactions with fees:",
+          signed.transactions,
+        )
+        console.log(
+          "[trails-sdk] signed entrypoint with fees:",
+          signed.entrypoint,
+        )
 
         const bytes = new Uint8Array(32)
         crypto.getRandomValues(bytes)
@@ -384,7 +393,7 @@ export async function sequenceSendTransaction(
 
         // Wait for deployment to complete
         await new Promise((resolve) => setTimeout(resolve, 5000))
-        console.log("sequence wallet deployed")
+        console.log("[trails-sdk] sequence wallet deployed")
       } else {
         throw new Error(
           "ERC20 fee payment for deployment is not supported yet. Please use native token or a relayer with free wallet deployments.",
@@ -393,7 +402,7 @@ export async function sequenceSendTransaction(
     }
   }
 
-  console.log("getting fee options 1")
+  console.log("[trails-sdk] getting fee options 1")
   const feeOptions = await wallet.relayer!.getFeeOptions(
     wallet.address as `0x${string}`,
     ...sequenceTxs,
@@ -408,7 +417,7 @@ export async function sequenceSendTransaction(
 
   // Use encodeGasRefundTransaction to create the fee transaction
   const feeTransactions = encodeGasRefundTransaction(option)
-  console.log("Fee transactions:", feeTransactions)
+  console.log("[trails-sdk] Fee transactions:", feeTransactions)
 
   // Sign the txs with the Sequence Wallet
   const signed = await wallet.signTransactions(
@@ -486,7 +495,7 @@ export async function getFeeOptions(
 }
 
 // Import the encodeGasRefundTransaction function
-function encodeGasRefundTransaction(option?: any) {
+function encodeGasRefundTransaction(option?: any): FlatTransaction[] {
   if (!option) return []
 
   const value = BigInt(option.value)
@@ -525,7 +534,7 @@ function encodeGasRefundTransaction(option?: any) {
           revertOnError: true,
           gasLimit: option.gasLimit,
           to: option.token.contractAddress,
-          value: 0,
+          value: "0",
           data: AbiFunction.encodeData(transfer, [
             option.to as `0x${string}`,
             value,

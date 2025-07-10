@@ -13,12 +13,12 @@ export async function attemptSwitchChain({
     // Check if the chain was switched successfully
     let currentChainId = await walletClient.getChainId()
     if (currentChainId === desiredChainId) {
-      console.log("Chain already switched to:", desiredChainId)
+      console.log("[trails-sdk] Chain already switched to:", desiredChainId)
       return
     }
 
     console.log(
-      "Switching to chain:",
+      "[trails-sdk] Switching to chain:",
       desiredChainId,
       "currentChainId",
       currentChainId,
@@ -31,11 +31,11 @@ export async function attemptSwitchChain({
       throw new Error("Failed to switch chain")
     }
 
-    console.log("Chain switched to:", desiredChainId)
+    console.log("[trails-sdk] Chain switched to:", desiredChainId)
   } catch (error: unknown) {
-    console.error("Chain switch failed:", error)
+    console.error("[trails-sdk] Chain switch failed:", error)
     throw new Error(
-      `Failed to switch chain: ${error instanceof Error ? error.message : "Unknown error"}`,
+      `[trails-sdk] Failed to switch chain: ${error instanceof Error ? error.message : "Unknown error"}`,
     )
   }
 }

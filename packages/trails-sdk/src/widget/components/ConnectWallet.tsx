@@ -38,7 +38,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
       disconnect()
       onDisconnect()
     } catch (error) {
-      console.error("Failed to disconnect:", error)
+      console.error("[trails-sdk] Failed to disconnect:", error)
       setError(
         error instanceof Error ? error.message : "Failed to disconnect wallet",
       )
@@ -53,7 +53,10 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
           typeof window !== "undefined" && !!window.ethereum?.isMetaMask
       }
     } catch (error) {
-      console.error("Failed to check if MetaMask is installed:", error)
+      console.error(
+        "[trails-sdk] Failed to check if MetaMask is installed:",
+        error,
+      )
     }
 
     if (isMetaMask) {

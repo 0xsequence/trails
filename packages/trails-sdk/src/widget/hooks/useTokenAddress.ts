@@ -87,7 +87,7 @@ export function useTokenAddress({
     try {
       setTokenAddress(getTokenAddress(chainId, tokenSymbol))
     } catch (error) {
-      console.error("Error getting token address", error)
+      console.error("[trails-sdk] Error getting token address", error)
     }
   }, [chainId, tokenSymbol])
 

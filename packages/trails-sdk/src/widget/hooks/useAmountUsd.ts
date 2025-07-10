@@ -16,8 +16,11 @@ export function useAmountUsd({
   token,
   chainId,
   apiClient,
-}: UseAmountUsdProps) {
-  const [amountUsd, setAmountUsd] = useState<string | null>(null)
+}: UseAmountUsdProps): {
+  amountUsd: number | null
+  amountUsdFormatted: string
+} {
+  const [amountUsd, setAmountUsd] = useState<number | null>(null)
   const tokenAddress = useTokenAddress({ chainId, tokenSymbol: token })
 
   const { data: tokenPrice } = useTokenPrice(
@@ -42,10 +45,12 @@ export function useAmountUsd({
       return
     }
 
-    const amountUsd = Number(amount) * tokenPriceValue
-    const fomratted = formatUsdValue(amountUsd)
-    setAmountUsd(fomratted)
+    const value = Number(amount) * tokenPriceValue
+    setAmountUsd(value)
   }, [amount, tokenPrice])
 
-  return amountUsd
+  return {
+    amountUsd,
+    amountUsdFormatted: formatUsdValue(amountUsd || 0),
+  }
 }

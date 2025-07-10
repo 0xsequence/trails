@@ -181,7 +181,7 @@ export async function sendUserOperationDirectly({
   relayerPrivateKey: `0x${string}`
   chain: Chain
 }) {
-  console.log("userOp", userOp)
+  console.log("[trails-sdk] userOp", userOp)
   const relayerAccount = privateKeyToAccount(relayerPrivateKey)
 
   const walletClient = createWalletClient({
@@ -206,18 +206,18 @@ export async function sendUserOperationDirectly({
     chainId: chain.id,
   })
 
-  console.log("opHash", opHash)
+  console.log("[trails-sdk] opHash", opHash)
 
-  console.log("packedOp", packedOp)
+  console.log("[trails-sdk] packedOp", packedOp)
 
-  console.log("relayerAccount", relayerAccount)
+  console.log("[trails-sdk] relayerAccount", relayerAccount)
 
   const handleOpsData = encodeHandleOpsCalldata({
     userOps: [userOp],
     beneficiary: relayerAccount.address,
   })
 
-  console.log("handleOpsData", handleOpsData)
+  console.log("[trails-sdk] handleOpsData", handleOpsData)
 
   const txHash = await walletClient.sendTransaction({
     to: ENTRYPOINT_ADDRESS,
@@ -227,10 +227,10 @@ export async function sendUserOperationDirectly({
     chain: chain,
   })
 
-  console.log("Sent handleOps tx:", txHash)
+  console.log("[trails-sdk] Sent handleOps tx:", txHash)
 
   const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash })
-  console.log("Confirmed handleOps tx:", receipt.transactionHash)
+  console.log("[trails-sdk] Confirmed handleOps tx:", receipt.transactionHash)
 
   return receipt.transactionHash
 }
@@ -444,7 +444,10 @@ export const encodeHandleOpsCalldata = ({
 }): Hex => {
   const packedUserOps = packUserOps(userOps)
 
-  console.log("encodeHandleOpsCalldata packedUserOps", packedUserOps)
+  console.log(
+    "[trails-sdk] encodeHandleOpsCalldata packedUserOps",
+    packedUserOps,
+  )
 
   return encodeFunctionData({
     abi: ENTRYPOINT_ABI,

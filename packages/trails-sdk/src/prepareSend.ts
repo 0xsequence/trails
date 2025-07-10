@@ -116,14 +116,14 @@ export type SendReturn = {
 export function getIsToSameChain(
   originChainId: number,
   destinationChainId: number,
-) {
+): boolean {
   return originChainId?.toString() === destinationChainId?.toString()
 }
 
 export function getIsToSameToken(
   originTokenAddress: string,
   destinationTokenAddress: string,
-) {
+): boolean {
   return (
     originTokenAddress?.toLowerCase() === destinationTokenAddress?.toLowerCase()
   )
@@ -134,18 +134,18 @@ export function getIsToSameChainAndToken(
   originTokenAddress: string,
   destinationChainId: number,
   destinationTokenAddress: string,
-) {
+): boolean {
   return (
     getIsToSameChain(originChainId, destinationChainId) &&
     getIsToSameToken(originTokenAddress, destinationTokenAddress)
   )
 }
 
-function isTestnetDebugMode() {
+function isTestnetDebugMode(): boolean {
   return getQueryParam("testnet") === "true"
 }
 
-function getTestnetOriginTokenAddress() {
+function getTestnetOriginTokenAddress(): string {
   return "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
 }
 
@@ -242,8 +242,8 @@ export async function prepareSend(
     destinationTokenAddress,
   )
 
-  console.log("isToSameChain", isToSameChain)
-  console.log("isToSameToken", isToSameToken)
+  console.log("[trails-sdk] isToSameChain", isToSameChain)
+  console.log("[trails-sdk] isToSameToken", isToSameToken)
 
   const publicClient = createPublicClient({
     chain,
@@ -415,9 +415,9 @@ async function sendHandlerForDifferentChainAndToken({
     recipient,
     destinationCalldata,
   )
-  console.log("Creating intent with args:", intentArgs)
+  console.log("[trails-sdk] Creating intent with args:", intentArgs)
   const intent = await getIntentCallsPayloadsFromIntents(apiClient, intentArgs)
-  console.log("Got intent:", intent)
+  console.log("[trails-sdk] Got intent:", intent)
 
   if (!intent) {
     throw new Error("Invalid intent")
@@ -437,7 +437,10 @@ async function sendHandlerForDifferentChainAndToken({
     intent.trailsInfos,
     intent.trailsFee?.quoteProvider as QuoteProvider,
   )
-  console.log("Calculated intent address:", intentAddress.toString())
+  console.log(
+    "[trails-sdk] Calculated intent address:",
+    intentAddress.toString(),
+  )
 
   await commitIntentConfig(
     apiClient,
@@ -448,7 +451,7 @@ async function sendHandlerForDifferentChainAndToken({
     intent.trailsFee?.quoteProvider as QuoteProvider,
   )
 
-  console.log("Committed intent config")
+  console.log("[trails-sdk] Committed intent config")
 
   const firstPrecondition = findFirstPreconditionForChainId(
     intent.preconditions,
@@ -477,7 +480,7 @@ async function sendHandlerForDifferentChainAndToken({
     intentAddress,
     originSendAmount: depositAmount,
     send: async (onOriginSend: () => void): Promise<SendReturn> => {
-      console.log("sending origin transaction")
+      console.log("[trails-sdk] sending origin transaction")
 
       const needsNativeFee = getNeedsLifiNativeFee({
         originTokenAddress,
@@ -489,11 +492,17 @@ async function sendHandlerForDifferentChainAndToken({
         depositAmount,
       })
 
-      console.log("needsNativeFee", needsNativeFee)
-      console.log("sourceTokenPriceUsd", sourceTokenPriceUsd)
-      console.log("destinationTokenPriceUsd", destinationTokenPriceUsd)
-      console.log("sourceTokenDecimals", sourceTokenDecimals)
-      console.log("destinationTokenDecimals", destinationTokenDecimals)
+      console.log("[trails-sdk] needsNativeFee", needsNativeFee)
+      console.log("[trails-sdk] sourceTokenPriceUsd", sourceTokenPriceUsd)
+      console.log(
+        "[trails-sdk] destinationTokenPriceUsd",
+        destinationTokenPriceUsd,
+      )
+      console.log("[trails-sdk] sourceTokenDecimals", sourceTokenDecimals)
+      console.log(
+        "[trails-sdk] destinationTokenDecimals",
+        destinationTokenDecimals,
+      )
 
       // const originCallParams = {
       //   to:
@@ -522,7 +531,7 @@ async function sendHandlerForDifferentChainAndToken({
       const testnet = isTestnetDebugMode()
       const testnetOriginTokenAddress = getTestnetOriginTokenAddress()
 
-      console.log("testnet", testnet)
+      console.log("[trails-sdk] testnet", testnet)
 
       originUserTxReceipt = await attemptUserDepositTx({
         originTokenAddress: testnet
@@ -624,8 +633,8 @@ async function sendHandlerForSameChainSameToken({
   dryMode: boolean
   account: Account
   chain: Chain
-}) {
-  console.log("isToSameToken && isToSameChain")
+}): Promise<PrepareSendReturn> {
+  console.log("[trails-sdk] isToSameToken && isToSameChain")
 
   const hasEnoughBalance = await checkAccountBalance({
     account,
@@ -663,7 +672,7 @@ async function sendHandlerForSameChainSameToken({
         chain,
       }
 
-      console.log("origin call params", originCallParams)
+      console.log("[trails-sdk] origin call params", originCallParams)
 
       let originUserTxReceipt: TransactionReceipt | null = null
       const originMetaTxnReceipt: MetaTxnReceipt | null = null
@@ -682,13 +691,13 @@ async function sendHandlerForSameChainSameToken({
             state: "pending",
           },
         ])
-        console.log("origin call params", originCallParams)
+        console.log("[trails-sdk] origin call params", originCallParams)
         const txHash = await sendOriginTransaction(
           account,
           walletClient,
           originCallParams as any,
         ) // TODO: Add proper type
-        console.log("origin tx", txHash)
+        console.log("[trails-sdk] origin tx", txHash)
 
         if (onOriginSend) {
           onOriginSend()
@@ -698,7 +707,7 @@ async function sendHandlerForSameChainSameToken({
         const receipt = await publicClient.waitForTransactionReceipt({
           hash: txHash,
         })
-        console.log("receipt", receipt)
+        console.log("[trails-sdk] receipt", receipt)
         originUserTxReceipt = receipt
 
         onTransactionStateChange([
@@ -735,7 +744,7 @@ async function sendHandlerForSameChainDifferentToken({
   walletClient: WalletClient
   publicClient: PublicClient
   account: Account
-}) {
+}): Promise<PrepareSendReturn> {
   const destinationTxs = []
   if (destinationCalldata) {
     destinationTxs.push({
@@ -755,7 +764,7 @@ async function sendHandlerForSameChainDifferentToken({
     txs: destinationTxs,
   })
 
-  console.log("relaysdk quote", quote)
+  console.log("[trails-sdk] relaysdk quote", quote)
   let depositAmount = "0"
 
   try {
@@ -773,7 +782,7 @@ async function sendHandlerForSameChainDifferentToken({
       }
     }
   } catch (error) {
-    console.error("Error decoding function data:", error)
+    console.error("[trails-sdk] Error decoding function data:", error)
   }
 
   const hasEnoughBalance = await checkAccountBalance({
@@ -796,7 +805,7 @@ async function sendHandlerForSameChainDifferentToken({
       })
 
       const result = await executeSimpleRelayTransaction(quote, walletClient)
-      console.log("relaysdk result", result)
+      console.log("[trails-sdk] relaysdk result", result)
 
       const txHash = getTxHashFromRelayResult(result)
 
@@ -844,7 +853,7 @@ async function attemptGaslessDeposit({
 }): Promise<TransactionReceipt | null> {
   let originUserTxReceipt: TransactionReceipt | null = null
   const originChainId = chain.id
-  console.log("originChainId", originChainId)
+  console.log("[trails-sdk] originChainId", originChainId)
 
   const publicClient = createPublicClient({
     chain,
@@ -860,7 +869,7 @@ async function attemptGaslessDeposit({
   }
 
   const intentEntrypoint = intentEntrypoints[chain.id]
-  console.log("intentEntrypoint", intentEntrypoint)
+  console.log("[trails-sdk] intentEntrypoint", intentEntrypoint)
 
   let calls: Array<{
     to: string
@@ -869,7 +878,7 @@ async function attemptGaslessDeposit({
   }> = []
 
   if (paymasterUrl) {
-    console.log("doing gasless with paymaster")
+    console.log("[trails-sdk] doing gasless with paymaster")
     const delegatorSmartAccount = await getDelegatorSmartAccount({
       publicClient,
     })
@@ -896,7 +905,7 @@ async function attemptGaslessDeposit({
       })
     }
 
-    console.log("calls", calls)
+    console.log("[trails-sdk] calls", calls)
 
     const txHash = await sendPaymasterGaslessTransaction({
       walletClient,
@@ -914,10 +923,10 @@ async function attemptGaslessDeposit({
     const receipt = await publicClient.waitForTransactionReceipt({
       hash: txHash as `0x${string}`,
     })
-    console.log("receipt", receipt)
+    console.log("[trails-sdk] receipt", receipt)
     originUserTxReceipt = receipt
   } else {
-    console.log("doing gasless with sequence wallet")
+    console.log("[trails-sdk] doing gasless with sequence wallet")
     const delegatorPrivateKey = generatePrivateKey()
     const delegatorAccount = privateKeyToAccount(delegatorPrivateKey)
     const delegatorClient = createWalletClient({
@@ -926,19 +935,19 @@ async function attemptGaslessDeposit({
       transport: http(),
     })
 
-    console.log("attempting to switch chain")
+    console.log("[trails-sdk] attempting to switch chain")
     await attemptSwitchChain({
       walletClient,
       desiredChainId: originChainId,
     })
 
-    console.log("creating sequence wallet")
+    console.log("[trails-sdk] creating sequence wallet")
     const sequenceWalletAddress = await simpleCreateSequenceWallet(
       delegatorAccount as any,
       relayerConfig,
       sequenceProjectAccessKey,
     )
-    console.log("sequenceWalletAddress", sequenceWalletAddress)
+    console.log("[trails-sdk] sequenceWalletAddress", sequenceWalletAddress)
 
     if (intentEntrypoint) {
       calls = await getDepositToIntentCalls({
@@ -973,7 +982,7 @@ async function attemptGaslessDeposit({
       )
     }
 
-    console.log("calls", calls)
+    console.log("[trails-sdk] calls", calls)
 
     const feeOptions = await getFeeOptions(
       originRelayer,
@@ -990,7 +999,7 @@ async function attemptGaslessDeposit({
       })) as Payload.Call[],
     )
 
-    console.log("feeOptions", feeOptions)
+    console.log("[trails-sdk] feeOptions", feeOptions)
 
     const sequenceTxHash = await sequenceSendTransaction(
       sequenceWalletAddress,
@@ -1001,7 +1010,7 @@ async function attemptGaslessDeposit({
       relayerConfig,
       sequenceProjectAccessKey,
     )
-    console.log("sequenceTxHash", sequenceTxHash)
+    console.log("[trails-sdk] sequenceTxHash", sequenceTxHash)
     if (onOriginSend) {
       onOriginSend()
     }
@@ -1009,7 +1018,7 @@ async function attemptGaslessDeposit({
     const receipt = await publicClient.waitForTransactionReceipt({
       hash: sequenceTxHash as `0x${string}`,
     })
-    console.log("receipt", receipt)
+    console.log("[trails-sdk] receipt", receipt)
     originUserTxReceipt = receipt
   }
 
@@ -1067,7 +1076,7 @@ export async function attemptNonGaslessUserDeposit({
     nativeFee = parseUnits("1.5", 18).toString()
   }
 
-  console.log("needsNativeFee", needsNativeFee)
+  console.log("[trails-sdk] needsNativeFee", needsNativeFee)
 
   const originCallParams = {
     to: originTokenAddress === zeroAddress ? intentAddress : originTokenAddress,
@@ -1109,25 +1118,25 @@ export async function attemptNonGaslessUserDeposit({
         10000,
       )
 
-      console.log("capabilities", capabilities)
+      console.log("[trails-sdk] capabilities", capabilities)
 
       // Check if the chain supports atomic transactions
       const chainHex = `0x${originChainId.toString(16)}` as const
       const chainCapabilities = capabilities[chainHex]
       useSendCalls = chainCapabilities?.atomic?.status === "supported"
     } catch (error) {
-      console.error("Error getting capabilities", error)
+      console.error("[trails-sdk] Error getting capabilities", error)
     }
   }
 
   if (dryMode) {
-    console.log("dry mode, skipping send calls")
+    console.log("[trails-sdk] dry mode, skipping send calls")
   }
 
   if (useSendCalls) {
-    console.log("using sendCalls")
+    console.log("[trails-sdk] using sendCalls")
   } else {
-    console.log("using sendTransaction")
+    console.log("[trails-sdk] using sendTransaction")
   }
 
   if (useSendCalls) {
@@ -1167,7 +1176,7 @@ export async function attemptNonGaslessUserDeposit({
         ],
       })) as { requestId: `0x${string}` }
 
-      console.log("sendCalls result", result)
+      console.log("[trails-sdk] sendCalls result", result)
       const requestId = result.requestId || (result as any).id
 
       // Poll to check if the tx has been submitted
@@ -1182,7 +1191,7 @@ export async function attemptNonGaslessUserDeposit({
           error?: string
         }
 
-        console.log("getCallsStatus result", status)
+        console.log("[trails-sdk] getCallsStatus result", status)
         const receipt = (status as any)?.receipts?.[0]
 
         if ((status as any).status === 200 && receipt?.transactionHash) {
@@ -1203,7 +1212,7 @@ export async function attemptNonGaslessUserDeposit({
       const receipt = await publicClient.waitForTransactionReceipt({
         hash: txHash as `0x${string}`,
       })
-      console.log("receipt", receipt)
+      console.log("[trails-sdk] receipt", receipt)
       originUserTxReceipt = receipt
     }
   } else {
@@ -1216,12 +1225,12 @@ export async function attemptNonGaslessUserDeposit({
           chainId: originChainId,
           chain,
         } as any) // TODO: Add proper type
-        console.log("origin tx", tx0)
+        console.log("[trails-sdk] origin tx", tx0)
         // Wait for transaction receipt
         const feeReceipt = await publicClient.waitForTransactionReceipt({
           hash: tx0,
         })
-        console.log("nativeFeeReceipt", feeReceipt)
+        console.log("[trails-sdk] nativeFeeReceipt", feeReceipt)
       }
 
       const tx = await sendOriginTransaction(
@@ -1229,7 +1238,7 @@ export async function attemptNonGaslessUserDeposit({
         walletClient,
         originCallParams as any,
       ) // TODO: Add proper type
-      console.log("origin tx", tx)
+      console.log("[trails-sdk] origin tx", tx)
 
       if (onOriginSend) {
         onOriginSend()
@@ -1239,7 +1248,7 @@ export async function attemptNonGaslessUserDeposit({
       const receipt = await publicClient.waitForTransactionReceipt({
         hash: tx,
       })
-      console.log("receipt", receipt)
+      console.log("[trails-sdk] receipt", receipt)
       originUserTxReceipt = receipt
     }
   }
@@ -1293,7 +1302,7 @@ async function attemptUserDepositTx({
   let originUserTxReceipt: TransactionReceipt | null = null
   const originChainId = chain.id
   const doGasless = getDoGasless(originTokenAddress, gasless, paymasterUrl)
-  console.log("doGasless", doGasless, paymasterUrl)
+  console.log("[trails-sdk] doGasless", doGasless, paymasterUrl)
   if (doGasless) {
     try {
       originUserTxReceipt = await attemptGaslessDeposit({
@@ -1310,7 +1319,7 @@ async function attemptUserDepositTx({
         originRelayer,
       })
     } catch (error) {
-      console.log("gassless attempt failed", error)
+      console.log("[trails-sdk] gassless attempt failed", error)
     }
   }
 
@@ -1343,14 +1352,16 @@ export function getDoGasless(
   originTokenAddress: string,
   gasless: boolean,
   paymasterUrl?: string,
-) {
-  return originTokenAddress !== zeroAddress && (gasless || paymasterUrl)
+): boolean {
+  return Boolean(
+    originTokenAddress !== zeroAddress && (gasless || paymasterUrl),
+  )
 }
 
 function getTransactionStateFromReceipt(
   receipt: TransactionReceipt | MetaTxnReceipt,
   chainId: number,
-) {
+): TransactionState {
   let txHash: string = ""
   let state: TransactionStateStatus = "pending"
   if ("transactionHash" in receipt) {
@@ -1379,15 +1390,15 @@ async function sendMetaTxAndWaitForReceipt({
   precondition: IntentPrecondition
 }): Promise<MetaTxnReceipt | null> {
   let originMetaTxnReceipt: MetaTxnReceipt | null = null
-  console.log("metaTx", metaTx)
+  console.log("[trails-sdk] metaTx", metaTx)
   const opHash = await relayerSendMetaTx(relayer, metaTx, [precondition])
 
-  console.log("opHash", opHash)
+  console.log("[trails-sdk] opHash", opHash)
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
     console.log(
-      "polling status",
+      "[trails-sdk] polling status",
       metaTx.id as `0x${string}`,
       BigInt(metaTx.chainId),
     )
@@ -1396,7 +1407,7 @@ async function sendMetaTxAndWaitForReceipt({
       metaTx.id,
       Number(metaTx.chainId),
     )
-    console.log("status", receipt)
+    console.log("[trails-sdk] status", receipt)
     if (receipt?.transactionHash) {
       originMetaTxnReceipt = receipt.data?.receipt
       break
@@ -1439,11 +1450,11 @@ async function checkAccountBalance({
 
     const requiredAmount = BigInt(depositAmount)
 
-    console.log("balance", balance)
-    console.log("requiredAmount", requiredAmount)
+    console.log("[trails-sdk] balance", balance)
+    console.log("[trails-sdk] requiredAmount", requiredAmount)
     return balance >= requiredAmount
   } catch (error) {
-    console.error("Error checking account balance:", error)
+    console.error("[trails-sdk] Error checking account balance:", error)
     return false
   }
 }
@@ -1483,17 +1494,17 @@ function getNeedsLifiNativeFee({
     const depositAmountFormatted = Number(
       formatUnits(BigInt(depositAmount), destinationTokenDecimals),
     )
-    console.log("destinationAmount", destinationAmount)
-    console.log("depositAmountFormatted", depositAmountFormatted)
+    console.log("[trails-sdk] destinationAmount", destinationAmount)
+    console.log("[trails-sdk] depositAmountFormatted", depositAmountFormatted)
     const destinationAmountUsd = destinationAmount * destinationTokenPriceUsd
     const depositAmountUsd = depositAmountFormatted * sourceTokenPriceUsd
     const diff = depositAmountUsd - destinationAmountUsd
     console.log(
-      "destinationAmountUsd",
+      "[trails-sdk] destinationAmountUsd",
       destinationAmountUsd,
-      "depositAmountUsd",
+      "[trails-sdk] depositAmountUsd",
       depositAmountUsd,
-      "diff",
+      "[trails-sdk] diff",
       diff,
     )
     if (diff >= 0 && diff <= 0.02) {

@@ -1,6 +1,7 @@
 import { TrailsWidget } from "@0xsequence/trails-sdk/widget"
 import { useState } from "react"
-import { CodeSnippet } from "../components/CodeSnippet"
+import { Link, useLocation, useNavigate } from "react-router"
+import { CodeSnippet } from "../CodeSnippet"
 import { WidgetTabs } from "./WidgetTabs"
 
 interface OutputScreenProps {
@@ -51,6 +52,14 @@ export const OutputScreen = ({
   const [activeTab, setActiveTab] = useState<"modal" | "button" | "code">(
     "modal",
   )
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const handleDebugClick = () => {
+    const searchParams = new URLSearchParams(location.search)
+    searchParams.set("debug", "true")
+    navigate({ pathname: location.pathname, search: searchParams.toString() })
+  }
 
   const tabs = [
     { id: "modal", label: "Component" },
@@ -63,13 +72,21 @@ export const OutputScreen = ({
   }
 
   return (
-    <div className="w-full bg-gray-800 rounded-2xl p-6">
-      <div className="w-fit mb-4">
-        <WidgetTabs
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-        />
+    <div className="w-full bg-gray-800 rounded-2xl p-6 relative">
+      <div className="flex items-center justify-between mb-4">
+        <div className="w-fit">
+          <WidgetTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+          />
+        </div>
+        <Link
+          to="/sdk-sandbox"
+          className="text-sm text-gray-400 hover:text-white transition-colors duration-200"
+        >
+          SDK Sandbox →
+        </Link>
       </div>
 
       <div className="mt-4 py-4">
@@ -153,6 +170,13 @@ export const OutputScreen = ({
           />
         )}
       </div>
+      <button
+        onClick={handleDebugClick}
+        className="absolute bottom-3 right-4 text-xs text-gray-500 hover:text-white cursor-pointer z-10"
+        type="button"
+      >
+        Debug
+      </button>
     </div>
   )
 }

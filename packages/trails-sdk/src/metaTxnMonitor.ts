@@ -82,7 +82,7 @@ export const useMetaTxnsMonitor = (
           } else {
             const originalStatus = (opStatus as any).status as string
             console.warn(
-              `⚠️ Unexpected relayer status "${originalStatus}" for ${opHashToPoll}:`,
+              `[trails-sdk] ⚠️ Unexpected relayer status "${originalStatus}" for ${opHashToPoll}:`,
               opStatus,
             )
             newStatusEntry = {
@@ -108,7 +108,7 @@ export const useMetaTxnsMonitor = (
         retry: (failureCount: number, error: Error) => {
           if (failureCount >= 30) {
             console.error(
-              `❌ Giving up on transaction ${opHashToPoll} after 3 failed API attempts:`,
+              `[trails-sdk] ❌ Giving up on transaction ${opHashToPoll} after 3 failed API attempts:`,
               error,
             )
             return false

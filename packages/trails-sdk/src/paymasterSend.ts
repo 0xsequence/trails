@@ -148,7 +148,7 @@ export async function getDelegatorSmartAccount({
   // Create delegator account from private key
   const delegatorPrivateKey = generatePrivateKey()
   const delegatorAccount = privateKeyToAccount(delegatorPrivateKey)
-  console.log("Delegator account:", delegatorAccount.address)
+  console.log("[trails-sdk] Delegator account:", delegatorAccount.address)
 
   // Initialize delegator smart account
   console.log("Creating smart account...")
@@ -161,9 +161,15 @@ export async function getDelegatorSmartAccount({
     owner: privateKeyToAccount(delegatorPrivateKey),
   })
 
-  console.log("Smart account address:", delegatorSmartAccount.address)
+  console.log(
+    "[trails-sdk] Smart account address:",
+    delegatorSmartAccount.address,
+  )
 
-  console.log("delegatorSmartAccount.address", delegatorSmartAccount.address)
+  console.log(
+    "[trails-sdk] delegatorSmartAccount.address",
+    delegatorSmartAccount.address,
+  )
 
   return delegatorSmartAccount
 }
@@ -195,7 +201,7 @@ export async function getPaymasterGaslessTransaction({
 
   const connectedAccount = walletClient.account.address as `0x${string}`
 
-  console.log("Transfer amount:", amount.toString())
+  console.log("[trails-sdk] Transfer amount:", amount.toString())
 
   const { signature, deadline } = await getPermitSignature({
     publicClient,
@@ -207,7 +213,7 @@ export async function getPaymasterGaslessTransaction({
     chain,
   })
 
-  console.log("Received signature:", signature)
+  console.log("[trails-sdk] Received signature:", signature)
 
   // Encode permit call
   const permitCalldata = getPermitCalldata({
@@ -268,9 +274,9 @@ export async function sendPaymasterGaslessTransaction({
     //     transport: http(),
     //   })
 
-    //   console.log("Relayer address:", relayerAccount.address)
+    //   console.log("[trails-sdk] Relayer address:", relayerAccount.address)
 
-    // console.log('Staking on entry point...')
+    // console.log('[trails-sdk] Staking on entry point...')
     // await stakeOnEntryPoint({ relayerClient, relayerAccount, delegatorAddress: delegatorAccount.address, chain })
 
     // const prefundTx = await relayerClient.sendTransaction({
@@ -279,12 +285,12 @@ export async function sendPaymasterGaslessTransaction({
     //   chain: chain
     // });
 
-    // console.log('Prefund tx:', prefundTx);
+    // console.log('[trails-sdk] Prefund tx:', prefundTx);
 
     // const prefundReceipt = await publicClient.waitForTransactionReceipt({ hash: prefundTx });
-    // console.log('Prefund receipt:', prefundReceipt);
+    // console.log('[trails-sdk] Prefund receipt:', prefundReceipt);
 
-    console.log("Estimating gas fees...")
+    console.log("[trails-sdk] Estimating gas fees...")
     const fees = await publicClient.estimateFeesPerGas()
 
     const maxPriorityFeePerGas = parseGwei("1") // adjustable
@@ -298,7 +304,7 @@ export async function sendPaymasterGaslessTransaction({
           transport: http(paymasterUrl),
         })
 
-        console.log("preparing user op")
+        console.log("[trails-sdk] preparing user op")
 
         const userOp = await prepareUserOperation(publicClient, {
           account: delegatorSmartAccount,
@@ -314,16 +320,16 @@ export async function sendPaymasterGaslessTransaction({
           await delegatorSmartAccount.signUserOperation(userOp)
         ;(userOp as UserOpWithSignature).signature = signedUserOp
 
-        console.log("Signed user operation:", signedUserOp)
+        console.log("[trails-sdk] Signed user operation:", signedUserOp)
 
-        console.log("Sending user operation...")
+        console.log("[trails-sdk] Sending user operation...")
         const hash = await bundlerClient.sendUserOperation(userOp)
-        console.log("User operation sent! Hash:", hash)
+        console.log("[trails-sdk] User operation sent! Hash:", hash)
         const receipt = await bundlerClient.waitForUserOperationReceipt({
           hash: hash as `0x${string}`,
         })
 
-        console.log("User operation receipt:", receipt)
+        console.log("[trails-sdk] User operation receipt:", receipt)
 
         return receipt.receipt.transactionHash
       } else {
@@ -338,7 +344,7 @@ export async function sendPaymasterGaslessTransaction({
           transport: http(paymasterUrl),
         })
 
-        console.log("preparing user op")
+        console.log("[trails-sdk] preparing user op")
 
         let userOp = await prepareUserOperation(publicClient, {
           account: delegatorSmartAccount,
@@ -355,22 +361,22 @@ export async function sendPaymasterGaslessTransaction({
           ...userOp,
         })
 
-        console.log("preparedUserOp", userOp)
+        console.log("[trails-sdk] preparedUserOp", userOp)
 
         const signedUserOp =
           await delegatorSmartAccount.signUserOperation(userOp)
         ;(userOp as UserOpWithSignature).signature = signedUserOp
 
-        console.log("Signed user operation:", signedUserOp)
+        console.log("[trails-sdk] Signed user operation:", signedUserOp)
 
-        console.log("Sending user operation...")
+        console.log("[trails-sdk] Sending user operation...")
         const hash = await bundlerClient.sendUserOperation(userOp)
-        console.log("User operation sent! Hash:", hash)
+        console.log("[trails-sdk] User operation sent! Hash:", hash)
         const receipt = await bundlerClient.waitForUserOperationReceipt({
           hash: hash as `0x${string}`,
         })
 
-        console.log("User operation receipt:", receipt)
+        console.log("[trails-sdk] User operation receipt:", receipt)
 
         return receipt.receipt.transactionHash
       }
@@ -378,7 +384,7 @@ export async function sendPaymasterGaslessTransaction({
       // --- Send user operation directly ---
       const RELAYER_PRIVATE_KEY = "" // This is for testing only
 
-      console.log("preparing user op")
+      console.log("[trails-sdk] preparing user op")
       const userOp1 = await prepareUserOperation(publicClient, {
         account: delegatorSmartAccount,
         calls,
@@ -390,21 +396,21 @@ export async function sendPaymasterGaslessTransaction({
         paymasterAndData: "0x",
       })
 
-      console.log("preparedUserOp", userOp1)
+      console.log("[trails-sdk] preparedUserOp", userOp1)
 
       const requiredPrefund = getRequiredPrefund(userOp1)
-      console.log("Required prefund:", requiredPrefund)
+      console.log("[trails-sdk] Required prefund:", requiredPrefund)
 
       const balance = await publicClient.getBalance({
         address: delegatorSmartAccount.address,
       })
-      console.log("Balance:", balance)
+      console.log("[trails-sdk] Balance:", balance)
 
       const signedUserOp1 =
         await delegatorSmartAccount.signUserOperation(userOp1)
       ;(userOp1 as UserOpWithSignature).signature = signedUserOp1
 
-      console.log("Signed user operation:", signedUserOp1)
+      console.log("[trails-sdk] Signed user operation:", signedUserOp1)
 
       const txHash = await sendUserOperationDirectly({
         userOp: userOp1,
@@ -412,12 +418,12 @@ export async function sendPaymasterGaslessTransaction({
         chain: chain,
       })
 
-      console.log("User operation submitted! Hash:", txHash)
+      console.log("[trails-sdk] User operation submitted! Hash:", txHash)
 
       return txHash
     }
   } catch (error) {
-    console.error("Gasless flow error:", error)
+    console.error("[trails-sdk] Gasless flow error:", error)
     throw error
   }
 }
@@ -458,10 +464,10 @@ export async function stakeOnEntryPoint({
       chain: chain,
     })
 
-    console.log(`[Stake] Transaction sent: ${txHash}`)
+    console.log(`[trails-sdk] [Stake] Transaction sent: ${txHash}`)
 
     // const receipt = await relayerClient.waitForTransactionReceipt({ hash: txHash })
-    // console.log(`[Stake] Transaction receipt: ${receipt}`)
+    // console.log(`[trails-sdk] [Stake] Transaction receipt: ${receipt}`)
   }
 
   const depositData = encodeFunctionData({
@@ -478,7 +484,7 @@ export async function stakeOnEntryPoint({
     chain: chain,
   })
 
-  console.log(`[Stake] Transaction sent: ${txHash2}`)
+  console.log(`[trails-sdk] [Stake] Transaction sent: ${txHash2}`)
 
   return txHash2
 }

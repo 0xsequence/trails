@@ -435,11 +435,11 @@ export function useSendForm({
         relayerConfig,
       }
 
-      console.log("options", options)
+      console.log("[trails-sdk] options", options)
 
       const { intentAddress, originSendAmount, send } =
         await prepareSend(options)
-      console.log("Intent address:", intentAddress?.toString())
+      console.log("[trails-sdk] Intent address:", intentAddress?.toString())
 
       function onOriginSend() {
         onConfirm()
@@ -468,14 +468,14 @@ export function useSendForm({
       })
 
       async function handleSend() {
-        console.log("handleRetry called, about to call send()")
+        console.log("[trails-sdk] handleRetry called, about to call send()")
         // Wait for full send to complete
         const {
           originUserTxReceipt,
           originMetaTxnReceipt,
           destinationMetaTxnReceipt,
         } = await send(onOriginSend)
-        console.log("send() completed, receipts:", {
+        console.log("[trails-sdk] send() completed, receipts:", {
           originUserTxReceipt,
           originMetaTxnReceipt,
           destinationMetaTxnReceipt,
@@ -492,13 +492,13 @@ export function useSendForm({
       }
 
       async function walletConfirmRetryHandler() {
-        console.log("walletConfirmRetryHandler called")
+        console.log("[trails-sdk] walletConfirmRetryHandler called")
         try {
-          console.log("About to call handleRetry")
+          console.log("[trails-sdk] About to call handleRetry")
           await handleSend()
-          console.log("handleRetry completed successfully")
+          console.log("[trails-sdk] handleRetry completed successfully")
         } catch (error) {
-          console.error("Error in prepareSend:", error)
+          console.error("[trails-sdk] Error in prepareSend:", error)
           setError(
             error instanceof Error
               ? error.message
@@ -514,7 +514,7 @@ export function useSendForm({
 
       await handleSend()
     } catch (error) {
-      console.error("Error in prepareSend:", error)
+      console.error("[trails-sdk] Error in prepareSend:", error)
       setError(
         error instanceof Error ? error.message : "An unexpected error occurred",
       )

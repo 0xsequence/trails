@@ -113,7 +113,7 @@ export function calculateIntentAddress(
   executionInfosArg: Array<TrailsExecutionInfo> | null | undefined,
   sapientType: QuoteProvider = "relay",
 ): `0x${string}` {
-  console.log("calculateIntentAddress inputs:", {
+  console.log("[trails-sdk] calculateIntentAddress inputs:", {
     mainSigner,
     calls: JSON.stringify(calls, null, 2),
     executionInfosArg: JSON.stringify(executionInfosArg, null, 2),
@@ -155,7 +155,7 @@ export function calculateIntentAddress(
   )
 
   console.log(
-    "Transformed coreExecutionInfos:",
+    "[trails-sdk] Transformed coreExecutionInfos:",
     JSON.stringify(
       coreExecutionInfos,
       (_, v) => (typeof v === "bigint" ? v.toString() : v),
@@ -172,7 +172,10 @@ export function calculateIntentAddress(
     sapientType,
   )
 
-  console.log("Final calculated address:", calculatedAddress.toString())
+  console.log(
+    "[trails-sdk] Final calculated address:",
+    calculatedAddress.toString(),
+  )
   return calculatedAddress
 }
 
@@ -184,7 +187,7 @@ export function commitIntentConfig(
   executionInfos: Array<TrailsExecutionInfo>,
   sapientType: QuoteProvider = "relay",
 ): Promise<CommitIntentConfigReturn> {
-  console.log("commitIntentConfig inputs:", {
+  console.log("[trails-sdk] commitIntentConfig inputs:", {
     mainSignerAddress,
     calls: JSON.stringify(calls, null, 2),
     preconditions: JSON.stringify(preconditions, null, 2),
@@ -198,7 +201,7 @@ export function commitIntentConfig(
     sapientType,
   )
   const receivedAddress = findPreconditionAddress(preconditions)
-  console.log("Address comparison:", {
+  console.log("[trails-sdk] Address comparison:", {
     receivedAddress,
     calculatedAddress: calculatedAddress.toString(),
     match: isAddressEqual(Address.from(receivedAddress), calculatedAddress),
@@ -212,7 +215,7 @@ export function commitIntentConfig(
     trailsInfos: executionInfos,
     sapientType: sapientType,
   }
-  console.log("args", args)
+
   return apiClient.commitIntentConfig(args)
 }
 
@@ -224,7 +227,7 @@ export async function sendOriginTransaction(
   const chainId = await walletClient.getChainId()
   if (chainId.toString() !== originParams.chain.id.toString()) {
     console.log(
-      "sendOriginTransaction: switching chain",
+      "[trails-sdk] sendOriginTransaction: switching chain",
       "want:",
       originParams.chain.id,
       "current:",
@@ -232,7 +235,7 @@ export async function sendOriginTransaction(
     )
     await walletClient.switchChain({ id: originParams.chain.id })
     console.log(
-      "sendOriginTransaction: switched chain to",
+      "[trails-sdk] sendOriginTransaction: switched chain to",
       originParams.chain.id,
     )
   }
@@ -475,7 +478,7 @@ function createIntentConfiguration(
     weight: 1n,
   }
 
-  console.log("mainSignerLeaf:", mainSignerLeaf)
+  console.log("[trails-sdk] mainSignerLeaf:", mainSignerLeaf)
 
   const subdigestLeaves: Config.AnyAddressSubdigestLeaf[] = calls.map(
     (call) => {
@@ -503,7 +506,7 @@ function createIntentConfiguration(
           })),
         },
       )
-      console.log("digest:", Bytes.toHex(digest))
+      console.log("[trails-sdk] digest:", Bytes.toHex(digest))
       return {
         type: "any-address-subdigest",
         digest: Bytes.toHex(digest),
@@ -511,8 +514,8 @@ function createIntentConfiguration(
     },
   )
 
-  console.log("calls:", calls)
-  console.log("subdigestLeaves:", subdigestLeaves)
+  console.log("[trails-sdk] calls:", calls)
+  console.log("[trails-sdk] subdigestLeaves:", subdigestLeaves)
 
   const otherLeaves: Config.Topology[] = [...subdigestLeaves]
 
@@ -552,7 +555,7 @@ function createIntentConfiguration(
 
   // Print the topology
   console.log(
-    "Topology:",
+    "[trails-sdk] Topology:",
     JSON.stringify([mainSignerLeaf, secondaryTopologyNode], bigintReplacer, 2),
   )
 

@@ -4,7 +4,7 @@ export function findPreconditionAddress(
   preconditions: IntentPrecondition[],
 ): string {
   console.log(
-    "Finding precondition address from:",
+    "[trails-sdk] Finding precondition address from:",
     JSON.stringify(preconditions, null, 2),
   )
 
@@ -16,7 +16,7 @@ export function findPreconditionAddress(
     )
     if (precondition) {
       console.log(
-        `Found ${type} precondition with address:`,
+        `[trails-sdk] Found ${type} precondition with address:`,
         precondition.data.address,
       )
       return precondition.data.address
@@ -24,7 +24,7 @@ export function findPreconditionAddress(
   }
 
   const msg = `N/A (No ${preconditionTypes.join(" or ")} precondition with address found)`
-  console.log(msg)
+  console.log("[trails-sdk]", msg)
   return msg
 }
 

@@ -12,6 +12,8 @@ import type {
 } from "../../tokenBalances.js"
 import {
   formatBalance,
+  useAccountTotalBalanceUsd,
+  useHasSufficientBalanceUsd,
   useSourceTokenList,
   useTokenBalances,
 } from "../../tokenBalances.js"
@@ -45,6 +47,7 @@ export type TokenFormatted = Token &
 
 export type UseTokenListProps = {
   onContinue: (selectedToken: Token) => void
+  targetAmountUsd?: number | null
   indexerGatewayClient: SequenceIndexerGateway
 }
 
@@ -59,10 +62,15 @@ export type UseTokenListReturn = {
   isTokenSelected: (token: TokenBalanceExtended) => boolean
   setSearchQuery: (query: string) => void
   filteredTokensFormatted: TokenFormatted[]
+  totalBalanceUsd: number
+  totalBalanceUsdFormatted: string
+  isLoadingTotalBalanceUsd: boolean
+  showInsufficientBalance: boolean
 }
 
 export function useTokenList({
   onContinue,
+  targetAmountUsd,
   indexerGatewayClient,
 }: UseTokenListProps): UseTokenListReturn {
   const [selectedToken, setSelectedToken] = useState<Token | null>(null)
@@ -73,8 +81,19 @@ export function useTokenList({
     isLoadingSortedTokens,
     balanceError,
   } = useTokenBalances(address as Address.Address, indexerGatewayClient)
+  const {
+    totalBalanceUsd,
+    totalBalanceUsdFormatted,
+    isLoadingTotalBalanceUsd,
+  } = useAccountTotalBalanceUsd(address as Address.Address)
+  const { hasSufficientBalanceUsd, isLoadingHasSufficientBalanceUsd } =
+    useHasSufficientBalanceUsd(address as Address.Address, targetAmountUsd)
   const showContinueButton = false
-
+  const showInsufficientBalance = Boolean(
+    targetAmountUsd &&
+      !hasSufficientBalanceUsd &&
+      !isLoadingHasSufficientBalanceUsd,
+  )
   const sourceTokenList = useSourceTokenList()
 
   const supportedChainIds = useMemo(
@@ -141,7 +160,9 @@ export function useTokenList({
     }
 
     setSelectedToken(formattedToken)
-    onContinue(formattedToken)
+    if (!targetAmountUsd || (targetAmountUsd && hasSufficientBalanceUsd)) {
+      onContinue(formattedToken)
+    }
   }
 
   const isTokenSelected = (token: TokenBalanceExtended): boolean => {
@@ -319,5 +340,9 @@ export function useTokenList({
     isTokenSelected,
     setSearchQuery,
     filteredTokensFormatted,
+    totalBalanceUsd,
+    totalBalanceUsdFormatted,
+    isLoadingTotalBalanceUsd,
+    showInsufficientBalance,
   }
 }
