@@ -9,9 +9,13 @@ import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { Link } from "react-router"
 import { useAccount } from "wagmi"
+import {
+  AppKitProvider,
+  ConnectButton,
+} from "@/routes/widget-demo/components/ConnectWallet"
 
 export function SdkSandbox() {
-  const { address } = useAccount()
+  const { address, isConnected } = useAccount()
   const indexerGatewayClient = useIndexerGatewayClient()
   const apiClient = useAPIClient()
 
@@ -72,7 +76,11 @@ export function SdkSandbox() {
         : null,
   })
 
-  return (
+  const handleConnect = () => {
+    console.log("connect")
+  }
+
+  const content = (
     <div className="max-w-6xl mx-auto p-8 space-y-8 bg-gray-900">
       <div className="flex items-center justify-between mb-12">
         <Link
@@ -110,6 +118,12 @@ export function SdkSandbox() {
             </span>
           )}
         </div>
+
+        {!isConnected && (
+          <div className="flex justify-center mt-6 sm:mt-8">
+            <ConnectButton onConnect={handleConnect} />
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -129,8 +143,10 @@ export function SdkSandbox() {
           </div>
           <div className="space-y-2">
             <p className="text-2xl font-bold text-white">
-              {isLoadingTotalBalance ? (
-                <span className="inline-flex items-center">
+              {!isConnected ? (
+                <span className="text-sm">Connect wallet to view balance</span>
+              ) : isLoadingTotalBalance ? (
+                <span className="inline-flex items-center text-sm">
                   <svg
                     className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-400"
                     xmlns="http://www.w3.org/2000/svg"
@@ -156,7 +172,7 @@ export function SdkSandbox() {
               ) : totalBalanceUsd ? (
                 <span>${Number(totalBalanceUsd).toFixed(2)}</span>
               ) : (
-                "Loading..."
+                <span className="text-sm">Loading...</span>
               )}
             </p>
           </div>
@@ -204,14 +220,18 @@ export function SdkSandbox() {
             </div>
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                isLoadingSufficientUsd
+                !isConnected
                   ? "bg-gray-600"
-                  : hasSufficientBalanceUsd
-                    ? "bg-green-900"
-                    : "bg-red-900"
+                  : isLoadingSufficientUsd
+                    ? "bg-gray-600"
+                    : hasSufficientBalanceUsd
+                      ? "bg-green-900"
+                      : "bg-red-900"
               }`}
             >
-              {isLoadingSufficientUsd ? (
+              {!isConnected ? (
+                <span className="text-sm font-medium text-gray-400">-</span>
+              ) : isLoadingSufficientUsd ? (
                 <svg
                   className="animate-spin h-4 w-4 text-gray-400"
                   xmlns="http://www.w3.org/2000/svg"
@@ -264,8 +284,12 @@ export function SdkSandbox() {
             </div>
             <div>
               <p className="text-2xl font-bold text-white">
-                {isLoadingSufficientUsd ? (
-                  <span className="inline-flex items-center">
+                {!isConnected ? (
+                  <span className="text-sm">
+                    Connect wallet to check balance
+                  </span>
+                ) : isLoadingSufficientUsd ? (
+                  <span className="inline-flex items-center text-sm">
                     <svg
                       className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-400"
                       xmlns="http://www.w3.org/2000/svg"
@@ -295,7 +319,7 @@ export function SdkSandbox() {
                     "No"
                   )
                 ) : (
-                  "Loading..."
+                  <span className="text-sm">Loading...</span>
                 )}
               </p>
               <p className="text-sm text-gray-400">
@@ -444,8 +468,12 @@ export function SdkSandbox() {
             </div>
             <div>
               <p className="text-2xl font-bold text-white">
-                {isLoadingSufficientToken ? (
-                  <span className="inline-flex items-center">
+                {!isConnected ? (
+                  <span className="text-sm">
+                    Connect wallet to check balance
+                  </span>
+                ) : isLoadingSufficientToken ? (
+                  <span className="inline-flex items-center text-sm">
                     <svg
                       className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-400"
                       xmlns="http://www.w3.org/2000/svg"
@@ -475,7 +503,7 @@ export function SdkSandbox() {
                     "No"
                   )
                 ) : (
-                  "Loading..."
+                  <span className="text-sm">Loading...</span>
                 )}
               </p>
               <p className="text-sm text-gray-400">
@@ -518,4 +546,6 @@ export function SdkSandbox() {
       </div>
     </div>
   )
+
+  return <AppKitProvider>{content}</AppKitProvider>
 }
