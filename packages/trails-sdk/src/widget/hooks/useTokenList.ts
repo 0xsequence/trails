@@ -87,14 +87,12 @@ export function useTokenList({
     totalBalanceUsdFormatted,
     isLoadingTotalBalanceUsd,
   } = useAccountTotalBalanceUsd(address as Address.Address)
-  const { hasSufficientBalanceUsd, isLoadingHasSufficientBalanceUsd } =
-    useHasSufficientBalanceUsd(address as Address.Address, targetAmountUsd)
+  const {
+    hasSufficientBalanceUsd,
+    isLoadingHasSufficientBalanceUsd,
+    hasSufficientBalanceUsdError,
+  } = useHasSufficientBalanceUsd(address as Address.Address, targetAmountUsd)
   const showContinueButton = false
-  const showInsufficientBalance = Boolean(
-    targetAmountUsd &&
-      !hasSufficientBalanceUsd &&
-      !isLoadingHasSufficientBalanceUsd,
-  )
   const sourceTokenList = useSourceTokenList()
 
   const supportedChainIds = useMemo(
@@ -338,6 +336,23 @@ export function useTokenList({
       }
     })
   }, [filteredTokens, targetAmountUsd])
+
+  const showInsufficientBalance = useMemo(() => {
+    return (
+      (targetAmountUsd &&
+        !hasSufficientBalanceUsd &&
+        !isLoadingHasSufficientBalanceUsd &&
+        !hasSufficientBalanceUsdError) ||
+      (filteredTokensFormatted?.length > 0 &&
+        !filteredTokensFormatted.some((token) => token.isSufficientBalance))
+    )
+  }, [
+    targetAmountUsd,
+    hasSufficientBalanceUsd,
+    isLoadingHasSufficientBalanceUsd,
+    hasSufficientBalanceUsdError,
+    filteredTokensFormatted,
+  ])
 
   return {
     selectedToken,

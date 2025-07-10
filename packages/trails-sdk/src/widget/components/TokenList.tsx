@@ -72,7 +72,7 @@ export const TokenList: React.FC<TokenListProps> = ({
 
         {totalBalanceUsd > 0 && (
           <p
-            className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+            className={`text-xs mr-8 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
           >
             Total balance: {totalBalanceUsdFormatted}
           </p>

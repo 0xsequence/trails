@@ -524,6 +524,7 @@ export function useHasSufficientBalanceUsd(
 ): {
   hasSufficientBalanceUsd: boolean
   isLoadingHasSufficientBalanceUsd: boolean
+  hasSufficientBalanceUsdError: Error | null
 } {
   const indexerGatewayClient = useIndexerGatewayClient()
   const apiClient = useAPIClient()
@@ -531,6 +532,7 @@ export function useHasSufficientBalanceUsd(
   const {
     data: hasSufficientBalanceUsd,
     isLoading: isLoadingHasSufficientBalanceUsd,
+    error: hasSufficientBalanceUsdError,
   } = useQuery({
     queryKey: ["hasSufficientBalanceUsd", account, targetAmountUsd],
     queryFn: () =>
@@ -541,12 +543,13 @@ export function useHasSufficientBalanceUsd(
             indexerGatewayClient: indexerGatewayClient,
             apiClient: apiClient,
           })
-        : null,
+        : false,
   })
 
   return {
     hasSufficientBalanceUsd: hasSufficientBalanceUsd || false,
     isLoadingHasSufficientBalanceUsd,
+    hasSufficientBalanceUsdError,
   }
 }
 
