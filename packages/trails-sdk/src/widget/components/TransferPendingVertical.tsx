@@ -2,14 +2,8 @@ import { TokenImage } from "@0xsequence/design-system"
 import { ExternalLink } from "lucide-react"
 import type React from "react"
 import { useEffect, useState } from "react"
+import type { TransactionState } from "../../prepareSend.js"
 import type { ActiveTheme } from "../../theme.js"
-
-interface TransactionState {
-  transactionHash: string
-  explorerUrl: string
-  chainId: number
-  state: "pending" | "failed" | "confirmed"
-}
 
 interface TransferPendingProps {
   onComplete: () => void
@@ -22,12 +16,6 @@ interface TransferPendingProps {
   fromChainId: number
   fromTokenImageUrl?: string
   timestamp?: number
-}
-
-const getStepLabel = (index: number, total: number) => {
-  if (total === 1) return "Transaction"
-  if (total === 2) return index === 0 ? "Transaction" : "Swap"
-  return index === 0 ? "Transfer" : index === 1 ? "Swap & Bridge" : "Execute"
 }
 
 const _truncateHash = (hash: string) => {
@@ -289,9 +277,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
         {/* Step content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2">
-            <span className={getTextStyles()}>
-              {getStepLabel(index, transactionStates.length)}
-            </span>
+            <span className={getTextStyles()}>{tx.label}</span>
             {stepState === "completed" && (
               <ExternalLink className="w-4 h-4 text-gray-400 transition-opacity duration-300" />
             )}

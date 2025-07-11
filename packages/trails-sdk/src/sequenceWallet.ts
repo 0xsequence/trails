@@ -238,7 +238,7 @@ export async function getIsWalletDeployed(
     address: wallet as `0x${string}`,
   })
 
-  const isDeployed = hasCode !== undefined || hasCode !== "0x"
+  const isDeployed = hasCode !== undefined && hasCode !== "0x"
   return isDeployed
 }
 
@@ -251,6 +251,7 @@ export async function waitForWalletDeployment(
     if (isDeployed) {
       break
     }
+    console.log("[trails-sdk] waiting for wallet deployment")
     await new Promise((resolve) => setTimeout(resolve, 500))
   }
 }
@@ -307,8 +308,6 @@ export async function sequenceSendTransaction(
   const sequenceTxs = toSequenceTransactions(txsToExecute)
   const status = await sequenceAccount.status(chainId)
   const wallet = sequenceAccount.walletForStatus(chainId, status)
-
-  console.log("[trails-sdk] sequence wallet1", wallet)
 
   console.log("[trails-sdk] sequence wallet", wallet)
 

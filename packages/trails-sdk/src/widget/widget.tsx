@@ -298,9 +298,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
 
   const {
     setOriginTxHash,
-    destinationTxHash,
     setDestinationTxHash,
-    destinationChainId,
     setDestinationChainId,
     transactionStates,
     setTransactionStates,
@@ -617,6 +615,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
             chainId: 137,
             state: "pending",
+            label: "Swap",
           },
         ])
         setOriginTokenInfo({
@@ -640,6 +639,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
             chainId: 137,
             state: "confirmed",
+            label: "Swap",
           },
         ])
         setOriginTokenInfo({
@@ -663,6 +663,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
             chainId: 137,
             state: "pending",
+            label: "Transfer",
           },
           {
             transactionHash:
@@ -671,6 +672,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
             chainId: 137,
             state: "pending",
+            label: "Swap",
           },
         ])
         setOriginTokenInfo({
@@ -694,6 +696,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
             chainId: 137,
             state: "confirmed",
+            label: "Transfer",
           },
           {
             transactionHash:
@@ -702,6 +705,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
             chainId: 137,
             state: "pending",
+            label: "Swap",
           },
         ])
         setOriginTokenInfo({
@@ -725,6 +729,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
             chainId: 137,
             state: "confirmed",
+            label: "Transfer",
           },
           {
             transactionHash:
@@ -733,6 +738,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
             chainId: 137,
             state: "confirmed",
+            label: "Swap",
           },
         ])
         setOriginTokenInfo({
@@ -756,6 +762,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
             chainId: 137,
             state: "pending",
+            label: "Transfer",
           },
           {
             transactionHash:
@@ -764,6 +771,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
             chainId: 137,
             state: "pending",
+            label: "Swap & Bridge",
           },
           {
             transactionHash:
@@ -772,6 +780,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://arbiscan.io/tx/0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
             chainId: 42161,
             state: "pending",
+            label: "Execute",
           },
         ])
         setOriginTokenInfo({
@@ -795,6 +804,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
             chainId: 137,
             state: "confirmed",
+            label: "Transfer",
           },
           {
             transactionHash:
@@ -803,6 +813,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
             chainId: 137,
             state: "pending",
+            label: "Swap & Bridge",
           },
           {
             transactionHash:
@@ -811,6 +822,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://arbiscan.io/tx/0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
             chainId: 42161,
             state: "pending",
+            label: "Execute",
           },
         ])
         setOriginTokenInfo({
@@ -834,6 +846,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
             chainId: 137,
             state: "confirmed",
+            label: "Transfer",
           },
           {
             transactionHash:
@@ -842,6 +855,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
             chainId: 137,
             state: "confirmed",
+            label: "Swap & Bridge",
           },
           {
             transactionHash:
@@ -850,6 +864,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://arbiscan.io/tx/0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
             chainId: 42161,
             state: "pending",
+            label: "Execute",
           },
         ])
         setOriginTokenInfo({
@@ -873,6 +888,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
             chainId: 137,
             state: "confirmed",
+            label: "Transfer",
           },
           {
             transactionHash:
@@ -881,6 +897,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
             chainId: 137,
             state: "confirmed",
+            label: "Swap & Bridge",
           },
           {
             transactionHash:
@@ -889,6 +906,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://arbiscan.io/tx/0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
             chainId: 42161,
             state: "confirmed",
+            label: "Execute",
           },
         ])
         setOriginTokenInfo({
@@ -903,12 +921,6 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
         setCurrentScreen("pending")
         break
       case "receipt":
-        // Set dummy final transaction data for debug mode
-        setDestinationTxHash(
-          "0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
-        )
-        setDestinationChainId(42161)
-
         // Set dummy transaction states data for debug mode
         setTransactionStates([
           {
@@ -918,6 +930,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
             chainId: 137,
             state: "confirmed",
+            label: "Transfer",
           },
           {
             transactionHash:
@@ -926,6 +939,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
             chainId: 137,
             state: "confirmed",
+            label: "Swap & Bridge",
           },
           {
             transactionHash:
@@ -934,6 +948,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
               "https://arbiscan.io/tx/0xf3b172111d2e64e9d4940d91097f04a0bbd0acc816e2cf49eec664c6f8fcaf76",
             chainId: 42161,
             state: "confirmed",
+            label: "Execute",
           },
         ])
 
@@ -1085,8 +1100,6 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
           <Receipt
             onSendAnother={handleSendAnother}
             onClose={handleCloseModal}
-            txHash={destinationTxHash}
-            chainId={destinationChainId!}
             theme={theme}
             renderInline={renderInline}
             transactionStates={transactionStates}

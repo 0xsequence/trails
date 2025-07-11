@@ -1,10 +1,11 @@
-import type { Chain, WalletClient } from "viem"
+import type { Chain, PublicClient, WalletClient } from "viem"
 import {
   createPublicClient,
   encodeFunctionData,
   erc20Abi,
   getAddress,
   http,
+  maxUint256,
 } from "viem"
 import * as chains from "viem/chains"
 import { attemptSwitchChain } from "./chainSwitch.js"
@@ -93,33 +94,56 @@ const messageTransmitters: Record<number, string> = {
   [chains.worldchainSepolia.id]: "0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275",
 }
 
+export type Attestation = {
+  attestation: `0x${string}`
+  message: `0x${string}`
+}
+
+export function getDomain(chainId: number): number | null {
+  return domains[chainId] ?? null
+}
+
+export function getTokenAddress(chainId: number): string | null {
+  return tokenAddresses[chainId] ?? null
+}
+
+export function getTokenMessenger(chainId: number): string | null {
+  return tokenMessengers[chainId] ?? null
+}
+
+export function getMessageTransmitter(chainId: number): string | null {
+  return messageTransmitters[chainId] ?? null
+}
+
 export async function cctpTransfer({
   walletClient,
-  relayerClient,
   originChain,
   destinationChain,
   amount,
 }: {
   walletClient: WalletClient
-  relayerClient: WalletClient
   originChain: Chain
   destinationChain: Chain
   amount: bigint
-}) {
-  const originToken = tokenAddresses[originChain.id]
-  const originDomain = domains[originChain.id]
-  const destinationDomain = domains[destinationChain.id]
-  const originTokenMessenger = tokenMessengers[originChain.id]
-  const destinationTokenMessenger = messageTransmitters[destinationChain.id]
+}): Promise<{ attestation: Attestation; txHash: `0x${string}` }> {
+  const originToken = getTokenAddress(originChain.id)
+  const originDomain = getDomain(originChain.id)
+  const destinationDomain = getDomain(destinationChain.id)
+  const originTokenMessenger = getTokenMessenger(originChain.id)
   const destinationAddress = walletClient.account?.address
+
+  if (
+    !originToken ||
+    !originDomain ||
+    !originTokenMessenger ||
+    !destinationDomain ||
+    !destinationAddress
+  ) {
+    throw new Error("Invalid origin chain")
+  }
 
   const originClient = createPublicClient({
     chain: originChain,
-    transport: http(),
-  })
-
-  const destinationClient = createPublicClient({
-    chain: destinationChain,
     transport: http(),
   })
 
@@ -128,68 +152,100 @@ export async function cctpTransfer({
     desiredChainId: originChain.id,
   })
 
+  const account = walletClient.account?.address
+  if (!account) {
+    throw new Error("No account found")
+  }
+
   const needsApproval = await getNeedsApproval({
     publicClient: originClient,
     token: originToken,
-    account: walletClient.account?.address,
+    account,
     spender: originTokenMessenger,
     amount: amount,
   })
 
   if (needsApproval) {
-    const txHash0 = await approveUSDC({
+    const txHash = await approveUSDC({
       walletClient,
       tokenAddress: originToken,
       spender: originTokenMessenger,
-      amount: amount,
+      amount: maxUint256,
       chain: originChain,
     })
 
-    console.log("waiting for tx0", txHash0)
+    console.log("waiting for approve", txHash)
     await originClient.waitForTransactionReceipt({
-      hash: txHash0,
+      hash: txHash,
     })
-    console.log("tx0 done")
+    console.log("approve done")
   }
 
-  const txHash1 = await burnUSDC({
+  const maxFee = getMaxFee()
+
+  const txHash = await burnUSDC({
     walletClient,
     tokenMessenger: originTokenMessenger,
     destinationDomain,
     destinationAddress,
     amount,
     burnToken: originToken,
-    maxFee: 500n, // Set fast transfer max fee in 10^6 subunits (0.0005 USDC; change as needed)
+    maxFee,
     chain: originChain,
   })
 
   await originClient.waitForTransactionReceipt({
-    hash: txHash1,
+    hash: txHash,
   })
 
   const attestation = await waitForAttestation({
     domain: originDomain,
-    transactionHash: txHash1,
+    transactionHash: txHash,
   })
+
+  if (!attestation) {
+    throw new Error("Failed to retrieve attestation")
+  }
+
+  return {
+    attestation,
+    txHash: txHash,
+  }
+}
+
+export async function cctpDestinationTx({
+  relayerClient,
+  destinationChain,
+  attestation,
+}: {
+  relayerClient: WalletClient
+  destinationChain: Chain
+  attestation: Attestation
+}): Promise<`0x${string}`> {
+  const destinationTokenMessenger = getMessageTransmitter(destinationChain.id)
+
+  if (!destinationTokenMessenger) {
+    throw new Error("Invalid destination chain")
+  }
 
   await attemptSwitchChain({
     walletClient: relayerClient,
     desiredChainId: destinationChain.id,
   })
 
-  const txHash2 = await mintUSDC({
+  const txHash = await mintUSDC({
     walletClient: relayerClient,
     tokenMessenger: destinationTokenMessenger,
     attestation,
     chain: destinationChain,
   })
 
-  await destinationClient.waitForTransactionReceipt({
-    hash: txHash2,
-  })
+  console.log("[trails-sdk] minted USDC")
+  return txHash
+}
 
-  console.log("Minted USDC!")
-  return txHash1
+export function getMaxFee(): bigint {
+  return 500n // Set fast transfer max fee in 10^6 subunits (0.0005 USDC; change as needed)
 }
 
 export async function getNeedsApproval({
@@ -198,9 +254,15 @@ export async function getNeedsApproval({
   account,
   spender,
   amount,
-}: any): Promise<boolean> {
+}: {
+  publicClient: PublicClient
+  token: string
+  account: string
+  spender: string
+  amount: bigint
+}): Promise<boolean> {
   const allowance = await publicClient.readContract({
-    address: token,
+    address: token as `0x${string}`,
     abi: erc20Abi,
     functionName: "allowance",
     args: [getAddress(account), getAddress(spender)],
@@ -215,31 +277,55 @@ export async function approveUSDC({
   spender,
   amount,
   chain,
-}: any) {
+}: {
+  walletClient: WalletClient
+  tokenAddress: string
+  spender: string
+  amount: bigint
+  chain: Chain
+}): Promise<`0x${string}`> {
   const approvalData = await getApproveUSDCData({
     tokenAddress,
     spender,
     amount,
   })
 
-  console.log("Approving USDC transfer...", approvalData)
+  console.log("[trails-sdk] approving USDC transfer", approvalData)
 
   await attemptSwitchChain({
     walletClient,
     desiredChainId: chain.id,
   })
 
-  return walletClient.sendTransaction(approvalData)
+  const account = walletClient.account?.address
+  if (!account) {
+    throw new Error("No account found")
+  }
+
+  return walletClient.sendTransaction({
+    ...approvalData,
+    account: account as `0x${string}`,
+    chain,
+  })
 }
 
-async function getApproveUSDCData({ tokenAddress, spender, amount }: any) {
-  console.log("Approving USDC transfer...", {
+async function getApproveUSDCData({
+  tokenAddress,
+  spender,
+  amount,
+}: {
+  tokenAddress: string
+  spender: string
+  amount: bigint
+}): Promise<{ to: `0x${string}`; data: `0x${string}`; value: bigint }> {
+  console.log("[trails-sdk] get approve USDC transfer data", {
     tokenAddress,
     spender,
     amount,
   })
   return {
-    to: tokenAddress,
+    to: tokenAddress as `0x${string}`,
+    value: BigInt(0),
     data: encodeFunctionData({
       abi: [
         {
@@ -254,7 +340,7 @@ async function getApproveUSDCData({ tokenAddress, spender, amount }: any) {
         },
       ],
       functionName: "approve",
-      args: [spender, amount], // Set max allowance in 10^6 subunits (10,000 USDC; change as needed)
+      args: [spender as `0x${string}`, amount],
     }),
   }
 }
@@ -268,7 +354,16 @@ export async function burnUSDC({
   burnToken,
   maxFee,
   chain,
-}: any) {
+}: {
+  walletClient: WalletClient
+  tokenMessenger: string
+  destinationDomain: number
+  destinationAddress: string
+  amount: bigint
+  burnToken: string
+  maxFee: bigint
+  chain: Chain
+}): Promise<`0x${string}`> {
   const burnData = await getBurnUSDCData({
     tokenMessenger,
     destinationDomain,
@@ -283,7 +378,16 @@ export async function burnUSDC({
     desiredChainId: chain.id,
   })
 
-  return walletClient.sendTransaction(burnData)
+  const account = walletClient.account?.address
+  if (!account) {
+    throw new Error("No account found")
+  }
+
+  return walletClient.sendTransaction({
+    ...burnData,
+    account: account as `0x${string}`,
+    chain,
+  })
 }
 
 export async function getBurnUSDCData({
@@ -293,8 +397,15 @@ export async function getBurnUSDCData({
   amount,
   burnToken,
   maxFee,
-}: any) {
-  console.log("Burning USDC...", {
+}: {
+  tokenMessenger: string
+  destinationDomain: number
+  destinationAddress: string
+  amount: bigint
+  burnToken: string
+  maxFee: bigint
+}): Promise<{ to: `0x${string}`; data: `0x${string}`; value: bigint }> {
+  console.log("[trails-sdk] get burn USDC data", {
     tokenMessenger,
     destinationDomain,
     destinationAddress,
@@ -308,7 +419,8 @@ export async function getBurnUSDCData({
     "0x0000000000000000000000000000000000000000000000000000000000000000" // Empty bytes32 allows any address to call MessageTransmitterV2.receiveMessage()
 
   return {
-    to: tokenMessenger,
+    to: tokenMessenger as `0x${string}`,
+    value: BigInt(0),
     data: encodeFunctionData({
       abi: [
         {
@@ -332,7 +444,7 @@ export async function getBurnUSDCData({
         amount,
         destinationDomain,
         DESTINATION_ADDRESS_BYTES32 as `0x${string}`,
-        burnToken,
+        burnToken as `0x${string}`,
         DESTINATION_CALLER_BYTES32 as `0x${string}`,
         maxFee,
         1000, // minFinalityThreshold (1000 or less for Fast Transfer)
@@ -341,24 +453,36 @@ export async function getBurnUSDCData({
   }
 }
 
-export async function retrieveAttestation({ domain, transactionHash }: any) {
-  console.log("Retrieving attestation...")
+export async function retrieveAttestation({
+  domain,
+  transactionHash,
+}: {
+  domain: number
+  transactionHash: `0x${string}`
+}): Promise<Attestation | null> {
+  console.log("[trails-sdk] retrieving attestation", {
+    domain,
+    transactionHash,
+  })
   const url = `https://iris-api-sandbox.circle.com/v2/messages/${domain}?transactionHash=${transactionHash}`
   while (true) {
     try {
       const response = await fetch(url)
       const data = await response.json()
       if (response.status === 404) {
-        console.log("Waiting for attestation...")
+        console.log("[trails-sdk] waiting for attestation...")
       }
       if (data?.messages?.[0]?.status === "complete") {
-        console.log("Attestation retrieved successfully!")
+        console.log("[trails-sdk] attestation retrieved successfully!")
         return data.messages[0]
       }
-      console.log("Waiting for attestation...")
+      console.log("[trails-sdk] waiting for attestation...")
       await new Promise((resolve) => setTimeout(resolve, 5000))
-    } catch (error: any) {
-      console.error("Error fetching attestation:", error.message)
+    } catch (error: unknown) {
+      console.error(
+        "[trails-sdk] error fetching attestation:",
+        error instanceof Error ? error.message : String(error),
+      )
       await new Promise((resolve) => setTimeout(resolve, 5000))
     }
   }
@@ -369,7 +493,12 @@ export async function mintUSDC({
   tokenMessenger,
   attestation,
   chain,
-}: any) {
+}: {
+  walletClient: WalletClient
+  tokenMessenger: string
+  attestation: Attestation
+  chain: Chain
+}): Promise<`0x${string}`> {
   const mintData = await getMintUSDCData({
     tokenMessenger,
     attestation,
@@ -380,13 +509,32 @@ export async function mintUSDC({
     desiredChainId: chain.id,
   })
 
-  return walletClient.sendTransaction(mintData)
+  const account = walletClient.account?.address
+  if (!account) {
+    throw new Error("No account found")
+  }
+
+  return walletClient.sendTransaction({
+    ...mintData,
+    account: account as `0x${string}`,
+    chain,
+  })
 }
 
-async function getMintUSDCData({ tokenMessenger, attestation }: any) {
-  console.log("Minting USDC...")
+export async function getMintUSDCData({
+  tokenMessenger,
+  attestation,
+}: {
+  tokenMessenger: string
+  attestation: Attestation
+}): Promise<{ to: `0x${string}`; data: `0x${string}`; value: bigint }> {
+  console.log("[trails-sdk] get mint USDC data", {
+    tokenMessenger,
+    attestation,
+  })
   return {
-    to: tokenMessenger,
+    to: tokenMessenger as `0x${string}`,
+    value: BigInt(0),
     data: encodeFunctionData({
       abi: [
         {
@@ -406,7 +554,13 @@ async function getMintUSDCData({ tokenMessenger, attestation }: any) {
   }
 }
 
-export async function waitForAttestation({ domain, transactionHash }: any) {
+export async function waitForAttestation({
+  domain,
+  transactionHash,
+}: {
+  domain: number
+  transactionHash: `0x${string}`
+}): Promise<Attestation | null> {
   while (true) {
     const attestation = await retrieveAttestation({
       domain,
@@ -415,6 +569,11 @@ export async function waitForAttestation({ domain, transactionHash }: any) {
     if (attestation) {
       return attestation
     }
+    console.log("[trails-sdk] waiting for attestation...")
     await new Promise((resolve) => setTimeout(resolve, 1000))
   }
+}
+
+export function getIsUsdcAddress(address: string, chainId: number): boolean {
+  return address?.toLowerCase() === tokenAddresses[chainId]?.toLowerCase()
 }

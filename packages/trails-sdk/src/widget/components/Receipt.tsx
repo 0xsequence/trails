@@ -1,13 +1,10 @@
 // biome-ignore lint/style/useImportType: False positive
 import React, { useEffect, useState } from "react"
-import { getExplorerUrl } from "../../explorer.js"
 import type { TransactionState } from "../../prepareSend.js"
 import type { ActiveTheme } from "../../theme.js"
 import { GreenCheckAnimation } from "./GreenCheckAnimation.js"
 
 interface ReceiptProps {
-  txHash?: string
-  chainId?: number
   onSendAnother: () => void
   onClose: () => void
   theme?: ActiveTheme
@@ -16,8 +13,6 @@ interface ReceiptProps {
 }
 
 export const Receipt: React.FC<ReceiptProps> = ({
-  txHash,
-  chainId,
   onClose,
   theme = "light",
   renderInline = false,
@@ -34,7 +29,10 @@ export const Receipt: React.FC<ReceiptProps> = ({
     return () => clearTimeout(timer)
   }, [])
 
-  if (!txHash || !chainId) {
+  const finalExplorerUrl =
+    transactionStates?.[transactionStates.length - 1]?.explorerUrl
+
+  if (!finalExplorerUrl) {
     return null
   }
 
@@ -60,7 +58,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
         className={`text-center transition-all duration-500 ease-out delay-100 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
       >
         <a
-          href={getExplorerUrl({ txHash, chainId })}
+          href={finalExplorerUrl}
           target="_blank"
           rel="noopener noreferrer"
           className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-md font-medium transition-colors border text-sm
@@ -142,7 +140,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
                   Transactions:
                 </div>
                 <div className="space-y-2">
-                  {transactionStates.map((state, index) => (
+                  {transactionStates.map((state) => (
                     <div
                       key={state.transactionHash}
                       className={`p-2 rounded ${
@@ -155,7 +153,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
                             theme === "dark" ? "text-gray-400" : "text-gray-600"
                           }
                         >
-                          Step {index + 1}:
+                          {state.label}:
                         </span>
                         <span
                           className={`px-2 py-0.5 rounded-full text-xs ${

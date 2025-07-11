@@ -54,7 +54,19 @@ export const OutputScreen = ({
 
   const handleDebugClick = () => {
     const searchParams = new URLSearchParams(location.search)
-    searchParams.set("debug", "true")
+    searchParams.set(
+      "debug",
+      searchParams.get("debug") === "true" ? "false" : "true",
+    )
+    navigate({ pathname: location.pathname, search: searchParams.toString() })
+  }
+
+  const handleTestnetClick = () => {
+    const searchParams = new URLSearchParams(location.search)
+    searchParams.set(
+      "testnet",
+      searchParams.get("testnet") === "true" ? "false" : "true",
+    )
     navigate({ pathname: location.pathname, search: searchParams.toString() })
   }
 
@@ -171,6 +183,13 @@ export const OutputScreen = ({
         type="button"
       >
         Debug
+      </button>
+      <button
+        onClick={handleTestnetClick}
+        className="absolute bottom-3 right-16 text-xs text-gray-500 hover:text-white cursor-pointer z-10"
+        type="button"
+      >
+        Testnet
       </button>
     </div>
   )

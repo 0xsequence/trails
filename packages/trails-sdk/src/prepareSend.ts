@@ -24,10 +24,14 @@ import {
   zeroAddress,
 } from "viem"
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
-import * as chains from "viem/chains"
-import { cctpTransfer } from "./cctp.js"
+import {
+  cctpTransfer,
+  getIsUsdcAddress,
+  getMessageTransmitter,
+  getMintUSDCData,
+} from "./cctp.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
-import { getChainInfo } from "./chains.js"
+import { getChainInfo, getTestnetChainInfo } from "./chains.js"
 import { intentEntrypoints } from "./constants.js"
 import { getERC20TransferData } from "./encoders.js"
 import { getExplorerUrl } from "./explorer.js"
@@ -73,6 +77,7 @@ export type TransactionState = {
   explorerUrl: string
   chainId: number
   state: TransactionStateStatus
+  label: string
 }
 
 export type SendOptions = {
@@ -140,6 +145,18 @@ export function getIsToSameChainAndToken(
   return (
     getIsToSameChain(originChainId, destinationChainId) &&
     getIsToSameToken(originTokenAddress, destinationTokenAddress)
+  )
+}
+
+export function getUseCctp(
+  originTokenAddress: string,
+  destinationTokenAddress: string,
+  originChainId: number,
+  destinationChainId: number,
+) {
+  return (
+    getIsUsdcAddress(originTokenAddress, originChainId) &&
+    getIsUsdcAddress(destinationTokenAddress, destinationChainId)
   )
 }
 
@@ -261,6 +278,12 @@ export async function prepareSend(
     explorerUrl: "",
     chainId: originChainId,
     state: "pending",
+    label:
+      isToSameChain && isToSameToken
+        ? "Execute"
+        : isToSameChain && !isToSameToken
+          ? "Swap"
+          : "Transfer",
   })
 
   if (!isToSameChain) {
@@ -270,6 +293,7 @@ export async function prepareSend(
       explorerUrl: "",
       chainId: originChainId,
       state: "pending",
+      label: isToSameToken ? "Bridge" : "Swap & Bridge",
     })
 
     // destination tx
@@ -278,6 +302,7 @@ export async function prepareSend(
       explorerUrl: "",
       chainId: destinationChainId,
       state: "pending",
+      label: "Execute",
     })
   }
 
@@ -311,7 +336,7 @@ export async function prepareSend(
     })
   }
 
-  return await sendHandlerForDifferentChainAndToken({
+  return await sendHandlerForDifferentChainDifferentToken({
     mainSignerAddress,
     originChainId,
     originTokenAddress,
@@ -344,7 +369,7 @@ export async function prepareSend(
   })
 }
 
-async function sendHandlerForDifferentChainAndToken({
+async function sendHandlerForDifferentChainDifferentToken({
   mainSignerAddress,
   originChainId,
   originTokenAddress,
@@ -405,41 +430,126 @@ async function sendHandlerForDifferentChainAndToken({
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   transactionStates: TransactionState[]
 }): Promise<PrepareSendReturn> {
-  const useCctp = false
-  if (useCctp) {
+  const testnet = isTestnetDebugMode()
+  const useCctp = getUseCctp(
+    originTokenAddress,
+    destinationTokenAddress,
+    originChainId,
+    destinationChainId,
+  )
+  if (useCctp && testnet) {
+    const amount = destinationTokenAmount
+
     return {
       intentAddress: "",
-      originSendAmount: "",
+      originSendAmount: amount,
       send: async (onOriginSend: () => void): Promise<SendReturn> => {
-        const testnet = isTestnetDebugMode()
+        const originChain = testnet ? getTestnetChainInfo(chain)! : chain
+        const destinationChain = testnet
+          ? getTestnetChainInfo(destinationChainId)!
+          : getChainInfo(destinationChainId)
 
-        const privateKey = "" // TODO: use relayer
-        const account = privateKeyToAccount(privateKey)
-        const destinationChain = getChainInfo(
-          testnet ? chains.arbitrumSepolia.id : destinationChainId,
-        )!
+        if (!originChain || !destinationChain) {
+          throw new Error("Invalid chain")
+        }
 
-        const relayerClient = createWalletClient({
-          account,
-          chain: destinationChain,
+        console.log("[trails-sdk] originChain", originChain)
+        console.log("[trails-sdk] destinationChain", destinationChain)
+
+        const originPublicClient = createPublicClient({
+          chain: originChain,
           transport: http(),
         })
 
-        const txHash = await cctpTransfer({
+        const { txHash, attestation } = await cctpTransfer({
           walletClient,
-          relayerClient,
-          originChain: testnet ? chains.baseSepolia : chain,
+          originChain,
           destinationChain,
           amount: BigInt(destinationTokenAmount),
         })
+
+        if (!attestation) {
+          throw new Error("Failed to retrieve attestation")
+        }
 
         if (onOriginSend) {
           onOriginSend()
         }
 
-        const receipt = await publicClient.waitForTransactionReceipt({
+        console.log("[trails-sdk] waiting for tx", txHash)
+
+        const receipt = await originPublicClient.waitForTransactionReceipt({
           hash: txHash,
         })
+
+        console.log("[trails-sdk] tx receipt", receipt)
+
+        transactionStates[0] = getTransactionStateFromReceipt(
+          receipt,
+          originChain.id,
+          "Transfer",
+        )
+        transactionStates[1] = getTransactionStateFromReceipt(
+          receipt,
+          originChain.id,
+          "Bridge",
+        )
+
+        onTransactionStateChange(transactionStates)
+
+        const tokenMessenger = getMessageTransmitter(destinationChain.id)!
+
+        console.log("[trails-sdk] tokenMessenger", tokenMessenger)
+        const calls = [
+          await getMintUSDCData({
+            tokenMessenger,
+            attestation,
+          }),
+        ]
+
+        console.log("[trails-sdk] calls", calls)
+        const delegatorPrivateKey = generatePrivateKey()
+        const delegatorAccount = privateKeyToAccount(delegatorPrivateKey)
+        const delegatorClient = createWalletClient({
+          account: delegatorAccount,
+          chain: destinationChain,
+          transport: http(),
+        })
+        const destinationPublicClient = createPublicClient({
+          chain: destinationChain,
+          transport: http(),
+        })
+        console.log("[trails-sdk] delegatorClient", delegatorClient)
+
+        const sequenceWalletAddress = await simpleCreateSequenceWallet(
+          delegatorAccount as any,
+          relayerConfig,
+          sequenceProjectAccessKey,
+        )
+        console.log("[trails-sdk] sequenceWalletAddress", sequenceWalletAddress)
+        const sequenceTxHash = await sequenceSendTransaction(
+          sequenceWalletAddress,
+          delegatorClient,
+          destinationPublicClient,
+          calls,
+          destinationChain,
+          relayerConfig,
+          sequenceProjectAccessKey,
+        )
+
+        const destinationReceipt =
+          await destinationPublicClient.waitForTransactionReceipt({
+            hash: sequenceTxHash as `0x${string}`,
+          })
+
+        console.log("[trails-sdk] destinationReceipt", destinationReceipt)
+
+        transactionStates[2] = getTransactionStateFromReceipt(
+          destinationReceipt,
+          destinationChain.id,
+          "Receive",
+        )
+        onTransactionStateChange(transactionStates)
 
         return {
           originUserTxReceipt: receipt,
@@ -577,6 +687,7 @@ async function sendHandlerForDifferentChainAndToken({
 
       const testnet = isTestnetDebugMode()
       const testnetOriginTokenAddress = getTestnetOriginTokenAddress()
+      const chainToUse = testnet ? getTestnetChainInfo(chain)! : chain
 
       console.log("[trails-sdk] testnet", testnet)
 
@@ -586,7 +697,7 @@ async function sendHandlerForDifferentChainAndToken({
           : originTokenAddress,
         gasless,
         paymasterUrl,
-        chain: testnet ? chains.baseSepolia : chain,
+        chain: chainToUse,
         account,
         relayerConfig,
         sequenceProjectAccessKey,
@@ -612,6 +723,7 @@ async function sendHandlerForDifferentChainAndToken({
       transactionStates[0] = getTransactionStateFromReceipt(
         originUserTxReceipt,
         originChainId,
+        "Transfer",
       )
       onTransactionStateChange(transactionStates)
 
@@ -626,6 +738,7 @@ async function sendHandlerForDifferentChainAndToken({
           transactionStates[1] = getTransactionStateFromReceipt(
             originMetaTxnReceipt,
             originChainId,
+            "Swap & Bridge",
           )
           onTransactionStateChange(transactionStates)
         }
@@ -642,6 +755,7 @@ async function sendHandlerForDifferentChainAndToken({
           transactionStates[2] = getTransactionStateFromReceipt(
             destinationMetaTxnReceipt,
             destinationChainId,
+            "Execute",
           )
           onTransactionStateChange(transactionStates)
         }
@@ -736,6 +850,7 @@ async function sendHandlerForSameChainSameToken({
             explorerUrl: "",
             chainId: originChainId,
             state: "pending",
+            label: "Execute",
           },
         ])
         console.log("[trails-sdk] origin call params", originCallParams)
@@ -759,7 +874,11 @@ async function sendHandlerForSameChainSameToken({
         originUserTxReceipt = receipt
 
         onTransactionStateChange([
-          getTransactionStateFromReceipt(originUserTxReceipt, originChainId),
+          getTransactionStateFromReceipt(
+            originUserTxReceipt,
+            originChainId,
+            "Swap",
+          ),
         ])
       }
 
@@ -1401,6 +1520,7 @@ export function getDoGasless(
 function getTransactionStateFromReceipt(
   receipt: TransactionReceipt | MetaTxnReceipt,
   chainId: number,
+  label: string,
 ): TransactionState {
   let txHash: string = ""
   let state: TransactionStateStatus = "pending"
@@ -1417,6 +1537,7 @@ function getTransactionStateFromReceipt(
     explorerUrl: getExplorerUrl({ txHash, chainId }),
     chainId,
     state,
+    label,
   }
 }
 

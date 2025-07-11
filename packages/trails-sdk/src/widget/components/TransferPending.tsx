@@ -1,24 +1,12 @@
 import { ExternalLink } from "lucide-react"
 import React, { useEffect } from "react"
+import type { TransactionState } from "../../prepareSend.js"
 import type { ActiveTheme } from "../../theme.js"
-
-interface TransactionState {
-  transactionHash: string
-  explorerUrl: string
-  chainId: number
-  state: "pending" | "failed" | "confirmed"
-}
 
 interface TransferPendingProps {
   onComplete: () => void
   theme?: ActiveTheme
   transactionStates: TransactionState[]
-}
-
-const getStepLabel = (index: number, total: number) => {
-  if (total === 1) return "Transaction"
-  if (total === 2) return index === 0 ? "Transaction" : "Swap"
-  return index === 0 ? "Transfer" : index === 1 ? "Swap & Bridge" : "Execute"
 }
 
 const _truncateHash = (hash: string) => {
@@ -92,7 +80,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
         </div>
         <div className="mt-2 flex justify-center">
           <div className={labelClasses}>
-            {getStepLabel(index, transactionStates.length)}
+            {tx.label}
             {!isPending && !isAfterPending && (
               <ExternalLink className="w-3 h-3" />
             )}
