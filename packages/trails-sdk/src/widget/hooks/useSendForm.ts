@@ -22,7 +22,11 @@ import { useTokenPrices } from "../../prices.js"
 import { useQueryParams } from "../../queryParams.js"
 import { getRelayer, type RelayerEnv } from "../../relayer.js"
 import type { Theme } from "../../theme.js"
-import { formatBalance, formatUsdValue } from "../../tokenBalances.js"
+import {
+  formatBalance,
+  formatUsdValue,
+  formatValue,
+} from "../../tokenBalances.js"
 import { getTokenAddress } from "./useTokenAddress.js"
 
 // Available chains
@@ -199,6 +203,7 @@ export type UseSendReturn = {
   selectedFeeToken: TokenInfo | null
   setIsChainDropdownOpen: (isOpen: boolean) => void
   setIsTokenDropdownOpen: (isOpen: boolean) => void
+  toAmountFormatted: string
 }
 
 export function useSendForm({
@@ -322,6 +327,10 @@ export function useSendForm({
     setAmount(toAmount ?? "")
   }, [toAmount])
 
+  const toAmountFormatted = useMemo(() => {
+    return formatValue(toAmount || 0)
+  }, [toAmount])
+
   // Update recipient when toRecipient prop changes
   useEffect(() => {
     setRecipientInput(toRecipient ?? "")
@@ -344,12 +353,8 @@ export function useSendForm({
 
   // Calculate USD value
   const amountUsdFormatted = useMemo(() => {
-    const amountUsd =
-      parseFloat(amount) * (destTokenPrices?.[0]?.price?.value ?? 0)
-    return Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amountUsd)
+    const amountUsd = Number(amount) * (destTokenPrices?.[0]?.price?.value ?? 0)
+    return formatUsdValue(amountUsd)
   }, [amount, destTokenPrices])
 
   const [selectedFeeToken, setSelectedFeeToken] = useState<TokenInfo | null>(
@@ -460,7 +465,7 @@ export function useSendForm({
 
       setIsWaitingForWalletConfirm(true)
       onWaitingForWalletConfirm(intentAddress?.toString() ?? "", {
-        amount: originSendAmountFormatted.toFixed(5).toString(),
+        amount: formatValue(originSendAmountFormatted),
         amountUsd: formatUsdValue(originSendAmountUsdFormatted),
         tokenSymbol: selectedToken.symbol,
         tokenName: selectedToken.name,
@@ -561,35 +566,31 @@ export function useSendForm({
     if (!amount) return "Enter amount"
     if (!isValidRecipient) return "Enter recipient"
 
+    const amountFormatted = formatValue(amount)
+
     try {
       const checksummedRecipient = getAddress(recipient)
       const checksummedAccount = getAddress(account.address)
 
       if (checksummedRecipient === checksummedAccount) {
-        return `Receive ${amount} ${selectedDestToken.symbol}`
+        return `Receive ${amountFormatted} ${selectedDestToken.symbol}`
       }
       if (toCalldata) {
         if (useSourceTokenForButtonText) {
           const destPrice = destTokenPrices?.[0]?.price?.value ?? 0
           const sourcePrice = selectedToken.tokenPriceUsd ?? 0
           if (destPrice > 0 && sourcePrice > 0) {
-            const destAmountUsd = parseFloat(amount) * destPrice
+            const destAmountUsd = Number(amount) * destPrice
             const sourceAmount = destAmountUsd / sourcePrice
-            const formattedSourceAmount = sourceAmount.toLocaleString(
-              undefined,
-              {
-                maximumFractionDigits: 5,
-                minimumFractionDigits: 2,
-              },
-            )
+            const formattedSourceAmount = formatValue(sourceAmount)
             return `Spend ~${formattedSourceAmount} ${selectedToken.symbol}`
           }
         }
-        return `Spend ${amount} ${selectedDestToken.symbol}`
+        return `Spend ${amountFormatted} ${selectedDestToken.symbol}`
       }
-      return `Pay ${amount} ${selectedDestToken.symbol}`
+      return `Pay ${amountFormatted} ${selectedDestToken.symbol}`
     } catch {
-      return `Send ${amount} ${selectedDestToken.symbol}`
+      return `Send ${amountFormatted} ${selectedDestToken.symbol}`
     }
   }, [
     amount,
@@ -641,5 +642,6 @@ export function useSendForm({
     selectedFeeToken,
     setIsChainDropdownOpen,
     setIsTokenDropdownOpen,
+    toAmountFormatted,
   }
 }

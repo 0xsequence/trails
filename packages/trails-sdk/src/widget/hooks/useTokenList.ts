@@ -12,6 +12,7 @@ import type {
 } from "../../tokenBalances.js"
 import {
   formatBalance,
+  getFormatttedTokenName,
   useAccountTotalBalanceUsd,
   useHasSufficientBalanceUsd,
   useSourceTokenList,
@@ -44,6 +45,7 @@ export type TokenFormatted = Token &
     tokenName: string
     priceUsd: number
     isSufficientBalance: boolean
+    chainName: string
   }
 
 export type UseTokenListProps = {
@@ -266,9 +268,13 @@ export function useTokenList({
         imageContractAddress = zeroAddress
       }
       const imageUrl = `https://assets.sequence.info/images/tokens/small/${token.chainId}/${imageContractAddress}.webp`
-      const tokenName = isNative
-        ? `${nativeSymbol} (${chainInfo?.name || "Unknown Chain"})`
-        : token.contractInfo?.name || "Unknown Token"
+      const currentTokenName =
+        (token as TokenBalanceWithPrice).contractInfo?.name || ""
+      const tokenName = getFormatttedTokenName(
+        currentTokenName,
+        tokenSymbol,
+        token.chainId,
+      )
       const formattedBalance = formatBalance(
         token.balance,
         isNative ? 18 : token.contractInfo?.decimals,
@@ -280,6 +286,7 @@ export function useTokenList({
       if (targetAmountUsd) {
         isSufficientBalance = (token.balanceUsd ?? 0) >= targetAmountUsd
       }
+      const chainName = chainInfo?.name || ""
 
       return {
         ...token,
@@ -333,6 +340,7 @@ export function useTokenList({
         tokenName: tokenName,
         priceUsd: priceUsd,
         isSufficientBalance,
+        chainName,
       }
     })
   }, [filteredTokens, targetAmountUsd])

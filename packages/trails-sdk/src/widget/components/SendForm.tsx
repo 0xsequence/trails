@@ -102,6 +102,7 @@ export const SendForm: React.FC<SendFormProps> = ({
     SUPPORTED_TO_CHAINS,
     setIsChainDropdownOpen,
     setIsTokenDropdownOpen,
+    toAmountFormatted,
   } = useSendForm({
     account,
     sequenceProjectAccessKey,
@@ -178,52 +179,49 @@ export const SendForm: React.FC<SendFormProps> = ({
       <div
         className={`flex items-center space-x-4 p-4 rounded-lg ${theme === "dark" ? "bg-gray-800" : "bg-gray-50"}`}
       >
-        <div className="relative">
-          <div
-            className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              theme === "dark" ? "bg-gray-700" : "bg-gray-100"
-            }`}
-          >
-            {selectedToken.contractAddress ? (
-              <TokenImage
-                symbol={selectedToken.symbol}
-                src={selectedToken.imageUrl}
-                disableAnimation={true}
-              />
-            ) : (
-              <span
-                className={`text-2xl font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
-              >
-                {selectedToken.symbol[0]}
-              </span>
-            )}
+        <div className="flex items-start justify-between w-full">
+          {/* Left side - Chain and Token images with token name */}
+          <div className="flex items-start space-x-2">
+            {/* Token Image and Name */}
+            <div className="flex items-center space-x-2">
+              <div style={{ width: "32px", height: "32px" }}>
+                <TokenImage
+                  symbol={selectedToken.symbol}
+                  src={selectedToken.imageUrl}
+                  size="sm"
+                  className="w-32 h-32 w-full h-full"
+                  withNetwork={selectedToken.chainId}
+                  disableAnimation={true}
+                />
+              </div>
+              <div className="flex flex-col">
+                <span
+                  className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                >
+                  From {selectedToken.name}
+                </span>
+                <span
+                  className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  on {chainInfo?.name || "Unknown Chain"}
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="absolute -bottom-1 -right-1">
-            <NetworkImage
-              chainId={selectedToken.chainId}
-              size="sm"
-              className="w-6 h-6"
-              disableAnimation={true}
-            />
+
+          {/* Right side - USD value and amount */}
+          <div className="text-right">
+            <div
+              className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+            >
+              {balanceUsdFormatted}
+            </div>
+            <div
+              className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
+            >
+              {balanceFormatted} {selectedToken.symbol}
+            </div>
           </div>
-        </div>
-        <div>
-          <h3
-            className={`text-lg font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-          >
-            From: {selectedToken.name}
-          </h3>
-          <p className={theme === "dark" ? "text-gray-400" : "text-gray-500"}>
-            on {chainInfo?.name || "Unknown Chain"} • Balance:{" "}
-            {balanceFormatted} {selectedToken.symbol}
-            {balanceUsdFormatted && (
-              <span
-                className={`ml-1 text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
-              >
-                ({balanceUsdFormatted})
-              </span>
-            )}
-          </p>
         </div>
       </div>
 
@@ -449,7 +447,7 @@ export const SendForm: React.FC<SendFormProps> = ({
               <span
                 className={`${theme === "dark" ? "text-white" : "text-gray-900"}`}
               >
-                {toAmount} {selectedDestToken.symbol}
+                {toAmountFormatted} {selectedDestToken.symbol}
               </span>
               <span
                 className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
