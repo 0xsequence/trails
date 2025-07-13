@@ -548,7 +548,8 @@ export function useHasSufficientBalanceUsd(
 
   return {
     hasSufficientBalanceUsd: hasSufficientBalanceUsd || false,
-    isLoadingHasSufficientBalanceUsd,
+    isLoadingHasSufficientBalanceUsd:
+      isLoadingHasSufficientBalanceUsd || !targetAmountUsd || !account,
     hasSufficientBalanceUsdError,
   }
 }

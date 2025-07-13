@@ -339,7 +339,8 @@ export function useTokenList({
 
   const showInsufficientBalance = useMemo(() => {
     return (
-      (targetAmountUsd &&
+      (totalBalanceUsd &&
+        targetAmountUsd &&
         !hasSufficientBalanceUsd &&
         !isLoadingHasSufficientBalanceUsd &&
         !hasSufficientBalanceUsdError) ||
@@ -352,6 +353,7 @@ export function useTokenList({
     isLoadingHasSufficientBalanceUsd,
     hasSufficientBalanceUsdError,
     filteredTokensFormatted,
+    totalBalanceUsd,
   ])
 
   return {
