@@ -1,7 +1,11 @@
 import { Check, Copy } from "lucide-react"
 import { useState } from "react"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { nightOwl as syntaxStyle } from "react-syntax-highlighter/dist/esm/styles/prism"
+import {
+  nightOwl as darkSyntaxStyle,
+  oneLight as lightSyntaxStyle,
+} from "react-syntax-highlighter/dist/esm/styles/prism"
+import { useTheme } from "@/contexts/ThemeContext"
 
 interface CodeSnippetProps {
   children?: React.ReactNode
@@ -34,6 +38,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   paymasterUrls,
   gasless,
 }) => {
+  const { theme: globalTheme } = useTheme()
   const [isCopied, setIsCopied] = useState(false)
   const [activeTab, setActiveTab] = useState<"react" | "script">("react")
 
@@ -47,12 +52,6 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
     } catch (err) {
       console.error("Failed to copy text: ", err)
     }
-  }
-
-  const handleDebugMode = () => {
-    const url = new URL(window.location.href)
-    url.searchParams.set("debug", "true")
-    window.history.pushState({}, "", url.toString())
   }
 
   const accessKey = sequenceProjectAccessKey || "key_123..."
@@ -125,21 +124,23 @@ export const App = () => {
   const reactCodeExample = getReactCode()
   const scriptCodeExample = getScriptCode()
 
+  const dark = globalTheme === "dark"
+
   return (
-    <div className="rounded-lg p-4 sm:p-6 h-full relative bg-gray-800">
+    <div className="rounded-lg p-4 sm:p-6 h-full relative bg-gray-100 dark:bg-gray-800">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-start mb-4 gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-200">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-200">
             Integration Example
           </h2>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             Import and use the widget in your application.
           </p>
         </div>
         <button
           type="button"
           onClick={handleCopy}
-          className="flex items-center space-x-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 cursor-pointer rounded-lg text-gray-200 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex items-center space-x-2 px-3 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer rounded-lg text-gray-700 dark:text-gray-200 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           {isCopied ? (
             <>
@@ -163,7 +164,7 @@ export const App = () => {
           className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
             activeTab === "react"
               ? "bg-blue-600 text-white"
-              : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
           }`}
         >
           React Component
@@ -174,7 +175,7 @@ export const App = () => {
           className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors cursor-pointer ${
             activeTab === "script"
               ? "bg-blue-600 text-white"
-              : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
           }`}
         >
           Script Tag
@@ -184,11 +185,11 @@ export const App = () => {
       <div className="rounded-lg overflow-hidden">
         <SyntaxHighlighter
           language={activeTab === "react" ? "tsx" : "html"}
-          style={syntaxStyle}
+          style={dark ? darkSyntaxStyle : lightSyntaxStyle}
           customStyle={{
             margin: 0,
             borderRadius: "0.5rem",
-            background: "#13141c",
+            background: dark ? "#13141c" : "rgb(250, 250, 250)",
             height: "100%",
             fontSize: "12px",
           }}
@@ -197,13 +198,6 @@ export const App = () => {
         </SyntaxHighlighter>
       </div>
       {children}
-      <button
-        type="button"
-        onClick={handleDebugMode}
-        className="absolute bottom-2 right-2 text-xs text-gray-500 hover:text-gray-300 cursor-pointer transition-colors"
-      >
-        Debug
-      </button>
     </div>
   )
 }

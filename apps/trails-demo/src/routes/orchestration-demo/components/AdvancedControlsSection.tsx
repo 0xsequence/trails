@@ -55,19 +55,21 @@ export const AdvancedControlsSection: React.FC<
   return (
     <div className="px-6 space-y-6 pb-6">
       {/* Preview calculated address */}
-      <div className="bg-gray-900/90 p-4 rounded-lg border border-gray-700/70 shadow-inner space-y-3">
+      <div className="bg-gray-50 dark:bg-gray-900/90 p-4 rounded-lg border border-gray-300 dark:border-gray-700/70 shadow-inner space-y-3">
         <Text variant="small" color="secondary">
-          <strong className="text-blue-300">Calculated Intent Address: </strong>
-          <span className="font-mono text-xs break-all bg-gray-800/70 p-1 rounded block mt-1">
+          <strong className="text-blue-600 dark:text-blue-300 text-gray-300">
+            Calculated Intent Address:{" "}
+          </strong>
+          <span className="font-mono text-xs break-all bg-gray-200 dark:bg-gray-800/70 p-1 rounded block mt-1 text-gray-300">
             {calculatedIntentAddress || "N/A"}
           </span>
         </Text>
         {calculatedIntentAddress && metaTxns && metaTxns.length > 0 && (
-          <div className="mt-2 pt-2 border-t border-gray-700/50 space-y-2">
+          <div className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-700/50 space-y-2">
             <Text
               variant="small"
               color="secondary"
-              className="mb-1 text-blue-300 font-semibold"
+              className="mb-1 text-blue-600 dark:text-blue-300 font-semibold"
             >
               Open in explorer (Calculated Intent Address):
             </Text>
@@ -86,14 +88,14 @@ export const AdvancedControlsSection: React.FC<
                   return (
                     <div
                       key={`${chainId}-explorer-link`}
-                      className="bg-gray-800/70 p-2 rounded-md"
+                      className="bg-gray-200 dark:bg-gray-800/70 p-2 rounded-md"
                     >
                       <a
                         href={explorerUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         title={`Open ${calculatedIntentAddress} on ${chainInfo?.name || "explorer"}`}
-                        className="text-gray-300 flex items-center space-x-1 hover:underline text-xs break-all"
+                        className="flex items-center space-x-1 hover:underline text-xs break-all text-gray-300"
                       >
                         <NetworkImage
                           chainId={chainId}
@@ -109,11 +111,11 @@ export const AdvancedControlsSection: React.FC<
           </div>
         )}
         {intentCallsPayloads && intentActionType && (
-          <div className="mt-2 pt-2 border-t border-gray-700/50 space-y-2">
+          <div className="mt-2 pt-2 border-t border-gray-300 dark:border-gray-700/50 space-y-2">
             <Text
               variant="small"
               color="secondary"
-              className="mb-1 text-blue-300 font-semibold"
+              className="mb-1 text-blue-600 dark:text-blue-300 font-semibold"
             >
               Open in Explorer: (Final Destination Address)
             </Text>
@@ -135,7 +137,7 @@ export const AdvancedControlsSection: React.FC<
                 } else if (currentAction === "custom_call") {
                   finalDestAddress = customCallData.to
                   finalDestChainId = customCallData.chainId
-                    ? parseInt(customCallData.chainId)
+                    ? parseInt(customCallData.chainId.chainId)
                     : undefined
                   labelPrefix = "Custom Call Target Address"
                 }
@@ -148,19 +150,23 @@ export const AdvancedControlsSection: React.FC<
                   const chainInfo = getChainInfo(finalDestChainId)
                   if (!explorerUrl)
                     return (
-                      <Text variant="small" color="secondary">
+                      <Text
+                        variant="small"
+                        color="secondary"
+                        className="text-gray-300"
+                      >
                         Explorer URL not available for this destination.
                       </Text>
                     )
 
                   return (
-                    <div className="bg-gray-800/70 p-2 rounded-md">
+                    <div className="bg-gray-200 dark:bg-gray-800/70 p-2 rounded-md text-gray-300">
                       <a
                         href={explorerUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         title={`View ${labelPrefix.toLowerCase()} ${finalDestAddress} on ${chainInfo?.name || "explorer"}`}
-                        className="text-gray-300 flex items-center space-x-1 hover:underline text-xs break-all"
+                        className="flex items-center space-x-1 hover:underline text-xs break-all text-gray-300"
                       >
                         <NetworkImage
                           chainId={finalDestChainId}
@@ -173,7 +179,11 @@ export const AdvancedControlsSection: React.FC<
                   )
                 }
                 return (
-                  <Text variant="small" color="secondary">
+                  <Text
+                    variant="small"
+                    color="secondary"
+                    className="text-gray-300"
+                  >
                     Final destination details not available for this action.
                   </Text>
                 )
@@ -186,12 +196,16 @@ export const AdvancedControlsSection: React.FC<
       {/* Manual Meta Transaction Controls */}
       <div className="bg-gray-900/50 p-4 rounded-lg border border-purple-700/30">
         <div className="flex items-center justify-between mb-4">
-          <Text variant="medium" color="primary" className="flex items-center">
+          <Text
+            variant="medium"
+            color="primary"
+            className="flex items-center text-gray-300"
+          >
             <Layers className="h-4 w-4 mr-2" />
             Manual Meta Transaction Controls
           </Text>
           <div className="flex items-center space-x-2">
-            <Text variant="small" color="secondary">
+            <Text variant="small" color="secondary" className="text-gray-300">
               {isManualMetaTxnEnabled ? "Enabled" : "Disabled"}
             </Text>
             <div
@@ -211,7 +225,11 @@ export const AdvancedControlsSection: React.FC<
         {isManualMetaTxnEnabled && (
           <div className="mt-2 space-y-4">
             <div className="bg-gray-800/70 p-3 rounded-md">
-              <Text variant="small" color="secondary" className="mb-2">
+              <Text
+                variant="small"
+                color="secondary"
+                className="mb-2 text-gray-300"
+              >
                 Select Meta Transaction:
               </Text>
               <div className="space-y-2">
@@ -232,14 +250,18 @@ export const AdvancedControlsSection: React.FC<
                           size="sm"
                           className="w-4 h-4"
                         />
-                        <Text variant="small" color="secondary">
+                        <Text
+                          variant="small"
+                          color="secondary"
+                          className="text-gray-300"
+                        >
                           #{index + 1} - Chain {tx.chainId.toString()}
                         </Text>
                       </div>
                       <Text
                         variant="small"
                         color="secondary"
-                        className="font-mono text-xs"
+                        className="font-mono text-xs text-gray-300"
                       >
                         ID: {tx.id}
                       </Text>
@@ -259,7 +281,7 @@ export const AdvancedControlsSection: React.FC<
                   !accountAddress ||
                   sendMetaTxnPending
                 }
-                className="flex-1 px-4 py-2 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center justify-center bg-purple-600 hover:bg-purple-700"
+                className="flex-1 px-4 py-2 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-gray-300"
               >
                 {sendMetaTxnPending ? (
                   <>
@@ -279,7 +301,11 @@ export const AdvancedControlsSection: React.FC<
           </div>
         )}
         <div className="mt-2 flex items-center">
-          <Text variant="small" color="secondary" className="text-center">
+          <Text
+            variant="small"
+            color="secondary"
+            className="text-center text-gray-300"
+          >
             <Info className="h-4 w-4 inline mr-1" />
             {selectedMetaTxnId
               ? "This will send only the selected meta transaction"

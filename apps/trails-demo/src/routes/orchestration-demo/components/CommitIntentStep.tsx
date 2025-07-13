@@ -136,7 +136,7 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   <Text
                     variant="medium"
                     color="primary"
-                    className="border-b border-gray-700/50"
+                    className="border-b border-gray-700/50 text-gray-300"
                   >
                     Committed Configuration Details on Database
                   </Text>
@@ -185,11 +185,15 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
             <Text
               variant="medium"
               color="primary"
-              className="mb-2 pb-1 border-b border-gray-700/50 flex items-center"
+              className="mb-2 pb-1 border-b border-gray-700/50 flex items-center text-gray-300"
             >
               <Zap className="h-4 w-4 mr-1" />
               Commit Intent Action
-              <Text variant="small" color="secondary" className="ml-1">
+              <Text
+                variant="small"
+                color="secondary"
+                className="ml-1 text-gray-300"
+              >
                 (Verify and Send Transaction)
               </Text>
             </Text>

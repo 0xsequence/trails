@@ -49,7 +49,7 @@ export const SiteHeader = () => {
           </a>
         </nav>
 
-        <div className="ml-auto mr-0">
+        <div className="ml-auto mr-0 flex items-center gap-4">
           <a
             rel="noopener noreferrer"
             data-variant="normal small"

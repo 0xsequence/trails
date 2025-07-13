@@ -58,11 +58,15 @@ export const OriginCallStep: React.FC<OriginCallStepProps> = ({
         <Text
           variant="medium"
           color="primary"
-          className="pb-1 border-b border-gray-700/50 flex items-center"
+          className="pb-1 border-b border-gray-700/50 flex items-center text-gray-300"
         >
           <Zap className="h-4 w-4 mr-1" />
           Transaction Details
-          <Text variant="small" color="secondary" className="ml-1">
+          <Text
+            variant="small"
+            color="secondary"
+            className="ml-1 text-gray-300 text-gray-300"
+          >
             (Send this transaction to execute the intent):
           </Text>
         </Text>
@@ -87,7 +91,7 @@ export const OriginCallStep: React.FC<OriginCallStepProps> = ({
           <div className="bg-gray-800/70 p-2 rounded-md">
             <Text variant="small" color="secondary">
               <strong className="text-blue-300">Value: </strong>
-              <span className="font-mono">
+              <span className="font-mono text-gray-300">
                 {originCallParams?.value?.toString() ??
                   (originCallParams?.error ? "Error" : "Calculating...")}
               </span>
@@ -109,7 +113,7 @@ export const OriginCallStep: React.FC<OriginCallStepProps> = ({
           <div className="bg-gray-800/70 p-2 rounded-md flex items-center">
             <Text variant="small" color="secondary">
               <strong className="text-blue-300">Chain ID: </strong>
-              <span className="font-mono bg-blue-900/30 px-2 py-0.5 rounded-full">
+              <span className="font-mono bg-blue-900/30 px-2 py-0.5 rounded-full text-gray-300">
                 {originCallParams?.chainId?.toString() ??
                   (originCallParams?.error ? "Error" : "Calculating...")}
               </span>
@@ -121,7 +125,11 @@ export const OriginCallStep: React.FC<OriginCallStepProps> = ({
                   size="sm"
                   className="w-4 h-4 ml-1"
                 />
-                <Text variant="small" color="secondary" className="ml-1">
+                <Text
+                  variant="small"
+                  color="secondary"
+                  className="ml-1 text-gray-300"
+                >
                   {getChainInfo(originCallParams.chainId)?.name ||
                     "Unknown Chain"}
                 </Text>
@@ -140,7 +148,7 @@ export const OriginCallStep: React.FC<OriginCallStepProps> = ({
               variant="primary"
               onClick={handleSendOriginCall}
               disabled={isSendButtonDisabled}
-              className="px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              className="px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none text-gray-300"
             >
               {sendButtonText}
             </Button>

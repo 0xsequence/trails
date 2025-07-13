@@ -41,19 +41,19 @@ export const WidgetDemo = () => {
   }, [])
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-6 py-8 px-4 sm:py-12 sm:px-6">
+    <div className="flex flex-col items-center justify-center space-y-6 py-8 px-4 sm:py-12 sm:px-6 bg-white dark:bg-gray-950">
       <div className="text-center space-y-4 max-w-6xl w-full">
         <div className="flex flex-col sm:flex-row justify-between items-start space-y-4 sm:space-y-0">
           <div className="text-left w-full sm:w-auto">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white mb-3 sm:mb-4">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-900 dark:text-white mb-3 sm:mb-4">
               Trails Widget Demo
             </h1>
-            <p className="text-xs sm:text-sm text-white leading-relaxed max-w-3xl font-light mb-2">
+            <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl font-light mb-2">
               This demo showcases the{" "}
               <span className="font-medium">Trails SDK</span> widget. Connect
               your wallet and try the payment flow.
             </p>
-            <p className="text-gray-400 text-xs">
+            <p className="text-gray-500 dark:text-gray-400 text-xs">
               Configure payment parameters, customize the widget appearance, and
               test the complete payment flow.
             </p>
