@@ -35,7 +35,7 @@ export const SiteHeader = () => {
             rel="noopener noreferrer"
             href={DEMOS_URL}
             target="_blank"
-            className="text-black hover:text-gray-600 transition-colors"
+            className="text-blue-600 hover:text-blue-700 transition-colors"
           >
             Demo
           </a>
@@ -56,7 +56,7 @@ export const SiteHeader = () => {
             data-component="button"
             href={DOCS_URL}
             target="_blank"
-            className="px-4 py-1.5 border border-gray-400 text-black font-medium rounded-full transition-colors text-sm hover:border-gray-500"
+            className="px-4 py-1.5 border border-gray-400 text-black font-medium rounded-full transition-colors text-sm hover:border-gray-500 hover:bg-gray-100"
           >
             Start building
           </a>
@@ -71,7 +71,7 @@ export const SiteHeader = () => {
           rel="noopener noreferrer"
           href={DEMOS_URL}
           target="_blank"
-          className="text-black hover:text-gray-600 transition-colors"
+          className="text-blue-600 hover:text-blue-700 transition-colors"
         >
           Demo
         </a>

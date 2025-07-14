@@ -65,13 +65,13 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
               disableAnimation={true}
             />
             {!showIconsOnly && (
-              <span className="ml-2 flex-1 text-left text-gray-900 dark:text-gray-200">
+              <span className="ml-2 flex-1 text-left text-gray-900 dark:text-gray-200 truncate">
                 {selectedChain.name} ({selectedChain.id})
               </span>
             )}
           </>
         ) : (
-          <span className="flex-1 text-left text-gray-500 dark:text-gray-400">
+          <span className="flex-1 text-left text-gray-500 dark:text-gray-400 truncate">
             {showIconsOnly ? "Select" : "Select Chain"}
           </span>
         )}

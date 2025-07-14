@@ -24,7 +24,7 @@ export const WidgetTabs = ({ tabs, activeTab, onTabChange }: TabsProps) => {
                 relative px-6 py-2 text-sm font-medium transition-all duration-200 cursor-pointer rounded-md
                 ${
                   activeTab === tab.id
-                    ? "text-gray-900 dark:text-white bg-white dark:bg-gray-700 shadow-sm"
+                    ? "text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-700 border border-gray-400 dark:border-gray-500 shadow-md"
                     : "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
                 }
               `}

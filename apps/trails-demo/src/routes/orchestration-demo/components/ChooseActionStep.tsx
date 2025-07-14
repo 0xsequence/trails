@@ -222,7 +222,7 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
           size="sm"
           onClick={() => handleActionClick("mock_interaction")}
           disabled={!selectedToken || createIntentPending}
-          className="px-2 sm:px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-300"
+          className="px-2 sm:px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-300 bg-gray-700"
         >
           {createIntentPending && intentActionType === "mock_interaction" ? (
             "Processing..."

@@ -13,6 +13,7 @@ interface TokenListProps {
   theme?: ActiveTheme
   targetAmountUsd?: number | null
   targetAmountUsdFormatted?: string | null
+  onError: (error: Error | string | null) => void
 }
 
 export const TokenList: React.FC<TokenListProps> = ({
@@ -22,6 +23,7 @@ export const TokenList: React.FC<TokenListProps> = ({
   theme = "light",
   targetAmountUsd,
   targetAmountUsdFormatted,
+  onError,
 }) => {
   const {
     searchQuery,
@@ -29,7 +31,6 @@ export const TokenList: React.FC<TokenListProps> = ({
     handleTokenSelect,
     filteredTokens,
     isLoadingSortedTokens,
-    balanceError,
     isTokenSelected,
     selectedToken,
     showContinueButton,
@@ -37,10 +38,12 @@ export const TokenList: React.FC<TokenListProps> = ({
     totalBalanceUsd,
     totalBalanceUsdFormatted,
     showInsufficientBalance,
+    balanceError,
   } = useTokenList({
     onContinue,
     targetAmountUsd,
     indexerGatewayClient,
+    onError,
   })
 
   return (
@@ -111,44 +114,6 @@ export const TokenList: React.FC<TokenListProps> = ({
           >
             Loading your token balances...
           </p>
-        </div>
-      )}
-
-      {balanceError && (
-        <div
-          className={`border rounded-lg p-4 mb-4 ${
-            theme === "dark"
-              ? "bg-red-900/20 border-red-800"
-              : "bg-red-50 border-red-200"
-          }`}
-        >
-          <div className="flex items-start">
-            <div className="ml-3">
-              <h3
-                className={`text-sm font-medium ${theme === "dark" ? "text-red-200" : "text-red-800"}`}
-              >
-                Error loading balances
-              </h3>
-              <p
-                className={`text-sm mt-1 ${theme === "dark" ? "text-red-200" : "text-red-700"}`}
-              >
-                {balanceError instanceof Error
-                  ? balanceError.message
-                  : "Failed to fetch token balances. Please try again."}
-              </p>
-              <button
-                type="button"
-                onClick={() => window.location.reload()}
-                className={`mt-2 text-sm font-medium underline ${
-                  theme === "dark"
-                    ? "text-red-200 hover:text-red-100"
-                    : "text-red-700 hover:text-red-900"
-                }`}
-              >
-                Refresh page
-              </button>
-            </div>
-          </div>
         </div>
       )}
 

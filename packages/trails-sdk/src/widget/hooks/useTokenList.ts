@@ -1,7 +1,7 @@
 import type { SequenceIndexerGateway } from "@0xsequence/indexer"
 import { ResourceStatus } from "@0xsequence/indexer"
 import { Address } from "ox"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { isAddressEqual, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
 import { getChainInfo } from "../../chains.js"
@@ -52,6 +52,7 @@ export type UseTokenListProps = {
   onContinue: (selectedToken: Token) => void
   targetAmountUsd?: number | null
   indexerGatewayClient: SequenceIndexerGateway
+  onError: (error: Error | string | null) => void
 }
 
 export type UseTokenListReturn = {
@@ -75,6 +76,7 @@ export function useTokenList({
   onContinue,
   targetAmountUsd,
   indexerGatewayClient,
+  onError,
 }: UseTokenListProps): UseTokenListReturn {
   const [selectedToken, setSelectedToken] = useState<Token | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -84,6 +86,7 @@ export function useTokenList({
     isLoadingSortedTokens,
     balanceError,
   } = useTokenBalances(address as Address.Address, indexerGatewayClient)
+
   const {
     totalBalanceUsd,
     totalBalanceUsdFormatted,
@@ -115,6 +118,12 @@ export function useTokenList({
       )
     })
   }, [allSortedTokens, sourceTokenList, supportedChainIds])
+
+  useEffect(() => {
+    if (onError) {
+      onError(balanceError)
+    }
+  }, [balanceError, onError])
 
   const handleTokenSelect = (token: TokenFormatted) => {
     const isNative = !("contractAddress" in token)

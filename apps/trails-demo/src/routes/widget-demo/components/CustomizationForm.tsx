@@ -752,7 +752,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       className={selectedScenario ? "opacity-50" : ""}
                     />
                     <span
-                      className={`ml-2 flex-1 text-left text-sm ${
+                      className={`ml-2 flex-1 text-left text-sm truncate ${
                         selectedScenario
                           ? "text-gray-500"
                           : "text-gray-900 dark:text-gray-200"
@@ -769,7 +769,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   </>
                 ) : (
                   <span
-                    className={`flex-1 text-left text-sm ${
+                    className={`flex-1 text-left text-sm truncate ${
                       selectedScenario
                         ? "text-gray-500"
                         : "text-gray-500 dark:text-gray-400"

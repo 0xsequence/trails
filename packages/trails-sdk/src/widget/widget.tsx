@@ -306,9 +306,6 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
 
   // Update screen based on connection state
   useEffect(() => {
-    if (error) {
-      setError(null)
-    }
     if (isConnected) {
       if (currentScreen === "connect") {
         setCurrentScreen("tokens")
@@ -320,7 +317,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
         }, 0)
       }
     }
-  }, [isConnected, currentScreen, error])
+  }, [isConnected, currentScreen])
 
   const indexerGatewayClient = useIndexerGatewayClient({
     indexerGatewayUrl: sequenceIndexerUrl || undefined,
@@ -957,14 +954,24 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
     }
   }
 
-  const handleSendError = (error: Error) => {
+  const handleSendError = (error: Error | string | null) => {
     console.error("[trails-sdk] Error sending transaction", error)
     console.log("[trails-sdk] currentScreen", currentScreen)
-    if (error.message?.toLowerCase().includes("rejected")) {
+    if ((error as Error)?.message?.toLowerCase().includes("rejected")) {
       setShowWalletConfirmRetry(true)
     } else {
-      setError(error.message)
+      setError(error instanceof Error ? error.message : error)
     }
+  }
+
+  const handleConnectError = (error: Error | string | null) => {
+    console.error("[trails-sdk] Error connecting wallet", error)
+    setError(error instanceof Error ? error.message : error)
+  }
+
+  const handleTokenListError = (error: Error | string | null) => {
+    console.error("[trails-sdk] Error selecting token", error)
+    setError(error instanceof Error ? error.message : error)
   }
 
   const handleWaitingForWalletConfirm = (
@@ -1017,6 +1024,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
             onContinue={handleContinue}
             theme={theme}
             walletOptions={getAvailableWallets()}
+            onError={handleConnectError}
           />
         )
       case "tokens":
@@ -1028,6 +1036,7 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
             theme={theme}
             targetAmountUsd={targetAmountUsd}
             targetAmountUsdFormatted={targetAmountUsdFormatted}
+            onError={handleTokenListError}
           />
         )
       case "send":
@@ -1079,6 +1088,9 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
             tokenSymbol={selectedToken?.symbol}
             retryEnabled={showWalletConfirmRetry}
             onRetry={handleWalletConfirmRetry}
+            fromTokenSymbol={originTokenInfo?.tokenSymbol || ""}
+            fromChainId={originTokenInfo?.chainId || 0}
+            fromTokenImageUrl={originTokenInfo?.imageUrl || ""}
           />
         )
       case "pending":

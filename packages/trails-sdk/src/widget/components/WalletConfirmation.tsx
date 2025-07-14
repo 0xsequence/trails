@@ -1,6 +1,8 @@
+import { TokenImage } from "@0xsequence/design-system"
 import { ChevronLeft } from "lucide-react"
 import type React from "react"
 import { useEffect, useState } from "react"
+import { getExplorerUrlForAddress } from "../../explorer.js"
 import type { ActiveTheme } from "../../theme.js"
 
 interface WalletConfirmationProps {
@@ -12,6 +14,9 @@ interface WalletConfirmationProps {
   tokenSymbol?: string
   retryEnabled?: boolean
   onRetry?: () => void
+  fromTokenSymbol: string
+  fromChainId: number
+  fromTokenImageUrl: string
 }
 
 export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
@@ -22,6 +27,9 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   retryEnabled = false,
   onRetry,
   onBack,
+  fromTokenSymbol,
+  fromChainId,
+  fromTokenImageUrl,
 }) => {
   const [showContent, setShowContent] = useState(false)
 
@@ -48,31 +56,39 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
       <div className="flex flex-col justify-center min-h-full space-y-6 pt-8">
         <div className="text-center">
           <div
-            className={`mx-auto flex items-center justify-center transition-all duration-500 ease-out ${showContent ? "transform -translate-y-8" : ""}`}
+            className={`mx-auto flex items-center justify-center transition-all duration-500 ease-out relative ${showContent ? "transform -translate-y-8" : ""}`}
           >
             {!retryEnabled && (
               <div
-                className={`animate-spin rounded-full h-16 w-16 border-b-2 ${
+                className={`animate-spin rounded-full h-24 w-24 border-b-2 ${
                   theme === "dark" ? "border-blue-400" : "border-blue-500"
                 }`}
                 style={{ borderTopWidth: "2px", borderBottomWidth: "2px" }}
               />
             )}
+
+            <TokenImage
+              src={fromTokenImageUrl}
+              symbol={fromTokenSymbol}
+              size="md"
+              className="absolute w-16 h-16"
+              withNetwork={fromChainId}
+              disableAnimation={true}
+            />
           </div>
 
           <div
             className={`transition-all duration-500 ease-out ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
           >
             <h2
-              className={`mt-6 text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+              className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
             >
-              Confirm Transaction
+              Waiting for wallet...
             </h2>
-
             <p
               className={`mt-2 text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
             >
-              Please check your wallet to confirm the transaction
+              Please approve the request in your wallet
             </p>
           </div>
         </div>
@@ -92,12 +108,12 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
               {amount && tokenSymbol && (
                 <div className="flex justify-between items-center">
                   <span
-                    className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
+                    className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
                   >
                     Amount:
                   </span>
                   <span
-                    className={`font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                    className={`font-medium text-xs ${theme === "dark" ? "text-white" : "text-gray-900"}`}
                   >
                     {amount} {tokenSymbol}
                   </span>
@@ -107,15 +123,21 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
               {recipient && (
                 <div className="flex justify-between items-center">
                   <span
-                    className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
+                    className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
                   >
                     To (Intent):
                   </span>
-                  <span
-                    className={`font-mono text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+                  <a
+                    href={getExplorerUrlForAddress({
+                      address: recipient,
+                      chainId: fromChainId,
+                    })}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`font-mono text-xs hover:underline ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
                   >
                     {recipient.slice(0, 6)}...{recipient.slice(-4)}
-                  </span>
+                  </a>
                 </div>
               )}
             </div>

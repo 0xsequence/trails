@@ -1,5 +1,5 @@
 // biome-ignore lint/style/useImportType: Need to use React
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useAccount, useDisconnect } from "wagmi"
 import type { ActiveTheme } from "../../theme.js"
 import MetaMaskFox from "../assets/MetaMask-icon-fox.svg"
@@ -17,6 +17,7 @@ export interface ConnectWalletProps {
   onConnect: (walletId: string) => void
   onDisconnect: () => void
   onContinue: () => void
+  onError: (error: Error) => void
   theme?: ActiveTheme
   walletOptions: WalletOption[]
 }
@@ -25,12 +26,21 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
   onConnect,
   onDisconnect,
   onContinue,
+  onError,
   theme = "light",
   walletOptions,
 }) => {
   const { isConnected, address, connector } = useAccount()
   const { disconnect } = useDisconnect()
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (error) {
+      if (onError) {
+        onError(new Error(error))
+      }
+    }
+  }, [error, onError])
 
   const handleDisconnect = () => {
     try {
@@ -142,21 +152,6 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {error && (
-            <div
-              className={`border rounded-lg p-4 ${
-                theme === "dark"
-                  ? "bg-red-900/20 border-red-800"
-                  : "bg-red-50 border-red-200"
-              }`}
-            >
-              <p
-                className={`text-sm break-words ${theme === "dark" ? "text-red-200" : "text-red-600"}`}
-              >
-                {error}
-              </p>
-            </div>
-          )}
           {walletOptions.length > 0 ? (
             walletOptions.map((wallet) => (
               <button

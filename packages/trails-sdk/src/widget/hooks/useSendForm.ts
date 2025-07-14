@@ -146,7 +146,7 @@ export type UseSendProps = {
   theme: Theme
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   useSourceTokenForButtonText: boolean
-  onError: (error: Error) => void
+  onError: (error: Error | string | null) => void
   onWaitingForWalletConfirm: (
     intentAddress: string,
     details: {
@@ -204,6 +204,7 @@ export type UseSendReturn = {
   setIsChainDropdownOpen: (isOpen: boolean) => void
   setIsTokenDropdownOpen: (isOpen: boolean) => void
   toAmountFormatted: string
+  destinationTokenAddress: string | null
 }
 
 export function useSendForm({
@@ -248,6 +249,12 @@ export function useSendForm({
       setRecipient(recipientInput)
     }
   }, [ensAddress, recipientInput])
+
+  useEffect(() => {
+    if (onError) {
+      onError(error)
+    }
+  }, [error, onError])
 
   const handleRecipientInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -364,26 +371,42 @@ export function useSendForm({
   const { hasParam } = useQueryParams()
   const isDryMode = hasParam("dryMode", "true")
 
+  const destinationTokenAddress = useMemo(() => {
+    let destinationTokenAddress: string | null
+    try {
+      setError(null)
+      if (!selectedDestToken) {
+        return null
+      }
+      destinationTokenAddress =
+        selectedDestToken.symbol === "ETH"
+          ? zeroAddress
+          : getTokenAddress(selectedChain.id, selectedDestToken.symbol)
+    } catch (_error) {
+      console.error("[trails-sdk] Error getting token address:", _error)
+      setError(
+        `${selectedDestToken.symbol} is not available on ${selectedChain.name}`,
+      )
+      return null
+    }
+    return destinationTokenAddress
+  }, [
+    selectedDestToken,
+    selectedDestToken?.symbol,
+    selectedChain?.name,
+    selectedChain?.id,
+  ])
+
   const processSend = useCallback(async () => {
     try {
+      if (!destinationTokenAddress) {
+        return
+      }
+
       setError(null)
       setIsSubmitting(true)
       const decimals = selectedDestToken?.decimals
       const parsedAmount = parseUnits(amount, decimals).toString()
-
-      let destinationTokenAddress: string
-      try {
-        destinationTokenAddress =
-          selectedDestToken.symbol === "ETH"
-            ? zeroAddress
-            : getTokenAddress(selectedChain.id, selectedDestToken.symbol)
-      } catch (_error) {
-        setError(
-          `${selectedDestToken.symbol} is not available on ${selectedChain.name}`,
-        )
-        setIsSubmitting(false)
-        return
-      }
 
       const originRelayer = getRelayer(relayerConfig, selectedToken.chainId)
       const destinationRelayer = getRelayer(relayerConfig, selectedChain.id)
@@ -510,7 +533,6 @@ export function useSendForm({
               ? error.message
               : "An unexpected error occurred",
           )
-          onError(error as Error)
         }
       }
 
@@ -524,7 +546,6 @@ export function useSendForm({
       setError(
         error instanceof Error ? error.message : "An unexpected error occurred",
       )
-      onError(error as Error)
     }
 
     setIsSubmitting(false)
@@ -532,7 +553,6 @@ export function useSendForm({
   }, [
     amount,
     selectedToken,
-    onError,
     onSend,
     onConfirm,
     onComplete,
@@ -552,11 +572,17 @@ export function useSendForm({
     onWaitingForWalletConfirm,
     recipient,
     onTransactionStateChange,
+    destinationTokenAddress,
   ])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    processSend().catch(onError)
+    processSend().catch((error) => {
+      console.error("[trails-sdk] Error in processSend:", error)
+      setError(
+        error instanceof Error ? error.message : "An unexpected error occurred",
+      )
+    })
   }
 
   // Get button text based on recipient and calldata
@@ -643,5 +669,6 @@ export function useSendForm({
     setIsChainDropdownOpen,
     setIsTokenDropdownOpen,
     toAmountFormatted,
+    destinationTokenAddress,
   }
 }

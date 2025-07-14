@@ -30,7 +30,7 @@ interface SendFormProps {
   theme?: ActiveTheme
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   useSourceTokenForButtonText?: boolean
-  onError: (error: Error) => void
+  onError: (error: Error | string | null) => void
   onWaitingForWalletConfirm: (
     intentAddress?: string,
     originTokenInfo?: {
@@ -103,6 +103,7 @@ export const SendForm: React.FC<SendFormProps> = ({
     setIsChainDropdownOpen,
     setIsTokenDropdownOpen,
     toAmountFormatted,
+    destinationTokenAddress,
   } = useSendForm({
     account,
     sequenceProjectAccessKey,
@@ -586,11 +587,15 @@ export const SendForm: React.FC<SendFormProps> = ({
           theme={theme}
         />
 
-        {/* Error and Submit Button */}
         <div className="flex flex-col space-y-3 pt-2">
           <button
             type="submit"
-            disabled={!amount || !isValidRecipient || isSubmitting}
+            disabled={
+              !amount ||
+              !isValidRecipient ||
+              isSubmitting ||
+              !destinationTokenAddress
+            }
             className={`w-full font-semibold py-3 px-4 rounded-[24px] transition-colors relative ${
               theme === "dark"
                 ? "bg-blue-600 disabled:bg-gray-700 text-white disabled:text-gray-400 enabled:hover:bg-blue-700"
