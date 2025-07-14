@@ -3,9 +3,7 @@ import { appKit } from "@/routes/widget-demo/Providers"
 
 // Export ConnectButton component
 export function ConnectButton() {
-  const { isConnected, address } = useAppKitAccount()
-
-  console.log("[trails-demo reown] account", address, isConnected)
+  const { isConnected } = useAppKitAccount()
 
   return (
     <div className="flex justify-center">

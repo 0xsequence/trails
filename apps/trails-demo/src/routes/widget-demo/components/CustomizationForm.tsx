@@ -192,7 +192,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   // Debug useEffect for paymasterUrls
   useEffect(() => {
-    console.log("paymasterUrls changed:", paymasterUrls)
+    console.log("[trails-demo] paymasterUrls changed:", paymasterUrls)
   }, [paymasterUrls])
 
   // Add helper to format address for calldata

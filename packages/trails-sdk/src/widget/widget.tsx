@@ -955,10 +955,12 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
   }
 
   const handleSendError = (error: Error | string | null) => {
-    console.error("[trails-sdk] Error sending transaction", error)
-    console.log("[trails-sdk] currentScreen", currentScreen)
+    if (error) {
+      console.error("[trails-sdk] Error sending transaction", error)
+    }
     const errorMessage = error instanceof Error ? error.message : error
     if (errorMessage?.toLowerCase().includes("rejected")) {
+      console.log("[trails-sdk] currentScreen", currentScreen)
       setShowWalletConfirmRetry(true)
     } else {
       setError(errorMessage)
@@ -966,12 +968,16 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
   }
 
   const handleConnectError = (error: Error | string | null) => {
-    console.error("[trails-sdk] Error connecting wallet", error)
+    if (error) {
+      console.error("[trails-sdk] Error connecting wallet", error)
+    }
     setError(error instanceof Error ? error.message : error)
   }
 
   const handleTokenListError = (error: Error | string | null) => {
-    console.error("[trails-sdk] Error selecting token", error)
+    if (error) {
+      console.error("[trails-sdk] Error selecting token", error)
+    }
     setError(error instanceof Error ? error.message : error)
   }
 
