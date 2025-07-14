@@ -91,7 +91,7 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
       <button
         type="button"
         disabled
-        className="px-2 sm:px-3 py-1 text-xs bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed"
+        className="px-2 sm:px-3 py-1 text-xs bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg cursor-not-allowed"
         title="Connect your wallet first"
       >
         Use Account
@@ -104,7 +104,7 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
       <button
         type="button"
         disabled
-        className="px-2 sm:px-3 py-1 text-xs bg-gray-700 text-gray-400 rounded-lg cursor-not-allowed"
+        className="px-2 sm:px-3 py-1 text-xs bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg cursor-not-allowed"
         title="Account address already set"
       >
         Use Account
@@ -534,7 +534,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setToRecipient("") // Clear toRecipient
     setUseCustomButton(false)
     setRenderInline(true) // Reset to default true
-    setTheme("auto") // Reset to default light
+    setTheme("auto") // Reset to default autoj
     setPaymasterUrls([]) // Reset paymasterUrls
     setGasless(false) // Reset gasless to default false
     // Clear localStorage
@@ -558,11 +558,11 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   }
 
   return (
-    <div className="bg-gray-800 rounded-2xl p-4 sm:p-6 h-full">
+    <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 sm:p-6 min-h-[775px]">
       <div className="space-y-4">
         <div>
           <label
-            className="block text-sm font-medium text-gray-200 mb-2"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
             htmlFor="scenario"
           >
             Scenario
@@ -577,8 +577,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               disabled={!isConnected}
               className={`w-full flex items-center px-3 sm:px-4 py-3 border rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                 isConnected
-                  ? "bg-gray-700 border-gray-600 hover:border-gray-500 text-gray-200"
-                  : "bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed"
+                  ? "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-900 dark:text-gray-200"
+                  : "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
               }`}
             >
               <span className="flex-1 text-left text-sm">
@@ -590,22 +590,22 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               <ChevronDown
                 className={`h-5 w-5 transition-transform ${
                   isScenarioDropdownOpen ? "transform rotate-180" : ""
-                } ${isConnected ? "text-gray-400" : "text-gray-600"}`}
+                } ${isConnected ? "text-gray-400 dark:text-gray-400" : "text-gray-600 dark:text-gray-600"}`}
               />
             </button>
             {!isConnected && (
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
                 Connect your wallet to select a scenario
               </p>
             )}
             {selectedScenario && (
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
                 Fields are auto-filled based on the selected scenario
               </p>
             )}
 
             {isScenarioDropdownOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                 <button
                   type="button"
                   onClick={() => {
@@ -613,7 +613,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     setIsScenarioDropdownOpen(false)
                     setToRecipient("")
                   }}
-                  className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-600 ${!selectedScenario ? "bg-gray-600 text-blue-400" : "text-gray-200"} cursor-pointer text-sm`}
+                  className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 ${!selectedScenario ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400" : "text-gray-900 dark:text-gray-200"} cursor-pointer text-sm`}
                 >
                   <span className="ml-2">Select a scenario</span>
                   {!selectedScenario && (
@@ -629,11 +629,11 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       setIsScenarioDropdownOpen(false)
                       applyScenario(scenario.key)
                     }}
-                    className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-600 cursor-pointer text-sm ${
+                    className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 ${
                       selectedScenario === scenario.key
-                        ? "bg-gray-600 text-blue-400"
-                        : "text-gray-200"
-                    }`}
+                        ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
+                        : "text-gray-900 dark:text-gray-200"
+                    } cursor-pointer text-sm`}
                   >
                     <span className="ml-2">{scenario.label}</span>
                     {selectedScenario === scenario.key && (
@@ -649,7 +649,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         {selectedScenario && (
           <div>
             <label
-              className="block text-sm font-medium text-gray-200 mb-2"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
               htmlFor="toRecipient"
             >
               To Recipient
@@ -660,14 +660,14 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                 value={toRecipient}
                 onChange={(e) => setToRecipient(e.target.value.trim())}
                 placeholder="0x..."
-                className="flex-1 px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                className="flex-1 px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               />
               <UseAccountButton
                 onAddressSelect={setToRecipient}
                 currentRecipient={toRecipient}
               />
             </div>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
               Customize the recipient address for this scenario
             </p>
           </div>
@@ -675,7 +675,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
         <div>
           <label
-            className="block text-sm font-medium text-gray-200 mb-2"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
             htmlFor="toAddress"
           >
             To Address
@@ -686,10 +686,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             onChange={(e) => setToAddress(e.target.value.trim())}
             placeholder="0x..."
             disabled={!!selectedScenario}
-            className={`w-full px-3 sm:px-4 py-2 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
+            className={`w-full px-3 sm:px-4 py-2 border rounded-lg placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
               selectedScenario
-                ? "bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed"
-                : "bg-gray-700 border-gray-600 text-gray-200"
+                ? "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
+                : "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200"
             }`}
           />
         </div>
@@ -697,7 +697,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         <div className="flex gap-4">
           <div className="flex-1">
             <label
-              className="block text-sm font-medium text-gray-200 mb-2"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
               htmlFor="toAmount"
             >
               To Amount
@@ -708,17 +708,17 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               onChange={(e) => setToAmount(e.target.value.trim())}
               placeholder="0.00"
               disabled={!!selectedScenario}
-              className={`w-full px-3 sm:px-4 py-2 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
+              className={`w-full px-3 sm:px-4 py-2 border rounded-lg placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
                 selectedScenario
-                  ? "bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed"
-                  : "bg-gray-700 border-gray-600 text-gray-200"
+                  ? "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
+                  : "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200"
               }`}
             />
           </div>
 
           <div className="flex-1 space-y-2" ref={tokenDropdownRef}>
             <label
-              className="block text-sm font-medium text-gray-200 mb-2"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
               htmlFor="toToken"
             >
               To Token
@@ -733,8 +733,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                 disabled={!!selectedScenario}
                 className={`w-full flex items-center px-3 sm:px-4 py-3 border rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                   selectedScenario
-                    ? "bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed"
-                    : "bg-gray-700 border-gray-600 hover:border-gray-500 text-gray-200"
+                    ? "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
+                    : "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-900 dark:text-gray-200"
                 }`}
               >
                 {toToken ? (
@@ -752,8 +752,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       className={selectedScenario ? "opacity-50" : ""}
                     />
                     <span
-                      className={`ml-2 flex-1 text-left text-sm ${
-                        selectedScenario ? "text-gray-500" : "text-gray-200"
+                      className={`ml-2 flex-1 text-left text-sm truncate ${
+                        selectedScenario
+                          ? "text-gray-500"
+                          : "text-gray-900 dark:text-gray-200"
                       }`}
                     >
                       {
@@ -767,27 +769,29 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   </>
                 ) : (
                   <span
-                    className={`flex-1 text-left text-sm ${
-                      selectedScenario ? "text-gray-500" : "text-gray-400"
+                    className={`flex-1 text-left text-sm truncate ${
+                      selectedScenario
+                        ? "text-gray-500"
+                        : "text-gray-500 dark:text-gray-400"
                     }`}
                   >
                     Select Token
                   </span>
                 )}
                 <ChevronDown
-                  className={`h-5 w-5 text-gray-400 transition-transform ${isTokenDropdownOpen ? "transform rotate-180" : ""}`}
+                  className={`h-5 w-5 text-gray-500 dark:text-gray-400 transition-transform ${isTokenDropdownOpen ? "transform rotate-180" : ""}`}
                 />
               </button>
 
               {isTokenDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                   <button
                     type="button"
                     onClick={() => {
                       setToToken(undefined)
                       setIsTokenDropdownOpen(false)
                     }}
-                    className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-600 ${!toToken ? "bg-gray-600 text-blue-400" : "text-gray-200"} cursor-pointer text-sm`}
+                    className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 ${!toToken ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400" : "text-gray-900 dark:text-gray-200"} cursor-pointer text-sm`}
                   >
                     <span className="ml-2">Select Token</span>
                     {!toToken && (
@@ -807,10 +811,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           setToToken(token.symbol as "ETH" | "USDC")
                           setIsTokenDropdownOpen(false)
                         }}
-                        className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-600 cursor-pointer text-sm ${
+                        className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm ${
                           toToken === token.symbol
-                            ? "bg-gray-600 text-blue-400"
-                            : "text-gray-200"
+                            ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
+                            : "text-gray-900 dark:text-gray-200"
                         }`}
                       >
                         <TokenImage
@@ -836,7 +840,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
         <div className="space-y-2">
           <label
-            className="block text-sm font-medium text-gray-200 mb-2"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
             htmlFor="toChainId"
           >
             To Chain ID
@@ -850,7 +854,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
         <div>
           <label
-            className="block text-sm font-medium text-gray-200 mb-2"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
             htmlFor="toCalldata"
           >
             To Calldata
@@ -861,10 +865,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             placeholder="0x..."
             rows={3}
             disabled={!!selectedScenario}
-            className={`w-full px-3 sm:px-4 py-2 border rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-xs sm:text-sm ${
+            className={`w-full px-3 sm:px-4 py-2 border rounded-lg placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-xs sm:text-sm ${
               selectedScenario
-                ? "bg-gray-800 border-gray-700 text-gray-500 cursor-not-allowed"
-                : "bg-gray-700 border-gray-600 text-gray-200"
+                ? "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
+                : "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200"
             }`}
           />
         </div>
@@ -872,27 +876,27 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         <div className="pt-2">
           <details className="group">
             <summary className="flex items-center cursor-pointer list-none py-2">
-              <span className="text-sm font-medium text-gray-200">
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
                 Gas & Wallet Settings
               </span>
-              <span className="text-gray-400 text-lg font-medium group-open:hidden ml-2">
+              <span className="text-gray-500 dark:text-gray-400 text-lg font-medium group-open:hidden ml-2">
                 +
               </span>
-              <span className="text-gray-400 text-lg font-medium hidden group-open:inline ml-2">
+              <span className="text-gray-500 dark:text-gray-400 text-lg font-medium hidden group-open:inline ml-2">
                 −
               </span>
             </summary>
             <div className="mt-3 space-y-4">
               <div className="flex items-center justify-between py-2">
                 <label
-                  className="block text-sm font-medium text-gray-200 flex items-center gap-2"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200 flex items-center gap-2"
                   htmlFor="gasless"
                 >
                   Gasless
                   <Tooltip message="Enable gasless transactions using Sequence Relayer based on your project access key sponsorship settings">
                     <InfoIcon
                       size="sm"
-                      className="text-gray-400 cursor-pointer"
+                      className="text-gray-500 dark:text-gray-400 cursor-pointer"
                     />
                   </Tooltip>
                 </label>
@@ -903,7 +907,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     className={`w-7 h-7 rounded border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
                       gasless
                         ? "bg-blue-500 border-blue-500 text-white"
-                        : "bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-600"
+                        : "bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600"
                     }`}
                   >
                     {gasless && <Checkmark />}
@@ -911,7 +915,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   <button
                     type="button"
                     onClick={() => setGasless(!gasless)}
-                    className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
+                    className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
                   >
                     Enable
                   </button>
@@ -920,14 +924,14 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
               <div>
                 <label
-                  className="block text-sm font-medium text-gray-200 mb-2 flex items-center gap-2"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2 flex items-center gap-2"
                   htmlFor="paymasterUrls"
                 >
                   Paymaster URLs (Chain-specific)
                   <Tooltip message="Use 4337-compatible bundler/paymaster URLs for gasless transactions, such as Alchemy, Thirdweb, Pimlico, ZeroDev, etc. Set different URLs for different chains.">
                     <InfoIcon
                       size="sm"
-                      className="text-gray-400 cursor-pointer"
+                      className="text-gray-500 dark:text-gray-400 cursor-pointer"
                     />
                   </Tooltip>
                 </label>
@@ -980,7 +984,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                             )
                           }
                           placeholder="https://..."
-                          className="flex-1 px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                          className="flex-1 px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                         />
 
                         {/* Remove Button - Styled like text */}
@@ -992,7 +996,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                             )
                             setPaymasterUrls(newPaymasterUrls)
                           }}
-                          className="px-3 py-2 text-gray-400 hover:text-gray-200 transition-colors text-lg font-medium cursor-pointer self-center"
+                          className="px-3 py-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors text-lg font-medium cursor-pointer self-center"
                         >
                           ×
                         </button>
@@ -1019,7 +1023,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     disabled={
                       paymasterUrls.length >= SUPPORTED_TO_CHAINS.length
                     }
-                    className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
+                    className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
                   >
                     + Add Paymaster URL
                   </button>
@@ -1028,7 +1032,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
                 <label
-                  className="block text-sm font-medium text-gray-200"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200"
                   htmlFor="walletOptions"
                 >
                   Wallet Options
@@ -1044,7 +1048,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           className={`w-7 h-7 rounded border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
                             isSelected
                               ? "bg-blue-500 border-blue-500 text-white"
-                              : "bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-600"
+                              : "bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600"
                           }`}
                         >
                           {isSelected && <Checkmark />}
@@ -1052,7 +1056,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         <button
                           type="button"
                           onClick={() => handleWalletOptionToggle(wallet)}
-                          className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
+                          className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
                         >
                           {wallet.charAt(0).toUpperCase() + wallet.slice(1)}
                         </button>
@@ -1068,20 +1072,20 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         <div className="pt-2">
           <details className="group">
             <summary className="flex items-center cursor-pointer list-none py-2">
-              <span className="text-sm font-medium text-gray-200">
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
                 UI & Interaction Settings
               </span>
-              <span className="text-gray-400 text-lg font-medium group-open:hidden ml-2">
+              <span className="text-gray-500 dark:text-gray-400 text-lg font-medium group-open:hidden ml-2">
                 +
               </span>
-              <span className="text-gray-400 text-lg font-medium hidden group-open:inline ml-2">
+              <span className="text-gray-500 dark:text-gray-400 text-lg font-medium hidden group-open:inline ml-2">
                 −
               </span>
             </summary>
             <div className="mt-3 space-y-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
                 <label
-                  className="block text-sm font-medium text-gray-200"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200"
                   htmlFor="theme"
                 >
                   Theme Mode
@@ -1095,7 +1099,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         className={`w-7 h-7 rounded-full border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
                           theme === mode
                             ? "bg-blue-500 border-blue-500 text-white"
-                            : "bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-600"
+                            : "bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600"
                         }`}
                       >
                         {theme === mode && <Checkmark />}
@@ -1103,7 +1107,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       <button
                         type="button"
                         onClick={() => setTheme(mode)}
-                        className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
+                        className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
                       >
                         {mode.charAt(0).toUpperCase() + mode.slice(1)}
                       </button>
@@ -1114,7 +1118,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
               <div className="flex items-center justify-between py-2">
                 <label
-                  className="block text-sm font-medium text-gray-200"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200"
                   htmlFor="useCustomButton"
                 >
                   Custom Button
@@ -1126,7 +1130,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     className={`w-7 h-7 rounded border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
                       useCustomButton
                         ? "bg-blue-500 border-blue-500 text-white"
-                        : "bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500 hover:bg-gray-600"
+                        : "bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600"
                     }`}
                   >
                     {useCustomButton && <Checkmark />}
@@ -1134,7 +1138,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   <button
                     type="button"
                     onClick={() => setUseCustomButton(!useCustomButton)}
-                    className="text-sm text-gray-300 hover:text-white transition-colors cursor-pointer"
+                    className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
                   >
                     Enable
                   </button>
@@ -1147,13 +1151,13 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         <div className="pt-2">
           <details className="group">
             <summary className="flex items-center cursor-pointer list-none py-2">
-              <span className="text-sm font-medium text-gray-200">
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
                 Sequence Project Access Key
               </span>
-              <span className="text-gray-400 text-lg font-medium group-open:hidden ml-2">
+              <span className="text-gray-500 dark:text-gray-400 text-lg font-medium group-open:hidden ml-2">
                 +
               </span>
-              <span className="text-gray-400 text-lg font-medium hidden group-open:inline ml-2">
+              <span className="text-gray-500 dark:text-gray-400 text-lg font-medium hidden group-open:inline ml-2">
                 −
               </span>
             </summary>
@@ -1165,7 +1169,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   setSequenceProjectAccessKey(e.target.value.trim())
                 }
                 placeholder="Enter your sequence project access key"
-                className="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                className="w-full px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               />
             </div>
           </details>
@@ -1175,7 +1179,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           <button
             type="button"
             onClick={handleReset}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg transition-colors duration-200 text-sm font-medium border border-gray-600 hover:border-gray-500 cursor-pointer"
+            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors duration-200 text-sm font-medium border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer"
           >
             Reset
           </button>

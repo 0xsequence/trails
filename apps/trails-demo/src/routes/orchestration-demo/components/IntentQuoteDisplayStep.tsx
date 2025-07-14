@@ -109,13 +109,13 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
   if (!intentCallsPayloads) {
     return (
       <div className="px-6 pb-6">
-        <div className="bg-gray-800/50 border border-gray-700/30 rounded-lg p-4 flex items-center justify-center">
+        <div className="bg-gray-800/50 border border-gray-700/30 rounded-lg p-4 flex items-center justify-center text-gray-300">
           <Text
             variant="small"
             color="secondary"
-            className="flex flex-col items-center text-center"
+            className="flex flex-col items-center text-center text-gray-300"
           >
-            <ShieldCheck className="h-10 w-10 text-gray-600 mb-2" />
+            <ShieldCheck className="h-10 w-10 text-gray-600 mb-2 text-gray-300" />
             Select a token and click an action above to generate the intent
             quote.
           </Text>
@@ -778,7 +778,11 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             >
               <Box className="h-4 w-4 mr-1" />
               Preconditions
-              <Text variant="small" color="secondary" className="ml-1">
+              <Text
+                variant="small"
+                color="secondary"
+                className="ml-1 text-gray-300"
+              >
                 (Conditions that are to be met for the intent to be executed):
               </Text>
             </Text>

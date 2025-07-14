@@ -1,6 +1,7 @@
 import { TrailsWidget } from "@0xsequence/trails-sdk/widget"
 import { useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router"
+import { GIT_COMMIT_SHA } from "@/config"
 import { CodeSnippet } from "../CodeSnippet"
 import { WidgetTabs } from "./WidgetTabs"
 
@@ -81,8 +82,8 @@ export const OutputScreen = ({
   }
 
   return (
-    <div className="w-full bg-gray-800 rounded-2xl p-6 relative">
-      <div className="flex items-center justify-between mb-4">
+    <div className="w-full bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 relative min-h-[775px]">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
         <div className="w-fit">
           <WidgetTabs
             tabs={tabs}
@@ -92,7 +93,7 @@ export const OutputScreen = ({
         </div>
         <Link
           to="/sdk-sandbox"
-          className="text-sm text-gray-400 hover:text-white transition-colors duration-200"
+          className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 w-fit self-end"
         >
           SDK Sandbox →
         </Link>
@@ -179,18 +180,28 @@ export const OutputScreen = ({
       </div>
       <button
         onClick={handleDebugClick}
-        className="absolute bottom-3 right-4 text-xs text-gray-500 hover:text-white cursor-pointer z-10"
+        className="absolute bottom-3 right-4 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer z-10 opacity-50 hover:opacity-75 transition-opacity"
         type="button"
       >
         Debug
       </button>
       <button
         onClick={handleTestnetClick}
-        className="absolute bottom-3 right-16 text-xs text-gray-500 hover:text-white cursor-pointer z-10"
+        className="absolute bottom-3 right-16 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer z-10 opacity-50 hover:opacity-75 transition-opacity"
         type="button"
       >
         Testnet
       </button>
+
+      {/* Git Commit Hash */}
+      {GIT_COMMIT_SHA && (
+        <div
+          className="absolute bottom-3 left-4 text-xs text-gray-400 dark:text-gray-500 opacity-50 cursor-help"
+          title="Git commit hash"
+        >
+          {GIT_COMMIT_SHA.slice(0, 8)}
+        </div>
+      )}
     </div>
   )
 }

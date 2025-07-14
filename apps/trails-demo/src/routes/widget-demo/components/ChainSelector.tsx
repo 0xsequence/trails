@@ -52,7 +52,7 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
         type="button"
         onClick={() => !disabled && setIsDropdownOpen(!isDropdownOpen)}
         disabled={disabled}
-        className={`w-full flex items-center px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed ${
+        className={`w-full flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed ${
           theme === "dark" ? "text-gray-200" : "text-gray-900"
         } ${showIconsOnly ? "justify-center" : ""}`}
       >
@@ -65,30 +65,32 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
               disableAnimation={true}
             />
             {!showIconsOnly && (
-              <span className="ml-2 flex-1 text-left">
+              <span className="ml-2 flex-1 text-left text-gray-900 dark:text-gray-200 truncate">
                 {selectedChain.name} ({selectedChain.id})
               </span>
             )}
           </>
         ) : (
-          <span className="flex-1 text-left text-gray-400">
+          <span className="flex-1 text-left text-gray-500 dark:text-gray-400 truncate">
             {showIconsOnly ? "Select" : "Select Chain"}
           </span>
         )}
         {!showIconsOnly && (
           <ChevronDown
-            className={`h-5 w-5 text-gray-400 transition-transform ${isDropdownOpen ? "transform rotate-180" : ""}`}
+            className={`h-5 w-5 text-gray-500 dark:text-gray-400 transition-transform ${isDropdownOpen ? "transform rotate-180" : ""}`}
           />
         )}
       </button>
 
       {isDropdownOpen && !disabled && (
-        <div className="absolute z-10 w-full mt-1 bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
           <button
             type="button"
             onClick={() => handleChainSelect(0)}
-            className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 cursor-pointer ${showIconsOnly ? "justify-center" : ""} ${
-              !selectedChainId ? "bg-gray-600 text-blue-400" : "text-gray-200"
+            className={`w-full flex items-center px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer ${showIconsOnly ? "justify-center" : ""} ${
+              !selectedChainId
+                ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
+                : "text-gray-900 dark:text-gray-200"
             }`}
           >
             <span className={showIconsOnly ? "" : "ml-2"}>
@@ -103,10 +105,10 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
               key={chain.id}
               type="button"
               onClick={() => handleChainSelect(chain.id)}
-              className={`w-full flex items-center px-4 py-3 hover:bg-gray-600 cursor-pointer ${showIconsOnly ? "justify-center" : ""} ${
+              className={`w-full flex items-center px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer ${showIconsOnly ? "justify-center" : ""} ${
                 selectedChainId === chain.id
-                  ? "bg-gray-600 text-blue-400"
-                  : "text-gray-200"
+                  ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
+                  : "text-gray-900 dark:text-gray-200"
               }`}
             >
               <NetworkImage

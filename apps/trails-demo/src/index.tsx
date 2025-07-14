@@ -9,7 +9,8 @@ import { router } from "./routes"
 import { globalStore } from "./store"
 
 import "./index.css"
-import { ThemeProvider } from "@0xsequence/design-system"
+import { ThemeProvider as SequenceThemeProvider } from "@0xsequence/design-system"
+import { ThemeProvider } from "./contexts/ThemeContext"
 
 const queryClient = new QueryClient()
 const apiUrl = import.meta.env.VITE_API_URL || "https://v3-api.sequence.app"
@@ -48,9 +49,11 @@ createRoot(document.getElementById("root")!).render(
             },
           }}
         >
-          <ThemeProvider>
-            <RouterProvider router={router} />
-          </ThemeProvider>
+          <SequenceThemeProvider>
+            <ThemeProvider initialTheme="light">
+              <RouterProvider router={router} />
+            </ThemeProvider>
+          </SequenceThemeProvider>
         </SequenceHooksProvider>
       </JotaiProvider>
     </QueryClientProvider>

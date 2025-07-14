@@ -60,7 +60,7 @@ export const AccountInfoSection = ({
               <span className="text-blue-300 font-semibold mr-0 sm:mr-2">
                 Address:
               </span>
-              <span className="font-mono bg-gray-800/70 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm break-all">
+              <span className="font-mono bg-gray-800/70 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm break-all text-gray-300">
                 {account.address}
               </span>
             </Text>
@@ -86,7 +86,7 @@ export const AccountInfoSection = ({
                   size="sm"
                   className="w-4 h-4 mr-1"
                 />
-                <span className="font-mono bg-gray-800/70 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm">
+                <span className="font-mono bg-gray-800/70 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm text-gray-300">
                   {account.chainId}
                 </span>
               </div>
@@ -105,7 +105,11 @@ export const AccountInfoSection = ({
         </div>
       ) : (
         <div className="bg-gray-900/50 p-3 sm:p-4 rounded-lg border border-gray-700/30">
-          <Text variant="small" color="secondary" className="mb-3">
+          <Text
+            variant="small"
+            color="secondary"
+            className="mb-3 text-gray-300"
+          >
             Select a wallet to connect:
           </Text>
           <div className="flex flex-wrap gap-2 mb-4">

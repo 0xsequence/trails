@@ -13,7 +13,7 @@ export const WidgetTabs = ({ tabs, activeTab, onTabChange }: TabsProps) => {
   return (
     <div className="relative">
       {/* Background container with rounded corners and border */}
-      <div className="bg-[#1D293D] border border-[#45556C] rounded-lg p-3">
+      <div className="bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-3">
         <nav className="flex space-x-2">
           {tabs.map((tab) => (
             <button
@@ -24,8 +24,8 @@ export const WidgetTabs = ({ tabs, activeTab, onTabChange }: TabsProps) => {
                 relative px-6 py-2 text-sm font-medium transition-all duration-200 cursor-pointer rounded-md
                 ${
                   activeTab === tab.id
-                    ? "text-[#F4F4F5] bg-[#45556C] shadow-sm"
-                    : "text-[#F4F4F5] hover:text-white hover:bg-[#2D3A4F]"
+                    ? "text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-700 border border-gray-400 dark:border-gray-500 shadow-md"
+                    : "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
                 }
               `}
             >

@@ -1,13 +1,12 @@
 import type { Hex } from "viem"
 import * as chains from "viem/chains"
 
-export const LANDING_PAGE_URL =
-  "https://anypay-marketing.0xsequence.workers.dev/"
-export const DOCS_URL = "https://github.com/0xsequence/trails"
+export const LANDING_PAGE_URL = "https://trails.build/"
+export const DOCS_URL = "https://anypay.mintlify.app/home"
 export const DEMOS_URL = "https://trails.sequence-demos.xyz/"
 export const TWITTER_URL = "https://x.com/0xsequence"
 export const DISCORD_URL = "https://discord.gg/sequence"
-export const GITHUB_URL = "https://github.com/0xsequence"
+export const GITHUB_URL = "https://github.com/0xsequence/trails"
 export const SEQUENCE_URL = "https://sequence.xyz/"
 
 // Mock Data for 'mock_interaction' action
@@ -34,3 +33,5 @@ export const PAY_RECIPIENT_ADDRESS =
 export const PAY_AMOUNT = 30000n // 0.03 USDC
 export const PAY_AMOUNT_FORMATTED = "0.03"
 export const PAY_DISPLAY_TEXT = `(Donate $${PAY_AMOUNT_FORMATTED} ${PAY_TOKEN_SYMBOL})`
+
+export const GIT_COMMIT_SHA = import.meta.env.VITE_COMMIT_SHA || ""

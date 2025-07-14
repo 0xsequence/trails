@@ -22,7 +22,11 @@ import { useTokenPrices } from "../../prices.js"
 import { useQueryParams } from "../../queryParams.js"
 import { getRelayer, type RelayerEnv } from "../../relayer.js"
 import type { Theme } from "../../theme.js"
-import { formatBalance, formatUsdValue } from "../../tokenBalances.js"
+import {
+  formatBalance,
+  formatUsdValue,
+  formatValue,
+} from "../../tokenBalances.js"
 import { getTokenAddress } from "./useTokenAddress.js"
 
 // Available chains
@@ -75,31 +79,31 @@ export const SUPPORTED_TO_TOKENS = [
   {
     symbol: "ETH",
     name: "Ethereum",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0x0000000000000000000000000000000000000000.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp`,
     decimals: 18,
   },
   {
     symbol: "USDC",
     name: "USD Coin",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp`,
     decimals: 6,
   },
   {
     symbol: "USDT",
     name: "Tether",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0xdac17f958d2ee523a2206206994597c13d831ec7.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0xdac17f958d2ee523a2206206994597c13d831ec7.webp`,
     decimals: 6,
   },
   {
     symbol: "BAT",
     name: "Basic Attention Token",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp`,
     decimals: 18,
   },
   {
     symbol: "ARB",
     name: "Arbitrum",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/42161/0x912ce59144191c1204e64559fe8253a0e49e6548.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/42161/0x912ce59144191c1204e64559fe8253a0e49e6548.webp`,
     decimals: 18,
   },
 ]
@@ -109,13 +113,13 @@ const FEE_TOKENS: TokenInfo[] = [
   {
     symbol: "ETH",
     name: "Ethereum",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0x0000000000000000000000000000000000000000.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp`,
     decimals: 18,
   },
   {
     symbol: "USDC",
     name: "USD Coin",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp`,
     decimals: 6,
   },
 ]
@@ -142,7 +146,7 @@ export type UseSendProps = {
   theme: Theme
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   useSourceTokenForButtonText: boolean
-  onError: (error: Error) => void
+  onError: (error: Error | string | null) => void
   onWaitingForWalletConfirm: (
     intentAddress: string,
     details: {
@@ -199,6 +203,8 @@ export type UseSendReturn = {
   selectedFeeToken: TokenInfo | null
   setIsChainDropdownOpen: (isOpen: boolean) => void
   setIsTokenDropdownOpen: (isOpen: boolean) => void
+  toAmountFormatted: string
+  destinationTokenAddress: string | null
 }
 
 export function useSendForm({
@@ -243,6 +249,12 @@ export function useSendForm({
       setRecipient(recipientInput)
     }
   }, [ensAddress, recipientInput])
+
+  useEffect(() => {
+    if (onError) {
+      onError(error)
+    }
+  }, [error, onError])
 
   const handleRecipientInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -322,6 +334,10 @@ export function useSendForm({
     setAmount(toAmount ?? "")
   }, [toAmount])
 
+  const toAmountFormatted = useMemo(() => {
+    return formatValue(toAmount || 0)
+  }, [toAmount])
+
   // Update recipient when toRecipient prop changes
   useEffect(() => {
     setRecipientInput(toRecipient ?? "")
@@ -344,12 +360,8 @@ export function useSendForm({
 
   // Calculate USD value
   const amountUsdFormatted = useMemo(() => {
-    const amountUsd =
-      parseFloat(amount) * (destTokenPrices?.[0]?.price?.value ?? 0)
-    return Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amountUsd)
+    const amountUsd = Number(amount) * (destTokenPrices?.[0]?.price?.value ?? 0)
+    return formatUsdValue(amountUsd)
   }, [amount, destTokenPrices])
 
   const [selectedFeeToken, setSelectedFeeToken] = useState<TokenInfo | null>(
@@ -359,26 +371,42 @@ export function useSendForm({
   const { hasParam } = useQueryParams()
   const isDryMode = hasParam("dryMode", "true")
 
+  const destinationTokenAddress = useMemo(() => {
+    let destinationTokenAddress: string | null
+    try {
+      setError(null)
+      if (!selectedDestToken) {
+        return null
+      }
+      destinationTokenAddress =
+        selectedDestToken.symbol === "ETH"
+          ? zeroAddress
+          : getTokenAddress(selectedChain.id, selectedDestToken.symbol)
+    } catch (_error) {
+      console.error("[trails-sdk] Error getting token address:", _error)
+      setError(
+        `${selectedDestToken.symbol} is not available on ${selectedChain.name}`,
+      )
+      return null
+    }
+    return destinationTokenAddress
+  }, [
+    selectedDestToken,
+    selectedDestToken?.symbol,
+    selectedChain?.name,
+    selectedChain?.id,
+  ])
+
   const processSend = useCallback(async () => {
     try {
+      if (!destinationTokenAddress) {
+        return
+      }
+
       setError(null)
       setIsSubmitting(true)
       const decimals = selectedDestToken?.decimals
       const parsedAmount = parseUnits(amount, decimals).toString()
-
-      let destinationTokenAddress: string
-      try {
-        destinationTokenAddress =
-          selectedDestToken.symbol === "ETH"
-            ? zeroAddress
-            : getTokenAddress(selectedChain.id, selectedDestToken.symbol)
-      } catch (_error) {
-        setError(
-          `${selectedDestToken.symbol} is not available on ${selectedChain.name}`,
-        )
-        setIsSubmitting(false)
-        return
-      }
 
       const originRelayer = getRelayer(relayerConfig, selectedToken.chainId)
       const destinationRelayer = getRelayer(relayerConfig, selectedChain.id)
@@ -460,7 +488,7 @@ export function useSendForm({
 
       setIsWaitingForWalletConfirm(true)
       onWaitingForWalletConfirm(intentAddress?.toString() ?? "", {
-        amount: originSendAmountFormatted.toFixed(5).toString(),
+        amount: formatValue(originSendAmountFormatted),
         amountUsd: formatUsdValue(originSendAmountUsdFormatted),
         tokenSymbol: selectedToken.symbol,
         tokenName: selectedToken.name,
@@ -499,13 +527,18 @@ export function useSendForm({
           await handleSend()
           console.log("[trails-sdk] handleRetry completed successfully")
         } catch (error) {
-          console.error("[trails-sdk] Error in prepareSend:", error)
-          setError(
+          console.error(
+            "[trails-sdk] Error in prepareSend walletConfirmRetryHandler:",
+            error,
+          )
+          const errorMessage =
             error instanceof Error
               ? error.message
-              : "An unexpected error occurred",
-          )
-          onError(error as Error)
+              : "An unexpected error occurred"
+          setError(errorMessage)
+          if (onError) {
+            onError(errorMessage)
+          }
         }
       }
 
@@ -516,10 +549,12 @@ export function useSendForm({
       await handleSend()
     } catch (error) {
       console.error("[trails-sdk] Error in prepareSend:", error)
-      setError(
-        error instanceof Error ? error.message : "An unexpected error occurred",
-      )
-      onError(error as Error)
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      setError(errorMessage)
+      if (onError) {
+        onError(errorMessage)
+      }
     }
 
     setIsSubmitting(false)
@@ -527,7 +562,6 @@ export function useSendForm({
   }, [
     amount,
     selectedToken,
-    onError,
     onSend,
     onConfirm,
     onComplete,
@@ -547,11 +581,18 @@ export function useSendForm({
     onWaitingForWalletConfirm,
     recipient,
     onTransactionStateChange,
+    destinationTokenAddress,
+    onError,
   ])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    processSend().catch(onError)
+    processSend().catch((error) => {
+      console.error("[trails-sdk] Error in processSend:", error)
+      setError(
+        error instanceof Error ? error.message : "An unexpected error occurred",
+      )
+    })
   }
 
   // Get button text based on recipient and calldata
@@ -561,35 +602,31 @@ export function useSendForm({
     if (!amount) return "Enter amount"
     if (!isValidRecipient) return "Enter recipient"
 
+    const amountFormatted = formatValue(amount)
+
     try {
       const checksummedRecipient = getAddress(recipient)
       const checksummedAccount = getAddress(account.address)
 
       if (checksummedRecipient === checksummedAccount) {
-        return `Receive ${amount} ${selectedDestToken.symbol}`
+        return `Receive ${amountFormatted} ${selectedDestToken.symbol}`
       }
       if (toCalldata) {
         if (useSourceTokenForButtonText) {
           const destPrice = destTokenPrices?.[0]?.price?.value ?? 0
           const sourcePrice = selectedToken.tokenPriceUsd ?? 0
           if (destPrice > 0 && sourcePrice > 0) {
-            const destAmountUsd = parseFloat(amount) * destPrice
+            const destAmountUsd = Number(amount) * destPrice
             const sourceAmount = destAmountUsd / sourcePrice
-            const formattedSourceAmount = sourceAmount.toLocaleString(
-              undefined,
-              {
-                maximumFractionDigits: 5,
-                minimumFractionDigits: 2,
-              },
-            )
+            const formattedSourceAmount = formatValue(sourceAmount)
             return `Spend ~${formattedSourceAmount} ${selectedToken.symbol}`
           }
         }
-        return `Spend ${amount} ${selectedDestToken.symbol}`
+        return `Spend ${amountFormatted} ${selectedDestToken.symbol}`
       }
-      return `Pay ${amount} ${selectedDestToken.symbol}`
+      return `Pay ${amountFormatted} ${selectedDestToken.symbol}`
     } catch {
-      return `Send ${amount} ${selectedDestToken.symbol}`
+      return `Send ${amountFormatted} ${selectedDestToken.symbol}`
     }
   }, [
     amount,
@@ -641,5 +678,7 @@ export function useSendForm({
     selectedFeeToken,
     setIsChainDropdownOpen,
     setIsTokenDropdownOpen,
+    toAmountFormatted,
+    destinationTokenAddress,
   }
 }

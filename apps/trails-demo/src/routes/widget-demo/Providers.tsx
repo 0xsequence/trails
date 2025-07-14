@@ -1,7 +1,9 @@
 import { createAppKit } from "@reown/appkit/react"
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi"
+import { useEffect } from "react"
 import * as chains from "viem/chains"
 import { WagmiProvider } from "wagmi"
+import { useTheme } from "@/contexts/ThemeContext"
 
 // Get projectId
 const projectId = import.meta.env.VITE_REOWN_PROJECT_ID
@@ -47,6 +49,13 @@ export const appKit = createAppKit({
 
 // Export AppKit Provider component
 export function Providers({ children }: { children: React.ReactNode }) {
+  const { theme } = useTheme()
+
+  useEffect(() => {
+    // Sync AppKit theme mode with demo site theme
+    appKit.setThemeMode(theme)
+  }, [theme])
+
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>{children}</WagmiProvider>
   )

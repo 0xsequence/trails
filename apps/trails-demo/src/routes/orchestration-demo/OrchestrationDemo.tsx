@@ -529,18 +529,21 @@ export const OrchestrationDemo = () => {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-6 py-8 px-4 sm:py-12 sm:px-6">
-      <div className="text-center space-y-4 max-w-6xl w-full mb-20">
+      <div className="text-center space-y-4 max-w-6xl w-full">
         <div className="flex flex-col sm:flex-row justify-between items-start space-y-4 sm:space-y-0">
           <div className="text-left w-full sm:w-auto">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white mb-3 sm:mb-4">
-              Trails Demo
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-900 dark:text-white mb-3 sm:mb-4">
+              Trails Orchestration Demo
             </h1>
-            <p className="text-xs sm:text-sm text-white leading-relaxed max-w-3xl font-light mb-2">
-              Connect your wallet and explore cross-chain intents
+            <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl font-light mb-2">
+              This demo showcases the{" "}
+              <span className="font-medium">Trails SDK</span> orchestration
+              capabilities. Connect your wallet and try the complete intent
+              flow.
             </p>
-            <p className="text-gray-400 text-xs">
-              This demo showcases the Trails SDK orchestration flow. Create an
-              intent, commit it, and execute cross-chain meta transactions.
+            <p className="text-gray-500 dark:text-gray-400 text-xs">
+              Select a token, choose an action, and follow the complete intent
+              creation and execution flow.
             </p>
           </div>
           <div className="w-full sm:w-auto">
@@ -550,7 +553,7 @@ export const OrchestrationDemo = () => {
       </div>
 
       {/* Account Info & Connect/Disconnect - Standalone Card */}
-      <div className="w-full max-w-3xl">
+      <div className="w-full max-w-3xl bg-gray-900 p-4 rounded-lg mt-10">
         <AccountInfoSection
           account={account}
           connectors={connectors}

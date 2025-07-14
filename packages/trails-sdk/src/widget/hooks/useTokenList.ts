@@ -1,7 +1,7 @@
 import type { SequenceIndexerGateway } from "@0xsequence/indexer"
 import { ResourceStatus } from "@0xsequence/indexer"
 import { Address } from "ox"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { isAddressEqual, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
 import { getChainInfo } from "../../chains.js"
@@ -12,6 +12,7 @@ import type {
 } from "../../tokenBalances.js"
 import {
   formatBalance,
+  getFormatttedTokenName,
   useAccountTotalBalanceUsd,
   useHasSufficientBalanceUsd,
   useSourceTokenList,
@@ -44,12 +45,14 @@ export type TokenFormatted = Token &
     tokenName: string
     priceUsd: number
     isSufficientBalance: boolean
+    chainName: string
   }
 
 export type UseTokenListProps = {
   onContinue: (selectedToken: Token) => void
   targetAmountUsd?: number | null
   indexerGatewayClient: SequenceIndexerGateway
+  onError: (error: Error | string | null) => void
 }
 
 export type UseTokenListReturn = {
@@ -73,6 +76,7 @@ export function useTokenList({
   onContinue,
   targetAmountUsd,
   indexerGatewayClient,
+  onError,
 }: UseTokenListProps): UseTokenListReturn {
   const [selectedToken, setSelectedToken] = useState<Token | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
@@ -82,6 +86,7 @@ export function useTokenList({
     isLoadingSortedTokens,
     balanceError,
   } = useTokenBalances(address as Address.Address, indexerGatewayClient)
+
   const {
     totalBalanceUsd,
     totalBalanceUsdFormatted,
@@ -113,6 +118,12 @@ export function useTokenList({
       )
     })
   }, [allSortedTokens, sourceTokenList, supportedChainIds])
+
+  useEffect(() => {
+    if (onError) {
+      onError(balanceError)
+    }
+  }, [balanceError, onError])
 
   const handleTokenSelect = (token: TokenFormatted) => {
     const isNative = !("contractAddress" in token)
@@ -266,9 +277,13 @@ export function useTokenList({
         imageContractAddress = zeroAddress
       }
       const imageUrl = `https://assets.sequence.info/images/tokens/small/${token.chainId}/${imageContractAddress}.webp`
-      const tokenName = isNative
-        ? `${nativeSymbol} (${chainInfo?.name || "Unknown Chain"})`
-        : token.contractInfo?.name || "Unknown Token"
+      const currentTokenName =
+        (token as TokenBalanceWithPrice).contractInfo?.name || ""
+      const tokenName = getFormatttedTokenName(
+        currentTokenName,
+        tokenSymbol,
+        token.chainId,
+      )
       const formattedBalance = formatBalance(
         token.balance,
         isNative ? 18 : token.contractInfo?.decimals,
@@ -280,6 +295,7 @@ export function useTokenList({
       if (targetAmountUsd) {
         isSufficientBalance = (token.balanceUsd ?? 0) >= targetAmountUsd
       }
+      const chainName = chainInfo?.name || ""
 
       return {
         ...token,
@@ -333,13 +349,15 @@ export function useTokenList({
         tokenName: tokenName,
         priceUsd: priceUsd,
         isSufficientBalance,
+        chainName,
       }
     })
   }, [filteredTokens, targetAmountUsd])
 
   const showInsufficientBalance = useMemo(() => {
     return (
-      (targetAmountUsd &&
+      (totalBalanceUsd &&
+        targetAmountUsd &&
         !hasSufficientBalanceUsd &&
         !isLoadingHasSufficientBalanceUsd &&
         !hasSufficientBalanceUsdError) ||
@@ -352,6 +370,7 @@ export function useTokenList({
     isLoadingHasSufficientBalanceUsd,
     hasSufficientBalanceUsdError,
     filteredTokensFormatted,
+    totalBalanceUsd,
   ])
 
   return {

@@ -94,7 +94,7 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
             <Text
               variant="medium"
               color="primary"
-              className="flex items-center text-sm sm:text-base"
+              className="flex items-center text-sm sm:text-base text-gray-300"
             >
               <Zap className="h-4 w-4 mr-2" />
               Auto-Execute
@@ -111,7 +111,7 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
             <Text
               variant="small"
               color="secondary"
-              className="text-xs sm:text-sm"
+              className="text-xs sm:text-sm text-gray-300"
             >
               {isAutoExecuteEnabled ? "Enabled" : "Disabled"}
             </Text>
@@ -133,9 +133,9 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
       {/* Liquidity Provider Selection */}
       <div className="bg-gray-800/50 p-3 sm:p-4 rounded-lg border border-gray-700/30">
         <div className="flex flex-col space-y-3">
-          <div className="flex items-center">
+          <div className="flex items-center ">
             <Waves className="h-4 w-4 mr-2 text-orange-400" />
-            <Text variant="medium" color="primary">
+            <Text variant="medium" color="primary" className="text-gray-300">
               Select Liquidity Provider
             </Text>
           </div>
@@ -174,7 +174,11 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
                   </div>
                 </RadioGroupItem>
                 <div className="flex flex-col">
-                  <Text variant="small" color="primary">
+                  <Text
+                    variant="small"
+                    color="primary"
+                    className="text-gray-300"
+                  >
                     {provider.label}
                   </Text>
                 </div>
@@ -189,7 +193,7 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
           size="sm"
           onClick={() => handleActionClick("pay")}
           disabled={!selectedToken || createIntentPending}
-          className="px-2 sm:px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+          className="px-2 sm:px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-300"
         >
           {createIntentPending && createIntentArgs === "pay" ? (
             "Processing..."
@@ -200,12 +204,12 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
                 size="sm"
                 className="w-4 h-4 sm:w-5 sm:h-5"
               />
-              <span>
+              <span className="text-gray-300">
                 Pay Action{" "}
                 <Text
                   variant="small"
                   color="secondary"
-                  className="text-xs sm:text-sm"
+                  className="text-xs sm:text-sm text-gray-300"
                 >
                   {PAY_DISPLAY_TEXT}
                 </Text>
@@ -218,7 +222,7 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
           size="sm"
           onClick={() => handleActionClick("mock_interaction")}
           disabled={!selectedToken || createIntentPending}
-          className="px-2 sm:px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+          className="px-2 sm:px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-300 bg-gray-700"
         >
           {createIntentPending && intentActionType === "mock_interaction" ? (
             "Processing..."
@@ -238,7 +242,7 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
           size="sm"
           onClick={() => handleActionClick("custom_call")}
           disabled={!selectedToken || createIntentPending}
-          className="px-2 sm:px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+          className="px-2 sm:px-2.5 py-1 shadow-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none flex items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-300"
         >
           {createIntentPending && intentActionType === "custom_call" ? (
             "Processing..."

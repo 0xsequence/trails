@@ -52,17 +52,17 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
       }
     >
       {isLoadingBalances && (
-        <Text variant="small" color="secondary">
+        <Text variant="small" color="secondary" className="text-gray-300">
           Loading balances...
         </Text>
       )}
       {balanceError && (
-        <Text variant="small" color="negative">
+        <Text variant="small" color="negative" className="text-gray-300">
           Error loading balances: {balanceError.message}
         </Text>
       )}
       {!isLoadingBalances && !balanceError && sortedTokens.length === 0 && (
-        <Text variant="small" color="secondary">
+        <Text variant="small" color="secondary" className="text-gray-300">
           No tokens with balance &gt; 0 found across any chain.
         </Text>
       )}
@@ -129,7 +129,7 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
                     <Text
                       variant="medium"
                       color="primary"
-                      className="font-semibold text-xs sm:text-sm"
+                      className="font-semibold text-xs sm:text-sm text-gray-300"
                     >
                       {isNative
                         ? nativeSymbol[0]
@@ -148,7 +148,7 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
                   <Text
                     variant="medium"
                     color="primary"
-                    className="font-semibold text-sm sm:text-base truncate"
+                    className="font-semibold text-sm sm:text-base truncate text-gray-300"
                   >
                     {isNative
                       ? `${nativeSymbol} (${chainInfo?.name || "Unknown Chain"})`
@@ -160,7 +160,7 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
                     <Text
                       variant="small"
                       color="secondary"
-                      className="ml-1 text-xs bg-blue-900/50 px-2 py-0.5 rounded-full"
+                      className="ml-1 text-xs bg-blue-900/50 px-2 py-0.5 rounded-full text-gray-300"
                     >
                       Native
                     </Text>
@@ -170,7 +170,7 @@ export const SelectOriginTokenStep: React.FC<SelectOriginTokenStepProps> = ({
               <Text
                 variant="small"
                 color="secondary"
-                className="font-mono bg-gray-800/50 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm flex-shrink-0 ml-2"
+                className="font-mono bg-gray-800/50 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm flex-shrink-0 ml-2 text-gray-300"
               >
                 {formatBalance(token)}
               </Text>

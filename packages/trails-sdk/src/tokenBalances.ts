@@ -12,7 +12,9 @@ import { useQuery } from "@tanstack/react-query"
 import type { Address } from "ox"
 import { useEffect, useState } from "react"
 import { formatUnits, parseUnits, zeroAddress } from "viem"
+import * as chains from "viem/chains"
 import { useAPIClient } from "./apiClient.js"
+import { getChainInfo } from "./chains.js"
 import { useIndexerGatewayClient } from "./indexerClient.js"
 import { getTokenPrices, useTokenPrices } from "./prices.js"
 
@@ -267,12 +269,7 @@ export function useSourceTokenList(): string[] {
 export function formatBalance(balance: string, decimals: number = 18) {
   try {
     const formatted = formatUnits(BigInt(balance), decimals)
-    const num = parseFloat(formatted)
-    if (num === 0) return "0"
-    if (num < 0.0001) return num.toExponential(2)
-    if (num < 1) return num.toFixed(6)
-    if (num < 1000) return num.toFixed(4)
-    return num.toLocaleString(undefined, { maximumFractionDigits: 2 })
+    return formatValue(formatted)
   } catch (e) {
     console.error("[trails-sdk] Error formatting balance:", e)
     return balance
@@ -292,10 +289,25 @@ export function getTokenBalanceUsd(
   return Number(formattedBalance) * priceUsd
 }
 
+export function formatValue(value: string | number): string {
+  try {
+    return Number(value).toLocaleString(undefined, {
+      maximumFractionDigits: 5,
+      minimumFractionDigits: 2,
+    })
+  } catch (err) {
+    console.error("[trails-sdk] Error formatting value:", err)
+  }
+
+  return value.toString()
+}
+
 export function formatUsdValue(value: number | string = 0): string {
   return Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
   }).format(Number(value))
 }
 
@@ -548,7 +560,8 @@ export function useHasSufficientBalanceUsd(
 
   return {
     hasSufficientBalanceUsd: hasSufficientBalanceUsd || false,
-    isLoadingHasSufficientBalanceUsd,
+    isLoadingHasSufficientBalanceUsd:
+      isLoadingHasSufficientBalanceUsd || !targetAmountUsd || !account,
     hasSufficientBalanceUsdError,
   }
 }
@@ -599,4 +612,56 @@ export function useAccountTotalBalanceUsd(account: string): {
     isLoadingTotalBalanceUsd,
     totalBalanceUsdFormatted: formatUsdValue(totalBalanceUsd || 0),
   }
+}
+
+const tokenNames: Record<string, string> = {
+  ETH: "Ethereum",
+  WETH: "Wrapped ETH",
+  USDC: "USDC",
+  USDT: "Tether",
+  DAI: "Dai Stablecoin",
+  OP: "Optimism",
+  ARB: "Arbitrum",
+  POL: "POL",
+  MATIC: "Matic Token",
+  BAT: "Basic Attention Token",
+}
+
+export const tokensToPrefix: Record<string, string> = {
+  USDC: "USDC",
+  ETH: "ETH",
+  POL: "POL",
+}
+
+export const tokenNamePrefixes: Record<string, string> = {
+  [chains.optimism.id]: "Optimistic",
+  [chains.arbitrum.id]: "Arbitrum",
+  [chains.polygon.id]: "Polygon",
+}
+
+export function getFormatttedTokenName(
+  currentName: string,
+  tokenSymbol: string,
+  chainId?: number,
+): string {
+  let name = tokenNames[tokenSymbol] || currentName || tokenSymbol
+  if (chainId) {
+    try {
+      const chainInfo = getChainInfo(chainId)
+      if (chainInfo) {
+        if (tokensToPrefix[tokenSymbol]) {
+          if (chainId !== chains.mainnet.id) {
+            name = `${chainInfo?.name} ${tokenSymbol}`
+          }
+          const prefix = tokenNamePrefixes[chainId]
+          if (prefix) {
+            name = `${prefix} ${tokenSymbol}`
+          }
+        }
+      }
+    } catch (e) {
+      console.error("[trails-sdk] Error getting chain info:", e)
+    }
+  }
+  return name
 }
