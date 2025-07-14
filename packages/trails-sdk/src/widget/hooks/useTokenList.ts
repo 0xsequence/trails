@@ -171,12 +171,20 @@ export function useTokenList({
     }
 
     setSelectedToken(formattedToken)
-    if (
+    const canContinue =
       (!targetAmountUsd || (targetAmountUsd && hasSufficientBalanceUsd)) &&
       token.isSufficientBalance
-    ) {
-      onContinue(formattedToken)
+
+    if (!canContinue) {
+      console.warn("[trails-sdk] Cannot continue with token selection", {
+        token: formattedToken,
+        targetAmountUsd,
+        hasSufficientBalanceUsd,
+        isSufficientBalance: token.isSufficientBalance,
+      })
     }
+
+    onContinue(formattedToken)
   }
 
   const isTokenSelected = (token: TokenBalanceExtended): boolean => {
