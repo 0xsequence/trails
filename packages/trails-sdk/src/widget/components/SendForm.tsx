@@ -197,9 +197,9 @@ export const SendForm: React.FC<SendFormProps> = ({
               </div>
               <div className="flex flex-col">
                 <span
-                  className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                  className={`text-sm font-medium max-w-[135px] truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}
                 >
-                  From {selectedToken.name}
+                  {selectedToken.name}
                 </span>
                 <span
                   className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
@@ -215,6 +215,11 @@ export const SendForm: React.FC<SendFormProps> = ({
             <div
               className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
             >
+              <span
+                className={`${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
+              >
+                Balance:{" "}
+              </span>
               {balanceUsdFormatted}
             </div>
             <div

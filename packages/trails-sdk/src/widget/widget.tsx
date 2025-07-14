@@ -957,10 +957,11 @@ const WidgetInner: React.FC<TrailsWidgetProps> = ({
   const handleSendError = (error: Error | string | null) => {
     console.error("[trails-sdk] Error sending transaction", error)
     console.log("[trails-sdk] currentScreen", currentScreen)
-    if ((error as Error)?.message?.toLowerCase().includes("rejected")) {
+    const errorMessage = error instanceof Error ? error.message : error
+    if (errorMessage?.toLowerCase().includes("rejected")) {
       setShowWalletConfirmRetry(true)
     } else {
-      setError(error instanceof Error ? error.message : error)
+      setError(errorMessage)
     }
   }
 

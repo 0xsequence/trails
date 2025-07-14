@@ -58,7 +58,9 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
           <div
             className={`mx-auto flex items-center justify-center transition-all duration-500 ease-out relative ${showContent ? "transform -translate-y-8" : ""}`}
           >
-            {!retryEnabled && (
+            {retryEnabled ? (
+              <div className={`h-24 w-24`} />
+            ) : (
               <div
                 className={`animate-spin rounded-full h-24 w-24 border-b-2 ${
                   theme === "dark" ? "border-blue-400" : "border-blue-500"
@@ -68,9 +70,9 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
             )}
 
             <TokenImage
-              src={fromTokenImageUrl}
+              src={fromTokenImageUrl?.replace("/small/", "/large/")}
               symbol={fromTokenSymbol}
-              size="md"
+              size="xl"
               className="absolute w-16 h-16"
               withNetwork={fromChainId}
               disableAnimation={true}
@@ -83,7 +85,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
             <h2
               className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
             >
-              Waiting for wallet...
+              {retryEnabled ? "Try again" : "Waiting for wallet..."}
             </h2>
             <p
               className={`mt-2 text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}

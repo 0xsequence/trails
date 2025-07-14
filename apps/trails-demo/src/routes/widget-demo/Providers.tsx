@@ -43,6 +43,7 @@ export const appKit = createAppKit({
   enableReconnect: true,
   debug: false,
   enableWalletGuide: false,
+  themeMode: "light",
 })
 
 // Export AppKit Provider component

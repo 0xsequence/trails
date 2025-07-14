@@ -137,7 +137,7 @@ export const AdvancedControlsSection: React.FC<
                 } else if (currentAction === "custom_call") {
                   finalDestAddress = customCallData.to
                   finalDestChainId = customCallData.chainId
-                    ? parseInt(customCallData.chainId.chainId)
+                    ? parseInt(customCallData.chainId)
                     : undefined
                   labelPrefix = "Custom Call Target Address"
                 }

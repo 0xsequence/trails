@@ -79,31 +79,31 @@ export const SUPPORTED_TO_TOKENS = [
   {
     symbol: "ETH",
     name: "Ethereum",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0x0000000000000000000000000000000000000000.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp`,
     decimals: 18,
   },
   {
     symbol: "USDC",
     name: "USD Coin",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp`,
     decimals: 6,
   },
   {
     symbol: "USDT",
     name: "Tether",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0xdac17f958d2ee523a2206206994597c13d831ec7.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0xdac17f958d2ee523a2206206994597c13d831ec7.webp`,
     decimals: 6,
   },
   {
     symbol: "BAT",
     name: "Basic Attention Token",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp`,
     decimals: 18,
   },
   {
     symbol: "ARB",
     name: "Arbitrum",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/42161/0x912ce59144191c1204e64559fe8253a0e49e6548.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/42161/0x912ce59144191c1204e64559fe8253a0e49e6548.webp`,
     decimals: 18,
   },
 ]
@@ -113,13 +113,13 @@ const FEE_TOKENS: TokenInfo[] = [
   {
     symbol: "ETH",
     name: "Ethereum",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0x0000000000000000000000000000000000000000.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp`,
     decimals: 18,
   },
   {
     symbol: "USDC",
     name: "USD Coin",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp`,
+    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp`,
     decimals: 6,
   },
 ]
@@ -527,12 +527,18 @@ export function useSendForm({
           await handleSend()
           console.log("[trails-sdk] handleRetry completed successfully")
         } catch (error) {
-          console.error("[trails-sdk] Error in prepareSend:", error)
-          setError(
+          console.error(
+            "[trails-sdk] Error in prepareSend walletConfirmRetryHandler:",
+            error,
+          )
+          const errorMessage =
             error instanceof Error
               ? error.message
-              : "An unexpected error occurred",
-          )
+              : "An unexpected error occurred"
+          setError(errorMessage)
+          if (onError) {
+            onError(errorMessage)
+          }
         }
       }
 
@@ -543,9 +549,12 @@ export function useSendForm({
       await handleSend()
     } catch (error) {
       console.error("[trails-sdk] Error in prepareSend:", error)
-      setError(
-        error instanceof Error ? error.message : "An unexpected error occurred",
-      )
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      setError(errorMessage)
+      if (onError) {
+        onError(errorMessage)
+      }
     }
 
     setIsSubmitting(false)
@@ -573,6 +582,7 @@ export function useSendForm({
     recipient,
     onTransactionStateChange,
     destinationTokenAddress,
+    onError,
   ])
 
   const handleSubmit = async (e: React.FormEvent) => {
