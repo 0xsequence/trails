@@ -33,3 +33,5 @@ export const PAY_RECIPIENT_ADDRESS =
 export const PAY_AMOUNT = 30000n // 0.03 USDC
 export const PAY_AMOUNT_FORMATTED = "0.03"
 export const PAY_DISPLAY_TEXT = `(Donate $${PAY_AMOUNT_FORMATTED} ${PAY_TOKEN_SYMBOL})`
+
+export const GIT_COMMIT_SHA = import.meta.env.VITE_COMMIT_SHA || ""

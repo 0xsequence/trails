@@ -36,4 +36,9 @@ export default defineConfig({
       "react-dom",
     ], // this helps avoid duplicate React context instances
   },
+  define: {
+    "import.meta.env.VITE_COMMIT_SHA": JSON.stringify(
+      process.env.CF_PAGES_COMMIT_SHA || process.env.VITE_COMMIT_SHA || "",
+    ),
+  },
 })

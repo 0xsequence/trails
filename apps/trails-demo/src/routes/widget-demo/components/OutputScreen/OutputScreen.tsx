@@ -1,6 +1,7 @@
 import { TrailsWidget } from "@0xsequence/trails-sdk/widget"
 import { useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router"
+import { GIT_COMMIT_SHA } from "@/config"
 import { CodeSnippet } from "../CodeSnippet"
 import { WidgetTabs } from "./WidgetTabs"
 
@@ -191,6 +192,16 @@ export const OutputScreen = ({
       >
         Testnet
       </button>
+
+      {/* Git Commit Hash */}
+      {GIT_COMMIT_SHA && (
+        <div
+          className="absolute bottom-3 left-4 text-xs text-gray-400 dark:text-gray-500 opacity-50 cursor-help"
+          title="Git commit hash"
+        >
+          {GIT_COMMIT_SHA.slice(0, 8)}
+        </div>
+      )}
     </div>
   )
 }
