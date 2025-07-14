@@ -93,7 +93,7 @@ export const OutputScreen = ({
         </div>
         <Link
           to="/sdk-sandbox"
-          className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 w-fit self-end"
+          className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 w-fit flex items-center"
         >
           SDK Sandbox →
         </Link>

@@ -8,7 +8,7 @@ import type {
 } from "@0xsequence/indexer"
 import { ContractVerificationStatus } from "@0xsequence/indexer"
 import type { Page, Price, SequenceAPIClient } from "@0xsequence/trails-api"
-import { useQuery } from "@tanstack/react-query"
+import { QueryClient, useQuery } from "@tanstack/react-query"
 import type { Address } from "ox"
 import { useEffect, useState } from "react"
 import { formatUnits, parseUnits, zeroAddress } from "viem"
@@ -19,6 +19,20 @@ import { useIndexerGatewayClient } from "./indexerClient.js"
 import { getTokenPrices, useTokenPrices } from "./prices.js"
 
 export type { NativeTokenBalance, TokenBalance }
+
+// Initialize query client for token balances
+const tokenBalancesQueryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60000, // 1 minute
+      gcTime: 300000, // 5 minutes
+      retry: 2,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+    },
+  },
+})
 
 // Default empty page info for query fallback
 const defaultPage = { page: 1, pageSize: 10, more: false }
@@ -110,16 +124,21 @@ export function useTokenBalances(
   balanceError: Error | null
   sortedTokens: TokenBalanceExtended[]
 } {
-  const indexerClient = indexerGatewayClient ?? useIndexerGatewayClient()
-  const apiClient = sequenceApiClient ?? useAPIClient()
+  // Always call hooks unconditionally to fix React rules violation
+  const hookIndexerClient = useIndexerGatewayClient()
+  const hookApiClient = useAPIClient()
 
-  // Fetch token balances
+  // Use passed parameters if available, otherwise use hook results
+  const indexerClient = indexerGatewayClient ?? hookIndexerClient
+  const apiClient = sequenceApiClient ?? hookApiClient
+
+  // Fetch token balances with improved query key structure
   const {
     data: tokenBalancesData,
     isLoading: isLoadingBalances,
     error: balanceError,
   } = useQuery<GetTokenBalancesWithPrice>({
-    queryKey: ["tokenBalances", address],
+    queryKey: ["tokenBalances", "summary", address],
     queryFn: async (): Promise<GetTokenBalancesWithPrice> => {
       if (!address) {
         console.warn("[trails-sdk] No account address or indexer client")
@@ -149,9 +168,20 @@ export function useTokenBalances(
         throw error
       }
     },
-    enabled: !!address,
-    staleTime: 30000,
-    retry: 1,
+    enabled: !!address && !!indexerClient,
+    staleTime: 60000, // 1 minute
+    gcTime: 300000, // 5 minutes cache time
+    retry: (failureCount, error) => {
+      // Don't retry 404s or network errors after 3 attempts
+      if (error && "status" in error && error.status === 404) return false
+      if (failureCount < 3) return true
+      return false
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+    refetchOnWindowFocus: false, // Prevent refetch on window focus
+    refetchOnReconnect: true, // Refetch on reconnect
+    refetchInterval: 300000, // Background refetch every 5 minutes
+    refetchIntervalInBackground: true,
   })
 
   const { data: tokenPrices, isLoading: isLoadingPrices } = useTokenPrices(
@@ -177,7 +207,13 @@ export function useTokenBalances(
 
   const { data: sortedTokens = [], isLoading: isLoadingSortedTokens } =
     useQuery<TokenBalanceExtended[]>({
-      queryKey: ["sortedTokens", tokenBalancesData, tokenPrices],
+      queryKey: [
+        "tokenBalances",
+        "sorted",
+        address,
+        tokenBalancesData?.page?.page,
+        tokenPrices?.length,
+      ],
       queryFn: () => {
         if (!tokenBalancesData || !tokenPrices) {
           return []
@@ -228,6 +264,9 @@ export function useTokenBalances(
         !isLoadingPrices &&
         !!tokenBalancesData &&
         !!tokenPrices,
+      staleTime: 30000, // 30 seconds for sorted tokens
+      gcTime: 120000, // 2 minutes cache time
+      refetchOnWindowFocus: false,
     })
 
   return {
@@ -258,10 +297,14 @@ export async function getSourceTokenList(): Promise<string[]> {
 }
 
 export function useSourceTokenList(): string[] {
-  const [list, setList] = useState<string[]>([])
-  useEffect(() => {
-    getSourceTokenList().then(setList)
-  }, [])
+  const { data: list = [] } = useQuery({
+    queryKey: ["sourceTokenList"],
+    queryFn: getSourceTokenList,
+    staleTime: 1000 * 60 * 60, // 1 hour - token list rarely changes
+    gcTime: 1000 * 60 * 60 * 24, // 24 hours cache time
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  })
   return list
 }
 
@@ -336,22 +379,59 @@ export type GetTokenBalancesParams = {
   indexerGatewayClient: SequenceIndexerGateway
 }
 
+// Separate fetch function for token balances summary
+export async function fetchGetTokenBalancesSummary({
+  account,
+  indexerGatewayClient,
+}: GetTokenBalancesParams): Promise<GetTokenBalancesSummaryReturn> {
+  if (!account || !indexerGatewayClient) {
+    throw new Error("Account address and indexer client are required")
+  }
+
+  try {
+    const summaryFromGateway =
+      await indexerGatewayClient.getTokenBalancesSummary({
+        filter: {
+          accountAddresses: [account],
+          contractStatus: ContractVerificationStatus.VERIFIED,
+          contractTypes: ["ERC20"],
+          omitNativeBalances: false,
+        },
+      })
+
+    return summaryFromGateway as unknown as GetTokenBalancesSummaryReturn
+  } catch (error) {
+    console.error("[trails-sdk] Failed to fetch token balances summary:", error)
+    throw error
+  }
+}
+
 export async function getTokenBalances({
   account,
   indexerGatewayClient,
 }: GetTokenBalancesParams): Promise<GetTokenBalancesSummaryReturn> {
-  const summaryFromGateway = await indexerGatewayClient.getTokenBalancesSummary(
-    {
-      filter: {
-        accountAddresses: [account],
-        contractStatus: ContractVerificationStatus.VERIFIED,
-        contractTypes: ["ERC20"],
-        omitNativeBalances: false,
-      },
-    },
-  )
+  return tokenBalancesQueryClient.fetchQuery({
+    queryKey: ["tokenBalances", "summary", account],
+    queryFn: () =>
+      fetchGetTokenBalancesSummary({ account, indexerGatewayClient }),
+    staleTime: 60000, // 1 minute
+    gcTime: 300000, // 5 minutes
+  })
+}
 
-  return summaryFromGateway as unknown as GetTokenBalancesSummaryReturn
+// Cache invalidation utility function
+export function invalidateTokenBalancesCache(account?: string) {
+  if (account) {
+    // Invalidate specific account's token balances
+    tokenBalancesQueryClient.invalidateQueries({
+      queryKey: ["tokenBalances", account],
+    })
+  } else {
+    // Invalidate all token balance queries
+    tokenBalancesQueryClient.invalidateQueries({
+      queryKey: ["tokenBalances"],
+    })
+  }
 }
 
 export type GetTokenBalancesFlatArrayParams = {
@@ -375,17 +455,30 @@ export async function getTokenBalancesFlatArray({
 
   for (const balance of summaryFromGateway.balances) {
     ;(balance as any).results.forEach((b: any) => {
-      tokenMap.set(`${b.contractAddress}-${b.contractInfo?.chainId}`, b)
+      tokenMap.set(
+        `${b.contractAddress}-${b.contractInfo?.chainId}-${b.contractInfo?.symbol}`,
+        {
+          ...b,
+          contractAddress: b.contractAddress ?? zeroAddress,
+          tokenId: b.contractInfo?.symbol,
+        },
+      )
     })
   }
 
   for (const balance of summaryFromGateway.nativeBalances) {
     ;(balance as any).results.forEach((b: any) => {
-      tokenMap.set(`${b.contractAddress}-${b.chainId}`, b)
+      tokenMap.set(`${b.contractAddress}-${b.chainId}-${b.symbol}`, {
+        ...b,
+        contractAddress: b.contractAddress ?? zeroAddress,
+        tokenId: b.symbol,
+      })
     })
   }
 
-  return Array.from(tokenMap.values())
+  const tokens = Array.from(tokenMap.values())
+
+  return tokens
 }
 
 export type GetTokenBalancesWithPricesParams = {
@@ -489,7 +582,7 @@ export function useHasSufficientBalanceToken(
     data: hasSufficientBalanceToken,
     isLoading: isLoadingHasSufficientBalanceToken,
   } = useQuery({
-    queryKey: ["hasSufficientBalanceToken", account, token, amount, chainId],
+    queryKey: ["tokenBalances", "sufficient", account, token, amount, chainId],
     queryFn: () =>
       account
         ? getHasSufficientBalanceToken({
@@ -501,6 +594,16 @@ export function useHasSufficientBalanceToken(
             apiClient: apiClient,
           })
         : null,
+    enabled: !!account && !!token && !!amount && !!chainId,
+    staleTime: 45000, // 45 seconds
+    gcTime: 180000, // 3 minutes cache time
+    retry: (failureCount, error) => {
+      if (error && "status" in error && error.status === 404) return false
+      if (failureCount < 2) return true
+      return false
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
   })
 
   return {
@@ -546,7 +649,7 @@ export function useHasSufficientBalanceUsd(
     isLoading: isLoadingHasSufficientBalanceUsd,
     error: hasSufficientBalanceUsdError,
   } = useQuery({
-    queryKey: ["hasSufficientBalanceUsd", account, targetAmountUsd],
+    queryKey: ["tokenBalances", "sufficientUsd", account, targetAmountUsd],
     queryFn: () =>
       account && targetAmountUsd
         ? getHasSufficientBalanceUsd({
@@ -556,6 +659,16 @@ export function useHasSufficientBalanceUsd(
             apiClient: apiClient,
           })
         : false,
+    enabled: !!account && !!targetAmountUsd,
+    staleTime: 45000, // 45 seconds
+    gcTime: 180000, // 3 minutes cache time
+    retry: (failureCount, error) => {
+      if (error && "status" in error && error.status === 404) return false
+      if (failureCount < 2) return true
+      return false
+    },
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
   })
 
   return {
@@ -596,7 +709,7 @@ export function useAccountTotalBalanceUsd(account: string): {
 
   const { data: totalBalanceUsd, isLoading: isLoadingTotalBalanceUsd } =
     useQuery({
-      queryKey: ["totalBalanceUsd", account],
+      queryKey: ["tokenBalances", "totalUsd", account],
       queryFn: () =>
         account
           ? getAccountTotalBalanceUsd({
@@ -605,6 +718,19 @@ export function useAccountTotalBalanceUsd(account: string): {
               apiClient: apiClient,
             })
           : null,
+      enabled: !!account,
+      staleTime: 60000, // 1 minute
+      gcTime: 300000, // 5 minutes cache time
+      retry: (failureCount, error) => {
+        if (error && "status" in error && error.status === 404) return false
+        if (failureCount < 2) return true
+        return false
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+      refetchInterval: 300000, // Background refetch every 5 minutes
+      refetchIntervalInBackground: true,
     })
 
   return {

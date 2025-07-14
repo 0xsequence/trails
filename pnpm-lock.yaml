@@ -56,13 +56,13 @@ importers:
         version: 4.0.1(0xsequence@2.3.17(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(viem@2.31.7(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.76))(wagmi@2.15.6(@tanstack/query-core@5.83.0)(@tanstack/react-query@5.83.0(react@19.1.0))(@types/react@19.1.8)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.7.3)(utf-8-validate@5.0.10)(viem@2.31.7(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76))
       '@0xsequence/wallet-core':
         specifier: github:0xsequence/sequence.js#dists/wallet/core
-        version: https://codeload.github.com/0xsequence/sequence.js/tar.gz/8d0f5e0593fb66635a40fb5bde250dd4e0f30d2d(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+        version: https://codeload.github.com/0xsequence/sequence.js/tar.gz/50b289daf551026a047516cbf5c2229ffec9e03d(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@0xsequence/wallet-primitives':
         specifier: github:0xsequence/sequence.js#dists/wallet/primitives
-        version: https://codeload.github.com/0xsequence/sequence.js/tar.gz/fcab881324affd19ef79382217a47e521008ba8f(typescript@5.7.3)(zod@3.25.76)
+        version: https://codeload.github.com/0xsequence/sequence.js/tar.gz/be74910c6937d4cff980a6ee4a8b275d54f987ad(typescript@5.7.3)(zod@3.25.76)
       '@0xsequence/wallet-wdk':
         specifier: github:0xsequence/sequence.js#dists/wallet/wdk
-        version: https://codeload.github.com/0xsequence/sequence.js/tar.gz/cba9ee8cac8167a7b6141de77ea7731603340f82(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+        version: https://codeload.github.com/0xsequence/sequence.js/tar.gz/292de1799b6dd7e3663515be85834320becc9723(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@radix-ui/react-popover':
         specifier: ^1.1.14
         version: 1.1.14(@types/react-dom@19.1.6(@types/react@19.1.8))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -221,10 +221,10 @@ importers:
         version: 4.0.1(0xsequence@2.3.17(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(viem@2.31.7(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76))(wagmi@2.15.6(@tanstack/query-core@5.83.0)(@tanstack/react-query@5.83.0(react@19.1.0))(@types/react@19.1.8)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.31.7(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76))
       '@0xsequence/wallet-core':
         specifier: github:0xsequence/sequence.js#dists/wallet/core
-        version: https://codeload.github.com/0xsequence/sequence.js/tar.gz/8d0f5e0593fb66635a40fb5bde250dd4e0f30d2d(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+        version: https://codeload.github.com/0xsequence/sequence.js/tar.gz/50b289daf551026a047516cbf5c2229ffec9e03d(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@0xsequence/wallet-primitives':
         specifier: github:0xsequence/sequence.js#dists/wallet/primitives
-        version: https://codeload.github.com/0xsequence/sequence.js/tar.gz/fcab881324affd19ef79382217a47e521008ba8f(typescript@5.8.3)(zod@3.25.76)
+        version: https://codeload.github.com/0xsequence/sequence.js/tar.gz/be74910c6937d4cff980a6ee4a8b275d54f987ad(typescript@5.8.3)(zod@3.25.76)
       '@privy-io/react-auth':
         specifier: ^2.18.0
         version: 2.18.0(@solana/web3.js@1.98.2(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.8.3)(utf-8-validate@5.0.10))(@types/react@19.1.8)(bs58@6.0.0)(bufferutil@4.0.9)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.3)(use-sync-external-store@1.5.0(react@19.1.0))(utf-8-validate@5.0.10)(zod@3.25.76)
@@ -234,6 +234,9 @@ importers:
       '@reservoir0x/relay-sdk':
         specifier: ^2.3.0
         version: 2.3.0(viem@2.31.7(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76))
+      '@tanstack/query-core':
+        specifier: ^5.83.0
+        version: 5.83.0
       '@tanstack/react-query':
         specifier: ^5.83.0
         version: 5.83.0(react@19.1.0)
@@ -396,8 +399,8 @@ packages:
       react-dom: '>= 17'
       viem: '>= 2.28.0'
 
-  '@0xsequence/identity-instrument@https://codeload.github.com/0xsequence/sequence.js/tar.gz/3f26d891bf44a7aa54f14f0b293239c24c49857c':
-    resolution: {tarball: https://codeload.github.com/0xsequence/sequence.js/tar.gz/3f26d891bf44a7aa54f14f0b293239c24c49857c}
+  '@0xsequence/identity-instrument@https://codeload.github.com/0xsequence/sequence.js/tar.gz/b93f11aa5f31aac4ce38305653570386216a2a6a':
+    resolution: {tarball: https://codeload.github.com/0xsequence/sequence.js/tar.gz/b93f11aa5f31aac4ce38305653570386216a2a6a}
     version: 0.0.0
 
   '@0xsequence/indexer@2.3.17':
@@ -444,8 +447,8 @@ packages:
     peerDependencies:
       ethers: '>=6'
 
-  '@0xsequence/relayer@https://codeload.github.com/0xsequence/sequence.js/tar.gz/b49b223c1081fbc78230555ce7cb60bce71531d1':
-    resolution: {tarball: https://codeload.github.com/0xsequence/sequence.js/tar.gz/b49b223c1081fbc78230555ce7cb60bce71531d1}
+  '@0xsequence/relayer@https://codeload.github.com/0xsequence/sequence.js/tar.gz/ef42dc76b1218e271ec21a22230b041ce48f01a7':
+    resolution: {tarball: https://codeload.github.com/0xsequence/sequence.js/tar.gz/ef42dc76b1218e271ec21a22230b041ce48f01a7}
     version: 3.0.0
 
   '@0xsequence/replacer@2.3.17':
@@ -499,16 +502,16 @@ packages:
       viem: '>= 2.0.0'
       wagmi: '>= 2.0.0'
 
-  '@0xsequence/wallet-core@https://codeload.github.com/0xsequence/sequence.js/tar.gz/8d0f5e0593fb66635a40fb5bde250dd4e0f30d2d':
-    resolution: {tarball: https://codeload.github.com/0xsequence/sequence.js/tar.gz/8d0f5e0593fb66635a40fb5bde250dd4e0f30d2d}
+  '@0xsequence/wallet-core@https://codeload.github.com/0xsequence/sequence.js/tar.gz/50b289daf551026a047516cbf5c2229ffec9e03d':
+    resolution: {tarball: https://codeload.github.com/0xsequence/sequence.js/tar.gz/50b289daf551026a047516cbf5c2229ffec9e03d}
     version: 0.0.0
 
-  '@0xsequence/wallet-primitives@https://codeload.github.com/0xsequence/sequence.js/tar.gz/fcab881324affd19ef79382217a47e521008ba8f':
-    resolution: {tarball: https://codeload.github.com/0xsequence/sequence.js/tar.gz/fcab881324affd19ef79382217a47e521008ba8f}
+  '@0xsequence/wallet-primitives@https://codeload.github.com/0xsequence/sequence.js/tar.gz/be74910c6937d4cff980a6ee4a8b275d54f987ad':
+    resolution: {tarball: https://codeload.github.com/0xsequence/sequence.js/tar.gz/be74910c6937d4cff980a6ee4a8b275d54f987ad}
     version: 0.0.0
 
-  '@0xsequence/wallet-wdk@https://codeload.github.com/0xsequence/sequence.js/tar.gz/cba9ee8cac8167a7b6141de77ea7731603340f82':
-    resolution: {tarball: https://codeload.github.com/0xsequence/sequence.js/tar.gz/cba9ee8cac8167a7b6141de77ea7731603340f82}
+  '@0xsequence/wallet-wdk@https://codeload.github.com/0xsequence/sequence.js/tar.gz/292de1799b6dd7e3663515be85834320becc9723':
+    resolution: {tarball: https://codeload.github.com/0xsequence/sequence.js/tar.gz/292de1799b6dd7e3663515be85834320becc9723}
     version: 0.0.0
 
   '@0xsequence/wallet@2.3.17':
@@ -5513,7 +5516,7 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
       viem: 2.31.7(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76)
 
-  '@0xsequence/identity-instrument@https://codeload.github.com/0xsequence/sequence.js/tar.gz/3f26d891bf44a7aa54f14f0b293239c24c49857c(typescript@5.7.3)(zod@3.25.76)':
+  '@0xsequence/identity-instrument@https://codeload.github.com/0xsequence/sequence.js/tar.gz/b93f11aa5f31aac4ce38305653570386216a2a6a(typescript@5.7.3)(zod@3.25.76)':
     dependencies:
       jwt-decode: 4.0.0
       ox: 0.7.2(typescript@5.7.3)(zod@3.25.76)
@@ -5587,7 +5590,7 @@ snapshots:
       '@0xsequence/utils': 2.3.22(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       ethers: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
 
-  '@0xsequence/relayer@https://codeload.github.com/0xsequence/sequence.js/tar.gz/b49b223c1081fbc78230555ce7cb60bce71531d1': {}
+  '@0xsequence/relayer@https://codeload.github.com/0xsequence/sequence.js/tar.gz/ef42dc76b1218e271ec21a22230b041ce48f01a7': {}
 
   '@0xsequence/replacer@2.3.17(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:
@@ -5658,10 +5661,10 @@ snapshots:
       viem: 2.31.7(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       wagmi: 2.15.6(@tanstack/query-core@5.83.0)(@tanstack/react-query@5.83.0(react@19.1.0))(@types/react@19.1.8)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.31.7(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76)
 
-  '@0xsequence/wallet-core@https://codeload.github.com/0xsequence/sequence.js/tar.gz/8d0f5e0593fb66635a40fb5bde250dd4e0f30d2d(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.76)':
+  '@0xsequence/wallet-core@https://codeload.github.com/0xsequence/sequence.js/tar.gz/50b289daf551026a047516cbf5c2229ffec9e03d(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
-      '@0xsequence/relayer': https://codeload.github.com/0xsequence/sequence.js/tar.gz/b49b223c1081fbc78230555ce7cb60bce71531d1
-      '@0xsequence/wallet-primitives': https://codeload.github.com/0xsequence/sequence.js/tar.gz/fcab881324affd19ef79382217a47e521008ba8f(typescript@5.7.3)(zod@3.25.76)
+      '@0xsequence/relayer': https://codeload.github.com/0xsequence/sequence.js/tar.gz/ef42dc76b1218e271ec21a22230b041ce48f01a7
+      '@0xsequence/wallet-primitives': https://codeload.github.com/0xsequence/sequence.js/tar.gz/be74910c6937d4cff980a6ee4a8b275d54f987ad(typescript@5.7.3)(zod@3.25.76)
       mipd: 0.0.7(typescript@5.7.3)
       ox: 0.7.2(typescript@5.7.3)(zod@3.25.76)
       viem: 2.31.7(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.76)
@@ -5671,10 +5674,10 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@0xsequence/wallet-core@https://codeload.github.com/0xsequence/sequence.js/tar.gz/8d0f5e0593fb66635a40fb5bde250dd4e0f30d2d(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76)':
+  '@0xsequence/wallet-core@https://codeload.github.com/0xsequence/sequence.js/tar.gz/50b289daf551026a047516cbf5c2229ffec9e03d(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
-      '@0xsequence/relayer': https://codeload.github.com/0xsequence/sequence.js/tar.gz/b49b223c1081fbc78230555ce7cb60bce71531d1
-      '@0xsequence/wallet-primitives': https://codeload.github.com/0xsequence/sequence.js/tar.gz/fcab881324affd19ef79382217a47e521008ba8f(typescript@5.8.3)(zod@3.25.76)
+      '@0xsequence/relayer': https://codeload.github.com/0xsequence/sequence.js/tar.gz/ef42dc76b1218e271ec21a22230b041ce48f01a7
+      '@0xsequence/wallet-primitives': https://codeload.github.com/0xsequence/sequence.js/tar.gz/be74910c6937d4cff980a6ee4a8b275d54f987ad(typescript@5.8.3)(zod@3.25.76)
       mipd: 0.0.7(typescript@5.8.3)
       ox: 0.7.2(typescript@5.8.3)(zod@3.25.76)
       viem: 2.31.7(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76)
@@ -5684,26 +5687,26 @@ snapshots:
       - utf-8-validate
       - zod
 
-  '@0xsequence/wallet-primitives@https://codeload.github.com/0xsequence/sequence.js/tar.gz/fcab881324affd19ef79382217a47e521008ba8f(typescript@5.7.3)(zod@3.25.76)':
+  '@0xsequence/wallet-primitives@https://codeload.github.com/0xsequence/sequence.js/tar.gz/be74910c6937d4cff980a6ee4a8b275d54f987ad(typescript@5.7.3)(zod@3.25.76)':
     dependencies:
       ox: 0.7.2(typescript@5.7.3)(zod@3.25.76)
     transitivePeerDependencies:
       - typescript
       - zod
 
-  '@0xsequence/wallet-primitives@https://codeload.github.com/0xsequence/sequence.js/tar.gz/fcab881324affd19ef79382217a47e521008ba8f(typescript@5.8.3)(zod@3.25.76)':
+  '@0xsequence/wallet-primitives@https://codeload.github.com/0xsequence/sequence.js/tar.gz/be74910c6937d4cff980a6ee4a8b275d54f987ad(typescript@5.8.3)(zod@3.25.76)':
     dependencies:
       ox: 0.7.2(typescript@5.8.3)(zod@3.25.76)
     transitivePeerDependencies:
       - typescript
       - zod
 
-  '@0xsequence/wallet-wdk@https://codeload.github.com/0xsequence/sequence.js/tar.gz/cba9ee8cac8167a7b6141de77ea7731603340f82(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.76)':
+  '@0xsequence/wallet-wdk@https://codeload.github.com/0xsequence/sequence.js/tar.gz/292de1799b6dd7e3663515be85834320becc9723(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.76)':
     dependencies:
-      '@0xsequence/identity-instrument': https://codeload.github.com/0xsequence/sequence.js/tar.gz/3f26d891bf44a7aa54f14f0b293239c24c49857c(typescript@5.7.3)(zod@3.25.76)
+      '@0xsequence/identity-instrument': https://codeload.github.com/0xsequence/sequence.js/tar.gz/b93f11aa5f31aac4ce38305653570386216a2a6a(typescript@5.7.3)(zod@3.25.76)
       '@0xsequence/tee-verifier': 0.1.2
-      '@0xsequence/wallet-core': https://codeload.github.com/0xsequence/sequence.js/tar.gz/8d0f5e0593fb66635a40fb5bde250dd4e0f30d2d(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.76)
-      '@0xsequence/wallet-primitives': https://codeload.github.com/0xsequence/sequence.js/tar.gz/fcab881324affd19ef79382217a47e521008ba8f(typescript@5.7.3)(zod@3.25.76)
+      '@0xsequence/wallet-core': https://codeload.github.com/0xsequence/sequence.js/tar.gz/50b289daf551026a047516cbf5c2229ffec9e03d(bufferutil@4.0.9)(typescript@5.7.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+      '@0xsequence/wallet-primitives': https://codeload.github.com/0xsequence/sequence.js/tar.gz/be74910c6937d4cff980a6ee4a8b275d54f987ad(typescript@5.7.3)(zod@3.25.76)
       idb: 7.1.1
       jwt-decode: 4.0.0
       ox: 0.7.2(typescript@5.7.3)(zod@3.25.76)
