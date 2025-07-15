@@ -9,7 +9,7 @@ import { useTheme } from "@/contexts/ThemeContext"
 
 interface CodeSnippetProps {
   children?: React.ReactNode
-  sequenceProjectAccessKey: string
+  appId: string
   toAddress: string
   toAmount: string
   toChainId: number | undefined
@@ -25,7 +25,7 @@ interface CodeSnippetProps {
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   children,
-  sequenceProjectAccessKey,
+  appId,
   toAddress,
   toAmount,
   toChainId,
@@ -54,10 +54,9 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
     }
   }
 
-  const accessKey = sequenceProjectAccessKey || "key_123..."
-
   const getReactCode = () => {
     const props = [
+      appId && `appId="${appId}"`,
       toAddress && `toAddress="${toAddress}"`,
       toAmount && `toAmount="${toAmount}"`,
       toChainId && `toChainId={${toChainId}}`,
@@ -79,7 +78,7 @@ export const App = () => {
     useCustomButton
       ? `
     <TrailsWidget
-      sequenceProjectAccessKey="${accessKey}"${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
+      ${props.join("\n      ")}
     >
       <button className="custom-button-styles">
         Pay with Trails
@@ -87,7 +86,7 @@ export const App = () => {
     </TrailsWidget>`
       : `
     <TrailsWidget
-      sequenceProjectAccessKey="${accessKey}"${props.length > 0 ? "\n      " : ""}${props.join("\n      ")}
+      ${props.join("\n      ")}
     />`
   }
   )
@@ -96,6 +95,7 @@ export const App = () => {
 
   const getScriptCode = () => {
     const props = [
+      appId && `appId: '${appId}'`,
       toAddress && `toAddress: '${toAddress}'`,
       toAmount && `toAmount: '${toAmount}'`,
       toChainId && `toChainId: ${toChainId}`,
@@ -112,10 +112,10 @@ export const App = () => {
 
     return `<div id="trails"></div>
 
-<script src="https://trails.sequence-demos.xyz/js/trails.min.js"></script>
+<script src="https://demo.trails.build/js/trails.min.js"></script>
 <script>
     TrailsWidget.render(document.getElementById('trails'), {
-        sequenceProjectAccessKey: '${accessKey}',${props.length > 0 ? "\n            " : ""}${props.join(",\n            ")}
+      ${props.join(",\n       ")}
     })
 </script>
 `.trim()

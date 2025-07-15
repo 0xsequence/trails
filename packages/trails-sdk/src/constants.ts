@@ -84,3 +84,6 @@ export const intentEntrypoints: Record<number, `0x${string}`> = {
   42161: "0x674827B6BE8780DBdb96DC02c735275e3a982c90",
   137: "0x4dBb20eA3A969F1A44d7653D4Dc8632B853E36DE",
 }
+
+export const DEFAULT_SEQUENCE_PROJECT_ACCESS_KEY =
+  "AQAAAAAAAAaq1E41OU0QxifQgrVBMgfqg7k"

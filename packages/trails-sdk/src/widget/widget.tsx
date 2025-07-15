@@ -79,7 +79,7 @@ interface Token {
 }
 
 export type TrailsWidgetProps = {
-  sequenceProjectAccessKey: string
+  appId: string
   sequenceIndexerUrl?: string | null
   sequenceApiUrl?: string | null
   sequenceEnv?: RelayerEnv
@@ -240,7 +240,7 @@ const useTransactionState = (
 }
 
 const WidgetInner: React.FC<TrailsWidgetProps> = ({
-  sequenceProjectAccessKey,
+  appId: sequenceProjectAccessKey,
   sequenceIndexerUrl,
   sequenceApiUrl,
   sequenceEnv,
@@ -1277,7 +1277,7 @@ export const TrailsWidget = (props: TrailsWidgetProps) => {
           // SequenceHooksProvider missing, wrap with it
           <SequenceHooksProvider
             config={{
-              projectAccessKey: props.sequenceProjectAccessKey,
+              projectAccessKey: props.appId,
               env: {
                 indexerUrl: props.sequenceIndexerUrl || undefined,
                 indexerGatewayUrl: props.sequenceIndexerUrl || undefined,

@@ -1,21 +1,23 @@
 import React from "react"
 import { createRoot } from "react-dom/client"
+import type { RelayerEnv } from "./relayer.js"
+import type { Theme } from "./theme.js"
 import { TrailsWidget } from "./widget/widget.js"
 
 interface TrailsGlobal {
   render: (
     element: HTMLElement,
     options: {
-      sequenceProjectAccessKey: string
+      appId: string
       indexerUrl?: string
       apiUrl?: string
-      env?: "local" | "cors-anywhere" | "dev" | "prod"
+      env?: RelayerEnv
       toRecipient?: string
       toAmount?: string
       toChainId?: number | string
-      toToken?: "USDC" | "ETH"
+      toToken?: string
       toCalldata?: string
-      theme?: "light" | "dark" | "auto"
+      theme?: Theme
     },
   ) => void
 }
@@ -36,7 +38,7 @@ export default TrailsGlobal
 
 // Explicitly set the global for UMD
 if (typeof window !== "undefined") {
-  ;(window as any).TrailsWidget = TrailsGlobal
+  window.TrailsWidget = TrailsGlobal
 }
 
 // Add type declaration for window object

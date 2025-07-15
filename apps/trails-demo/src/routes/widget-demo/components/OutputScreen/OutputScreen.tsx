@@ -6,7 +6,7 @@ import { CodeSnippet } from "../CodeSnippet"
 import { WidgetTabs } from "./WidgetTabs"
 
 interface OutputScreenProps {
-  sequenceProjectAccessKey: string
+  appId: string
   toAddress: string
   toAmount: string
   toChainId: number | undefined
@@ -28,7 +28,7 @@ interface OutputScreenProps {
 }
 
 export const OutputScreen = ({
-  sequenceProjectAccessKey,
+  appId,
   toAddress,
   toAmount,
   toChainId,
@@ -103,9 +103,7 @@ export const OutputScreen = ({
         {activeTab === "modal" && (
           <div className="w-full">
             <TrailsWidget
-              sequenceProjectAccessKey={
-                sequenceProjectAccessKey || defaultSequenceProjectAccessKey
-              }
+              appId={appId || defaultSequenceProjectAccessKey}
               sequenceApiUrl={apiUrl}
               sequenceIndexerUrl={indexerUrl}
               sequenceEnv={env}
@@ -129,9 +127,7 @@ export const OutputScreen = ({
         {activeTab === "button" && (
           <div className="flex justify-center">
             <TrailsWidget
-              sequenceProjectAccessKey={
-                sequenceProjectAccessKey || defaultSequenceProjectAccessKey
-              }
+              appId={appId || defaultSequenceProjectAccessKey}
               sequenceApiUrl={apiUrl}
               sequenceIndexerUrl={indexerUrl}
               sequenceEnv={env}
@@ -163,7 +159,7 @@ export const OutputScreen = ({
 
         {activeTab === "code" && (
           <CodeSnippet
-            sequenceProjectAccessKey={sequenceProjectAccessKey}
+            appId={appId}
             toAddress={toAddress}
             toAmount={toAmount}
             toChainId={toChainId}

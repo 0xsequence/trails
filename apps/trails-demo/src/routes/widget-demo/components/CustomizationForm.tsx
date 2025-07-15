@@ -25,8 +25,8 @@ const Checkmark: React.FC<{ className?: string }> = ({
 )
 
 interface CustomizationFormProps {
-  sequenceProjectAccessKey: string
-  setSequenceProjectAccessKey: (value: string) => void
+  appId: string
+  setAppId: (value: string) => void
   toAddress: string
   setToAddress: (value: string) => void
   toAmount: string
@@ -53,7 +53,7 @@ interface CustomizationFormProps {
 
 // Local storage keys
 export const STORAGE_KEYS = {
-  SEQUENCE_PROJECT_ACCESS_KEY: "trails_demo_sequence_project_access_key",
+  APP_ID: "trails_demo_app_id",
   TO_ADDRESS: "trails_demo_to_address",
   TO_AMOUNT: "trails_demo_to_amount",
   TO_CHAIN_ID: "trails_demo_to_chain_id",
@@ -124,8 +124,8 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
 }
 
 export const CustomizationForm: React.FC<CustomizationFormProps> = ({
-  sequenceProjectAccessKey,
-  setSequenceProjectAccessKey,
+  appId,
+  setAppId,
   toAddress,
   setToAddress,
   toAmount,
@@ -321,9 +321,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   // Load saved values from localStorage on mount
   useEffect(() => {
-    const savedSequenceProjectAccessKey = localStorage.getItem(
-      STORAGE_KEYS.SEQUENCE_PROJECT_ACCESS_KEY,
-    )
+    const savedAppId = localStorage.getItem(STORAGE_KEYS.APP_ID)
     const savedToAddress = localStorage.getItem(STORAGE_KEYS.TO_ADDRESS)
     const savedToAmount = localStorage.getItem(STORAGE_KEYS.TO_AMOUNT)
     const savedToChainId = localStorage.getItem(STORAGE_KEYS.TO_CHAIN_ID)
@@ -340,8 +338,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     const savedGasless = localStorage.getItem(STORAGE_KEYS.GASLESS)
 
     // Only set values if they exist in localStorage
-    if (savedSequenceProjectAccessKey !== null)
-      setSequenceProjectAccessKey(savedSequenceProjectAccessKey)
+    if (savedAppId !== null) setAppId(savedAppId)
     if (savedToAddress !== null) setToAddress(savedToAddress)
     if (savedToAmount !== null) setToAmount(savedToAmount)
     if (savedToChainId !== null) setToChainId(Number(savedToChainId))
@@ -376,7 +373,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
     if (savedGasless !== null) setGasless(savedGasless === "true")
   }, [
-    setSequenceProjectAccessKey,
+    setAppId,
     setToAddress,
     setToAmount,
     setToChainId,
@@ -392,15 +389,12 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   // Save values to localStorage whenever they change
   useEffect(() => {
-    if (sequenceProjectAccessKey) {
-      localStorage.setItem(
-        STORAGE_KEYS.SEQUENCE_PROJECT_ACCESS_KEY,
-        sequenceProjectAccessKey,
-      )
+    if (appId) {
+      localStorage.setItem(STORAGE_KEYS.APP_ID, appId)
     } else {
-      localStorage.removeItem(STORAGE_KEYS.SEQUENCE_PROJECT_ACCESS_KEY)
+      localStorage.removeItem(STORAGE_KEYS.APP_ID)
     }
-  }, [sequenceProjectAccessKey])
+  }, [appId])
 
   useEffect(() => {
     if (toAddress) {
@@ -525,7 +519,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   const handleReset = () => {
     // Clear form state
-    setSequenceProjectAccessKey("")
+    setAppId("")
     setToAddress("")
     setToAmount("")
     setToChainId(undefined)
@@ -893,7 +887,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   htmlFor="gasless"
                 >
                   Gasless
-                  <Tooltip message="Enable gasless transactions using Sequence Relayer based on your project access key sponsorship settings">
+                  <Tooltip message="Enable gasless transactions using Sequence Relayer based on your project access key (app ID) sponsorship settings">
                     <InfoIcon
                       size="sm"
                       className="text-gray-500 dark:text-gray-400 cursor-pointer"
@@ -1065,6 +1059,25 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   })}
                 </div>
               </div>
+
+              <div>
+                <label
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
+                  htmlFor="appId"
+                >
+                  Custom App ID
+                </label>
+                <input
+                  type="text"
+                  value={appId}
+                  onChange={(e) => setAppId(e.target.value.trim())}
+                  placeholder="Enter your app ID"
+                  className="w-full px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                  Your Sequence project access key for gasless transactions
+                </p>
+              </div>
             </div>
           </details>
         </div>
@@ -1144,33 +1157,6 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   </button>
                 </div>
               </div>
-            </div>
-          </details>
-        </div>
-
-        <div className="pt-2">
-          <details className="group">
-            <summary className="flex items-center cursor-pointer list-none py-2">
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
-                Sequence Project Access Key
-              </span>
-              <span className="text-gray-500 dark:text-gray-400 text-lg font-medium group-open:hidden ml-2">
-                +
-              </span>
-              <span className="text-gray-500 dark:text-gray-400 text-lg font-medium hidden group-open:inline ml-2">
-                −
-              </span>
-            </summary>
-            <div className="mt-3">
-              <input
-                type="text"
-                value={sequenceProjectAccessKey}
-                onChange={(e) =>
-                  setSequenceProjectAccessKey(e.target.value.trim())
-                }
-                placeholder="Enter your sequence project access key"
-                className="w-full px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-              />
             </div>
           </details>
         </div>

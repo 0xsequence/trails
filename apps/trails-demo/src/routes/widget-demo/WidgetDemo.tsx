@@ -73,8 +73,8 @@ export const WidgetDemo = () => {
           {/* Left Column - Config Form */}
           <div className="w-full lg:w-1/2">
             <CustomizationForm
-              sequenceProjectAccessKey={sequenceProjectAccessKey}
-              setSequenceProjectAccessKey={setSequenceProjectAccessKey}
+              appId={sequenceProjectAccessKey}
+              setAppId={setSequenceProjectAccessKey}
               toAddress={toAddress}
               setToAddress={setToAddress}
               toAmount={toAmount}
@@ -103,9 +103,7 @@ export const WidgetDemo = () => {
           {/* Right Column - Output Screen */}
           <div className="w-full lg:w-1/2">
             <OutputScreen
-              sequenceProjectAccessKey={
-                sequenceProjectAccessKey || defaultSequenceProjectAccessKey
-              }
+              appId={sequenceProjectAccessKey}
               toAddress={toAddress}
               toAmount={toAmount}
               toChainId={toChainId}
