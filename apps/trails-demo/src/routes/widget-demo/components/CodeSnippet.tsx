@@ -21,6 +21,8 @@ interface CodeSnippetProps {
   walletOptions: string[] | null
   paymasterUrls: Array<{ chainId: number; url: string }>
   gasless: boolean | null
+  onOriginConfirmation: string | null
+  onDestinationConfirmation: string | null
 }
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = ({
