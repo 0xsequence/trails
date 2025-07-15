@@ -4,6 +4,7 @@ import type { ActiveTheme } from "../../theme.js"
 import TrailsLogoBlack from "../assets/Trails-logo-black.svg"
 import TrailsLogoWhite from "../assets/Trails-logo-white.svg"
 import DebugScreensDropdown from "./DebugScreensDropdown.js"
+import { SITE_URL } from "../config.js"
 
 interface FooterProps {
   theme: ActiveTheme
@@ -32,7 +33,7 @@ export const Footer: React.FC<FooterProps> = ({
       </div>
       Powered by&nbsp;
       <a
-        href="https://trails.sequence-demos.xyz/"
+        href={SITE_URL}
         target="_blank"
         rel="noopener noreferrer"
         className={`font-medium transition-colors hover:opacity-80 leading-none ${

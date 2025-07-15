@@ -7,9 +7,9 @@ import SequenceLogoWhite from "@/assets/sequence-logo-white.svg"
 import TwitterIconBlack from "@/assets/TwitterIcon-black.svg"
 import TwitterIconWhite from "@/assets/TwitterIcon-white.svg"
 import {
-  DEMOS_URL,
   DISCORD_URL,
   GITHUB_URL,
+  LANDING_PAGE_URL,
   SEQUENCE_URL,
   TWITTER_URL,
 } from "@/config"
@@ -25,7 +25,7 @@ export const SiteFooter = () => {
         {/* Left side - Trails Logo */}
         <div className="flex items-center flex-1">
           <a
-            href={DEMOS_URL}
+            href={LANDING_PAGE_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="hover:opacity-80 transition-opacity"
