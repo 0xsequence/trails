@@ -2,7 +2,7 @@ import type { Hex } from "viem"
 import * as chains from "viem/chains"
 
 export const LANDING_PAGE_URL = "https://trails.build/"
-export const DOCS_URL = "https://anypay.mintlify.app/home"
+export const DOCS_URL = "https://docs.trails.build/"
 export const DEMOS_URL = "https://trails.sequence-demos.xyz/"
 export const TWITTER_URL = "https://x.com/0xsequence"
 export const DISCORD_URL = "https://discord.gg/sequence"
