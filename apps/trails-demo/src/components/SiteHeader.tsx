@@ -1,10 +1,10 @@
-import { DEMOS_URL, DOCS_URL } from "@/config"
+import { DEMOS_URL, DOCS_URL, LANDING_PAGE_URL } from "@/config"
 
 export const SiteHeader = () => {
   return (
     <header className="flex max-sm:flex-col items-center justify-between min-h-[3.75rem] border-b border-slate-300 sticky top-0 bg-white/90 backdrop-blur-lg z-50 isolate">
       <div className="flex items-center gap-12 mx-auto max-w-screen-xl w-full px-5 py-3">
-        <a href="/" data-discover="true">
+        <a href={LANDING_PAGE_URL} data-discover="true">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
