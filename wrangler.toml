@@ -1,4 +1,4 @@
 name = "trails-demo"
 compatibility_date = "2025-07-15"
 
-pages_build_output_dir = "./dist"
+pages_build_output_dir = "./apps/trails-demo/dist"
