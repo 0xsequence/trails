@@ -125,7 +125,10 @@ export const getTokenPrice = async (
 ): Promise<TokenPrice | null> => {
   return tokenPricesQueryClient.fetchQuery({
     queryKey: createSingleCacheKey(token),
-    queryFn: () => getTokenPrice(apiClient, token),
+    queryFn: async () => {
+      const prices = await getTokenPrices(apiClient, [token])
+      return prices?.length ? prices[0] : null
+    },
     ...COMMON_QUERY_OPTIONS,
   })
 }

@@ -75,6 +75,7 @@ const Modal: React.FC<ModalProps> = ({
               layout="preserve-aspect"
             >
               <button
+                type="button"
                 onClick={onClose}
                 className={`absolute right-2 top-2 p-2 rounded-full transition-colors cursor-pointer z-10 ${
                   theme === "dark"
