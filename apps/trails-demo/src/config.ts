@@ -3,7 +3,7 @@ import * as chains from "viem/chains"
 
 export const LANDING_PAGE_URL = "https://trails.build/"
 export const DOCS_URL = "https://docs.trails.build/"
-export const DEMOS_URL = "https://trails.sequence-demos.xyz/"
+export const DEMOS_URL = "https://demo.trails.build/"
 export const TWITTER_URL = "https://x.com/0xsequence"
 export const DISCORD_URL = "https://discord.gg/sequence"
 export const GITHUB_URL = "https://github.com/0xsequence/trails"
