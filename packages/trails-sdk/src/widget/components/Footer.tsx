@@ -3,8 +3,8 @@ import type React from "react"
 import type { ActiveTheme } from "../../theme.js"
 import TrailsLogoBlack from "../assets/Trails-logo-black.svg"
 import TrailsLogoWhite from "../assets/Trails-logo-white.svg"
-import DebugScreensDropdown from "./DebugScreensDropdown.js"
 import { SITE_URL } from "../config.js"
+import DebugScreensDropdown from "./DebugScreensDropdown.js"
 
 interface FooterProps {
   theme: ActiveTheme

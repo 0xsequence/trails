@@ -44,3 +44,6 @@ yarn-error.log*
 
 # SDK JS build (added during build to expose umd js for script tag imports)
 apps/trails-demo/public/js/trails.min.js
+
+# Wrangler cache
+.wrangler/
