@@ -102,6 +102,7 @@ export type TrailsWidgetProps = {
   useSourceTokenForButtonText?: boolean
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
+  buttonText?: string
 }
 
 export interface TrailsWidgetRef {
@@ -269,6 +270,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       useSourceTokenForButtonText,
       paymasterUrls,
       gasless,
+      buttonText,
     },
     ref,
   ) => {
@@ -1236,7 +1238,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
                 : "bg-blue-500 hover:bg-blue-600"
             } text-white cursor-pointer font-semibold py-3 px-6 rounded-[24px] shadow-sm transition-colors`}
           >
-            Pay
+            {buttonText || "Pay"}
           </motion.button>
         ) : (
           <motion.div
