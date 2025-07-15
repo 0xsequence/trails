@@ -133,6 +133,14 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
       setActiveTab(tabId as "modal" | "button" | "code")
     }
 
+    const onOriginConfirmation = (txHash: string, chainId: number) => {
+      console.log("onOriginConfirmation:", { txHash, chainId })
+    }
+
+    const onDestinationConfirmation = (txHash: string, chainId: number) => {
+      console.log("onDestinationConfirmation:", { txHash, chainId })
+    }
+
     return (
       <div className="w-full bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 relative min-h-[775px]">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
@@ -172,6 +180,8 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
                 privyClientId={privyClientId}
                 paymasterUrls={paymasterUrls}
                 gasless={gasless}
+                onOriginConfirmation={onOriginConfirmation}
+                onDestinationConfirmation={onDestinationConfirmation}
               />
             </div>
           )}
@@ -197,6 +207,8 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
                 privyClientId={privyClientId}
                 paymasterUrls={paymasterUrls}
                 gasless={gasless}
+                onOriginConfirmation={onOriginConfirmation}
+                onDestinationConfirmation={onDestinationConfirmation}
               >
                 {useCustomButton ? (
                   <button
@@ -224,6 +236,8 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
               walletOptions={walletOptions}
               paymasterUrls={paymasterUrls}
               gasless={gasless}
+              onOriginConfirmation={onOriginConfirmation?.toString()}
+              onDestinationConfirmation={onDestinationConfirmation?.toString()}
             />
           )}
         </div>

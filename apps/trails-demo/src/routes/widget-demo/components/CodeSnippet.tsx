@@ -37,6 +37,8 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   walletOptions,
   paymasterUrls,
   gasless,
+  onOriginConfirmation,
+  onDestinationConfirmation,
 }) => {
   const { theme: globalTheme } = useTheme()
   const [isCopied, setIsCopied] = useState(false)
@@ -69,6 +71,9 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
       theme && `theme="${theme}"`,
       walletOptions && `walletOptions={${JSON.stringify(walletOptions)}}`,
       gasless && `gasless={true}`,
+      onOriginConfirmation && `onOriginConfirmation={${onOriginConfirmation}}`,
+      onDestinationConfirmation &&
+        `onDestinationConfirmation={${onDestinationConfirmation}}`,
     ].filter(Boolean)
 
     return `import { TrailsWidget } from '@0xsequence/trails-sdk/widget'
@@ -108,6 +113,9 @@ export const App = () => {
       theme && `theme: '${theme}'`,
       walletOptions && `walletOptions: ${JSON.stringify(walletOptions)}`,
       gasless && `gasless: true`,
+      onOriginConfirmation && `onOriginConfirmation: ${onOriginConfirmation}`,
+      onDestinationConfirmation &&
+        `onDestinationConfirmation: ${onDestinationConfirmation}`,
     ].filter(Boolean)
 
     return `<div id="trails"></div>

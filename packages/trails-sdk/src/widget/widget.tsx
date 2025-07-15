@@ -95,8 +95,8 @@ export type TrailsWidgetProps = {
   renderInline?: boolean
   theme?: Theme
   walletOptions?: string[]
-  onOriginConfirmation?: (txHash: string) => void
-  onDestinationConfirmation?: (txHash: string) => void
+  onOriginConfirmation?: (txHash: string, chainId: number) => void
+  onDestinationConfirmation?: (txHash: string, chainId: number) => void
   privyAppId?: string
   privyClientId?: string
   useSourceTokenForButtonText?: boolean
@@ -213,10 +213,11 @@ const useWalletManager = (
 
 // Create a custom hook for transaction state management
 const useTransactionState = (
-  onOriginConfirmation?: (txHash: string) => void,
-  onDestinationConfirmation?: (txHash: string) => void,
+  onOriginConfirmation?: (txHash: string, chainId: number) => void,
+  onDestinationConfirmation?: (txHash: string, chainId: number) => void,
 ) => {
   const [originTxHash, setOriginTxHash] = useState("")
+  const [originChainId, setOriginChainId] = useState<number | null>(null)
   const [destinationTxHash, setDestinationTxHash] = useState("")
   const [destinationChainId, setDestinationChainId] = useState<number | null>(
     null,
@@ -226,20 +227,22 @@ const useTransactionState = (
   >([])
 
   useEffect(() => {
-    if (onOriginConfirmation && originTxHash) {
-      onOriginConfirmation(originTxHash)
+    if (onOriginConfirmation && originTxHash && originChainId) {
+      onOriginConfirmation(originTxHash, originChainId)
     }
-  }, [originTxHash, onOriginConfirmation])
+  }, [originTxHash, onOriginConfirmation, originChainId])
 
   useEffect(() => {
-    if (onDestinationConfirmation && destinationTxHash) {
-      onDestinationConfirmation(destinationTxHash)
+    if (onDestinationConfirmation && destinationTxHash && destinationChainId) {
+      onDestinationConfirmation(destinationTxHash, destinationChainId)
     }
-  }, [destinationTxHash, onDestinationConfirmation])
+  }, [destinationTxHash, onDestinationConfirmation, destinationChainId])
 
   return {
     originTxHash,
     setOriginTxHash,
+    originChainId,
+    setOriginChainId,
     destinationTxHash,
     setDestinationTxHash,
     destinationChainId,
@@ -315,6 +318,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       setOriginTxHash,
       setDestinationTxHash,
       setDestinationChainId,
+      setOriginChainId,
       transactionStates,
       setTransactionStates,
     } = useTransactionState(onOriginConfirmation, onDestinationConfirmation)
@@ -476,12 +480,20 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const resetState = useCallback(() => {
       setCurrentScreen("connect")
       setSelectedToken(null)
+      setOriginTxHash("")
+      setOriginChainId(null)
       setDestinationTxHash("")
       setDestinationChainId(null)
       setTransactionStates([])
       setIntentAddress(null)
       setOriginTokenInfo(null)
-    }, [setDestinationTxHash, setDestinationChainId, setTransactionStates])
+    }, [
+      setDestinationTxHash,
+      setDestinationChainId,
+      setTransactionStates,
+      setOriginTxHash,
+      setOriginChainId,
+    ])
 
     // Expose modal control methods via ref
     useImperativeHandle(
@@ -522,6 +534,8 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           setSelectedToken(null)
           setDestinationTxHash("")
           setDestinationChainId(null)
+          setOriginTxHash("")
+          setOriginChainId(null)
           break
         default:
           break
@@ -538,6 +552,10 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       if (data) {
         if (data.originUserTxReceipt) {
           setOriginTxHash(data.originUserTxReceipt.transactionHash)
+        }
+
+        if (data.originChainId) {
+          setOriginChainId(data.originChainId)
         }
 
         if (data.destinationMetaTxnReceipt || data.originUserTxReceipt) {
