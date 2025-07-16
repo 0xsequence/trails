@@ -17,6 +17,7 @@ import {
   createWalletClient,
   custom,
   http,
+  isAddress,
   isAddressEqual,
   zeroAddress,
 } from "viem"
@@ -1158,6 +1159,11 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
 
     try {
       const intentAddressString = calculatedIntentAddress as Address.Address
+
+      if (!intentAddressString || !isAddress(intentAddressString)) {
+        setOriginCallParams(null)
+        return
+      }
 
       let calcTo: Address.Address
       let calcData: Hex = "0x"
