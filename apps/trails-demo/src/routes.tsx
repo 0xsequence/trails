@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router"
 import { ErrorRoute } from "./routes/error"
 import { NotFound } from "./routes/not-found"
 import { OrchestrationDemo } from "./routes/orchestration-demo"
+import { ProviderProxyDemo } from "./routes/provider-proxy-demo"
 import { RootLayout } from "./routes/root-layout"
 import { SdkSandbox } from "./routes/sdk-sandbox"
 import { WidgetDemo } from "./routes/widget-demo"
@@ -28,6 +29,10 @@ export const router = createBrowserRouter([
       {
         path: "sdk-sandbox",
         Component: SdkSandbox,
+      },
+      {
+        path: "provider-proxy",
+        Component: ProviderProxyDemo,
       },
       {
         path: "*",

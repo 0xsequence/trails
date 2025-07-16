@@ -13,6 +13,7 @@ export type {
   MetaTxnStatus,
 } from "./metaTxnMonitor.js"
 export { prepareSend } from "./prepareSend.js"
+export { TrailsWagmiConnectorWrapper } from "./proxyProvider.js"
 export type {
   NativeTokenBalance,
   TokenBalance,
