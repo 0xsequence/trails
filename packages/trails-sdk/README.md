@@ -2,8 +2,6 @@
 
 > Trails SDK for sending any token from any chain.
 
-⚠️ This is a work in progress!
-
 ## Installation
 
 ```bash
@@ -20,12 +18,8 @@ The easiest way to integrate Trails is using our pre-built React widget:
 import { TrailsWidget } from '@0xsequence/trails-sdk/widget'
 
 export const App = () => {
-  const sequenceProjectAccessKey = import.meta.env.VITE_SEQUENCE_API_KEY
-
   return (
-    <TrailsWidget
-      sequenceProjectAccessKey={sequenceProjectAccessKey}
-    />
+    <TrailsWidget />
   )
 }
 ```
