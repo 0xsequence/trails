@@ -4,7 +4,7 @@ import type {
   WagmiAccount,
 } from "@0xsequence/trails-sdk"
 import {
-  calculateIntentAddress,
+  calculateOriginAndDestinationIntentAddresses,
   useTokenBalances,
   useTrails,
 } from "@0xsequence/trails-sdk"
@@ -113,12 +113,14 @@ function useOrchestrationDemo() {
     ) {
       return null
     }
-    return calculateIntentAddress(
-      account.address,
-      intentCallsPayloads as any,
-      trailsInfos as any,
-      trailsFee.quoteProvider as QuoteProvider,
-    )
+    const { originIntentAddress } =
+      calculateOriginAndDestinationIntentAddresses(
+        account.address,
+        intentCallsPayloads as any,
+        trailsInfos as any,
+        trailsFee.quoteProvider as QuoteProvider,
+      )
+    return originIntentAddress
   }, [account.address, intentCallsPayloads, trailsInfos, trailsFee])
 
   const { sortedTokens, isLoadingBalances, balanceError } = useTokenBalances(

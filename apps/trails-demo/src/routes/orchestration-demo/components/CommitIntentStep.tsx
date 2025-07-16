@@ -27,7 +27,6 @@ interface CommitIntentStepProps {
   committedConfigError: Error | null
   committedIntentConfigData: GetIntentConfigReturn | undefined
   commitIntentConfig: (args: {
-    walletAddress: string
     mainSignerAddress: string
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
@@ -210,7 +209,6 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                 )
                   return
                 commitIntentConfig({
-                  walletAddress: calculatedIntentAddress,
                   mainSignerAddress: accountAddress,
                   calls: intentCallsPayloads,
                   preconditions: intentPreconditions,

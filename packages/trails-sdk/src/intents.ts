@@ -179,6 +179,59 @@ export function calculateIntentAddress(
   return calculatedAddress
 }
 
+export function calculateOriginAndDestinationIntentAddresses(
+  mainSigner: string,
+  calls: Array<IntentCallsPayload>,
+  executionInfos: Array<TrailsExecutionInfo> | null | undefined,
+  sapientType: QuoteProvider = "relay",
+) {
+  if (!executionInfos || executionInfos.length === 0) {
+    // No cross-chain execution.
+    const address = calculateIntentAddress(mainSigner, calls, null, sapientType)
+    return {
+      originIntentAddress: address,
+      destinationIntentAddress: address,
+    }
+  }
+
+  const originChainId = executionInfos[0]?.originChainId
+  const destinationChainId = executionInfos[0]?.destinationChainId
+
+  if (originChainId === destinationChainId) {
+    // Same-chain execution, but with a bridge/swap (e.g. Uniswap on Polygon).
+    // The executionInfos are still relevant for the sapient signer, but there's conceptually only one intent.
+    const address = calculateIntentAddress(
+      mainSigner,
+      calls,
+      executionInfos,
+      sapientType,
+    )
+    return {
+      originIntentAddress: address,
+      destinationIntentAddress: address,
+    }
+  }
+
+  // Different origin and destination chains: cross-chain execution.
+  const originCalls = calls.filter((c) => c.chainId === originChainId)
+  const destinationCalls = calls.filter((c) => c.chainId === destinationChainId)
+
+  const originIntentAddress = calculateIntentAddress(
+    mainSigner,
+    originCalls,
+    executionInfos,
+    sapientType,
+  )
+  const destinationIntentAddress = calculateIntentAddress(
+    mainSigner,
+    destinationCalls,
+    null,
+    sapientType,
+  )
+
+  return { originIntentAddress, destinationIntentAddress }
+}
+
 export function commitIntentConfig(
   apiClient: SequenceAPIClient,
   mainSignerAddress: string,
@@ -194,21 +247,23 @@ export function commitIntentConfig(
     executionInfos: JSON.stringify(executionInfos, null, 2),
   })
 
-  const calculatedAddress = calculateIntentAddress(
-    mainSignerAddress,
-    calls,
-    executionInfos,
-    sapientType,
-  )
+  const { originIntentAddress, destinationIntentAddress } =
+    calculateOriginAndDestinationIntentAddresses(
+      mainSignerAddress,
+      calls,
+      executionInfos,
+      sapientType,
+    )
   const receivedAddress = findPreconditionAddress(preconditions)
   console.log("[trails-sdk] Address comparison:", {
     receivedAddress,
-    calculatedAddress: calculatedAddress.toString(),
-    match: isAddressEqual(Address.from(receivedAddress), calculatedAddress),
+    calculatedAddress: originIntentAddress.toString(),
+    match: isAddressEqual(Address.from(receivedAddress), originIntentAddress),
   })
 
   const args: CommitIntentConfigArgs = {
-    walletAddress: calculatedAddress.toString(),
+    originIntentAddress: originIntentAddress.toString(),
+    destinationIntentAddress: destinationIntentAddress.toString(),
     mainSigner: mainSignerAddress,
     calls: calls,
     preconditions: preconditions,

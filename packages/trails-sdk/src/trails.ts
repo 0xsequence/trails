@@ -44,6 +44,7 @@ import type {
 } from "./intents.js"
 import {
   calculateIntentAddress,
+  calculateOriginAndDestinationIntentAddresses,
   getIntentCallsPayloads as getIntentCallsPayloadsFromIntents,
 } from "./intents.js"
 import type { MetaTxn } from "./metaTxnMonitor.js"
@@ -85,11 +86,11 @@ export type UseTrailsReturn = {
   isEstimateError: boolean
   estimateError: Error | null
   calculateIntentAddress: typeof calculateIntentAddress
+  calculateOriginAndDestinationIntentAddresses: typeof calculateOriginAndDestinationIntentAddresses
   committedIntentConfig: GetIntentConfigReturn | undefined
   isLoadingCommittedConfig: boolean
   committedConfigError: Error | null
   commitIntentConfig: (args: {
-    walletAddress: string
     mainSignerAddress: string
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
@@ -102,7 +103,6 @@ export type UseTrailsReturn = {
   commitIntentConfigError: Error | null
   commitIntentConfigArgs:
     | {
-        walletAddress: string
         mainSignerAddress: string
         calls: IntentCallsPayload[]
         preconditions: IntentPrecondition[]
@@ -256,12 +256,14 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     if (!account.address || !intentCallsPayloads || !trailsInfos) {
       return null
     }
-    return calculateIntentAddress(
-      account.address,
-      intentCallsPayloads as any[],
-      trailsInfos as any[],
-      trailsFee?.quoteProvider as QuoteProvider,
-    ) // TODO: Add proper type
+    const { originIntentAddress } =
+      calculateOriginAndDestinationIntentAddresses(
+        account.address,
+        intentCallsPayloads as any[],
+        trailsInfos as any[],
+        trailsFee?.quoteProvider as QuoteProvider,
+      )
+    return originIntentAddress
   }, [account.address, intentCallsPayloads, trailsInfos, trailsFee])
 
   // Add gas estimation hook with proper types
@@ -282,7 +284,6 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
 
   const commitIntentConfigMutation = useMutation({
     mutationFn: async (args: {
-      walletAddress: string
       mainSignerAddress: string
       calls: IntentCallsPayload[]
       preconditions: IntentPrecondition[]
@@ -300,25 +301,26 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
         console.log("Calls:", args.calls)
         console.log("TrailsInfos:", args.trailsInfos)
 
-        const calculatedAddress = calculateIntentAddress(
-          args.mainSignerAddress,
-          args.calls as any[], // TODO: Add proper type
-          args.trailsInfos as any[], // TODO: Add proper type
-          args.quoteProvider,
-        )
+        const { originIntentAddress, destinationIntentAddress } =
+          calculateOriginAndDestinationIntentAddresses(
+            args.mainSignerAddress,
+            args.calls as any[], // TODO: Add proper type
+            args.trailsInfos as any[], // TODO: Add proper type
+            args.quoteProvider,
+          )
         const receivedAddress = findPreconditionAddress(args.preconditions)
 
-        console.log("Calculated address:", calculatedAddress.toString())
+        console.log("Calculated address:", originIntentAddress.toString())
         console.log("Received address:", receivedAddress)
 
         const isVerified = isAddressEqual(
           Address.from(receivedAddress),
-          calculatedAddress,
+          originIntentAddress,
         )
         setVerificationStatus({
           success: isVerified,
           receivedAddress: receivedAddress,
-          calculatedAddress: calculatedAddress.toString(),
+          calculatedAddress: originIntentAddress.toString(),
         })
 
         if (!isVerified) {
@@ -329,7 +331,8 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
 
         // Commit the intent config
         const response = await apiClient.commitIntentConfig({
-          walletAddress: calculatedAddress.toString(),
+          originIntentAddress: originIntentAddress.toString(),
+          destinationIntentAddress: destinationIntentAddress.toString(),
           mainSigner: args.mainSignerAddress,
           calls: args.calls,
           preconditions: args.preconditions,
@@ -345,7 +348,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
           },
         })
         console.log("API Commit Response:", response)
-        return { calculatedAddress: calculatedAddress.toString(), response }
+        return { calculatedAddress: originIntentAddress.toString(), response }
       } catch (error) {
         console.error("Error during commit intent mutation:", error)
         if (
@@ -353,17 +356,18 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
           !verificationStatus?.receivedAddress
         ) {
           try {
-            const calculatedAddress = calculateIntentAddress(
-              args.mainSignerAddress,
-              args.calls as any[], // TODO: Add proper type
-              args.trailsInfos as any[], // TODO: Add proper type
-              args.quoteProvider,
-            )
+            const { originIntentAddress } =
+              calculateOriginAndDestinationIntentAddresses(
+                args.mainSignerAddress,
+                args.calls as any[], // TODO: Add proper type
+                args.trailsInfos as any[], // TODO: Add proper type
+                args.quoteProvider,
+              )
             const receivedAddress = findPreconditionAddress(args.preconditions)
             setVerificationStatus({
               success: false,
               receivedAddress: receivedAddress,
-              calculatedAddress: calculatedAddress.toString(),
+              calculatedAddress: originIntentAddress.toString(),
             })
           } catch (calcError) {
             console.error(
@@ -402,7 +406,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       }
       console.log("Fetching intent config for address:", committedIntentAddress)
       return await apiClient.getIntentConfig({
-        walletAddress: committedIntentAddress,
+        intentAddress: committedIntentAddress,
       })
     },
     enabled:
@@ -975,7 +979,6 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     ) {
       console.log("Auto-committing intent configuration...")
       commitIntentConfigMutation.mutate({
-        walletAddress: calculatedIntentAddress.toString(),
         mainSignerAddress: account.address,
         calls: intentCallsPayloads,
         preconditions: intentPreconditions,
@@ -1430,7 +1433,6 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
   const createIntentArgs = createIntentMutation.variables
 
   function commitIntentConfig(args: {
-    walletAddress: string
     mainSignerAddress: string
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
@@ -1483,6 +1485,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     isEstimateError,
     estimateError,
     calculateIntentAddress,
+    calculateOriginAndDestinationIntentAddresses,
     committedIntentConfig,
     isLoadingCommittedConfig,
     committedConfigError,
