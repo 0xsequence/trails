@@ -1,7 +1,7 @@
 // Be explicit about what we export
 
 export { getAPIClient, useAPIClient } from "./apiClient.js"
-export { SUPPORTED_TO_CHAINS, SUPPORTED_TO_TOKENS } from "./constants.js"
+export { SUPPORTED_TO_TOKENS } from "./constants.js"
 export {
   getIndexerGatewayClient,
   useIndexerGatewayClient,
@@ -24,4 +24,4 @@ export {
   useTokenBalances,
 } from "./tokenBalances.js"
 export type { WagmiAccount } from "./trails.js"
-export { useTrails } from "./trails.js"
+export { getSupportedChains, useSupportedChains, useTrails } from "./trails.js"

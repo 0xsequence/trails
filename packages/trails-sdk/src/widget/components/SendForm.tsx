@@ -99,11 +99,11 @@ export const SendForm: React.FC<SendFormProps> = ({
     setSelectedFeeToken,
     FEE_TOKENS,
     SUPPORTED_TO_TOKENS,
-    SUPPORTED_TO_CHAINS,
     setIsChainDropdownOpen,
     setIsTokenDropdownOpen,
     toAmountFormatted,
     destinationTokenAddress,
+    supportedToChains,
   } = useSendForm({
     account,
     sequenceProjectAccessKey,
@@ -283,13 +283,13 @@ export const SendForm: React.FC<SendFormProps> = ({
 
               {isChainDropdownOpen && (
                 <div
-                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg ${
+                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto ${
                     theme === "dark"
                       ? "bg-gray-800 border-gray-700"
                       : "bg-white border-gray-200"
                   }`}
                 >
-                  {SUPPORTED_TO_CHAINS.map((chain) => (
+                  {supportedToChains.map((chain) => (
                     <button
                       key={chain.id}
                       type="button"
@@ -386,7 +386,7 @@ export const SendForm: React.FC<SendFormProps> = ({
 
               {isTokenDropdownOpen && (
                 <div
-                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg ${
+                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto ${
                     theme === "dark"
                       ? "bg-gray-800 border-gray-700"
                       : "bg-white border-gray-200"

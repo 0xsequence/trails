@@ -1,8 +1,5 @@
 import { InfoIcon, TokenImage, Tooltip } from "@0xsequence/design-system"
-import {
-  SUPPORTED_TO_CHAINS,
-  SUPPORTED_TO_TOKENS,
-} from "@0xsequence/trails-sdk"
+import { SUPPORTED_TO_TOKENS, useSupportedChains } from "@0xsequence/trails-sdk"
 import { defaultWalletOptions } from "@0xsequence/trails-sdk/widget"
 import { ChevronDown } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -551,6 +548,13 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
   }
 
+  const { supportedChains: supportedToChains, isLoadingChains } =
+    useSupportedChains()
+
+  const supportedDestinationTokens = SUPPORTED_TO_TOKENS
+
+  console.log("supportedToChains", supportedToChains)
+
   return (
     <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 sm:p-6 min-h-[775px]">
       <div className="space-y-4">
@@ -736,7 +740,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     <TokenImage
                       symbol={toToken}
                       src={
-                        SUPPORTED_TO_TOKENS.find(
+                        supportedDestinationTokens.find(
                           (t: { symbol: string; imageUrl: string }) =>
                             t.symbol === toToken,
                         )?.imageUrl
@@ -753,7 +757,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       }`}
                     >
                       {
-                        SUPPORTED_TO_TOKENS.find(
+                        supportedDestinationTokens.find(
                           (t: { symbol: string; name: string }) =>
                             t.symbol === toToken,
                         )?.name
@@ -792,7 +796,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       <span className="ml-auto text-blue-400">•</span>
                     )}
                   </button>
-                  {SUPPORTED_TO_TOKENS.map(
+                  {supportedDestinationTokens.map(
                     (token: {
                       symbol: string
                       name: string
@@ -842,6 +846,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           <ChainSelector
             selectedChainId={toChainId}
             onChainSelect={setToChainId}
+            chains={supportedToChains}
             disabled={!!selectedScenario}
           />
         </div>
@@ -959,6 +964,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                               setPaymasterUrls(newPaymasterUrls)
                               setPaymasterKey((prev) => prev + 1) // Force re-render
                             }}
+                            chains={supportedToChains}
                             className="w-full sm:w-32"
                             showIconsOnly={true}
                           />
@@ -1004,8 +1010,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     onClick={() => {
                       // Find first available chain that's not already used
                       const usedChainIds = paymasterUrls.map((p) => p.chainId)
-                      const availableChain = SUPPORTED_TO_CHAINS.find(
-                        (chain) => !usedChainIds.includes(chain.id),
+                      const availableChain = supportedToChains.find(
+                        (chain: { id: number }) =>
+                          !usedChainIds.includes(chain.id),
                       )
                       if (availableChain) {
                         setPaymasterUrls([
@@ -1015,7 +1022,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       }
                     }}
                     disabled={
-                      paymasterUrls.length >= SUPPORTED_TO_CHAINS.length
+                      isLoadingChains ||
+                      paymasterUrls.length >= supportedToChains.length
                     }
                     className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
                   >

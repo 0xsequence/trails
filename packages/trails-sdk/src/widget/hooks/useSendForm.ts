@@ -12,7 +12,6 @@ import {
   type WalletClient,
   zeroAddress,
 } from "viem"
-import * as chains from "viem/chains"
 import { mainnet } from "viem/chains"
 import { useEnsAddress } from "wagmi"
 import { useAPIClient } from "../../apiClient.js"
@@ -27,16 +26,8 @@ import {
   formatUsdValue,
   formatValue,
 } from "../../tokenBalances.js"
+import { useSupportedChains } from "../../trails.js"
 import { getTokenAddress } from "./useTokenAddress.js"
-
-// Available chains
-export const SUPPORTED_TO_CHAINS: ChainInfo[] = [
-  { id: chains.mainnet.id, name: "Ethereum" },
-  { id: chains.base.id, name: "Base" },
-  { id: chains.optimism.id, name: "Optimism" },
-  { id: chains.arbitrum.id, name: "Arbitrum" },
-  { id: chains.polygon.id, name: "Polygon" },
-]
 
 export interface Token {
   id: number
@@ -192,7 +183,7 @@ export type UseSendReturn = {
   setSelectedFeeToken: (token: TokenInfo) => void
   FEE_TOKENS: TokenInfo[]
   SUPPORTED_TO_TOKENS: TokenInfo[]
-  SUPPORTED_TO_CHAINS: ChainInfo[]
+  supportedToChains: ChainInfo[]
   ensAddress: string | null
   isWaitingForWalletConfirm: boolean
   buttonText: string
@@ -234,6 +225,7 @@ export function useSendForm({
   const [recipientInput, setRecipientInput] = useState(toRecipient ?? "")
   const [recipient, setRecipient] = useState(toRecipient ?? "")
   const [error, setError] = useState<string | null>(null)
+  const { supportedChains: supportedToChains } = useSupportedChains()
   const { data: ensAddress } = useEnsAddress({
     name: recipientInput?.endsWith(".eth") ? recipientInput : undefined,
     chainId: mainnet.id,
@@ -264,9 +256,9 @@ export function useSendForm({
 
   const [selectedChain, setSelectedChain] = useState<ChainInfo>(
     () =>
-      SUPPORTED_TO_CHAINS.find(
+      supportedToChains.find(
         (chain) => chain.id === (toChainId ?? selectedToken.chainId),
-      ) || SUPPORTED_TO_CHAINS[0]!,
+      ) || supportedToChains[0]!,
   )
   const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
   const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
@@ -308,14 +300,12 @@ export function useSendForm({
   // Update selectedChain when toChainId prop changes
   useEffect(() => {
     if (toChainId) {
-      const newChain = SUPPORTED_TO_CHAINS.find(
-        (chain) => chain.id === toChainId,
-      )
+      const newChain = supportedToChains.find((chain) => chain.id === toChainId)
       if (newChain) {
         setSelectedChain(newChain)
       }
     }
-  }, [toChainId])
+  }, [toChainId, supportedToChains])
 
   // Update selectedDestToken when toToken prop changes
   useEffect(() => {
@@ -667,7 +657,7 @@ export function useSendForm({
     setSelectedFeeToken,
     FEE_TOKENS,
     SUPPORTED_TO_TOKENS,
-    SUPPORTED_TO_CHAINS,
+    supportedToChains,
     ensAddress: ensAddress ?? null,
     isWaitingForWalletConfirm,
     buttonText,

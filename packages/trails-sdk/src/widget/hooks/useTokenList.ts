@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react"
 import { isAddressEqual, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
 import { getChainInfo } from "../../chains.js"
-import { SUPPORTED_TO_CHAINS } from "../../constants.js"
 import type {
   TokenBalanceExtended,
   TokenBalanceWithPrice,
@@ -18,6 +17,7 @@ import {
   useSourceTokenList,
   useTokenBalances,
 } from "../../tokenBalances.js"
+import { useSupportedChains } from "../../trails.js"
 
 export interface Token {
   id: number
@@ -99,11 +99,11 @@ export function useTokenList({
   } = useHasSufficientBalanceUsd(address as Address.Address, targetAmountUsd)
   const showContinueButton = false
   const sourceTokenList = useSourceTokenList()
+  const { supportedChains: supportedToChains } = useSupportedChains()
 
-  const supportedChainIds = useMemo(
-    () => new Set(SUPPORTED_TO_CHAINS.map((c) => c.id)),
-    [],
-  )
+  const supportedChainIds = useMemo(() => {
+    return new Set(supportedToChains.map((c) => c.id))
+  }, [supportedToChains])
 
   const sortedTokens = useMemo<Array<TokenBalanceExtended>>(() => {
     return allSortedTokens.filter((token: TokenBalanceExtended) => {

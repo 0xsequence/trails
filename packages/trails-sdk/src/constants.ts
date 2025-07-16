@@ -1,6 +1,3 @@
-import type { Chain } from "viem"
-import * as chains from "viem/chains"
-
 export const ATTESATION_SIGNER_ADDRESS =
   "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 
@@ -14,28 +11,6 @@ export const TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS =
 export const DEFAULT_INDEXER_GATEWAY_URL = "https://dev-indexer.sequence.app"
 export const DEFAULT_API_URL = "https://v3-api.sequence.app"
 export const DEFAULT_ENV = "dev"
-
-// Available chains
-// TODO: make this dynamic
-export const SUPPORTED_TO_CHAINS: Array<{
-  id: number
-  name: string
-  chain: Chain
-}> = [
-  { id: chains.mainnet.id, name: chains.mainnet.name, chain: chains.mainnet },
-  { id: chains.base.id, name: chains.base.name, chain: chains.base },
-  {
-    id: chains.optimism.id,
-    name: chains.optimism.name,
-    chain: chains.optimism,
-  },
-  {
-    id: chains.arbitrum.id,
-    name: chains.arbitrum.name,
-    chain: chains.arbitrum,
-  },
-  { id: chains.polygon.id, name: chains.polygon.name, chain: chains.polygon },
-]
 
 // Available tokens
 // TODO: make this dynamic
