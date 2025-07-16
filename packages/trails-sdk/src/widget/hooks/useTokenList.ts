@@ -126,8 +126,7 @@ export function useTokenList({
   const handleTokenSelect = (token: TokenFormatted) => {
     const isNative = !("contractAddress" in token)
     const chainInfo = getChainInfo(token.chainId)
-    const contractAddress = isNative ? zeroAddress : token.contractAddress
-    const imageUrl = `https://assets.sequence.info/images/tokens/small/${token.chainId}/${contractAddress}.webp`
+    const imageUrl = token.imageUrl
 
     let formattedToken: Token
     if (isNative) {

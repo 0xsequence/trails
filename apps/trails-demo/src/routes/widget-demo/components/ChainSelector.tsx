@@ -109,9 +109,14 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
               disableAnimation={true}
             />
             {!showIconsOnly && (
-              <span className="ml-2 flex-1 text-left text-gray-900 dark:text-gray-200 truncate">
-                {selectedChain.name} ({selectedChain.id})
-              </span>
+              <div className="ml-2 flex-1 text-left">
+                <div className="font-medium text-gray-900 dark:text-gray-200 truncate">
+                  {selectedChain.name}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  ID: {selectedChain.id}
+                </div>
+              </div>
             )}
           </>
         ) : (
@@ -178,9 +183,12 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
                 disableAnimation={true}
               />
               {!showIconsOnly && (
-                <span className="ml-2">
-                  {chain.name} ({chain.id})
-                </span>
+                <div className="ml-2 flex-1 text-left">
+                  <div className="font-medium">{chain.name}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    ID: {chain.id}
+                  </div>
+                </div>
               )}
               {selectedChainId === chain.id && !showIconsOnly && (
                 <span className="ml-auto text-blue-400">•</span>

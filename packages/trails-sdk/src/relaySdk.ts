@@ -236,7 +236,7 @@ export interface RelayToken {
   decimals: number
   chainId: number
   chainName: string
-  imageUrl?: string
+  imageUrl: string
 }
 
 export async function getRelaySupportedTokens(): Promise<RelayToken[]> {
@@ -256,7 +256,7 @@ export async function getRelaySupportedTokens(): Promise<RelayToken[]> {
             decimals: currency.decimals,
             chainId: chain.id,
             chainName: chain.displayName || chain.name,
-            imageUrl: currency.metadata?.logoURI,
+            imageUrl: currency.metadata?.logoURI || "",
           })
         })
       }

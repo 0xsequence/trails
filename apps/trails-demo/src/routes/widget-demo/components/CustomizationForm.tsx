@@ -1,11 +1,12 @@
-import { InfoIcon, TokenImage, Tooltip } from "@0xsequence/design-system"
+import { InfoIcon, Tooltip } from "@0xsequence/design-system"
 import { useSupportedChains, useSupportedTokens } from "@0xsequence/trails-sdk"
 import { defaultWalletOptions } from "@0xsequence/trails-sdk/widget"
 import { ChevronDown } from "lucide-react"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { encodeFunctionData, parseUnits, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
 import { ChainSelector } from "./ChainSelector"
+import { TokenSelector } from "./TokenSelector"
 
 // Reusable Checkmark Component
 const Checkmark: React.FC<{ className?: string }> = ({
@@ -147,11 +148,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   setGasless,
 }) => {
   const { address, isConnected } = useAccount()
-  const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
   const [isScenarioDropdownOpen, setIsScenarioDropdownOpen] = useState(false)
   const [selectedScenario, setSelectedScenario] = useState<string>("")
-
-  const tokenDropdownRef = useRef<HTMLDivElement>(null)
 
   // Scenario keys
   const SCENARIO_KEYS = {
@@ -493,12 +491,6 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        tokenDropdownRef.current &&
-        !tokenDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsTokenDropdownOpen(false)
-      }
       // Close scenario dropdown when clicking outside
       if (
         !event.target ||
@@ -719,7 +711,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           />
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <label
               className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
@@ -733,7 +725,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               onChange={(e) => setToAmount(e.target.value.trim())}
               placeholder="0.00"
               disabled={!!selectedScenario}
-              className={`w-full px-3 sm:px-4 py-2 border rounded-lg placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
+              className={`w-full px-3 sm:px-4 h-12 border rounded-lg placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm leading-none ${
                 selectedScenario
                   ? "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
                   : "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200"
@@ -741,115 +733,22 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             />
           </div>
 
-          <div className="flex-1 space-y-2" ref={tokenDropdownRef}>
+          <div className="flex-1 space-y-2">
             <label
               className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
               htmlFor="toToken"
             >
               To Token
             </label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() =>
-                  !selectedScenario &&
-                  setIsTokenDropdownOpen(!isTokenDropdownOpen)
-                }
-                disabled={!!selectedScenario || !toChainId}
-                className={`w-full flex items-center px-3 sm:px-4 py-3 border rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  selectedScenario || !toChainId
-                    ? "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
-                    : "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-900 dark:text-gray-200"
-                }`}
-              >
-                {toToken ? (
-                  <>
-                    <TokenImage
-                      symbol={toToken}
-                      src={
-                        filteredTokens.find((t: any) => t.symbol === toToken)
-                          ?.imageUrl
-                      }
-                      size="sm"
-                      disableAnimation={true}
-                      className={selectedScenario ? "opacity-50" : ""}
-                    />
-                    <span
-                      className={`ml-2 flex-1 text-left text-sm truncate ${
-                        selectedScenario
-                          ? "text-gray-500"
-                          : "text-gray-900 dark:text-gray-200"
-                      }`}
-                    >
-                      {
-                        filteredTokens.find((t: any) => t.symbol === toToken)
-                          ?.name
-                      }{" "}
-                      ({toToken})
-                    </span>
-                  </>
-                ) : (
-                  <span
-                    className={`flex-1 text-left text-sm truncate ${
-                      selectedScenario
-                        ? "text-gray-500"
-                        : "text-gray-500 dark:text-gray-400"
-                    }`}
-                  >
-                    Select Token
-                  </span>
-                )}
-                <ChevronDown
-                  className={`h-5 w-5 text-gray-500 dark:text-gray-400 transition-transform ${isTokenDropdownOpen ? "transform rotate-180" : ""}`}
-                />
-              </button>
-
-              {isTokenDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setToToken(undefined)
-                      setIsTokenDropdownOpen(false)
-                    }}
-                    className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 ${!toToken ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400" : "text-gray-900 dark:text-gray-200"} cursor-pointer text-sm`}
-                  >
-                    <span className="ml-2">Select Token</span>
-                    {!toToken && (
-                      <span className="ml-auto text-blue-400">•</span>
-                    )}
-                  </button>
-                  {filteredTokens.map((token: any, index: number) => (
-                    <button
-                      key={`${token.symbol}-${token.chainId || "native"}-${token.address || index}`}
-                      type="button"
-                      onClick={() => {
-                        setToToken(token.symbol as "ETH" | "USDC")
-                        setIsTokenDropdownOpen(false)
-                      }}
-                      className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm ${
-                        toToken === token.symbol
-                          ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
-                          : "text-gray-900 dark:text-gray-200"
-                      }`}
-                    >
-                      <TokenImage
-                        symbol={token.symbol}
-                        src={token.imageUrl}
-                        size="sm"
-                        disableAnimation={true}
-                      />
-                      <span className="ml-2">
-                        {token.name} ({token.symbol})
-                      </span>
-                      {toToken === token.symbol && (
-                        <span className="ml-auto text-blue-400">•</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <TokenSelector
+              selectedToken={toToken}
+              onTokenSelect={(tokenSymbol) =>
+                setToToken(tokenSymbol || undefined)
+              }
+              tokens={filteredTokens}
+              disabled={!!selectedScenario || !toChainId}
+              placeholder="Select Token"
+            />
           </div>
         </div>
 

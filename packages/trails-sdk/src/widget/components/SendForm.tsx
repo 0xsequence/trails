@@ -86,12 +86,12 @@ export const SendForm: React.FC<SendFormProps> = ({
     isTokenDropdownOpen,
     recipient,
     recipientInput,
-    selectedChain,
+    selectedDestinationChain,
     selectedDestToken,
     setAmount,
     setRecipient,
     setRecipientInput,
-    setSelectedChain,
+    setSelectedDestinationChain,
     setSelectedDestToken,
     buttonText,
     isValidRecipient,
@@ -99,12 +99,12 @@ export const SendForm: React.FC<SendFormProps> = ({
     selectedFeeToken,
     setSelectedFeeToken,
     FEE_TOKENS,
-    supportedToTokens,
+    supportedTokens,
     setIsChainDropdownOpen,
     setIsTokenDropdownOpen,
     toAmountFormatted,
     destinationTokenAddress,
-    supportedToChains,
+    supportedChains,
   } = useSendForm({
     account,
     sequenceProjectAccessKey,
@@ -153,7 +153,7 @@ export const SendForm: React.FC<SendFormProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [setIsChainDropdownOpen, setIsTokenDropdownOpen])
 
-  if (!selectedChain) {
+  if (!selectedDestinationChain) {
     return null
   }
 
@@ -248,7 +248,7 @@ export const SendForm: React.FC<SendFormProps> = ({
           {toChainId ? (
             <div className="flex items-center px-2 py-1">
               <NetworkImage
-                chainId={selectedChain.id}
+                chainId={selectedDestinationChain.id}
                 size="sm"
                 className="w-5 h-5"
                 disableAnimation={true}
@@ -256,7 +256,7 @@ export const SendForm: React.FC<SendFormProps> = ({
               <span
                 className={`ml-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
               >
-                {selectedChain.name}
+                {selectedDestinationChain.name}
               </span>
             </div>
           ) : (
@@ -271,13 +271,13 @@ export const SendForm: React.FC<SendFormProps> = ({
                 }`}
               >
                 <NetworkImage
-                  chainId={selectedChain.id}
+                  chainId={selectedDestinationChain.id}
                   size="sm"
                   className="w-5 h-5"
                   disableAnimation={true}
                 />
                 <span className="ml-2 flex-1 text-left">
-                  {selectedChain.name}
+                  {selectedDestinationChain.name}
                 </span>
                 <ChevronDown
                   className={`h-5 w-5 ${theme === "dark" ? "text-gray-400" : "text-gray-400"} transition-transform ${
@@ -294,20 +294,20 @@ export const SendForm: React.FC<SendFormProps> = ({
                       : "bg-white border-gray-200"
                   }`}
                 >
-                  {supportedToChains.map((chain) => (
+                  {supportedChains.map((chain) => (
                     <button
                       key={chain.id}
                       type="button"
                       onClick={() => {
-                        setSelectedChain(chain)
+                        setSelectedDestinationChain(chain)
                         setIsChainDropdownOpen(false)
                       }}
                       className={`w-full flex items-center px-4 py-3 ${
                         theme === "dark"
-                          ? selectedChain.id === chain.id
+                          ? selectedDestinationChain.id === chain.id
                             ? "bg-gray-700 text-white"
                             : "text-white hover:bg-gray-700"
-                          : selectedChain.id === chain.id
+                          : selectedDestinationChain.id === chain.id
                             ? "bg-gray-100 text-gray-900"
                             : "text-gray-900 hover:bg-gray-50"
                       }`}
@@ -319,7 +319,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                         disableAnimation={true}
                       />
                       <span className="ml-2">{chain.name}</span>
-                      {selectedChain.id === chain.id && (
+                      {selectedDestinationChain.id === chain.id && (
                         <span
                           className={`ml-auto ${theme === "dark" ? "text-white" : "text-gray-900"}`}
                         >
@@ -397,7 +397,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                       : "bg-white border-gray-200"
                   }`}
                 >
-                  {supportedToTokens.map((token) => (
+                  {supportedTokens.map((token) => (
                     <button
                       key={token.symbol}
                       type="button"

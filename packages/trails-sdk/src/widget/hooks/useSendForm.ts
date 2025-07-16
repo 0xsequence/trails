@@ -10,7 +10,6 @@ import {
   parseUnits,
   type TransactionReceipt,
   type WalletClient,
-  zeroAddress,
 } from "viem"
 import { mainnet } from "viem/chains"
 import { useEnsAddress } from "wagmi"
@@ -28,7 +27,6 @@ import {
 } from "../../tokenBalances.js"
 import type { SupportedToken } from "../../tokens.js"
 import { useSupportedTokens, useTokenAddress } from "../../tokens.js"
-import { getTokenAddress } from "../../tokens.js"
 
 export interface Token {
   id: number
@@ -139,17 +137,17 @@ export type UseSendReturn = {
   isTokenDropdownOpen: boolean
   recipient: string
   recipientInput: string
-  selectedChain: ChainInfo | null
+  selectedDestinationChain: ChainInfo | null
   selectedDestToken: TokenInfo
   setAmount: (amount: string) => void
   setRecipient: (recipient: string) => void
   setRecipientInput: (recipientInput: string) => void
-  setSelectedChain: (chain: ChainInfo) => void
+  setSelectedDestinationChain: (chain: ChainInfo) => void
   setSelectedDestToken: (token: TokenInfo) => void
   setSelectedFeeToken: (token: TokenInfo) => void
   FEE_TOKENS: TokenInfo[]
-  supportedToTokens: SupportedToken[]
-  supportedToChains: ChainInfo[]
+  supportedTokens: SupportedToken[]
+  supportedChains: ChainInfo[]
   ensAddress: string | null
   isWaitingForWalletConfirm: boolean
   buttonText: string
@@ -191,8 +189,8 @@ export function useSendForm({
   const [recipientInput, setRecipientInput] = useState(toRecipient ?? "")
   const [recipient, setRecipient] = useState(toRecipient ?? "")
   const [error, setError] = useState<string | null>(null)
-  const { supportedChains: supportedToChains } = useSupportedChains()
-  const { supportedTokens: supportedToTokens } = useSupportedTokens()
+  const { supportedChains } = useSupportedChains()
+  const { supportedTokens } = useSupportedTokens()
   const { data: ensAddress } = useEnsAddress({
     name: recipientInput?.endsWith(".eth") ? recipientInput : undefined,
     chainId: mainnet.id,
@@ -221,41 +219,40 @@ export function useSendForm({
     setRecipientInput(e.target.value.trim())
   }
 
-  const [selectedChain, setSelectedChain] = useState<ChainInfo>(
-    () =>
-      supportedToChains.find(
-        (chain) => chain.id === (toChainId ?? selectedToken.chainId),
-      ) || supportedToChains[0]!,
+  const originChainId = useMemo<number | null>(
+    () => selectedToken?.chainId,
+    [selectedToken?.chainId],
   )
+  const [selectedDestinationChain, setSelectedDestinationChain] =
+    useState<ChainInfo>(() => {
+      const chain = supportedChains.find((chain) => chain.id === toChainId)
+      if (chain) {
+        return chain
+      }
+      return supportedChains[0]!
+    })
   const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
   const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
   const [selectedDestToken, setSelectedDestToken] = useState<TokenInfo>(() => {
-    const defaultToken = supportedToTokens?.find(
-      (token) => token.chainId === selectedChain.id,
+    const defaultToken = supportedTokens?.find(
+      (token) => token.chainId === originChainId, // match the token to the origin chain as default
     )
     let token = defaultToken
     if (toToken) {
       const isToTokenAddress = isAddress(toToken)
-      token = supportedToTokens.find(
+      token = supportedTokens.find(
         (token) =>
-          (isToTokenAddress
+          (isToTokenAddress // Match by specified destination token address or symbol
             ? token.contractAddress === toToken
             : token.symbol === toToken) &&
-          (toChainId
+          (toChainId // Match by specified destination chain id
             ? token.chainId === toChainId
-            : token.chainId === selectedChain.id),
+            : selectedDestinationChain.id), // Select by selected destination chain id
       )
     }
 
     return token as TokenInfo
   })
-
-  console.log(
-    "[trails-sdk] selectedDestToken",
-    selectedDestToken,
-    toToken,
-    supportedToTokens,
-  )
 
   const apiClient = useAPIClient({
     apiUrl,
@@ -263,7 +260,7 @@ export function useSendForm({
   })
 
   const destTokenAddress = useTokenAddress({
-    chainId: selectedChain?.id,
+    chainId: selectedDestinationChain?.id,
     tokenSymbol: selectedDestToken?.symbol,
   })
 
@@ -273,7 +270,7 @@ export function useSendForm({
           {
             tokenId: selectedDestToken.symbol,
             contractAddress: destTokenAddress,
-            chainId: selectedChain.id,
+            chainId: selectedDestinationChain.id,
           },
         ]
       : [],
@@ -283,31 +280,31 @@ export function useSendForm({
   // Update selectedChain when toChainId prop changes
   useEffect(() => {
     if (toChainId) {
-      const newChain = supportedToChains.find((chain) => chain.id === toChainId)
+      const newChain = supportedChains.find((chain) => chain.id === toChainId)
       if (newChain) {
-        setSelectedChain(newChain)
+        setSelectedDestinationChain(newChain)
       }
     }
-  }, [toChainId, supportedToChains])
+  }, [toChainId, supportedChains])
 
   // Update selectedDestToken when toToken prop changes
   useEffect(() => {
     if (toToken) {
       const isToTokenAddress = isAddress(toToken)
-      const newToken = supportedToTokens.find(
+      const newToken = supportedTokens.find(
         (token) =>
-          (isToTokenAddress
+          (isToTokenAddress // Match by specified destination token address or symbol
             ? token.contractAddress === toToken
             : token.symbol === toToken) &&
-          (toChainId
+          (toChainId // Match by specified destination chain id
             ? token.chainId === toChainId
-            : token.chainId === selectedChain.id),
+            : token.chainId === selectedDestinationChain.id),
       )
       if (newToken) {
         setSelectedDestToken(newToken as TokenInfo)
       }
     }
-  }, [toToken, supportedToTokens, toChainId, selectedChain.id])
+  }, [toToken, supportedTokens, toChainId, selectedDestinationChain.id])
 
   // Update amount when toAmount prop changes
   useEffect(() => {
@@ -352,7 +349,7 @@ export function useSendForm({
   const isDryMode = hasParam("dryMode", "true")
 
   const destinationTokenAddress = useTokenAddress({
-    chainId: selectedChain?.id,
+    chainId: selectedDestinationChain?.id,
     tokenSymbol: selectedDestToken?.symbol,
   })
 
@@ -368,7 +365,10 @@ export function useSendForm({
       const parsedAmount = parseUnits(amount, decimals).toString()
 
       const originRelayer = getRelayer(relayerConfig, selectedToken.chainId)
-      const destinationRelayer = getRelayer(relayerConfig, selectedChain.id)
+      const destinationRelayer = getRelayer(
+        relayerConfig,
+        selectedDestinationChain.id,
+      )
 
       const sourceTokenDecimals =
         typeof selectedToken.contractInfo?.decimals === "number"
@@ -394,7 +394,7 @@ export function useSendForm({
         originTokenAddress: selectedToken.contractAddress,
         originChainId: selectedToken.chainId,
         originTokenAmount: selectedToken.balance,
-        destinationChainId: selectedChain.id,
+        destinationChainId: selectedDestinationChain.id,
         recipient,
         destinationTokenAddress,
         destinationTokenAmount: parsedAmount,
@@ -472,7 +472,7 @@ export function useSendForm({
         // Move to receipt screen
         onComplete({
           originChainId: selectedToken.chainId,
-          destinationChainId: selectedChain.id,
+          destinationChainId: selectedDestinationChain.id,
           originUserTxReceipt,
           originMetaTxnReceipt,
           destinationMetaTxnReceipt,
@@ -529,7 +529,7 @@ export function useSendForm({
     relayerConfig,
     isDryMode,
     selectedDestToken,
-    selectedChain,
+    selectedDestinationChain,
     toCalldata,
     paymasterUrls,
     gasless,
@@ -617,17 +617,17 @@ export function useSendForm({
     isTokenDropdownOpen,
     recipient,
     recipientInput,
-    selectedChain,
+    selectedDestinationChain,
     selectedDestToken,
     setAmount,
     setRecipient,
     setRecipientInput,
-    setSelectedChain,
+    setSelectedDestinationChain,
     setSelectedDestToken,
     setSelectedFeeToken,
     FEE_TOKENS,
-    supportedToTokens,
-    supportedToChains,
+    supportedTokens,
+    supportedChains,
     ensAddress: ensAddress ?? null,
     isWaitingForWalletConfirm,
     buttonText,

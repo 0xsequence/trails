@@ -1,15 +1,209 @@
-import { useQuery } from "@tanstack/react-query"
+import { QueryClient, useQuery } from "@tanstack/react-query"
+import { zeroAddress } from "viem"
 import * as chains from "viem/chains"
 import { getChainInfo } from "./chains.js"
-import type { RelayToken } from "./relaySdk.js"
 import { getRelaySupportedTokens } from "./relaySdk.js"
-import { zeroAddress } from "viem"
 
-export type SupportedToken = RelayToken
+export type SupportedToken = {
+  id: string
+  symbol: string
+  name: string
+  contractAddress: string
+  decimals: number
+  chainId: number
+  chainName: string
+  imageUrl: string
+}
+
+// LocalStorage cache utilities for token images
+const TOKEN_IMAGE_CACHE_KEY = "trails-sdk:token-image-cache"
+const TOKEN_IMAGE_CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000 // 7 days
+
+interface TokenImageCacheEntry {
+  imageUrl: string
+  timestamp: number
+  found: boolean
+}
+
+function getTokenImageCache(): Record<string, TokenImageCacheEntry> {
+  if (typeof window === "undefined") return {}
+
+  try {
+    const cached = localStorage.getItem(TOKEN_IMAGE_CACHE_KEY)
+    if (!cached) return {}
+
+    const parsed = JSON.parse(cached) as Record<string, TokenImageCacheEntry>
+    const now = Date.now()
+
+    // Clean up expired entries
+    const validEntries = Object.entries(parsed).filter(([_, entry]) => {
+      return now - entry.timestamp < TOKEN_IMAGE_CACHE_EXPIRY
+    })
+
+    return Object.fromEntries(validEntries) as Record<
+      string,
+      TokenImageCacheEntry
+    >
+  } catch {
+    return {}
+  }
+}
+
+function setTokenImageCache(
+  key: string,
+  imageUrl: string,
+  found: boolean,
+): void {
+  if (typeof window === "undefined") return
+
+  try {
+    const cache = getTokenImageCache()
+    cache[key] = {
+      imageUrl,
+      timestamp: Date.now(),
+      found,
+    }
+    localStorage.setItem(TOKEN_IMAGE_CACHE_KEY, JSON.stringify(cache))
+  } catch (error) {
+    console.warn("[trails-sdk] Failed to cache token image:", error)
+  }
+}
+
+// Dedicated QueryClient for token image fetching
+const tokenImageQueryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 24 * 60 * 60 * 1000, // 24 hours
+      gcTime: 7 * 24 * 60 * 60 * 1000, // 7 days
+      retry: 2,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
+  },
+})
+
+// Priority tokens that should appear first in the list
+const PRIORITY_TOKENS = [
+  "ETH",
+  "WETH",
+  "USDC",
+  "USDT",
+  "DAI",
+  "POL",
+  "ARB",
+  "OP",
+  "MATIC",
+  "BAT",
+  "WBTC",
+  "cbBTC",
+]
+
+// Sort function for tokens with the specified priority order
+function sortTokens(tokens: SupportedToken[]): SupportedToken[] {
+  return tokens.sort((a, b) => {
+    // 1. Priority tokens first (ETH, USDC, USDT, DAI)
+    const aPriority = PRIORITY_TOKENS.indexOf(a.symbol)
+    const bPriority = PRIORITY_TOKENS.indexOf(b.symbol)
+
+    // If both are priority tokens, sort by priority order
+    if (aPriority !== -1 && bPriority !== -1) {
+      return aPriority - bPriority
+    }
+
+    // If only one is a priority token, prioritize it
+    if (aPriority !== -1) return -1
+    if (bPriority !== -1) return 1
+
+    // 2. Tokens with imageUrl before those without
+    const aHasImage = !!a.imageUrl
+    const bHasImage = !!b.imageUrl
+
+    if (aHasImage && !bHasImage) return -1
+    if (!aHasImage && bHasImage) return 1
+
+    // 3. Alphabetical by symbol
+    return a.symbol.localeCompare(b.symbol)
+  })
+}
+
+export async function getTokenImageUrlOrFallback(
+  chainId: number,
+  contractAddress: string,
+): Promise<string> {
+  const cacheKey = `${chainId}:${contractAddress}`
+  const imageUrl = getTokenImageUrl(chainId, contractAddress)
+
+  // Check localStorage cache first
+  const cache = getTokenImageCache()
+  const cachedEntry = cache[cacheKey]
+
+  if (cachedEntry) {
+    if (cachedEntry.found) {
+      return cachedEntry.imageUrl
+    } else {
+      return "" // Return empty string if we previously found no image
+    }
+  }
+
+  // Use QueryClient to fetch and cache the result
+  try {
+    const result = await tokenImageQueryClient.fetchQuery({
+      queryKey: ["tokenImage", chainId, contractAddress],
+      queryFn: async () => {
+        const response = await fetch(imageUrl, {
+          method: "HEAD", // Only fetch headers to check if image exists
+          cache: "no-cache", // Don't cache the fetch request itself
+        })
+        const found = response.ok
+        const resultUrl = found ? imageUrl : ""
+
+        // Cache the result in localStorage
+        setTokenImageCache(cacheKey, resultUrl, found)
+
+        return resultUrl
+      },
+      staleTime: 24 * 60 * 60 * 1000, // 24 hours
+      gcTime: 7 * 24 * 60 * 60 * 1000, // 7 days
+    })
+
+    return result
+  } catch (error) {
+    console.error("[trails-sdk] Error fetching token image:", error)
+    // Cache the failure to avoid repeated requests
+    setTokenImageCache(cacheKey, "", false)
+    return ""
+  }
+}
 
 export async function getSupportedTokens(): Promise<SupportedToken[]> {
   const tokens = await getRelaySupportedTokens()
-  return tokens as SupportedToken[]
+  for (const token of tokens) {
+    if (!token.imageUrl) {
+      token.imageUrl = getTokenImageUrl(token.chainId, token.contractAddress)
+    }
+
+    getTokenImageUrlOrFallback(token.chainId, token.contractAddress)
+      .then((imageUrl) => {
+        token.imageUrl = imageUrl
+      })
+      .catch((error) => {
+        console.error("[trails-sdk] Error getting token image url:", error)
+      })
+  }
+
+  const uniqueTokens = tokens.filter(
+    (token, index, self) =>
+      index ===
+      self.findIndex(
+        (t) =>
+          t.chainId === token.chainId &&
+          t.contractAddress === token.contractAddress,
+      ),
+  )
+
+  // Sort tokens according to priority order
+  return sortTokens(uniqueTokens as SupportedToken[])
 }
 
 export function useSupportedTokens(): {
@@ -107,7 +301,9 @@ export async function getTokenAddress(chainId: number, tokenSymbol: string) {
   }
 
   const tokens = await getSupportedTokens()
-  const token = tokens.find((t) => t.symbol === tokenSymbol)
+  const token = tokens.find(
+    (t) => t.symbol === tokenSymbol && t.chainId === chainId,
+  )
   if (token?.contractAddress) {
     return token.contractAddress
   }
@@ -137,4 +333,38 @@ export function useTokenAddress({
   })
 
   return tokenAddress || null
+}
+
+export function getTokenImageUrl(chainId: number, contractAddress: string) {
+  const imageUrl = `https://assets.sequence.info/images/tokens/large/${chainId}/${contractAddress}.webp`
+  return imageUrl
+}
+
+// React hook for token image fetching with caching
+export function useTokenImageUrl(
+  chainId: number | undefined,
+  contractAddress: string | undefined,
+) {
+  const {
+    data: imageUrl = "",
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["tokenImage", chainId, contractAddress],
+    queryFn: () => getTokenImageUrlOrFallback(chainId!, contractAddress!),
+    enabled: !!chainId && !!contractAddress,
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+    gcTime: 7 * 24 * 60 * 60 * 1000, // 7 days
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  })
+
+  return {
+    imageUrl,
+    isLoading,
+    error,
+    hasImage: !!imageUrl,
+  }
 }

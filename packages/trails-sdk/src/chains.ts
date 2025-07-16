@@ -62,14 +62,46 @@ export async function getSupportedSequenceTestnetChains(): Promise<Chain[]> {
   return Object.values(supportedSequenceTestnetChains)
 }
 
+// Priority chains that should appear first in the list
+const PRIORITY_CHAIN_IDS = [1, 8453, 42161, 10, 137]
+
+// Sort function for chains with priority order and then by name
+function sortChains(chains: Chain[]): Chain[] {
+  return chains.sort((a, b) => {
+    // 1. Priority chains first (1, 8453, 42161, 10, 137)
+    const aPriority = PRIORITY_CHAIN_IDS.indexOf(a.id)
+    const bPriority = PRIORITY_CHAIN_IDS.indexOf(b.id)
+
+    // If both are priority chains, sort by priority order
+    if (aPriority !== -1 && bPriority !== -1) {
+      return aPriority - bPriority
+    }
+
+    // If only one is a priority chain, prioritize it
+    if (aPriority !== -1) return -1
+    if (bPriority !== -1) return 1
+
+    // 2. Sort by chain name alphabetically
+    return a.name.localeCompare(b.name)
+  })
+}
+
 export async function getSupportedChains(): Promise<Chain[]> {
   const sequenceChains = await getSupportedSequenceChains()
   const relayChains = await getRelaySupportedChains()
 
   // Find intersection of sequence chains and relay chains
-  return sequenceChains.filter((sequenceChain) =>
+  const supportedChains = sequenceChains.filter((sequenceChain) =>
     relayChains.some((relayChain) => relayChain.id === sequenceChain.id),
   )
+
+  // Ensure unique chain IDs by filtering duplicates
+  const uniqueChains = supportedChains.filter(
+    (chain, index, self) => index === self.findIndex((c) => c.id === chain.id),
+  )
+
+  // Sort chains by priority and then by name
+  return sortChains(uniqueChains)
 }
 
 export function useSupportedChains(): {
