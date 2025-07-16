@@ -1,8 +1,8 @@
 import { InfoIcon, TokenImage, Tooltip } from "@0xsequence/design-system"
-import { SUPPORTED_TO_TOKENS, useSupportedChains } from "@0xsequence/trails-sdk"
+import { useSupportedChains, useSupportedTokens } from "@0xsequence/trails-sdk"
 import { defaultWalletOptions } from "@0xsequence/trails-sdk/widget"
 import { ChevronDown } from "lucide-react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { encodeFunctionData, parseUnits, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
 import { ChainSelector } from "./ChainSelector"
@@ -551,9 +551,21 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   const { supportedChains: supportedToChains, isLoadingChains } =
     useSupportedChains()
 
-  const supportedDestinationTokens = SUPPORTED_TO_TOKENS
+  const { supportedTokens: supportedDestinationTokens } = useSupportedTokens()
 
-  console.log("supportedToChains", supportedToChains)
+  // Filter tokens based on selected chain
+  const filteredTokens = useMemo(() => {
+    if (!toChainId) return []
+
+    return supportedDestinationTokens.filter((token: any) => {
+      // If token has chainId property, filter by it
+      if (token.chainId !== undefined) {
+        return token.chainId === toChainId
+      }
+      // Otherwise, include all tokens (fallback for tokens without chainId)
+      return true
+    })
+  }, [supportedDestinationTokens, toChainId])
 
   return (
     <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 sm:p-6 min-h-[775px]">
@@ -692,6 +704,21 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           />
         </div>
 
+        <div className="space-y-2">
+          <label
+            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
+            htmlFor="toChainId"
+          >
+            To Chain ID
+          </label>
+          <ChainSelector
+            selectedChainId={toChainId}
+            onChainSelect={setToChainId}
+            chains={supportedToChains}
+            disabled={!!selectedScenario}
+          />
+        </div>
+
         <div className="flex gap-4">
           <div className="flex-1">
             <label
@@ -728,9 +755,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   !selectedScenario &&
                   setIsTokenDropdownOpen(!isTokenDropdownOpen)
                 }
-                disabled={!!selectedScenario}
+                disabled={!!selectedScenario || !toChainId}
                 className={`w-full flex items-center px-3 sm:px-4 py-3 border rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  selectedScenario
+                  selectedScenario || !toChainId
                     ? "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
                     : "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-900 dark:text-gray-200"
                 }`}
@@ -740,10 +767,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     <TokenImage
                       symbol={toToken}
                       src={
-                        supportedDestinationTokens.find(
-                          (t: { symbol: string; imageUrl: string }) =>
-                            t.symbol === toToken,
-                        )?.imageUrl
+                        filteredTokens.find((t: any) => t.symbol === toToken)
+                          ?.imageUrl
                       }
                       size="sm"
                       disableAnimation={true}
@@ -757,10 +782,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       }`}
                     >
                       {
-                        supportedDestinationTokens.find(
-                          (t: { symbol: string; name: string }) =>
-                            t.symbol === toToken,
-                        )?.name
+                        filteredTokens.find((t: any) => t.symbol === toToken)
+                          ?.name
                       }{" "}
                       ({toToken})
                     </span>
@@ -796,59 +819,38 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       <span className="ml-auto text-blue-400">•</span>
                     )}
                   </button>
-                  {supportedDestinationTokens.map(
-                    (token: {
-                      symbol: string
-                      name: string
-                      imageUrl: string
-                    }) => (
-                      <button
-                        key={token.symbol}
-                        type="button"
-                        onClick={() => {
-                          setToToken(token.symbol as "ETH" | "USDC")
-                          setIsTokenDropdownOpen(false)
-                        }}
-                        className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm ${
-                          toToken === token.symbol
-                            ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
-                            : "text-gray-900 dark:text-gray-200"
-                        }`}
-                      >
-                        <TokenImage
-                          symbol={token.symbol}
-                          src={token.imageUrl}
-                          size="sm"
-                          disableAnimation={true}
-                        />
-                        <span className="ml-2">
-                          {token.name} ({token.symbol})
-                        </span>
-                        {toToken === token.symbol && (
-                          <span className="ml-auto text-blue-400">•</span>
-                        )}
-                      </button>
-                    ),
-                  )}
+                  {filteredTokens.map((token: any, index: number) => (
+                    <button
+                      key={`${token.symbol}-${token.chainId || "native"}-${token.address || index}`}
+                      type="button"
+                      onClick={() => {
+                        setToToken(token.symbol as "ETH" | "USDC")
+                        setIsTokenDropdownOpen(false)
+                      }}
+                      className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm ${
+                        toToken === token.symbol
+                          ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
+                          : "text-gray-900 dark:text-gray-200"
+                      }`}
+                    >
+                      <TokenImage
+                        symbol={token.symbol}
+                        src={token.imageUrl}
+                        size="sm"
+                        disableAnimation={true}
+                      />
+                      <span className="ml-2">
+                        {token.name} ({token.symbol})
+                      </span>
+                      {toToken === token.symbol && (
+                        <span className="ml-auto text-blue-400">•</span>
+                      )}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
-            htmlFor="toChainId"
-          >
-            To Chain ID
-          </label>
-          <ChainSelector
-            selectedChainId={toChainId}
-            onChainSelect={setToChainId}
-            chains={supportedToChains}
-            disabled={!!selectedScenario}
-          />
         </div>
 
         <div>

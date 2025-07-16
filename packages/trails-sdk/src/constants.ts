@@ -12,46 +12,6 @@ export const DEFAULT_INDEXER_GATEWAY_URL = "https://dev-indexer.sequence.app"
 export const DEFAULT_API_URL = "https://v3-api.sequence.app"
 export const DEFAULT_ENV = "dev"
 
-// Available tokens
-// TODO: make this dynamic
-export const SUPPORTED_TO_TOKENS: Array<{
-  symbol: string
-  name: string
-  imageUrl: string
-  decimals: number
-}> = [
-  {
-    symbol: "ETH",
-    name: "Ethereum",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0x0000000000000000000000000000000000000000.webp`,
-    decimals: 18,
-  },
-  {
-    symbol: "USDC",
-    name: "USD Coin",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp`,
-    decimals: 6,
-  },
-  {
-    symbol: "USDT",
-    name: "Tether",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0xdac17f958d2ee523a2206206994597c13d831ec7.webp`,
-    decimals: 6,
-  },
-  {
-    symbol: "BAT",
-    name: "Basic Attention Token",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp`,
-    decimals: 18,
-  },
-  {
-    symbol: "ARB",
-    name: "Arbitrum",
-    imageUrl: `https://assets.sequence.info/images/tokens/small/42161/0x912ce59144191c1204e64559fe8253a0e49e6548.webp`,
-    decimals: 18,
-  },
-]
-
 export const intentEntrypoints: Record<number, `0x${string}`> = {
   8453: "0x2bf4c63199eD7D8A737E8DB2cC19E0C0103F6bE3",
   84532: "0xdcd9160492C6D43ABbd28D4d06F68ad77f1A0F2b",

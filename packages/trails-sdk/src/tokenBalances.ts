@@ -12,9 +12,7 @@ import { QueryClient, useQuery } from "@tanstack/react-query"
 import type { Address } from "ox"
 import { useEffect, useState } from "react"
 import { formatUnits, parseUnits, zeroAddress } from "viem"
-import * as chains from "viem/chains"
 import { useAPIClient } from "./apiClient.js"
-import { getChainInfo } from "./chains.js"
 import { useIndexerGatewayClient } from "./indexerClient.js"
 import { getTokenPrices, useTokenPrices } from "./prices.js"
 
@@ -278,34 +276,6 @@ export function useTokenBalances(
     balanceError,
     sortedTokens,
   }
-}
-
-// TODO: make this dynamic
-export async function getSourceTokenList(): Promise<string[]> {
-  const allowedTokens = [
-    "ETH",
-    "WETH",
-    "USDC",
-    "USDT",
-    "DAI",
-    "OP",
-    "ARB",
-    "MATIC",
-    "BAT",
-  ]
-  return allowedTokens
-}
-
-export function useSourceTokenList(): string[] {
-  const { data: list = [] } = useQuery({
-    queryKey: ["sourceTokenList"],
-    queryFn: getSourceTokenList,
-    staleTime: 1000 * 60 * 60, // 1 hour - token list rarely changes
-    gcTime: 1000 * 60 * 60 * 24, // 24 hours cache time
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
-  })
-  return list
 }
 
 // Helper to format balance
@@ -738,56 +708,4 @@ export function useAccountTotalBalanceUsd(account: string): {
     isLoadingTotalBalanceUsd,
     totalBalanceUsdFormatted: formatUsdValue(totalBalanceUsd || 0),
   }
-}
-
-const tokenNames: Record<string, string> = {
-  ETH: "Ethereum",
-  WETH: "Wrapped ETH",
-  USDC: "USDC",
-  USDT: "Tether",
-  DAI: "Dai Stablecoin",
-  OP: "Optimism",
-  ARB: "Arbitrum",
-  POL: "POL",
-  MATIC: "Matic Token",
-  BAT: "Basic Attention Token",
-}
-
-export const tokensToPrefix: Record<string, string> = {
-  USDC: "USDC",
-  ETH: "ETH",
-  POL: "POL",
-}
-
-export const tokenNamePrefixes: Record<string, string> = {
-  [chains.optimism.id]: "Optimistic",
-  [chains.arbitrum.id]: "Arbitrum",
-  [chains.polygon.id]: "Polygon",
-}
-
-export function getFormatttedTokenName(
-  currentName: string,
-  tokenSymbol: string,
-  chainId?: number,
-): string {
-  let name = tokenNames[tokenSymbol] || currentName || tokenSymbol
-  if (chainId) {
-    try {
-      const chainInfo = getChainInfo(chainId)
-      if (chainInfo) {
-        if (tokensToPrefix[tokenSymbol]) {
-          if (chainId !== chains.mainnet.id) {
-            name = `${chainInfo?.name} ${tokenSymbol}`
-          }
-          const prefix = tokenNamePrefixes[chainId]
-          if (prefix) {
-            name = `${prefix} ${tokenSymbol}`
-          }
-        }
-      }
-    } catch (e) {
-      console.error("[trails-sdk] Error getting chain info:", e)
-    }
-  }
-  return name
 }

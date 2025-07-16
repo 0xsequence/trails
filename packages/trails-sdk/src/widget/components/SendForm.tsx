@@ -7,8 +7,9 @@ import { isAddress } from "viem"
 import type { TransactionState } from "../../prepareSend.js"
 import type { RelayerEnv } from "../../relayer.js"
 import type { ActiveTheme } from "../../theme.js"
-import type { OnCompleteProps, Token } from "../hooks/useSendForm.js"
+import type { OnCompleteProps, Token, TokenInfo } from "../hooks/useSendForm.js"
 import { useSendForm } from "../hooks/useSendForm.js"
+
 import { FeeOptions } from "./FeeOptions.js"
 
 interface SendFormProps {
@@ -98,7 +99,7 @@ export const SendForm: React.FC<SendFormProps> = ({
     selectedFeeToken,
     setSelectedFeeToken,
     FEE_TOKENS,
-    SUPPORTED_TO_TOKENS,
+    supportedToTokens,
     setIsChainDropdownOpen,
     setIsTokenDropdownOpen,
     toAmountFormatted,
@@ -153,6 +154,10 @@ export const SendForm: React.FC<SendFormProps> = ({
   }, [setIsChainDropdownOpen, setIsTokenDropdownOpen])
 
   if (!selectedChain) {
+    return null
+  }
+
+  if (!selectedToken) {
     return null
   }
 
@@ -337,7 +342,7 @@ export const SendForm: React.FC<SendFormProps> = ({
           >
             Receive Token
           </label>
-          {toToken ? (
+          {toToken && selectedDestToken ? (
             <div className="flex items-center px-2 py-1">
               <TokenImage
                 symbol={selectedDestToken.symbol}
@@ -368,14 +373,14 @@ export const SendForm: React.FC<SendFormProps> = ({
                   }`}
                 >
                   <TokenImage
-                    symbol={selectedDestToken.symbol}
-                    src={selectedDestToken.imageUrl}
+                    symbol={selectedDestToken?.symbol}
+                    src={selectedDestToken?.imageUrl}
                     size="sm"
                     disableAnimation={true}
                   />
                 </div>
                 <span className="ml-2 flex-1 text-left">
-                  {selectedDestToken.name} ({selectedDestToken.symbol})
+                  {selectedDestToken?.name} ({selectedDestToken?.symbol})
                 </span>
                 <ChevronDown
                   className={`h-5 w-5 ${theme === "dark" ? "text-gray-400" : "text-gray-400"} transition-transform ${
@@ -392,20 +397,20 @@ export const SendForm: React.FC<SendFormProps> = ({
                       : "bg-white border-gray-200"
                   }`}
                 >
-                  {SUPPORTED_TO_TOKENS.map((token) => (
+                  {supportedToTokens.map((token) => (
                     <button
                       key={token.symbol}
                       type="button"
                       onClick={() => {
-                        setSelectedDestToken(token)
+                        setSelectedDestToken(token as TokenInfo)
                         setIsTokenDropdownOpen(false)
                       }}
                       className={`w-full flex items-center px-4 py-3 cursor-pointer ${
                         theme === "dark"
-                          ? selectedDestToken.symbol === token.symbol
+                          ? selectedDestToken?.symbol === token.symbol
                             ? "bg-gray-700 text-white"
                             : "text-white hover:bg-gray-700"
-                          : selectedDestToken.symbol === token.symbol
+                          : selectedDestToken?.symbol === token.symbol
                             ? "bg-gray-100 text-gray-900"
                             : "text-gray-900 hover:bg-gray-50"
                       }`}
@@ -425,7 +430,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                       <span className="ml-2">
                         {token.name} ({token.symbol})
                       </span>
-                      {selectedDestToken.symbol === token.symbol && (
+                      {selectedDestToken?.symbol === token.symbol && (
                         <span
                           className={`ml-auto ${theme === "dark" ? "text-white" : "text-gray-900"}`}
                         >
@@ -453,7 +458,7 @@ export const SendForm: React.FC<SendFormProps> = ({
               <span
                 className={`${theme === "dark" ? "text-white" : "text-gray-900"}`}
               >
-                {toAmountFormatted} {selectedDestToken.symbol}
+                {toAmountFormatted} {selectedDestToken?.symbol}
               </span>
               <span
                 className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
@@ -482,12 +487,12 @@ export const SendForm: React.FC<SendFormProps> = ({
                       theme === "dark" ? "text-gray-400" : "text-gray-500"
                     }
                   >
-                    {selectedDestToken.symbol}
+                    {selectedDestToken?.symbol}
                   </span>
                 </div>
               </div>
               <div className="h-6 mt-1">
-                {amount && selectedDestToken.symbol && (
+                {amount && selectedDestToken?.symbol && (
                   <div
                     className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
                   >

@@ -11,7 +11,7 @@ import type { Relayer } from "@0xsequence/wallet-core"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Address } from "ox"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import type { Chain, Hex } from "viem"
+import type { Hex } from "viem"
 import {
   createPublicClient,
   createWalletClient,
@@ -29,7 +29,7 @@ import {
 } from "wagmi"
 import { useAPIClient } from "./apiClient.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
-import { getChainInfo, getSupportedSequenceChains } from "./chains.js"
+import { getChainInfo } from "./chains.js"
 import {
   TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
   TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
@@ -50,7 +50,6 @@ import type { MetaTxn } from "./metaTxnMonitor.js"
 import { useMetaTxnsMonitor } from "./metaTxnMonitor.js"
 import { findPreconditionAddress } from "./preconditions.js"
 import { getBackupRelayer, useRelayers } from "./relayer.js"
-import { getRelaySupportedChains } from "./relaySdk.js"
 
 export type WagmiAccount = {
   address: `0x${string}`
@@ -1531,31 +1530,5 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     updateOriginCallParams,
     originBlockTimestamp,
     metaTxnBlockTimestamps,
-  }
-}
-
-export async function getSupportedChains(): Promise<Chain[]> {
-  const sequenceChains = await getSupportedSequenceChains()
-  const relayChains = await getRelaySupportedChains()
-
-  // Find intersection of sequence chains and relay chains
-  return sequenceChains.filter((sequenceChain) =>
-    relayChains.some((relayChain) => relayChain.id === sequenceChain.id),
-  )
-}
-
-export function useSupportedChains() {
-  const { data: supportedChains = [], isLoading: isLoadingChains } = useQuery({
-    queryKey: ["supportedChains"],
-    queryFn: getSupportedChains,
-    staleTime: 60 * 60 * 1000, // 1 hour - chains rarely change
-    gcTime: 24 * 60 * 60 * 1000, // 24 hours - keep in cache for a full day
-    refetchOnWindowFocus: false, // Don't refetch when window regains focus
-    refetchOnReconnect: false, // Don't refetch on network reconnect
-  })
-
-  return {
-    supportedChains: supportedChains || [],
-    isLoadingChains,
   }
 }

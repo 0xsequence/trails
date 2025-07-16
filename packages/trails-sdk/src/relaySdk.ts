@@ -228,6 +228,47 @@ export async function isChainSupported(chainId: number): Promise<boolean> {
   return Object.keys(relaySupportedChains).includes(chainId.toString())
 }
 
+export interface RelayToken {
+  id: string
+  symbol: string
+  name: string
+  contractAddress: string
+  decimals: number
+  chainId: number
+  chainName: string
+  imageUrl?: string
+}
+
+export async function getRelaySupportedTokens(): Promise<RelayToken[]> {
+  try {
+    const chains = await fetchRelayChains()
+
+    const tokens: RelayToken[] = []
+
+    chains.forEach((chain) => {
+      if (!chain.disabled) {
+        chain.solverCurrencies.forEach((currency) => {
+          tokens.push({
+            id: currency.id,
+            symbol: currency.symbol,
+            name: currency.name,
+            contractAddress: currency.address,
+            decimals: currency.decimals,
+            chainId: chain.id,
+            chainName: chain.displayName || chain.name,
+            imageUrl: currency.metadata?.logoURI,
+          })
+        })
+      }
+    })
+
+    return tokens
+  } catch (error) {
+    console.error("[trails-sdk] Error fetching Relay supported tokens:", error)
+    return []
+  }
+}
+
 // Types for Relay API response
 interface RelayChain {
   id: number
@@ -240,6 +281,9 @@ interface RelayChain {
     name: string
     address: string
     decimals: number
+    metadata?: {
+      logoURI?: string
+    }
   }>
 }
 

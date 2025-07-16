@@ -4,20 +4,18 @@ import { Address } from "ox"
 import { useEffect, useMemo, useState } from "react"
 import { isAddressEqual, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
-import { getChainInfo } from "../../chains.js"
+import { getChainInfo, useSupportedChains } from "../../chains.js"
 import type {
   TokenBalanceExtended,
   TokenBalanceWithPrice,
 } from "../../tokenBalances.js"
 import {
   formatBalance,
-  getFormatttedTokenName,
   useAccountTotalBalanceUsd,
   useHasSufficientBalanceUsd,
-  useSourceTokenList,
   useTokenBalances,
 } from "../../tokenBalances.js"
-import { useSupportedChains } from "../../trails.js"
+import { getFormatttedTokenName, useSourceTokenList } from "../../tokens.js"
 
 export interface Token {
   id: number
