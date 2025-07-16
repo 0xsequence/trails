@@ -15,6 +15,7 @@ import { mainnet } from "viem/chains"
 import { useEnsAddress } from "wagmi"
 import { useAPIClient } from "../../apiClient.js"
 import { getChainInfo, useSupportedChains } from "../../chains.js"
+import { getFullErrorMessage } from "../../error.js"
 import { prepareSend, type TransactionState } from "../../prepareSend.js"
 import { useTokenPrices } from "../../prices.js"
 import { useQueryParams } from "../../queryParams.js"
@@ -490,10 +491,7 @@ export function useSendForm({
             "[trails-sdk] Error in prepareSend walletConfirmRetryHandler:",
             error,
           )
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : "An unexpected error occurred"
+          const errorMessage = getFullErrorMessage(error)
           setError(errorMessage)
           if (onError) {
             onError(errorMessage)
@@ -508,8 +506,7 @@ export function useSendForm({
       await handleSend()
     } catch (error) {
       console.error("[trails-sdk] Error in prepareSend:", error)
-      const errorMessage =
-        error instanceof Error ? error.message : "An unexpected error occurred"
+      const errorMessage = getFullErrorMessage(error)
       setError(errorMessage)
       if (onError) {
         onError(errorMessage)

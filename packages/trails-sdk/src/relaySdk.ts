@@ -247,22 +247,79 @@ export async function getRelaySupportedTokens(): Promise<RelayToken[]> {
 
     chains.forEach((chain) => {
       if (!chain.disabled) {
-        chain.solverCurrencies.forEach((currency) => {
+        // Add native currency
+        tokens.push({
+          id: chain.currency.id,
+          symbol: chain.currency.symbol,
+          name: chain.currency.name,
+          contractAddress: chain.currency.address,
+          decimals: chain.currency.decimals,
+          chainId: chain.id,
+          chainName: chain.displayName || chain.name,
+          imageUrl: "", // Native currencies typically don't have logoURI
+        })
+
+        // Add featured tokens
+        chain.featuredTokens.forEach((token) => {
           tokens.push({
-            id: currency.id,
-            symbol: currency.symbol,
-            name: currency.name,
-            contractAddress: currency.address,
-            decimals: currency.decimals,
+            id: token.id,
+            symbol: token.symbol,
+            name: token.name,
+            contractAddress: token.address,
+            decimals: token.decimals,
             chainId: chain.id,
             chainName: chain.displayName || chain.name,
-            imageUrl: currency.metadata?.logoURI || "",
+            imageUrl: token.metadata?.logoURI || "",
+          })
+        })
+
+        // Add ERC20 currencies
+        chain.erc20Currencies.forEach((token) => {
+          tokens.push({
+            id: token.id,
+            symbol: token.symbol,
+            name: token.name,
+            contractAddress: token.address,
+            decimals: token.decimals,
+            chainId: chain.id,
+            chainName: chain.displayName || chain.name,
+            imageUrl: token.metadata?.logoURI || "",
+          })
+        })
+
+        // Add solver currencies (fallback for chains that might not have featuredTokens/erc20Currencies)
+        chain.solverCurrencies.forEach((token) => {
+          tokens.push({
+            id: token.id,
+            symbol: token.symbol,
+            name: token.name,
+            contractAddress: token.address,
+            decimals: token.decimals,
+            chainId: chain.id,
+            chainName: chain.displayName || chain.name,
+            imageUrl: token.metadata?.logoURI || "",
           })
         })
       }
     })
 
-    return tokens
+    // Remove duplicates by chainId and contractAddress
+    const uniqueTokens = tokens.filter(
+      (token, index, self) =>
+        index ===
+        self.findIndex(
+          (t) =>
+            t.chainId === token.chainId &&
+            t.contractAddress.toLowerCase() ===
+              token.contractAddress.toLowerCase(),
+        ),
+    )
+
+    console.log(
+      `[trails-sdk] Fetched ${uniqueTokens.length} unique tokens from Relay API`,
+    )
+
+    return uniqueTokens
   } catch (error) {
     console.error("[trails-sdk] Error fetching Relay supported tokens:", error)
     return []
@@ -270,21 +327,38 @@ export async function getRelaySupportedTokens(): Promise<RelayToken[]> {
 }
 
 // Types for Relay API response
+interface RelayApiToken {
+  id: string
+  symbol: string
+  name: string
+  address: string
+  decimals: number
+  metadata?: {
+    logoURI?: string
+  }
+  supportsBridging?: boolean
+  withdrawalFee?: number
+  depositFee?: number
+  surgeEnabled?: boolean
+  supportsPermit?: boolean
+}
+
 interface RelayChain {
   id: number
   name: string
   displayName: string
   disabled: boolean
-  solverCurrencies: Array<{
+  currency: {
     id: string
     symbol: string
     name: string
     address: string
     decimals: number
-    metadata?: {
-      logoURI?: string
-    }
-  }>
+    supportsBridging: boolean
+  }
+  featuredTokens: RelayApiToken[]
+  erc20Currencies: RelayApiToken[]
+  solverCurrencies: RelayApiToken[]
 }
 
 interface RelayChainsResponse {

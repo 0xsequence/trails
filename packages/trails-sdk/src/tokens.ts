@@ -87,16 +87,20 @@ const tokenImageQueryClient = new QueryClient({
 const PRIORITY_TOKENS = [
   "ETH",
   "WETH",
+  "AVAX",
+  "WAVAX",
+  "xDAI",
+  "POL",
   "USDC",
   "USDT",
   "DAI",
-  "POL",
+  "MATIC",
   "ARB",
   "OP",
-  "MATIC",
   "BAT",
   "WBTC",
   "cbBTC",
+  "XAI",
 ]
 
 // Sort function for tokens with the specified priority order
