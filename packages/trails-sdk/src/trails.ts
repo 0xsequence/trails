@@ -76,7 +76,8 @@ export type UseTrailsReturn = {
   trailsInfos: GetIntentCallsPayloadsReturn["trailsInfos"] | null
   trailsFee: TrailsFee | null
   txnHash: Hex | undefined
-  committedIntentAddress: string | null
+  committedOriginIntentAddress: string | null
+  committedDestinationIntentAddress: string | null
   verificationStatus: {
     success: boolean
     receivedAddress?: string
@@ -169,6 +170,8 @@ export type UseTrailsReturn = {
   metaTxnBlockTimestamps: {
     [key: string]: { timestamp: number | null; error?: string }
   }
+  originIntentAddress: string | null
+  destinationIntentAddress: string | null
 }
 
 const RETRY_WINDOW_MS = 10_000
@@ -206,7 +209,16 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
   >(null)
   const [trailsFee, setTrailsFee] = useState<TrailsFee | null>(null)
   const [txnHash, setTxnHash] = useState<Hex | undefined>()
-  const [committedIntentAddress, setCommittedIntentAddress] = useState<
+  const [committedOriginIntentAddress, setCommittedOriginIntentAddress] =
+    useState<string | null>(null)
+  const [
+    committedDestinationIntentAddress,
+    setCommittedDestinationIntentAddress,
+  ] = useState<string | null>(null)
+  const [originIntentAddress, setOriginIntentAddress] = useState<string | null>(
+    null,
+  )
+  const [destinationIntentAddress, setDestinationIntentAddress] = useState<
     string | null
   >(null)
   // const [preconditionStatuses, setPreconditionStatuses] = useState<boolean[]>([])
@@ -349,7 +361,11 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
           },
         })
         console.log("API Commit Response:", response)
-        return { calculatedAddress: originIntentAddress.toString(), response }
+        return {
+          originIntentAddress: originIntentAddress.toString(),
+          destinationIntentAddress: destinationIntentAddress.toString(),
+          response,
+        }
       } catch (error) {
         console.error("Error during commit intent mutation:", error)
         if (
@@ -383,14 +399,16 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     },
     onSuccess: (data) => {
       console.log(
-        "Intent config committed successfully, Wallet Address:",
-        data.calculatedAddress,
+        "Intent config committed successfully, Origin Intent Address:",
+        data.originIntentAddress,
       )
-      setCommittedIntentAddress(data.calculatedAddress)
+      setCommittedOriginIntentAddress(data.originIntentAddress)
+      setCommittedDestinationIntentAddress(data.destinationIntentAddress)
     },
     onError: (error) => {
       console.error("Failed to commit intent config:", error)
-      setCommittedIntentAddress(null)
+      setCommittedOriginIntentAddress(null)
+      setCommittedDestinationIntentAddress(null)
     },
   })
 
@@ -400,18 +418,21 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     isLoading: isLoadingCommittedConfig,
     error: committedConfigError,
   } = useQuery<GetIntentConfigReturn, Error>({
-    queryKey: ["getIntentConfig", committedIntentAddress],
+    queryKey: ["getIntentConfig", committedOriginIntentAddress],
     queryFn: async () => {
-      if (!apiClient || !committedIntentAddress) {
+      if (!apiClient || !committedOriginIntentAddress) {
         throw new Error("API client or committed intent address not available")
       }
-      console.log("Fetching intent config for address:", committedIntentAddress)
+      console.log(
+        "Fetching intent config for address:",
+        committedOriginIntentAddress,
+      )
       return await apiClient.getIntentConfig({
-        intentAddress: committedIntentAddress,
+        intentAddress: committedOriginIntentAddress,
       })
     },
     enabled:
-      !!committedIntentAddress &&
+      !!committedOriginIntentAddress &&
       !!apiClient &&
       commitIntentConfigMutation.isSuccess,
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -452,13 +473,16 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
         throw new Error("Missing selected token or account address")
       }
       // Reset commit state when generating a new intent
-      setCommittedIntentAddress(null)
+      setCommittedOriginIntentAddress(null)
+      setCommittedDestinationIntentAddress(null)
       setVerificationStatus(null)
       setTrailsFee(null)
       setMetaTxns(null)
       setIntentCallsPayloads(null)
       setIntentPreconditions(null)
       setTrailsInfos(null)
+      setOriginIntentAddress(null)
+      setDestinationIntentAddress(null)
 
       const data = await getIntentCallsPayloads(args)
 
@@ -467,7 +491,10 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       setIntentPreconditions(data.preconditions)
       setTrailsInfos(data.trailsInfos)
       setTrailsFee(data.trailsFee!)
-      setCommittedIntentAddress(null)
+      setOriginIntentAddress(data.originIntentAddress)
+      setDestinationIntentAddress(data.destinationIntentAddress)
+      setCommittedOriginIntentAddress(null)
+      setCommittedDestinationIntentAddress(null)
 
       setVerificationStatus(null)
       return data
@@ -477,6 +504,8 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
 
       setTrailsFee(data.trailsFee || null)
       setTrailsInfos(data.trailsInfos || null)
+      setOriginIntentAddress(data.originIntentAddress)
+      setDestinationIntentAddress(data.destinationIntentAddress)
 
       if (
         data?.calls &&
@@ -503,6 +532,8 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       setMetaTxns(null)
       setTrailsInfos(null)
       setTrailsFee(null)
+      setOriginIntentAddress(null)
+      setDestinationIntentAddress(null)
     },
   })
 
@@ -517,8 +548,11 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     setMetaTxns(null)
     setTrailsInfos(null)
     setTrailsFee(null)
-    setCommittedIntentAddress(null)
+    setCommittedOriginIntentAddress(null)
+    setCommittedDestinationIntentAddress(null)
     setVerificationStatus(null)
+    setOriginIntentAddress(null)
+    setDestinationIntentAddress(null)
     setOperationHashes({})
     setHasAutoExecuted(false)
     setMetaTxnBlockTimestamps({})
@@ -1484,7 +1518,8 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     trailsInfos,
     trailsFee,
     txnHash,
-    committedIntentAddress,
+    committedOriginIntentAddress,
+    committedDestinationIntentAddress,
     verificationStatus,
     getRelayer,
     estimatedGas,
@@ -1539,5 +1574,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     updateOriginCallParams,
     originBlockTimestamp,
     metaTxnBlockTimestamps,
+    originIntentAddress,
+    destinationIntentAddress,
   }
 }

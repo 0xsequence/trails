@@ -62,7 +62,8 @@ function useOrchestrationDemo() {
     intentCallsPayloads,
     intentPreconditions,
     trailsInfos,
-    committedIntentAddress,
+    committedOriginIntentAddress,
+    committedDestinationIntentAddress,
     verificationStatus,
     committedIntentConfig,
     isLoadingCommittedConfig,
@@ -369,8 +370,8 @@ function useOrchestrationDemo() {
     intentPreconditions,
     metaTxns,
     trailsInfos,
-    committedIntentAddress,
-    committedIntentConfig,
+    committedOriginIntentAddress,
+    committedDestinationIntentAddress,
     verificationStatus,
     intentActionType,
     trailsFee,
@@ -429,6 +430,7 @@ function useOrchestrationDemo() {
     commitIntentConfigArgs,
     isLoadingCommittedConfig,
     committedConfigError,
+    committedIntentConfig,
 
     // UI State
     sendButtonText,
@@ -468,8 +470,8 @@ export const OrchestrationDemo = () => {
     intentPreconditions,
     metaTxns,
     trailsInfos,
-    committedIntentAddress,
-    committedIntentConfig,
+    committedOriginIntentAddress,
+    committedDestinationIntentAddress,
     verificationStatus,
     intentActionType,
     trailsFee,
@@ -514,6 +516,7 @@ export const OrchestrationDemo = () => {
     commitIntentConfigError,
     isLoadingCommittedConfig,
     committedConfigError,
+    committedIntentConfig,
     // commitIntentConfigPending,
     // commitIntentConfigArgs,
 
@@ -621,7 +624,10 @@ export const OrchestrationDemo = () => {
               verificationStatus={verificationStatus}
               commitIntentConfigError={commitIntentConfigError}
               commitIntentConfigSuccess={commitIntentConfigSuccess}
-              committedIntentAddress={committedIntentAddress}
+              committedOriginIntentAddress={committedOriginIntentAddress}
+              committedDestinationIntentAddress={
+                committedDestinationIntentAddress
+              }
               isLoadingCommittedConfig={isLoadingCommittedConfig}
               committedConfigError={committedConfigError}
               committedIntentConfigData={committedIntentConfig}

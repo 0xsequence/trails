@@ -22,7 +22,8 @@ interface CommitIntentStepProps {
   } | null
   commitIntentConfigError: Error | null
   commitIntentConfigSuccess: boolean
-  committedIntentAddress: string | null
+  committedOriginIntentAddress: string | null
+  committedDestinationIntentAddress: string | null
   isLoadingCommittedConfig: boolean
   committedConfigError: Error | null
   committedIntentConfigData: GetIntentConfigReturn | undefined
@@ -47,7 +48,8 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
   verificationStatus,
   commitIntentConfigError,
   commitIntentConfigSuccess,
-  committedIntentAddress,
+  committedOriginIntentAddress,
+  committedDestinationIntentAddress,
   isLoadingCommittedConfig,
   committedConfigError,
   committedIntentConfigData,
@@ -126,10 +128,28 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                 <Text variant="small" color="white">
                   Intent configuration committed successfully!
                 </Text>
+                {committedOriginIntentAddress && (
+                  <div className="mt-2 text-xs text-gray-400 flex flex-col space-y-1 w-full">
+                    <div>
+                      Committed Origin Intent Address:
+                      <span className="font-mono text-xs break-all bg-gray-800/70 p-1 rounded block mt-1">
+                        {committedOriginIntentAddress}
+                      </span>
+                    </div>
+                    {committedDestinationIntentAddress && (
+                      <div>
+                        Committed Destination Intent Address:
+                        <span className="font-mono text-xs break-all bg-gray-800/70 p-1 rounded block mt-1">
+                          {committedDestinationIntentAddress}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
-            {committedIntentAddress && commitIntentConfigSuccess && (
+            {committedOriginIntentAddress && commitIntentConfigSuccess && (
               <div className="bg-gray-900/50 p-4 rounded-lg border border-gray-700/50">
                 <div className="flex items-center justify-between">
                   <Text

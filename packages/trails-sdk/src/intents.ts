@@ -254,6 +254,16 @@ export function commitIntentConfig(
       executionInfos,
       sapientType,
     )
+
+  console.log(
+    "[trails-sdk] originIntentAddress:",
+    originIntentAddress.toString(),
+  )
+  console.log(
+    "[trails-sdk] destinationIntentAddress:",
+    destinationIntentAddress.toString(),
+  )
+
   const receivedAddress = findPreconditionAddress(preconditions)
   console.log("[trails-sdk] Address comparison:", {
     receivedAddress,
