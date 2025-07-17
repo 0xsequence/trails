@@ -14,8 +14,8 @@ interface Token {
 }
 
 interface TokenSelectorProps {
-  selectedToken: string | undefined
-  onTokenSelect: (tokenSymbol: string) => void
+  selectedToken: { chainId: number; contractAddress: string } | undefined
+  onTokenSelect: (token: Token | null) => void
   tokens: Token[]
   disabled?: boolean
   className?: string
@@ -34,9 +34,20 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
   const [searchTerm, setSearchTerm] = useState("")
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const selectedTokenData = tokens.find(
-    (token: Token) => token.symbol === selectedToken,
-  )
+  const selectedTokenData = tokens.find((token: Token) => {
+    return (
+      token.chainId === selectedToken?.chainId &&
+      token.contractAddress.toLowerCase() ===
+        selectedToken?.contractAddress.toLowerCase()
+    )
+  })
+
+  // Check if all tokens have the same chain ID
+  const allSameChain = useMemo(() => {
+    if (tokens.length <= 1) return true
+    const firstChainId = tokens[0]?.chainId
+    return tokens.every((token) => token.chainId === firstChainId)
+  }, [tokens])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -52,8 +63,8 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const handleTokenSelect = (tokenSymbol: string) => {
-    onTokenSelect(tokenSymbol)
+  const handleTokenSelect = (token: Token | null) => {
+    onTokenSelect(token)
     setIsDropdownOpen(false)
     setSearchTerm("") // Clear search when selecting
   }
@@ -70,11 +81,14 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
     const filtered = tokens.filter((token: Token) => {
       const tokenName = token.name || ""
       const tokenSymbol = token.symbol || ""
+      const chainName = token.chainName || ""
+      const chainId = token.chainId?.toString() || ""
       const tokenNameLower = tokenName.toLowerCase()
       const tokenSymbolLower = tokenSymbol.toLowerCase()
+      const chainNameLower = chainName.toLowerCase()
       const contractAddress = token.contractAddress || ""
 
-      // If multiple query parts, check if they match token name + symbol combination
+      // If multiple query parts, check if they match any combination
       if (queryParts.length > 1) {
         const matchesName = queryParts.some((part) =>
           tokenNameLower.includes(part),
@@ -82,10 +96,20 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
         const matchesSymbol = queryParts.some((part) =>
           tokenSymbolLower.includes(part),
         )
+        const matchesChainName = queryParts.some((part) =>
+          chainNameLower.includes(part),
+        )
+        const matchesChainId = queryParts.some((part) => chainId.includes(part))
         const matchesAddress = queryParts.some((part) =>
           contractAddress.toLowerCase().includes(part),
         )
-        return matchesName || matchesSymbol || matchesAddress
+        return (
+          matchesName ||
+          matchesSymbol ||
+          matchesChainName ||
+          matchesChainId ||
+          matchesAddress
+        )
       }
 
       // Single query part - match against any field
@@ -93,6 +117,8 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
         (part) =>
           tokenNameLower.includes(part) ||
           tokenSymbolLower.includes(part) ||
+          chainNameLower.includes(part) ||
+          chainId.includes(part) ||
           contractAddress.toLowerCase().includes(part),
       )
     })
@@ -146,6 +172,9 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 {selectedTokenData.symbol}
+                {!allSameChain && selectedTokenData.chainName && (
+                  <span className="ml-1">• {selectedTokenData.chainName}</span>
+                )}
               </div>
             </div>
           </>
@@ -183,7 +212,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
           {/* Clear Selection Option */}
           <button
             type="button"
-            onClick={() => handleTokenSelect("")}
+            onClick={() => handleTokenSelect(null)}
             className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm ${
               !selectedToken
                 ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
@@ -199,9 +228,11 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
             <button
               key={`${token.symbol}-${token.chainId || "native"}-${token.contractAddress || index}`}
               type="button"
-              onClick={() => handleTokenSelect(token.symbol)}
+              onClick={() => handleTokenSelect(token)}
               className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm ${
-                selectedToken === token.symbol
+                selectedToken?.chainId === token.chainId &&
+                selectedToken?.contractAddress?.toLowerCase() ===
+                  token.contractAddress?.toLowerCase()
                   ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
                   : "text-gray-900 dark:text-gray-200"
               }`}
@@ -216,11 +247,16 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
                 <div className="font-medium">{token.name}</div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   {token.symbol}
+                  {!allSameChain && token.chainName && (
+                    <span className="ml-1">• {token.chainName}</span>
+                  )}
                 </div>
               </div>
-              {selectedToken === token.symbol && (
-                <span className="ml-auto text-blue-400">•</span>
-              )}
+              {selectedToken?.chainId === token.chainId &&
+                selectedToken?.contractAddress?.toLowerCase() ===
+                  token.contractAddress?.toLowerCase() && (
+                  <span className="ml-auto text-blue-400">•</span>
+                )}
             </button>
           ))}
 

@@ -500,11 +500,11 @@ export async function getTokenBalancesWithPrices({
 }
 
 export type UseAccountTokenBalanceParams = {
-  account: string
-  token: string
-  chainId: number
-  indexerGatewayClient: SequenceIndexerGateway
-  apiClient: SequenceAPIClient
+  account?: string
+  token?: string
+  chainId?: number
+  indexerGatewayClient?: SequenceIndexerGateway
+  apiClient?: SequenceAPIClient
 }
 
 export function useAccountTokenBalance({
@@ -517,6 +517,15 @@ export function useAccountTokenBalance({
   const { data: tokenBalance, isLoading: isLoadingTokenBalance } = useQuery({
     queryKey: ["tokenBalances", "balances", account],
     queryFn: async () => {
+      if (
+        !account ||
+        !indexerGatewayClient ||
+        !apiClient ||
+        !token ||
+        !chainId
+      ) {
+        return null
+      }
       const { balances } = await getTokenBalancesWithPrices({
         account,
         indexerGatewayClient,

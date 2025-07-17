@@ -6,6 +6,7 @@ import type {
 import type { MetaTxnReceipt } from "@0xsequence/trails-relayer"
 import type { Relayer } from "@0xsequence/wallet-core"
 import type { Payload } from "@0xsequence/wallet-primitives"
+import { useQuery } from "@tanstack/react-query"
 import type {
   Account,
   Chain,
@@ -24,6 +25,7 @@ import {
   zeroAddress,
 } from "viem"
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
+import { useAPIClient } from "./apiClient.js"
 import {
   cctpTransfer,
   getIsUsdcAddress,
@@ -40,6 +42,7 @@ import {
   getPermitCalls,
   getPermitSignature,
 } from "./gasless.js"
+import { useIndexerGatewayClient } from "./indexerClient.js"
 import type { QuoteProvider } from "./intents.js"
 import {
   calculateIntentAddress,
@@ -56,8 +59,10 @@ import {
   sendPaymasterGaslessTransaction,
 } from "./paymasterSend.js"
 import { findFirstPreconditionForChainId } from "./preconditions.js"
+import { useTokenPrice } from "./prices.js"
 import { getQueryParam } from "./queryParams.js"
-import { useRelayers, type RelayerEnvConfig } from "./relayer.js"
+import type { RelayerEnvConfig } from "./relayer.js"
+import { useRelayers } from "./relayer.js"
 import {
   executeSimpleRelayTransaction,
   getRelaySDKQuote,
@@ -68,14 +73,9 @@ import {
   sequenceSendTransaction,
   simpleCreateSequenceWallet,
 } from "./sequenceWallet.js"
-import { requestWithTimeout } from "./utils.js"
-import { ChainInfo } from "@0xsequence/indexer"
-import { useAPIClient } from "./apiClient.js"
-import { useQuery } from "@tanstack/react-query"
-import { useSupportedTokens } from "./tokens.js"
 import { useAccountTokenBalance } from "./tokenBalances.js"
-import { useIndexerGatewayClient } from "./indexerClient.js"
-import { useTokenPrice } from "./prices.js"
+import { useSupportedTokens } from "./tokens.js"
+import { requestWithTimeout } from "./utils.js"
 
 type TransactionStateStatus = "pending" | "failed" | "confirmed"
 
@@ -118,7 +118,7 @@ export type SendOptions = {
 export type PrepareSendReturn = {
   intentAddress?: string
   originSendAmount: string
-  send: (onOriginSend: () => void) => Promise<SendReturn>
+  send: (onOriginSend?: () => void) => Promise<SendReturn>
 }
 
 export type SendReturn = {
@@ -450,7 +450,7 @@ async function sendHandlerForDifferentChainDifferentToken({
     return {
       intentAddress: "",
       originSendAmount: amount,
-      send: async (onOriginSend: () => void): Promise<SendReturn> => {
+      send: async (onOriginSend?: () => void): Promise<SendReturn> => {
         const originChain = testnet ? getTestnetChainInfo(chain)! : chain
         const destinationChain = testnet
           ? getTestnetChainInfo(destinationChainId)!
@@ -643,7 +643,7 @@ async function sendHandlerForDifferentChainDifferentToken({
   return {
     intentAddress,
     originSendAmount: depositAmount,
-    send: async (onOriginSend: () => void): Promise<SendReturn> => {
+    send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       console.log("[trails-sdk] sending origin transaction")
 
       const needsNativeFee = getNeedsLifiNativeFee({
@@ -817,7 +817,7 @@ async function sendHandlerForSameChainSameToken({
 
   return {
     originSendAmount: destinationTokenAmount,
-    send: async (onOriginSend: () => void): Promise<SendReturn> => {
+    send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const originCallParams = {
         to: destinationCalldata
           ? recipient
@@ -972,7 +972,7 @@ async function sendHandlerForSameChainDifferentToken({
 
   return {
     originSendAmount: depositAmount,
-    send: async (onOriginSend: () => void): Promise<SendReturn> => {
+    send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       await attemptSwitchChain({
         walletClient,
         desiredChainId: originChainId,
@@ -1017,7 +1017,7 @@ async function attemptGaslessDeposit({
   depositTokenAddress: string
   depositTokenAmount: string
   depositRecipient: string
-  onOriginSend: () => void
+  onOriginSend?: () => void
   walletClient: WalletClient
   chain: Chain
   account: Account
@@ -1211,7 +1211,7 @@ export async function attemptNonGaslessUserDeposit({
 }: {
   originTokenAddress: string
   firstPreconditionMin: string
-  onOriginSend: () => void
+  onOriginSend?: () => void
   publicClient: PublicClient
   walletClient: WalletClient
   originChainId: number
@@ -1454,7 +1454,7 @@ async function attemptUserDepositTx({
   originRelayer: Relayer.Standard.Rpc.RpcRelayer
   firstPreconditionMin: string
   intentAddress: string
-  onOriginSend: () => void
+  onOriginSend?: () => void
   publicClient: PublicClient
   walletClient: WalletClient
   destinationTokenDecimals: number
@@ -1684,13 +1684,13 @@ function getNeedsLifiNativeFee({
 }
 
 export type UseQuoteProps = {
-  walletClient: WalletClient
-  fromTokenAddress: string
-  fromChainId: number
-  toTokenAddress: string
-  toChainId: number
-  toAmount: string
-  toRecipient: string
+  walletClient?: WalletClient
+  fromTokenAddress?: string
+  fromChainId?: number
+  toTokenAddress?: string
+  toChainId?: number
+  toAmount?: string | bigint
+  toRecipient?: string
 }
 
 export function useQuote({
@@ -1701,26 +1701,47 @@ export function useQuote({
   toChainId,
   toAmount,
   toRecipient,
-}: UseQuoteProps) {
+}: UseQuoteProps = {}): {
+  quote: {
+    fromAmount: string
+  } | null
+  swap:
+    | (() => Promise<{
+        originTransaction: {
+          transactionHash: string | undefined
+          receipt: TransactionReceipt | MetaTxnReceipt | null
+        }
+        destinationTransaction: {
+          transactionHash: string | undefined
+          receipt: MetaTxnReceipt | null
+        }
+      } | null>)
+    | null
+  isLoadingQuote: boolean
+  quoteError: unknown
+} {
   const apiClient = useAPIClient()
-  const { getRelayer } = useRelayers({})
+  const { getRelayer } = useRelayers({ env: "dev", useV3Relayers: true })
   const indexerGatewayClient = useIndexerGatewayClient()
 
   const { supportedTokens } = useSupportedTokens()
 
   const { tokenBalance: originTokenBalance } = useAccountTokenBalance({
-    account: walletClient.account?.address!,
+    account: walletClient?.account?.address,
     token: fromTokenAddress,
     chainId: fromChainId,
     indexerGatewayClient,
     apiClient,
   })
 
-  const destToken = {
-    tokenId: toTokenAddress,
-    chainId: toChainId,
-    contractAddress: toTokenAddress,
-  }
+  const destToken =
+    toTokenAddress && toChainId
+      ? {
+          tokenId: toTokenAddress,
+          chainId: toChainId,
+          contractAddress: toTokenAddress,
+        }
+      : null
 
   const { tokenPrice: destinationTokenPrice } = useTokenPrice(
     destToken,
@@ -1734,14 +1755,29 @@ export function useQuote({
       fromChainId,
       toTokenAddress,
       toChainId,
-      toAmount,
+      toAmount?.toString(),
       toRecipient,
     ],
     queryFn: async () => {
+      if (
+        !walletClient ||
+        !apiClient ||
+        !fromTokenAddress ||
+        !toTokenAddress ||
+        !toAmount ||
+        !toRecipient ||
+        !fromChainId ||
+        !toChainId
+      ) {
+        return null
+      }
+
       const originTokenAmount = originTokenBalance?.balance ?? "0"
       const sequenceProjectAccessKey = ""
       const destinationRelayer = getRelayer(toChainId)
       const originRelayer = getRelayer(fromChainId)
+      console.log("originRelayer", originRelayer)
+      console.log("destinationRelayer", destinationRelayer)
       const sourceTokenPriceUsd = originTokenBalance?.price?.value ?? 0
       const destinationTokenPriceUsd = destinationTokenPrice?.price?.value ?? 0
 
@@ -1768,7 +1804,7 @@ export function useQuote({
         destinationChainId: toChainId,
         recipient: toRecipient,
         destinationTokenAddress: toTokenAddress,
-        destinationTokenAmount: toAmount,
+        destinationTokenAmount: toAmount.toString(),
         destinationTokenSymbol: destinationTokenSymbol,
         sequenceProjectAccessKey,
         client: walletClient,
@@ -1787,15 +1823,27 @@ export function useQuote({
 
       console.log("[trails-sdk] options", options)
 
-      const {
-        intentAddress,
-        originSendAmount,
-        send: swap,
-      } = await prepareSend(options)
+      const { intentAddress, originSendAmount, send } =
+        await prepareSend(options)
       console.log("[trails-sdk] Intent address:", intentAddress?.toString())
 
       const quote = {
         fromAmount: originSendAmount,
+      }
+
+      const swap = async () => {
+        const { originUserTxReceipt, destinationMetaTxnReceipt } = await send()
+
+        return {
+          originTransaction: {
+            transactionHash: originUserTxReceipt?.transactionHash,
+            receipt: originUserTxReceipt,
+          },
+          destinationTransaction: {
+            transactionHash: destinationMetaTxnReceipt?.txnHash,
+            receipt: destinationMetaTxnReceipt,
+          },
+        }
       }
 
       return {
@@ -1806,8 +1854,8 @@ export function useQuote({
   })
 
   return {
-    quote: data?.quote,
-    swap: data?.swap,
+    quote: data?.quote || null,
+    swap: data?.swap || null,
     isLoadingQuote: isLoading,
     quoteError: error,
   }

@@ -24,12 +24,15 @@ export {
   getAccountTotalBalanceUsd,
   getHasSufficientBalanceToken,
   getHasSufficientBalanceUsd,
+  useAccountTotalBalanceUsd,
+  useHasSufficientBalanceToken,
+  useHasSufficientBalanceUsd,
   useTokenBalances,
 } from "./tokenBalances.js"
 export {
   getSupportedTokens,
   useSupportedTokens,
-  useTokenList, // simpler exposed interface
+  useTokenList,
 } from "./tokens.js"
 export type { WagmiAccount } from "./trails.js"
 export { useTrails } from "./trails.js"

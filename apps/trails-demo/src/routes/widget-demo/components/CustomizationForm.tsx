@@ -741,10 +741,17 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               To Token
             </label>
             <TokenSelector
-              selectedToken={toToken}
-              onTokenSelect={(tokenSymbol) =>
-                setToToken(tokenSymbol || undefined)
+              selectedToken={
+                toToken && toChainId
+                  ? {
+                      chainId: toChainId,
+                      contractAddress:
+                        filteredTokens.find((t) => t.symbol === toToken)
+                          ?.contractAddress || zeroAddress,
+                    }
+                  : undefined
               }
+              onTokenSelect={(token) => setToToken(token?.symbol || undefined)}
               tokens={filteredTokens}
               disabled={!!selectedScenario || !toChainId}
               placeholder="Select Token"

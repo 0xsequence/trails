@@ -70,7 +70,7 @@ const createBatchCacheKey = (
   ]
 }
 
-const createSingleCacheKey = (token: Token | null): (string | null)[] => {
+const createSingleCacheKey = (token?: Token | null): (string | null)[] => {
   return ["tokenPrices", "single", token ? createTokenCacheKey(token) : null]
 }
 
@@ -153,12 +153,13 @@ export const useTokenPrices = (
 }
 
 export const useTokenPrice = (
-  token: Token | null,
-  apiClient: SequenceAPIClient,
+  token?: Token | null,
+  apiClient?: SequenceAPIClient,
 ) => {
   const { data: tokenPrice, isLoading: isLoadingTokenPrice } = useQuery({
     queryKey: createSingleCacheKey(token),
-    queryFn: () => (token ? getTokenPrice(apiClient, token) : null),
+    queryFn: () =>
+      token && apiClient ? getTokenPrice(apiClient, token) : null,
     enabled: !!token && !!apiClient,
     ...COMMON_QUERY_OPTIONS,
   })
