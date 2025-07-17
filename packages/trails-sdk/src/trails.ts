@@ -177,7 +177,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     account,
     disableAutoExecute = false,
     env,
-    useV3Relayers = true,
+    useV3Relayers = false,
     sequenceProjectAccessKey,
   } = config
   const apiClient = useAPIClient({ projectAccessKey: sequenceProjectAccessKey })

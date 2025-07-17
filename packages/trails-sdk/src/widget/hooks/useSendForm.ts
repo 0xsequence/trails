@@ -28,6 +28,7 @@ import {
 } from "../../tokenBalances.js"
 import type { SupportedToken } from "../../tokens.js"
 import { useSupportedTokens, useTokenAddress } from "../../tokens.js"
+import { DEFAULT_USE_V3_RELAYERS } from "../../constants.js"
 
 export interface Token {
   id: number
@@ -332,7 +333,10 @@ export function useSendForm({
     selectedToken.contractInfo?.decimals,
   )
   const balanceUsdFormatted = selectedToken.balanceUsdFormatted ?? ""
-  const relayerConfig = useMemo(() => ({ env, useV3Relayers: true }), [env])
+  const relayerConfig = useMemo(
+    () => ({ env, useV3Relayers: DEFAULT_USE_V3_RELAYERS }),
+    [env],
+  )
 
   const isValidRecipient = Boolean(recipient && isAddress(recipient))
 

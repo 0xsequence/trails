@@ -101,6 +101,65 @@ export function getRelayerUrl(
     } else if (chainId === 1) {
       // Mainnet
       relayerUrl = "https://v3-mainnet-relayer.sequence.app"
+    } else if (chainId === 33139) {
+      relayerUrl = "https://v3-apechain-relayer.sequence.app"
+    } else if (chainId === 42170) {
+      relayerUrl = "https://v3-arbitrum-nova-relayer.sequence.app"
+    } else if (chainId === 43114) {
+      relayerUrl = "https://v3-avalanche-relayer.sequence.app"
+    } else if (chainId === 8333) {
+      relayerUrl = "https://v3-b3-relayer.sequence.app"
+    } else if (chainId === 81457) {
+      relayerUrl = "https://v3-blast-relayer.sequence.app"
+    } else if (chainId === 100) {
+      relayerUrl = "https://v3-gnosis-relayer.sequence.app"
+    } else if (chainId === 1868) {
+      relayerUrl = "https://v3-soneium-relayer.sequence.app"
+    } else if (chainId === 660279) {
+      relayerUrl = "https://v3-xai-relayer.sequence.app"
+    } else {
+      // Fallback to general dev relayer for other chains if V3 is specified but chain not V3-supported
+      relayerUrl = `${baseUrl}${getChainInfo(chainId)!.name?.replace(" ", "-")}-relayer.sequence.app`
+    }
+
+    return relayerUrl
+  }
+
+  if (config.env === "dev" && !config.useV3Relayers) {
+    if (chainId === 42161) {
+      // Arbitrum
+      relayerUrl = "https://dev-arbitrum-relayer.sequence.app"
+    } else if (chainId === 8453) {
+      // Base
+      relayerUrl = "https://dev-base-relayer.sequence.app"
+    } else if (chainId === 84532) {
+      // Base Sepolia
+      relayerUrl = "https://dev-base-sepolia-relayer.sequence.app"
+    } else if (chainId === 10) {
+      // Optimism
+      relayerUrl = "https://dev-optimism-relayer.sequence.app"
+    } else if (chainId === 137) {
+      // Polygon
+      relayerUrl = "https://dev-polygon-relayer.sequence.app"
+    } else if (chainId === 1) {
+      // Mainnet
+      relayerUrl = "https://dev-mainnet-relayer.sequence.app"
+    } else if (chainId === 33139) {
+      relayerUrl = "https://dev-apechain-relayer.sequence.app"
+    } else if (chainId === 42170) {
+      relayerUrl = "https://dev-arbitrum-nova-relayer.sequence.app"
+    } else if (chainId === 43114) {
+      relayerUrl = "https://dev-avalanche-relayer.sequence.app"
+    } else if (chainId === 8333) {
+      relayerUrl = "https://dev-b3-relayer.sequence.app"
+    } else if (chainId === 81457) {
+      relayerUrl = "https://dev-blast-relayer.sequence.app"
+    } else if (chainId === 100) {
+      relayerUrl = "https://dev-gnosis-relayer.sequence.app"
+    } else if (chainId === 1868) {
+      relayerUrl = "https://dev-soneium-relayer.sequence.app"
+    } else if (chainId === 660279) {
+      relayerUrl = "https://dev-xai-relayer.sequence.app"
     } else {
       // Fallback to general dev relayer for other chains if V3 is specified but chain not V3-supported
       relayerUrl = `${baseUrl}${getChainInfo(chainId)!.name?.replace(" ", "-")}-relayer.sequence.app`

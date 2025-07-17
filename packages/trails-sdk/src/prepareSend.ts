@@ -34,7 +34,7 @@ import {
 } from "./cctp.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
 import { getChainInfo, getTestnetChainInfo } from "./chains.js"
-import { intentEntrypoints } from "./constants.js"
+import { intentEntrypoints, DEFAULT_USE_V3_RELAYERS } from "./constants.js"
 import { getERC20TransferData } from "./encoders.js"
 import { getExplorerUrl } from "./explorer.js"
 import {
@@ -1721,7 +1721,10 @@ export function useQuote({
   quoteError: unknown
 } {
   const apiClient = useAPIClient()
-  const { getRelayer } = useRelayers({ env: "dev", useV3Relayers: true })
+  const { getRelayer } = useRelayers({
+    env: "dev",
+    useV3Relayers: DEFAULT_USE_V3_RELAYERS,
+  })
   const indexerGatewayClient = useIndexerGatewayClient()
 
   const { supportedTokens } = useSupportedTokens()
