@@ -1181,6 +1181,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
 
   useEffect(() => {
     if (
+      !calculatedIntentAddress ||
       !intentCallsPayloads?.[0]?.chainId ||
       !tokenAddress ||
       !originChainId ||
