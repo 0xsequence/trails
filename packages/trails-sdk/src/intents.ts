@@ -155,14 +155,26 @@ export function calculateOriginAndDestinationIntentAddresses(
   const originChainId = calls[0]?.chainId
   const destinationChainId = calls[1]?.chainId
 
+  console.log("[trails-sdk] originChainId:", originChainId)
+  console.log("[trails-sdk] destinationChainId:", destinationChainId)
+
   // Different origin and destination chains: cross-chain execution.
   const originCalls = calls.filter((c) => c.chainId === originChainId)
   const destinationCalls = calls.filter((c) => c.chainId === destinationChainId)
+
+  console.log("[trails-sdk] originCalls:", originCalls)
+  console.log("[trails-sdk] destinationCalls:", destinationCalls)
 
   const originIntentAddress = calculateIntentAddress(mainSigner, originCalls)
   const destinationIntentAddress = calculateIntentAddress(
     mainSigner,
     destinationCalls,
+  )
+
+  console.log("[trails-sdk] originIntentAddress:", originIntentAddress)
+  console.log(
+    "[trails-sdk] destinationIntentAddress:",
+    destinationIntentAddress,
   )
 
   return { originIntentAddress, destinationIntentAddress }
