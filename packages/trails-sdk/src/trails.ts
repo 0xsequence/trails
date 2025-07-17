@@ -265,20 +265,6 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     useV3Relayers,
   })
 
-  const calculatedIntentAddress = useMemo(() => {
-    if (!account.address || !intentCallsPayloads || !trailsInfos) {
-      return null
-    }
-    const { originIntentAddress } =
-      calculateOriginAndDestinationIntentAddresses(
-        account.address,
-        intentCallsPayloads as any[],
-        trailsInfos as any[],
-        trailsFee?.quoteProvider as QuoteProvider,
-      )
-    return originIntentAddress
-  }, [account.address, intentCallsPayloads, trailsInfos, trailsFee])
-
   // Add gas estimation hook with proper types
   const {
     data: estimatedGas,
@@ -1008,7 +994,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       trailsInfos &&
       trailsFee &&
       account.address &&
-      calculatedIntentAddress &&
+      originIntentAddress &&
       !commitIntentConfigMutation.isPending &&
       !commitIntentConfigMutation.isSuccess
     ) {
@@ -1029,7 +1015,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     trailsInfos,
     trailsFee,
     account.address,
-    calculatedIntentAddress,
+    originIntentAddress,
     commitIntentConfigMutation,
     commitIntentConfigMutation.isPending,
     commitIntentConfigMutation.isSuccess,
@@ -1181,7 +1167,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
 
   useEffect(() => {
     if (
-      !calculatedIntentAddress ||
+      !originIntentAddress ||
       !intentCallsPayloads?.[0]?.chainId ||
       !tokenAddress ||
       !originChainId ||
@@ -1193,7 +1179,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     }
 
     try {
-      const intentAddressString = calculatedIntentAddress as Address.Address
+      const intentAddressString = originIntentAddress as Address.Address
 
       if (!intentAddressString || !isAddress(intentAddressString)) {
         setOriginCallParams(null)
@@ -1275,7 +1261,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     originChainId,
     intentPreconditions,
     account.address,
-    calculatedIntentAddress,
+    originIntentAddress,
   ])
 
   // const checkPreconditionStatuses = useCallback(async () => {

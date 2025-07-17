@@ -51,7 +51,6 @@ interface IntentQuoteDisplayStepProps {
   intentActionType: IntentAction | null
   selectedToken: TokenBalance | null
   account: WagmiAccount | undefined
-  calculatedIntentAddress: string | null
   customCallData: {
     to: string
     value: string
@@ -71,7 +70,6 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
   intentActionType,
   selectedToken,
   account,
-  calculatedIntentAddress,
   customCallData,
 }) => {
   if (createIntentPending) {
@@ -292,9 +290,9 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             to intent addr:
             <strong
               className="text-gray-200 font-mono mx-1 truncate max-w-[70px] sm:max-w-[100px] inline-block align-bottom"
-              title={calculatedIntentAddress || "N/A"}
+              title={undefined}
             >
-              {calculatedIntentAddress || "N/A"}
+              {undefined}
             </strong>
           </span>
         </>
