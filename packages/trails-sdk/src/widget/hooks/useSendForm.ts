@@ -265,7 +265,7 @@ export function useSendForm({
     tokenSymbol: selectedDestToken?.symbol,
   })
 
-  const { data: destTokenPrices } = useTokenPrices(
+  const { tokenPrices: destTokenPrices } = useTokenPrices(
     selectedDestToken && destTokenAddress
       ? [
           {

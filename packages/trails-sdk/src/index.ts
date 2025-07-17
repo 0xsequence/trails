@@ -15,7 +15,7 @@ export type {
   MetaTxn,
   MetaTxnStatus,
 } from "./metaTxnMonitor.js"
-export { prepareSend } from "./prepareSend.js"
+export { prepareSend, useQuote } from "./prepareSend.js"
 export type {
   NativeTokenBalance,
   TokenBalance,
@@ -29,6 +29,7 @@ export {
 export {
   getSupportedTokens,
   useSupportedTokens,
+  useTokenList, // simpler exposed interface
 } from "./tokens.js"
 export type { WagmiAccount } from "./trails.js"
 export { useTrails } from "./trails.js"

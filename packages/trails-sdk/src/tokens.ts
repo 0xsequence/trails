@@ -372,3 +372,12 @@ export function useTokenImageUrl(
     hasImage: !!imageUrl,
   }
 }
+
+export function useTokenList() {
+  const { supportedTokens: tokens, isLoadingTokens } = useSupportedTokens()
+
+  return {
+    tokens,
+    isLoadingTokens: isLoadingTokens,
+  }
+}

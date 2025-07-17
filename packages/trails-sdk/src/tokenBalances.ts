@@ -182,7 +182,7 @@ export function useTokenBalances(
     refetchIntervalInBackground: true,
   })
 
-  const { data: tokenPrices, isLoading: isLoadingPrices } = useTokenPrices(
+  const { tokenPrices, isLoadingTokenPrices } = useTokenPrices(
     (tokenBalancesData?.balances ?? [])
       .map((b: any) => {
         return {
@@ -259,7 +259,7 @@ export function useTokenBalances(
       },
       enabled:
         !isLoadingBalances &&
-        !isLoadingPrices &&
+        !isLoadingTokenPrices &&
         !!tokenBalancesData &&
         !!tokenPrices,
       staleTime: 30000, // 30 seconds for sorted tokens
@@ -270,9 +270,9 @@ export function useTokenBalances(
   return {
     tokenBalancesData,
     isLoadingBalances,
-    isLoadingPrices,
+    isLoadingPrices: isLoadingTokenPrices,
     isLoadingSortedTokens:
-      isLoadingSortedTokens || isLoadingBalances || isLoadingPrices,
+      isLoadingSortedTokens || isLoadingBalances || isLoadingTokenPrices,
     balanceError,
     sortedTokens,
   }
@@ -496,6 +496,46 @@ export async function getTokenBalancesWithPrices({
 
   return {
     balances: balancesWithPrices,
+  }
+}
+
+export type UseAccountTokenBalanceParams = {
+  account: string
+  token: string
+  chainId: number
+  indexerGatewayClient: SequenceIndexerGateway
+  apiClient: SequenceAPIClient
+}
+
+export function useAccountTokenBalance({
+  account,
+  token,
+  chainId,
+  indexerGatewayClient,
+  apiClient,
+}: UseAccountTokenBalanceParams) {
+  const { data: tokenBalance, isLoading: isLoadingTokenBalance } = useQuery({
+    queryKey: ["tokenBalances", "balances", account],
+    queryFn: async () => {
+      const { balances } = await getTokenBalancesWithPrices({
+        account,
+        indexerGatewayClient,
+        apiClient,
+      })
+      const tokenBalance = balances.find(
+        (b) =>
+          b.chainId === chainId &&
+          (b.contractAddress?.toLowerCase() === token.toLowerCase() ||
+            (!b.contractAddress && token === zeroAddress)),
+      )
+
+      return tokenBalance
+    },
+  })
+
+  return {
+    tokenBalance,
+    isLoadingTokenBalance,
   }
 }
 

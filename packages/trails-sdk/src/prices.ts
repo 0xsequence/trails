@@ -139,24 +139,34 @@ export const useTokenPrices = (
 ) => {
   tokens = tokens.map(normalizeToken)
 
-  return useQuery({
+  const { data: tokenPrices, isLoading: isLoadingTokenPrices } = useQuery({
     queryKey: createBatchCacheKey(tokens),
     queryFn: () => getTokenPrices(apiClient, tokens),
     enabled: tokens.length > 0 && !!apiClient,
     ...COMMON_QUERY_OPTIONS,
   })
+
+  return {
+    tokenPrices,
+    isLoadingTokenPrices,
+  }
 }
 
 export const useTokenPrice = (
   token: Token | null,
   apiClient: SequenceAPIClient,
 ) => {
-  return useQuery({
+  const { data: tokenPrice, isLoading: isLoadingTokenPrice } = useQuery({
     queryKey: createSingleCacheKey(token),
     queryFn: () => (token ? getTokenPrice(apiClient, token) : null),
     enabled: !!token && !!apiClient,
     ...COMMON_QUERY_OPTIONS,
   })
+
+  return {
+    tokenPrice,
+    isLoadingTokenPrice,
+  }
 }
 
 // Cache invalidation utility function

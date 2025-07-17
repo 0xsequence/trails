@@ -57,7 +57,7 @@ import {
 } from "./paymasterSend.js"
 import { findFirstPreconditionForChainId } from "./preconditions.js"
 import { getQueryParam } from "./queryParams.js"
-import type { RelayerEnvConfig } from "./relayer.js"
+import { useRelayers, type RelayerEnvConfig } from "./relayer.js"
 import {
   executeSimpleRelayTransaction,
   getRelaySDKQuote,
@@ -69,6 +69,13 @@ import {
   simpleCreateSequenceWallet,
 } from "./sequenceWallet.js"
 import { requestWithTimeout } from "./utils.js"
+import { ChainInfo } from "@0xsequence/indexer"
+import { useAPIClient } from "./apiClient.js"
+import { useQuery } from "@tanstack/react-query"
+import { useSupportedTokens } from "./tokens.js"
+import { useAccountTokenBalance } from "./tokenBalances.js"
+import { useIndexerGatewayClient } from "./indexerClient.js"
+import { useTokenPrice } from "./prices.js"
 
 type TransactionStateStatus = "pending" | "failed" | "confirmed"
 
@@ -1674,4 +1681,134 @@ function getNeedsLifiNativeFee({
   }
 
   return needsNativeFee
+}
+
+export type UseQuoteProps = {
+  walletClient: WalletClient
+  fromTokenAddress: string
+  fromChainId: number
+  toTokenAddress: string
+  toChainId: number
+  toAmount: string
+  toRecipient: string
+}
+
+export function useQuote({
+  walletClient,
+  fromTokenAddress,
+  fromChainId,
+  toTokenAddress,
+  toChainId,
+  toAmount,
+  toRecipient,
+}: UseQuoteProps) {
+  const apiClient = useAPIClient()
+  const { getRelayer } = useRelayers({})
+  const indexerGatewayClient = useIndexerGatewayClient()
+
+  const { supportedTokens } = useSupportedTokens()
+
+  const { tokenBalance: originTokenBalance } = useAccountTokenBalance({
+    account: walletClient.account?.address!,
+    token: fromTokenAddress,
+    chainId: fromChainId,
+    indexerGatewayClient,
+    apiClient,
+  })
+
+  const destToken = {
+    tokenId: toTokenAddress,
+    chainId: toChainId,
+    contractAddress: toTokenAddress,
+  }
+
+  const { tokenPrice: destinationTokenPrice } = useTokenPrice(
+    destToken,
+    apiClient,
+  )
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: [
+      "quote",
+      fromTokenAddress,
+      fromChainId,
+      toTokenAddress,
+      toChainId,
+      toAmount,
+      toRecipient,
+    ],
+    queryFn: async () => {
+      const originTokenAmount = originTokenBalance?.balance ?? "0"
+      const sequenceProjectAccessKey = ""
+      const destinationRelayer = getRelayer(toChainId)
+      const originRelayer = getRelayer(fromChainId)
+      const sourceTokenPriceUsd = originTokenBalance?.price?.value ?? 0
+      const destinationTokenPriceUsd = destinationTokenPrice?.price?.value ?? 0
+
+      const originToken = supportedTokens?.find(
+        (token) =>
+          token.contractAddress === fromTokenAddress &&
+          token.chainId === fromChainId,
+      )
+      const destinationToken = supportedTokens?.find(
+        (token) =>
+          token.contractAddress === toTokenAddress &&
+          token.chainId === toChainId,
+      )
+
+      const sourceTokenDecimals = originToken?.decimals ?? 18
+      const destinationTokenDecimals = destinationToken?.decimals ?? 18
+      const destinationTokenSymbol = destinationToken?.symbol ?? ""
+
+      const options = {
+        account: walletClient.account!,
+        originTokenAddress: fromTokenAddress,
+        originChainId: fromChainId,
+        originTokenAmount: originTokenAmount,
+        destinationChainId: toChainId,
+        recipient: toRecipient,
+        destinationTokenAddress: toTokenAddress,
+        destinationTokenAmount: toAmount,
+        destinationTokenSymbol: destinationTokenSymbol,
+        sequenceProjectAccessKey,
+        client: walletClient,
+        apiClient,
+        originRelayer,
+        destinationRelayer,
+        sourceTokenPriceUsd,
+        destinationTokenPriceUsd,
+        sourceTokenDecimals,
+        destinationTokenDecimals,
+        fee: "0",
+        dryMode: false,
+        onTransactionStateChange: () => {},
+        relayerConfig: {},
+      }
+
+      console.log("[trails-sdk] options", options)
+
+      const {
+        intentAddress,
+        originSendAmount,
+        send: swap,
+      } = await prepareSend(options)
+      console.log("[trails-sdk] Intent address:", intentAddress?.toString())
+
+      const quote = {
+        fromAmount: originSendAmount,
+      }
+
+      return {
+        quote,
+        swap,
+      }
+    },
+  })
+
+  return {
+    quote: data?.quote,
+    swap: data?.swap,
+    isLoadingQuote: isLoading,
+    quoteError: error,
+  }
 }

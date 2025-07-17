@@ -22,7 +22,7 @@ export function useAmountUsd({
 } {
   const tokenAddress = useTokenAddress({ chainId, tokenSymbol: token })
 
-  const { data: tokenPrice } = useTokenPrice(
+  const { tokenPrice } = useTokenPrice(
     token && tokenAddress && chainId
       ? {
           tokenId: token,
