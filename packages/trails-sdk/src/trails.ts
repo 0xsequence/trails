@@ -290,15 +290,28 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       quoteProvider: QuoteProvider
       addressOverrides?: AddressOverrides
     }) => {
-      if (!apiClient) throw new Error("API client not available")
-      if (!args.trailsInfos) throw new Error("TrailsInfos not available")
-      if (!args.quoteProvider) throw new Error("quoteProvider is required")
+      console.log(
+        "[useTrails] commitIntentConfigMutation started with args:",
+        args,
+      )
+      if (!apiClient) {
+        console.error("[useTrails] API client not available")
+        throw new Error("API client not available")
+      }
+      if (!args.trailsInfos) {
+        console.error("[useTrails] TrailsInfos not available")
+        throw new Error("TrailsInfos not available")
+      }
+      if (!args.quoteProvider) {
+        console.error("[useTrails] quoteProvider is required")
+        throw new Error("quoteProvider is required")
+      }
 
       try {
-        console.log("Calculating intent address...")
-        console.log("Main signer:", args.mainSignerAddress)
-        console.log("Calls:", args.calls)
-        console.log("TrailsInfos:", args.trailsInfos)
+        console.log("[useTrails] Calculating intent address...")
+        console.log("[useTrails] Main signer:", args.mainSignerAddress)
+        console.log("[useTrails] Calls:", args.calls)
+        console.log("[useTrails] TrailsInfos:", args.trailsInfos)
 
         const { originIntentAddress, destinationIntentAddress } =
           calculateOriginAndDestinationIntentAddresses(
@@ -309,8 +322,11 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
           )
         const receivedAddress = findPreconditionAddress(args.preconditions)
 
-        console.log("Calculated address:", originIntentAddress.toString())
-        console.log("Received address:", receivedAddress)
+        console.log(
+          "[useTrails] Calculated address:",
+          originIntentAddress.toString(),
+        )
+        console.log("[useTrails] Received address:", receivedAddress)
 
         const isVerified = isAddressEqual(
           Address.from(receivedAddress),
@@ -323,12 +339,14 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
         })
 
         if (!isVerified) {
+          console.error("[useTrails] Address verification failed.")
           throw new Error(
             "Address verification failed: Calculated address does not match received address.",
           )
         }
 
         // Commit the intent config
+        console.log("[useTrails] Committing intent config to API...")
         const response = await apiClient.commitIntentConfig({
           originIntentAddress: originIntentAddress.toString(),
           destinationIntentAddress: destinationIntentAddress.toString(),
@@ -346,14 +364,14 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
             ...args.addressOverrides,
           },
         })
-        console.log("API Commit Response:", response)
+        console.log("[useTrails] API Commit Response:", response)
         return {
           originIntentAddress: originIntentAddress.toString(),
           destinationIntentAddress: destinationIntentAddress.toString(),
           response,
         }
       } catch (error) {
-        console.error("Error during commit intent mutation:", error)
+        console.error("[useTrails] Error during commit intent mutation:", error)
         if (
           !verificationStatus?.success &&
           !verificationStatus?.receivedAddress
@@ -367,6 +385,10 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
                 args.quoteProvider,
               )
             const receivedAddress = findPreconditionAddress(args.preconditions)
+            console.log("[useTrails] Setting verification status on failure:", {
+              receivedAddress,
+              calculatedAddress: originIntentAddress.toString(),
+            })
             setVerificationStatus({
               success: false,
               receivedAddress: receivedAddress,
@@ -374,7 +396,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
             })
           } catch (calcError) {
             console.error(
-              "Error calculating addresses for verification status on failure:",
+              "[useTrails] Error calculating addresses for verification status on failure:",
               calcError,
             )
             setVerificationStatus({ success: false })
@@ -385,14 +407,18 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     },
     onSuccess: (data) => {
       console.log(
-        "Intent config committed successfully, Origin Intent Address:",
+        "[useTrails] Intent config committed successfully. Data:",
+        data,
+      )
+      console.log(
+        "[useTrails] Setting committedOriginIntentAddress:",
         data.originIntentAddress,
       )
       setCommittedOriginIntentAddress(data.originIntentAddress)
       setCommittedDestinationIntentAddress(data.destinationIntentAddress)
     },
     onError: (error) => {
-      console.error("Failed to commit intent config:", error)
+      console.error("[useTrails] Failed to commit intent config:", error)
       setCommittedOriginIntentAddress(null)
       setCommittedDestinationIntentAddress(null)
     },

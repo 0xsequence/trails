@@ -219,6 +219,9 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
             <Button
               variant="primary"
               onClick={() => {
+                console.log(
+                  "Commit Intent button clicked. Checking conditions...",
+                )
                 if (
                   !accountAddress ||
                   !intentCallsPayloads ||
@@ -226,8 +229,30 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   !trailsInfos ||
                   !calculatedIntentAddress ||
                   !trailsFee
-                )
+                ) {
+                  console.error(
+                    "One or more conditions for committing intent are false.",
+                    {
+                      accountAddress: !!accountAddress,
+                      intentCallsPayloads: !!intentCallsPayloads,
+                      intentPreconditions: !!intentPreconditions,
+                      trailsInfos: !!trailsInfos,
+                      calculatedIntentAddress: !!calculatedIntentAddress,
+                      trailsFee: !!trailsFee,
+                    },
+                  )
                   return
+                }
+                console.log(
+                  "All conditions met. Calling commitIntentConfig with args:",
+                  {
+                    mainSignerAddress: accountAddress,
+                    calls: intentCallsPayloads,
+                    preconditions: intentPreconditions,
+                    trailsInfos: trailsInfos,
+                    quoteProvider: trailsFee.quoteProvider as QuoteProvider,
+                  },
+                )
                 commitIntentConfig({
                   mainSignerAddress: accountAddress,
                   calls: intentCallsPayloads,
