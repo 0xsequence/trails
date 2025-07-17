@@ -20,7 +20,12 @@ export function useAmountUsd({
   amountUsd: number | null
   amountUsdFormatted: string
 } {
-  const tokenAddress = useTokenAddress({ chainId, tokenSymbol: token })
+  const isTokenAddress = token?.startsWith("0x")
+  const resolvedTokenAddress = useTokenAddress({
+    chainId,
+    tokenSymbol: isTokenAddress ? undefined : token,
+  })
+  const tokenAddress = isTokenAddress ? token : resolvedTokenAddress
 
   const { tokenPrice } = useTokenPrice(
     token && tokenAddress && chainId

@@ -33,6 +33,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   const selectedTokenData = tokens.find((token: Token) => {
     return (
@@ -68,6 +69,16 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
     setIsDropdownOpen(false)
     setSearchTerm("") // Clear search when selecting
   }
+
+  // Focus search input when dropdown opens
+  useEffect(() => {
+    if (isDropdownOpen && searchInputRef.current) {
+      // Small delay to ensure the dropdown is rendered
+      setTimeout(() => {
+        searchInputRef.current?.focus()
+      }, 100)
+    }
+  }, [isDropdownOpen])
 
   // Filter tokens based on search term
   const filteredTokens = useMemo(() => {
@@ -199,6 +210,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
+                ref={searchInputRef}
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

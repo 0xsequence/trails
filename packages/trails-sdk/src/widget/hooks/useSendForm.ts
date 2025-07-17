@@ -27,7 +27,11 @@ import {
   formatValue,
 } from "../../tokenBalances.js"
 import type { SupportedToken } from "../../tokens.js"
-import { useSupportedTokens, useTokenAddress } from "../../tokens.js"
+import {
+  useSupportedTokens,
+  useTokenAddress,
+  useTokenInfo,
+} from "../../tokens.js"
 import { DEFAULT_USE_V3_RELAYERS } from "../../constants.js"
 
 export interface Token {
@@ -162,6 +166,7 @@ export type UseSendReturn = {
   setIsTokenDropdownOpen: (isOpen: boolean) => void
   toAmountFormatted: string
   destinationTokenAddress: string | null
+  isValidCustomToken: boolean
 }
 
 export function useSendForm({
@@ -233,6 +238,42 @@ export function useSendForm({
       }
       return supportedChains[0]!
     })
+
+  const isCustomToken = useMemo(() => toToken?.startsWith("0x"), [toToken])
+
+  const {
+    tokenInfo: customTokenInfo,
+    isLoading: isLoadingCustomToken,
+    error: errorCustomToken,
+  } = useTokenInfo({
+    address: isCustomToken ? toToken! : "",
+    chainId: toChainId,
+  })
+
+  const isValidCustomToken = useMemo(() => {
+    return Boolean(
+      isCustomToken &&
+        !errorCustomToken &&
+        !isLoadingCustomToken &&
+        !!customTokenInfo,
+    )
+  }, [isCustomToken, errorCustomToken, isLoadingCustomToken, customTokenInfo])
+
+  useEffect(() => {
+    if (isCustomToken && customTokenInfo && !isLoadingCustomToken) {
+      setSelectedDestToken(customTokenInfo as TokenInfo)
+    }
+  }, [customTokenInfo, isCustomToken, isLoadingCustomToken])
+
+  useEffect(() => {
+    if (isCustomToken && errorCustomToken && !isLoadingCustomToken) {
+      console.error("[trails-sdk] errorCustomToken", errorCustomToken)
+      setError(
+        `Invalid custom toToken address. Error: ${errorCustomToken.message}`,
+      )
+    }
+  }, [errorCustomToken, isCustomToken, isLoadingCustomToken])
+
   const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
   const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
   const [selectedDestToken, setSelectedDestToken] = useState<TokenInfo>(() => {
@@ -240,7 +281,7 @@ export function useSendForm({
       (token) => token.chainId === originChainId, // match the token to the origin chain as default
     )
     let token = defaultToken
-    if (toToken) {
+    if (toToken && !isCustomToken) {
       const isToTokenAddress = isAddress(toToken)
       token = supportedTokens.find(
         (token) =>
@@ -291,7 +332,7 @@ export function useSendForm({
 
   // Update selectedDestToken when toToken prop changes
   useEffect(() => {
-    if (toToken) {
+    if (toToken && !isCustomToken) {
       const isToTokenAddress = isAddress(toToken)
       const newToken = supportedTokens.find(
         (token) =>
@@ -306,7 +347,13 @@ export function useSendForm({
         setSelectedDestToken(newToken as TokenInfo)
       }
     }
-  }, [toToken, supportedTokens, toChainId, selectedDestinationChain.id])
+  }, [
+    toToken,
+    supportedTokens,
+    toChainId,
+    selectedDestinationChain.id,
+    isCustomToken,
+  ])
 
   // Update amount when toAmount prop changes
   useEffect(() => {
@@ -353,10 +400,17 @@ export function useSendForm({
   const { hasParam } = useQueryParams()
   const isDryMode = hasParam("dryMode", "true")
 
-  const destinationTokenAddress = useTokenAddress({
+  const destinationTokenAddressFromTokenSymbol = useTokenAddress({
     chainId: selectedDestinationChain?.id,
     tokenSymbol: selectedDestToken?.symbol,
   })
+
+  const destinationTokenAddress = useMemo(() => {
+    if (isCustomToken) {
+      return toToken ?? null
+    }
+    return destinationTokenAddressFromTokenSymbol ?? null
+  }, [isCustomToken, toToken, destinationTokenAddressFromTokenSymbol])
 
   const processSend = useCallback(async () => {
     try {
@@ -641,5 +695,6 @@ export function useSendForm({
     setIsTokenDropdownOpen,
     toAmountFormatted,
     destinationTokenAddress,
+    isValidCustomToken,
   }
 }

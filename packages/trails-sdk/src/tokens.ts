@@ -1,8 +1,10 @@
 import { QueryClient, useQuery } from "@tanstack/react-query"
-import { zeroAddress } from "viem"
+import { zeroAddress, erc20Abi } from "viem"
 import * as chains from "viem/chains"
 import { getChainInfo } from "./chains.js"
 import { getRelaySupportedTokens } from "./relaySdk.js"
+import { useReadContracts } from "wagmi"
+import { useMemo } from "react"
 
 export type SupportedToken = {
   id: string
@@ -328,7 +330,8 @@ export function useTokenAddress({
 }: UseTokenAddressProps) {
   const { data: tokenAddress } = useQuery({
     queryKey: ["tokenAddress", chainId, tokenSymbol],
-    queryFn: () => getTokenAddress(chainId!, tokenSymbol!),
+    queryFn: () =>
+      chainId && tokenSymbol ? getTokenAddress(chainId, tokenSymbol) : null,
     enabled: !!chainId && !!tokenSymbol,
     staleTime: 60 * 60 * 1000, // 1 hour - token addresses rarely change
     gcTime: 24 * 60 * 60 * 1000, // 24 hours - keep in cache for a full day
@@ -379,5 +382,77 @@ export function useTokenList() {
   return {
     tokens,
     isLoadingTokens: isLoadingTokens,
+  }
+}
+
+export function useTokenInfo({
+  address,
+  chainId,
+}: {
+  address: string
+  chainId?: number
+}): {
+  tokenInfo: Partial<SupportedToken> | null
+  isLoading: boolean
+  error: Error | null
+} {
+  const isAddress = address?.startsWith("0x") ?? false
+
+  if (!isAddress || !chainId) {
+    return {
+      tokenInfo: null,
+      isLoading: false,
+      error: null,
+    }
+  }
+
+  const contract = {
+    address: address as `0x${string}`,
+    abi: erc20Abi,
+    chainId,
+  } as const
+
+  const result = useReadContracts({
+    contracts: [
+      { ...contract, functionName: "name" },
+      { ...contract, functionName: "symbol" },
+      { ...contract, functionName: "decimals" },
+    ],
+  })
+
+  const error =
+    result?.error ?? result?.data?.find((r) => r.error)?.error ?? null
+
+  const [name, symbol, decimals] = result.data ?? []
+  const chainInfo = getChainInfo(chainId)
+
+  const tokenInfo = useMemo(() => {
+    if (!symbol?.result || !name?.result || decimals?.result == null) {
+      return null
+    }
+
+    return {
+      id: symbol.result,
+      name: name.result,
+      symbol: symbol.result,
+      decimals: decimals.result,
+      chainId,
+      contractAddress: address,
+      chainName: chainInfo?.name ?? "",
+      imageUrl: "",
+    }
+  }, [
+    address,
+    chainId,
+    chainInfo?.name,
+    name?.result,
+    symbol?.result,
+    decimals?.result,
+  ])
+
+  return {
+    tokenInfo,
+    isLoading: result.isLoading,
+    error: error,
   }
 }

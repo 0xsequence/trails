@@ -1,7 +1,7 @@
 import { InfoIcon, Tooltip } from "@0xsequence/design-system"
 import { useSupportedChains, useSupportedTokens } from "@0xsequence/trails-sdk"
 import { defaultWalletOptions } from "@0xsequence/trails-sdk/widget"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, X } from "lucide-react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { encodeFunctionData, parseUnits, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
@@ -47,6 +47,8 @@ interface CustomizationFormProps {
   setPaymasterUrls: (value: Array<{ chainId: number; url: string }>) => void
   gasless: boolean | null
   setGasless: (value: boolean | null) => void
+  customTokenAddress: string
+  setCustomTokenAddress: (value: string) => void
 }
 
 // Local storage keys
@@ -64,6 +66,7 @@ export const STORAGE_KEYS = {
   WALLET_OPTIONS: "trails_demo_wallet_options",
   PAYMASTER_URLS: "trails_demo_paymaster_urls",
   GASLESS: "trails_demo_gasless",
+  CUSTOM_TOKEN_ADDRESS: "trails_demo_custom_token_address",
 } as const
 
 interface UseAccountButtonProps {
@@ -146,10 +149,13 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   setPaymasterUrls,
   gasless,
   setGasless,
+  customTokenAddress,
+  setCustomTokenAddress,
 }) => {
   const { address, isConnected } = useAccount()
   const [isScenarioDropdownOpen, setIsScenarioDropdownOpen] = useState(false)
   const [selectedScenario, setSelectedScenario] = useState<string>("")
+  const [showCustomTokenInput, setShowCustomTokenInput] = useState(false)
 
   // Scenario keys
   const SCENARIO_KEYS = {
@@ -331,6 +337,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     const savedWalletOptions = localStorage.getItem(STORAGE_KEYS.WALLET_OPTIONS)
     const savedPaymasterUrls = localStorage.getItem(STORAGE_KEYS.PAYMASTER_URLS)
     const savedGasless = localStorage.getItem(STORAGE_KEYS.GASLESS)
+    const savedCustomTokenAddress = localStorage.getItem(
+      STORAGE_KEYS.CUSTOM_TOKEN_ADDRESS,
+    )
 
     // Only set values if they exist in localStorage
     if (savedAppId !== null) setAppId(savedAppId)
@@ -367,6 +376,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       }
     }
     if (savedGasless !== null) setGasless(savedGasless === "true")
+    if (savedCustomTokenAddress !== null) {
+      setCustomTokenAddress(savedCustomTokenAddress)
+      setShowCustomTokenInput(true) // Show custom input if custom token address exists
+    }
   }, [
     setAppId,
     setToAddress,
@@ -380,6 +393,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setWalletOptions,
     setPaymasterUrls,
     setGasless,
+    setCustomTokenAddress,
   ])
 
   // Save values to localStorage whenever they change
@@ -489,6 +503,18 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
   }, [gasless])
 
+  // Save customTokenAddress to localStorage
+  useEffect(() => {
+    if (customTokenAddress) {
+      localStorage.setItem(
+        STORAGE_KEYS.CUSTOM_TOKEN_ADDRESS,
+        customTokenAddress,
+      )
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.CUSTOM_TOKEN_ADDRESS)
+    }
+  }, [customTokenAddress])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Close scenario dropdown when clicking outside
@@ -520,6 +546,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setTheme("auto") // Reset to default autoj
     setPaymasterUrls([]) // Reset paymasterUrls
     setGasless(false) // Reset gasless to default false
+    setCustomTokenAddress("") // Reset customTokenAddress
+    setShowCustomTokenInput(false) // Reset custom token input visibility
     // Clear localStorage
     Object.values(STORAGE_KEYS).forEach((key) => {
       localStorage.removeItem(key)
@@ -558,6 +586,27 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       return true
     })
   }, [supportedDestinationTokens, toChainId])
+
+  const handleCustomTokenToggle = () => {
+    setShowCustomTokenInput(!showCustomTokenInput)
+    if (showCustomTokenInput) {
+      // When hiding custom input, clear the custom token address
+      setCustomTokenAddress("")
+    } else {
+      // When showing custom input, focus on the input field after a brief delay
+      setTimeout(() => {
+        const customTokenInput = document.getElementById("custom-token-input")
+        if (customTokenInput) {
+          customTokenInput.focus()
+        }
+      }, 100)
+    }
+  }
+
+  const handleClearCustomToken = () => {
+    setCustomTokenAddress("")
+    setShowCustomTokenInput(false)
+  }
 
   return (
     <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 sm:p-6 min-h-[775px]">
@@ -740,22 +789,64 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             >
               To Token
             </label>
-            <TokenSelector
-              selectedToken={
-                toToken && toChainId
-                  ? {
-                      chainId: toChainId,
-                      contractAddress:
-                        filteredTokens.find((t) => t.symbol === toToken)
-                          ?.contractAddress || zeroAddress,
-                    }
-                  : undefined
-              }
-              onTokenSelect={(token) => setToToken(token?.symbol || undefined)}
-              tokens={filteredTokens}
-              disabled={!!selectedScenario || !toChainId}
-              placeholder="Select Token"
-            />
+            {showCustomTokenInput ? (
+              <div className="relative">
+                <input
+                  id="custom-token-input"
+                  type="text"
+                  value={customTokenAddress}
+                  onChange={(e) => setCustomTokenAddress(e.target.value.trim())}
+                  placeholder="0x..."
+                  disabled={!!selectedScenario || !toChainId}
+                  className={`w-full px-3 sm:px-4 h-12 pr-10 border rounded-lg placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm leading-none ${
+                    selectedScenario || !toChainId
+                      ? "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
+                      : "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200"
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={handleClearCustomToken}
+                  className="absolute cursor-pointer right-2 top-1/2 transform -translate-y-1/2 p-1.5 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 rounded transition-colors"
+                  title="Clear custom token"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <TokenSelector
+                  selectedToken={
+                    toToken && toChainId
+                      ? {
+                          chainId: toChainId,
+                          contractAddress:
+                            filteredTokens.find((t) => t.symbol === toToken)
+                              ?.contractAddress || zeroAddress,
+                        }
+                      : undefined
+                  }
+                  onTokenSelect={(token) =>
+                    setToToken(token?.symbol || undefined)
+                  }
+                  tokens={filteredTokens}
+                  disabled={!!selectedScenario || !toChainId}
+                  placeholder="Select Token"
+                />
+                <button
+                  type="button"
+                  onClick={handleCustomTokenToggle}
+                  disabled={!!selectedScenario || !toChainId}
+                  className={`text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors ${
+                    selectedScenario || !toChainId
+                      ? "text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                >
+                  Use Custom Token
+                </button>
+              </>
+            )}
           </div>
         </div>
 

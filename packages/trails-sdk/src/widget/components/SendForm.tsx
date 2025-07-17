@@ -105,6 +105,7 @@ export const SendForm: React.FC<SendFormProps> = ({
     toAmountFormatted,
     destinationTokenAddress,
     supportedChains,
+    isValidCustomToken,
   } = useSendForm({
     account,
     sequenceProjectAccessKey,
@@ -342,18 +343,19 @@ export const SendForm: React.FC<SendFormProps> = ({
           >
             Receive Token
           </label>
-          {toToken && selectedDestToken ? (
+          {toToken ? (
             <div className="flex items-center px-2 py-1">
               <TokenImage
-                symbol={selectedDestToken.symbol}
-                src={selectedDestToken.imageUrl}
+                symbol={selectedDestToken?.symbol}
+                src={selectedDestToken?.imageUrl}
                 size="sm"
                 disableAnimation={true}
               />
               <span
                 className={`ml-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
               >
-                {selectedDestToken.name} ({selectedDestToken.symbol})
+                {selectedDestToken?.name ?? "Unknown Token"} (
+                {selectedDestToken?.symbol ?? "Unknown Symbol"})
               </span>
             </div>
           ) : (
@@ -604,7 +606,8 @@ export const SendForm: React.FC<SendFormProps> = ({
               !amount ||
               !isValidRecipient ||
               isSubmitting ||
-              !destinationTokenAddress
+              !destinationTokenAddress ||
+              !isValidCustomToken
             }
             className={`w-full font-semibold py-3 px-4 rounded-[24px] transition-colors relative ${
               theme === "dark"
