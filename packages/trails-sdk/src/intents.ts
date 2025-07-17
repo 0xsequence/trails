@@ -153,15 +153,7 @@ export function calculateOriginAndDestinationIntentAddresses(
   calls: Array<IntentCallsPayload>,
 ) {
   const originChainId = calls[0]?.chainId
-  const destinationChainId = calls[0]?.chainId
-
-  if (originChainId === destinationChainId) {
-    const address = calculateIntentAddress(mainSigner, calls)
-    return {
-      originIntentAddress: address,
-      destinationIntentAddress: address,
-    }
-  }
+  const destinationChainId = calls[1]?.chainId
 
   // Different origin and destination chains: cross-chain execution.
   const originCalls = calls.filter((c) => c.chainId === originChainId)
