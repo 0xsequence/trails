@@ -226,7 +226,6 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   !accountAddress ||
                   !intentCallsPayloads ||
                   !intentPreconditions ||
-                  !trailsInfos ||
                   !calculatedIntentAddress ||
                   !trailsFee
                 ) {
@@ -249,7 +248,7 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                     mainSignerAddress: accountAddress,
                     calls: intentCallsPayloads,
                     preconditions: intentPreconditions,
-                    trailsInfos: trailsInfos,
+                    trailsInfos: trailsInfos || [],
                     quoteProvider: trailsFee.quoteProvider as QuoteProvider,
                   },
                 )
@@ -257,7 +256,7 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   mainSignerAddress: accountAddress,
                   calls: intentCallsPayloads,
                   preconditions: intentPreconditions,
-                  trailsInfos: trailsInfos,
+                  trailsInfos: trailsInfos || [],
                   quoteProvider: trailsFee.quoteProvider as QuoteProvider,
                 })
               }}

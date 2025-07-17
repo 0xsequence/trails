@@ -298,10 +298,6 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
         console.error("[useTrails] API client not available")
         throw new Error("API client not available")
       }
-      if (!args.trailsInfos) {
-        console.error("[useTrails] TrailsInfos not available")
-        throw new Error("TrailsInfos not available")
-      }
       if (!args.quoteProvider) {
         console.error("[useTrails] quoteProvider is required")
         throw new Error("quoteProvider is required")
