@@ -31,13 +31,8 @@ import {
   isAddressEqual,
   type WalletClient,
 } from "viem"
-import {
-  ATTESATION_SIGNER_ADDRESS,
-  TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
-  TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
-  TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS,
-} from "./constants.js"
-import { findPreconditionAddress } from "./preconditions.js"
+import { ATTESATION_SIGNER_ADDRESS } from "./constants.js"
+import { findPreconditionAddresses } from "./preconditions.js"
 
 export interface MetaTxnFeeDetail {
   metaTxnID: string
@@ -110,13 +105,10 @@ export async function getIntentCallsPayloads(
 export function calculateIntentAddress(
   mainSigner: string,
   calls: Array<IntentCallsPayload>,
-  executionInfosArg: Array<TrailsExecutionInfo> | null | undefined,
-  sapientType: QuoteProvider = "relay",
 ): `0x${string}` {
   console.log("[trails-sdk] calculateIntentAddress inputs:", {
     mainSigner,
     calls: JSON.stringify(calls, null, 2),
-    executionInfosArg: JSON.stringify(executionInfosArg, null, 2),
   })
 
   const context: ContextLike.Context = {
@@ -143,33 +135,10 @@ export function calculateIntentAddress(
     })),
   }))
 
-  //console.log('Transformed coreCalls:', JSON.stringify(coreCalls, null, 2))
-
-  const coreExecutionInfos = executionInfosArg?.map(
-    (info: TrailsExecutionInfo) => ({
-      originToken: Address.from(info.originToken),
-      amount: info.amount,
-      originChainId: info.originChainId,
-      destinationChainId: info.destinationChainId,
-    }),
-  )
-
-  console.log(
-    "[trails-sdk] Transformed coreExecutionInfos:",
-    JSON.stringify(
-      coreExecutionInfos,
-      (_, v) => (typeof v === "bigint" ? v.toString() : v),
-      2,
-    ),
-  )
-
   const calculatedAddress = calculateIntentConfigurationAddress(
     Address.from(mainSigner),
     coreCalls,
     context,
-    ATTESATION_SIGNER_ADDRESS,
-    coreExecutionInfos,
-    sapientType,
   )
 
   console.log(
@@ -182,30 +151,12 @@ export function calculateIntentAddress(
 export function calculateOriginAndDestinationIntentAddresses(
   mainSigner: string,
   calls: Array<IntentCallsPayload>,
-  executionInfos: Array<TrailsExecutionInfo> | null | undefined,
-  sapientType: QuoteProvider = "relay",
 ) {
-  if (!executionInfos || executionInfos.length === 0) {
-    // No cross-chain execution.
-    const address = calculateIntentAddress(mainSigner, calls, null, sapientType)
-    return {
-      originIntentAddress: address,
-      destinationIntentAddress: address,
-    }
-  }
-
-  const originChainId = executionInfos[0]?.originChainId
-  const destinationChainId = executionInfos[0]?.destinationChainId
+  const originChainId = calls[0]?.chainId
+  const destinationChainId = calls[0]?.chainId
 
   if (originChainId === destinationChainId) {
-    // Same-chain execution, but with a bridge/swap (e.g. Uniswap on Polygon).
-    // The executionInfos are still relevant for the sapient signer, but there's conceptually only one intent.
-    const address = calculateIntentAddress(
-      mainSigner,
-      calls,
-      executionInfos,
-      sapientType,
-    )
+    const address = calculateIntentAddress(mainSigner, calls)
     return {
       originIntentAddress: address,
       destinationIntentAddress: address,
@@ -216,17 +167,10 @@ export function calculateOriginAndDestinationIntentAddresses(
   const originCalls = calls.filter((c) => c.chainId === originChainId)
   const destinationCalls = calls.filter((c) => c.chainId === destinationChainId)
 
-  const originIntentAddress = calculateIntentAddress(
-    mainSigner,
-    originCalls,
-    executionInfos,
-    sapientType,
-  )
+  const originIntentAddress = calculateIntentAddress(mainSigner, originCalls)
   const destinationIntentAddress = calculateIntentAddress(
     mainSigner,
     destinationCalls,
-    null,
-    sapientType,
   )
 
   return { originIntentAddress, destinationIntentAddress }
@@ -237,23 +181,15 @@ export function commitIntentConfig(
   mainSignerAddress: string,
   calls: Array<IntentCallsPayload>,
   preconditions: Array<IntentPrecondition>,
-  executionInfos: Array<TrailsExecutionInfo>,
-  sapientType: QuoteProvider = "relay",
 ): Promise<CommitIntentConfigReturn> {
   console.log("[trails-sdk] commitIntentConfig inputs:", {
     mainSignerAddress,
     calls: JSON.stringify(calls, null, 2),
     preconditions: JSON.stringify(preconditions, null, 2),
-    executionInfos: JSON.stringify(executionInfos, null, 2),
   })
 
   const { originIntentAddress, destinationIntentAddress } =
-    calculateOriginAndDestinationIntentAddresses(
-      mainSignerAddress,
-      calls,
-      executionInfos,
-      sapientType,
-    )
+    calculateOriginAndDestinationIntentAddresses(mainSignerAddress, calls)
 
   console.log(
     "[trails-sdk] originIntentAddress:",
@@ -264,11 +200,25 @@ export function commitIntentConfig(
     destinationIntentAddress.toString(),
   )
 
-  const receivedAddress = findPreconditionAddress(preconditions)
+  const originChainIdStr = calls[0]?.chainId
+  const destinationChainIdStr = calls[1]?.chainId
+
+  // The executionInfos could be empty, so we need to handle the undefined case.
+  const { originAddress: receivedAddress } =
+    originChainIdStr && destinationChainIdStr
+      ? findPreconditionAddresses(
+          preconditions,
+          Number(originChainIdStr),
+          Number(destinationChainIdStr),
+        )
+      : { originAddress: undefined }
+
   console.log("[trails-sdk] Address comparison:", {
     receivedAddress,
     calculatedAddress: originIntentAddress.toString(),
-    match: isAddressEqual(Address.from(receivedAddress), originIntentAddress),
+    match:
+      receivedAddress &&
+      isAddressEqual(Address.from(receivedAddress), originIntentAddress),
   })
 
   const args: CommitIntentConfigArgs = {
@@ -277,8 +227,6 @@ export function commitIntentConfig(
     mainSigner: mainSignerAddress,
     calls: calls,
     preconditions: preconditions,
-    trailsInfos: executionInfos,
-    sapientType: sapientType,
   }
 
   return apiClient.commitIntentConfig(args)
@@ -505,17 +453,8 @@ export function calculateIntentConfigurationAddress(
   mainSigner: Address.Address,
   calls: Array<IntentCallsPayload>,
   context: Context.Context,
-  attestationSigner?: Address.Address,
-  executionInfos?: Array<TrailsExecutionInfo>,
-  sapientType: QuoteProvider = "relay",
 ): Address.Address {
-  const config = createIntentConfiguration(
-    mainSigner,
-    calls,
-    attestationSigner,
-    executionInfos,
-    sapientType,
-  )
+  const config = createIntentConfiguration(mainSigner, calls)
 
   // Calculate the image hash of the configuration
   const imageHash = Config.hashConfiguration(config)
@@ -537,9 +476,6 @@ export function calculateIntentConfigurationAddress(
 function createIntentConfiguration(
   mainSigner: Address.Address,
   calls: IntentCallsPayload[],
-  attestationSigner?: Address.Address,
-  executionInfos?: TrailsExecutionInfo[],
-  sapientType: QuoteProvider = "relay",
 ): Config.Config {
   const mainSignerLeaf: Config.SignerLeaf = {
     type: "signer",
@@ -587,26 +523,6 @@ function createIntentConfiguration(
   console.log("[trails-sdk] subdigestLeaves:", subdigestLeaves)
 
   const otherLeaves: Config.Topology[] = [...subdigestLeaves]
-
-  if (executionInfos && executionInfos.length > 0) {
-    if (attestationSigner) {
-      const sapientSignerLeaf: Config.SapientSignerLeaf = {
-        type: "sapient-signer",
-        address:
-          sapientType === "lifi"
-            ? TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS
-            : sapientType === "cctp"
-              ? TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS
-              : TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS,
-        weight: 1n,
-        imageHash: getTrailsExecutionInfoHash(
-          executionInfos,
-          attestationSigner,
-        ),
-      }
-      otherLeaves.push(sapientSignerLeaf)
-    }
-  }
 
   if (otherLeaves.length === 0) {
     throw new Error(

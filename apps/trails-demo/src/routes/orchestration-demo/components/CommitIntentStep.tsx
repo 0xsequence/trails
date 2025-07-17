@@ -3,7 +3,6 @@ import type {
   GetIntentConfigReturn,
   IntentCallsPayload,
   IntentPrecondition,
-  TrailsExecutionInfo,
 } from "@0xsequence/trails-api"
 import type { QuoteProvider, TrailsFee } from "@0xsequence/trails-sdk"
 import { AlertCircle, Loader2, Zap } from "lucide-react"
@@ -13,12 +12,13 @@ import { SectionHeader } from "@/routes/orchestration-demo/components/SectionHea
 interface CommitIntentStepProps {
   intentCallsPayloads: IntentCallsPayload[] | null
   intentPreconditions: IntentPrecondition[] | null
-  trailsInfos: TrailsExecutionInfo[] | null
   trailsFee: TrailsFee | null
   verificationStatus: {
     success: boolean
-    receivedAddress?: string
-    calculatedAddress?: string
+    calculatedOriginAddress?: string
+    calculatedDestinationAddress?: string
+    receivedOriginAddress?: string
+    receivedDestinationAddress?: string
   } | null
   commitIntentConfigError: Error | null
   commitIntentConfigSuccess: boolean
@@ -31,19 +31,51 @@ interface CommitIntentStepProps {
     mainSignerAddress: string
     calls: IntentCallsPayload[]
     preconditions: IntentPrecondition[]
-    trailsInfos: TrailsExecutionInfo[]
     quoteProvider: QuoteProvider
   }) => void
   isCommitButtonDisabled: boolean
   commitButtonText: React.ReactNode
-  calculatedIntentAddress: string | null
   accountAddress: string | undefined
+}
+
+const renderAddressParts = (addressString: string, success: boolean) => {
+  if (!addressString) {
+    return <div className="font-mono text-xs break-all text-gray-400">N/A</div>
+  }
+
+  const isKeyValueFormat = addressString.includes(":")
+
+  if (!isKeyValueFormat) {
+    return (
+      <div
+        className={`font-mono text-xs break-all ${
+          success ? "text-yellow-300" : "text-red-400"
+        }`}
+      >
+        {addressString}
+      </div>
+    )
+  }
+
+  return addressString.split(",").map((part, index) => {
+    const [key, ...valueParts] = part.split(":")
+    const value = valueParts.join(":").trim()
+    return (
+      <div key={index} className="flex items-start">
+        <span className="font-semibold text-blue-300 w-[100px] flex-shrink-0">
+          {key?.trim()}:
+        </span>
+        <span className={`font-mono text-xs break-all ${"text-yellow-300"}`}>
+          {value}
+        </span>
+      </div>
+    )
+  })
 }
 
 export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
   intentCallsPayloads,
   intentPreconditions,
-  trailsInfos,
   trailsFee,
   verificationStatus,
   commitIntentConfigError,
@@ -56,7 +88,6 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
   commitIntentConfig,
   isCommitButtonDisabled,
   commitButtonText,
-  calculatedIntentAddress,
   accountAddress,
 }) => {
   if (!intentCallsPayloads || !intentPreconditions) {
@@ -97,18 +128,49 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                         ? "Address Verification Successful"
                         : "Address Verification Failed"}
                     </Text>
-                    <div className="mt-2 text-xs text-gray-400 flex flex-col space-y-1 w-full">
-                      <div>
-                        Calculated:
-                        <span className="font-mono text-xs break-all bg-gray-800/70 p-1 rounded block mt-1">
-                          {verificationStatus.calculatedAddress || "N/A"}
-                        </span>
+                    <div className="mt-2 text-xs text-gray-400 flex flex-col space-y-2 w-full">
+                      <div className="bg-gray-800/70 p-2 rounded-md">
+                        <strong className="text-blue-300">
+                          Calculated Origin Intent Address:
+                        </strong>
+                        <div className="pl-2 space-y-1">
+                          {renderAddressParts(
+                            verificationStatus.calculatedOriginAddress || "N/A",
+                            verificationStatus.success,
+                          )}
+                        </div>
+                        <strong className="text-blue-300 mt-2">
+                          Calculated Destination Intent Address:
+                        </strong>
+                        <div className="pl-2 space-y-1">
+                          {renderAddressParts(
+                            verificationStatus.calculatedDestinationAddress ||
+                              "N/A",
+                            verificationStatus.success,
+                          )}
+                        </div>
                       </div>
-                      <div>
-                        Expected (from precondition):
-                        <span className="font-mono text-xs break-all bg-gray-800/70 p-1 rounded block mt-1">
-                          {verificationStatus.receivedAddress || "N/A"}
-                        </span>
+                      <div className="bg-gray-800/70 p-2 rounded-md">
+                        <strong className="text-blue-300">
+                          Expected Origin Intent Address (from preconditions):
+                        </strong>
+                        <div className="pl-2 space-y-1">
+                          {renderAddressParts(
+                            verificationStatus.receivedOriginAddress || "N/A",
+                            verificationStatus.success,
+                          )}
+                        </div>
+                        <strong className="text-blue-300 mt-2">
+                          Expected Destination Intent Address (from
+                          preconditions):
+                        </strong>
+                        <div className="pl-2 space-y-1">
+                          {renderAddressParts(
+                            verificationStatus.receivedDestinationAddress ||
+                              "N/A",
+                            verificationStatus.success,
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -128,20 +190,27 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                 <Text variant="small" color="white">
                   Intent configuration committed successfully!
                 </Text>
-                {committedOriginIntentAddress && (
-                  <div className="mt-2 text-xs text-gray-400 flex flex-col space-y-1 w-full">
-                    <div>
-                      Committed Origin Intent Address:
-                      <span className="font-mono text-xs break-all bg-gray-800/70 p-1 rounded block mt-1">
-                        {committedOriginIntentAddress}
-                      </span>
-                    </div>
+                {(committedOriginIntentAddress ||
+                  committedDestinationIntentAddress) && (
+                  <div className="mt-2 text-xs text-gray-400 flex flex-col space-y-2 w-full">
+                    {committedOriginIntentAddress && (
+                      <div className="bg-gray-800/70 p-2 rounded-md">
+                        <strong className="text-blue-300">
+                          Committed Origin Intent Address:
+                        </strong>
+                        <div className="pl-2 font-mono text-xs break-all text-yellow-300">
+                          {committedOriginIntentAddress}
+                        </div>
+                      </div>
+                    )}
                     {committedDestinationIntentAddress && (
-                      <div>
-                        Committed Destination Intent Address:
-                        <span className="font-mono text-xs break-all bg-gray-800/70 p-1 rounded block mt-1">
+                      <div className="bg-gray-800/70 p-2 rounded-md">
+                        <strong className="text-blue-300">
+                          Committed Destination Intent Address:
+                        </strong>
+                        <div className="pl-2 font-mono text-xs break-all text-yellow-300">
                           {committedDestinationIntentAddress}
-                        </span>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -226,7 +295,6 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   !accountAddress ||
                   !intentCallsPayloads ||
                   !intentPreconditions ||
-                  !calculatedIntentAddress ||
                   !trailsFee
                 ) {
                   console.error(
@@ -235,8 +303,6 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                       accountAddress: !!accountAddress,
                       intentCallsPayloads: !!intentCallsPayloads,
                       intentPreconditions: !!intentPreconditions,
-                      trailsInfos: !!trailsInfos,
-                      calculatedIntentAddress: !!calculatedIntentAddress,
                       trailsFee: !!trailsFee,
                     },
                   )
@@ -248,7 +314,6 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                     mainSignerAddress: accountAddress,
                     calls: intentCallsPayloads,
                     preconditions: intentPreconditions,
-                    trailsInfos: trailsInfos || [],
                     quoteProvider: trailsFee.quoteProvider as QuoteProvider,
                   },
                 )
@@ -256,7 +321,6 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   mainSignerAddress: accountAddress,
                   calls: intentCallsPayloads,
                   preconditions: intentPreconditions,
-                  trailsInfos: trailsInfos || [],
                   quoteProvider: trailsFee.quoteProvider as QuoteProvider,
                 })
               }}

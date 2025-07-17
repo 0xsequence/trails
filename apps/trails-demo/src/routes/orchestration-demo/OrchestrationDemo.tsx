@@ -58,7 +58,6 @@ function useOrchestrationDemo() {
     metaTxns,
     intentCallsPayloads,
     intentPreconditions,
-    trailsInfos,
     committedOriginIntentAddress,
     committedDestinationIntentAddress,
     verificationStatus,
@@ -360,7 +359,6 @@ function useOrchestrationDemo() {
     intentCallsPayloads,
     intentPreconditions,
     metaTxns,
-    trailsInfos,
     committedOriginIntentAddress,
     committedDestinationIntentAddress,
     verificationStatus,
@@ -460,7 +458,6 @@ export const OrchestrationDemo = () => {
     intentCallsPayloads,
     intentPreconditions,
     metaTxns,
-    trailsInfos,
     committedOriginIntentAddress,
     committedDestinationIntentAddress,
     verificationStatus,
@@ -597,7 +594,6 @@ export const OrchestrationDemo = () => {
               intentCallsPayloads={intentCallsPayloads}
               intentPreconditions={intentPreconditions}
               metaTxns={metaTxns}
-              trailsInfos={trailsInfos}
               trailsFee={trailsFee}
               intentActionType={intentActionType}
               selectedToken={selectedToken}
@@ -610,7 +606,6 @@ export const OrchestrationDemo = () => {
               <CommitIntentStep
                 intentCallsPayloads={intentCallsPayloads}
                 intentPreconditions={intentPreconditions}
-                trailsInfos={trailsInfos}
                 trailsFee={trailsFee}
                 verificationStatus={verificationStatus}
                 commitIntentConfigError={commitIntentConfigError}
@@ -625,8 +620,7 @@ export const OrchestrationDemo = () => {
                 commitIntentConfig={commitIntentConfig}
                 isCommitButtonDisabled={isCommitButtonDisabled}
                 commitButtonText={commitButtonText}
-                calculatedIntentAddress={originIntentAddress}
-                accountAddress={account?.address}
+                accountAddress={account.address}
               />
             )}
 
