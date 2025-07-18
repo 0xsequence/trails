@@ -656,7 +656,7 @@ export const OrchestrationDemo = () => {
         )}
       </div>
 
-      {account.status === "connected" && (
+      {account.status === "connected" && originIntentAddress && (
         <div className="w-full max-w-3xl bg-gray-900/80 p-6 rounded-lg mt-6 shadow-xl border border-gray-700/50 backdrop-blur-sm">
           <AdvancedControlsSection
             accountAddress={account?.address}
