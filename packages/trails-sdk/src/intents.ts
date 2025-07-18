@@ -112,11 +112,11 @@ export function calculateIntentAddress(
   })
 
   const context: ContextLike.Context = {
-    factory: "0xFE14B91dE3c5Ca74c4D24608EBcD4B2848aA6010" as `0x${string}`,
-    stage1: "0xC906F90A51705d57F3b924ca4563c0C5E138AaB6" as `0x${string}`,
-    stage2: "0x43c572027dc17277fd2561f25d16f351adea5ee6" as `0x${string}`,
+    factory: "0xBd0F8abD58B4449B39C57Ac9D5C67433239aC447" as `0x${string}`,
+    stage1: "0x53bA242E7C2501839DF2972c75075dc693176Cd0" as `0x${string}`,
+    stage2: "0xa29874c88b8Fd557e42219B04b0CeC693e1712f5" as `0x${string}`,
     creationCode:
-      "0x6041600e3d396021805130553df33d3d36153402601f57363d3d373d363d30545af43d82803e903d91601f57fd5bf3" as `0x${string}`,
+      "0x603e600e3d39601e805130553df33d3d34601c57363d3d373d363d30545af43d82803e903d91601c57fd5bf3" as `0x${string}`,
   }
 
   const coreCalls = calls.map((call) => ({
