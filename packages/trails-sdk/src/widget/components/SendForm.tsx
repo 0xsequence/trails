@@ -7,8 +7,9 @@ import { isAddress } from "viem"
 import type { TransactionState } from "../../prepareSend.js"
 import type { RelayerEnv } from "../../relayer.js"
 import type { ActiveTheme } from "../../theme.js"
-import type { OnCompleteProps, Token } from "../hooks/useSendForm.js"
+import type { OnCompleteProps, Token, TokenInfo } from "../hooks/useSendForm.js"
 import { useSendForm } from "../hooks/useSendForm.js"
+
 import { FeeOptions } from "./FeeOptions.js"
 
 interface SendFormProps {
@@ -85,12 +86,12 @@ export const SendForm: React.FC<SendFormProps> = ({
     isTokenDropdownOpen,
     recipient,
     recipientInput,
-    selectedChain,
+    selectedDestinationChain,
     selectedDestToken,
     setAmount,
     setRecipient,
     setRecipientInput,
-    setSelectedChain,
+    setSelectedDestinationChain,
     setSelectedDestToken,
     buttonText,
     isValidRecipient,
@@ -98,12 +99,13 @@ export const SendForm: React.FC<SendFormProps> = ({
     selectedFeeToken,
     setSelectedFeeToken,
     FEE_TOKENS,
-    SUPPORTED_TO_TOKENS,
-    SUPPORTED_TO_CHAINS,
+    supportedTokens,
     setIsChainDropdownOpen,
     setIsTokenDropdownOpen,
     toAmountFormatted,
     destinationTokenAddress,
+    supportedChains,
+    isValidCustomToken,
   } = useSendForm({
     account,
     sequenceProjectAccessKey,
@@ -152,7 +154,11 @@ export const SendForm: React.FC<SendFormProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [setIsChainDropdownOpen, setIsTokenDropdownOpen])
 
-  if (!selectedChain) {
+  if (!selectedDestinationChain) {
+    return null
+  }
+
+  if (!selectedToken) {
     return null
   }
 
@@ -243,7 +249,7 @@ export const SendForm: React.FC<SendFormProps> = ({
           {toChainId ? (
             <div className="flex items-center px-2 py-1">
               <NetworkImage
-                chainId={selectedChain.id}
+                chainId={selectedDestinationChain.id}
                 size="sm"
                 className="w-5 h-5"
                 disableAnimation={true}
@@ -251,7 +257,7 @@ export const SendForm: React.FC<SendFormProps> = ({
               <span
                 className={`ml-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
               >
-                {selectedChain.name}
+                {selectedDestinationChain.name}
               </span>
             </div>
           ) : (
@@ -266,13 +272,13 @@ export const SendForm: React.FC<SendFormProps> = ({
                 }`}
               >
                 <NetworkImage
-                  chainId={selectedChain.id}
+                  chainId={selectedDestinationChain.id}
                   size="sm"
                   className="w-5 h-5"
                   disableAnimation={true}
                 />
                 <span className="ml-2 flex-1 text-left">
-                  {selectedChain.name}
+                  {selectedDestinationChain.name}
                 </span>
                 <ChevronDown
                   className={`h-5 w-5 ${theme === "dark" ? "text-gray-400" : "text-gray-400"} transition-transform ${
@@ -283,26 +289,26 @@ export const SendForm: React.FC<SendFormProps> = ({
 
               {isChainDropdownOpen && (
                 <div
-                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg ${
+                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto ${
                     theme === "dark"
                       ? "bg-gray-800 border-gray-700"
                       : "bg-white border-gray-200"
                   }`}
                 >
-                  {SUPPORTED_TO_CHAINS.map((chain) => (
+                  {supportedChains.map((chain) => (
                     <button
                       key={chain.id}
                       type="button"
                       onClick={() => {
-                        setSelectedChain(chain)
+                        setSelectedDestinationChain(chain)
                         setIsChainDropdownOpen(false)
                       }}
                       className={`w-full flex items-center px-4 py-3 ${
                         theme === "dark"
-                          ? selectedChain.id === chain.id
+                          ? selectedDestinationChain.id === chain.id
                             ? "bg-gray-700 text-white"
                             : "text-white hover:bg-gray-700"
-                          : selectedChain.id === chain.id
+                          : selectedDestinationChain.id === chain.id
                             ? "bg-gray-100 text-gray-900"
                             : "text-gray-900 hover:bg-gray-50"
                       }`}
@@ -314,7 +320,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                         disableAnimation={true}
                       />
                       <span className="ml-2">{chain.name}</span>
-                      {selectedChain.id === chain.id && (
+                      {selectedDestinationChain.id === chain.id && (
                         <span
                           className={`ml-auto ${theme === "dark" ? "text-white" : "text-gray-900"}`}
                         >
@@ -340,15 +346,16 @@ export const SendForm: React.FC<SendFormProps> = ({
           {toToken ? (
             <div className="flex items-center px-2 py-1">
               <TokenImage
-                symbol={selectedDestToken.symbol}
-                src={selectedDestToken.imageUrl}
+                symbol={selectedDestToken?.symbol}
+                src={selectedDestToken?.imageUrl}
                 size="sm"
                 disableAnimation={true}
               />
               <span
                 className={`ml-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
               >
-                {selectedDestToken.name} ({selectedDestToken.symbol})
+                {selectedDestToken?.name ?? "Unknown Token"} (
+                {selectedDestToken?.symbol ?? "Unknown Symbol"})
               </span>
             </div>
           ) : (
@@ -368,14 +375,14 @@ export const SendForm: React.FC<SendFormProps> = ({
                   }`}
                 >
                   <TokenImage
-                    symbol={selectedDestToken.symbol}
-                    src={selectedDestToken.imageUrl}
+                    symbol={selectedDestToken?.symbol}
+                    src={selectedDestToken?.imageUrl}
                     size="sm"
                     disableAnimation={true}
                   />
                 </div>
                 <span className="ml-2 flex-1 text-left">
-                  {selectedDestToken.name} ({selectedDestToken.symbol})
+                  {selectedDestToken?.name} ({selectedDestToken?.symbol})
                 </span>
                 <ChevronDown
                   className={`h-5 w-5 ${theme === "dark" ? "text-gray-400" : "text-gray-400"} transition-transform ${
@@ -386,26 +393,26 @@ export const SendForm: React.FC<SendFormProps> = ({
 
               {isTokenDropdownOpen && (
                 <div
-                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg ${
+                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto ${
                     theme === "dark"
                       ? "bg-gray-800 border-gray-700"
                       : "bg-white border-gray-200"
                   }`}
                 >
-                  {SUPPORTED_TO_TOKENS.map((token) => (
+                  {supportedTokens.map((token) => (
                     <button
                       key={token.symbol}
                       type="button"
                       onClick={() => {
-                        setSelectedDestToken(token)
+                        setSelectedDestToken(token as TokenInfo)
                         setIsTokenDropdownOpen(false)
                       }}
                       className={`w-full flex items-center px-4 py-3 cursor-pointer ${
                         theme === "dark"
-                          ? selectedDestToken.symbol === token.symbol
+                          ? selectedDestToken?.symbol === token.symbol
                             ? "bg-gray-700 text-white"
                             : "text-white hover:bg-gray-700"
-                          : selectedDestToken.symbol === token.symbol
+                          : selectedDestToken?.symbol === token.symbol
                             ? "bg-gray-100 text-gray-900"
                             : "text-gray-900 hover:bg-gray-50"
                       }`}
@@ -425,7 +432,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                       <span className="ml-2">
                         {token.name} ({token.symbol})
                       </span>
-                      {selectedDestToken.symbol === token.symbol && (
+                      {selectedDestToken?.symbol === token.symbol && (
                         <span
                           className={`ml-auto ${theme === "dark" ? "text-white" : "text-gray-900"}`}
                         >
@@ -453,7 +460,7 @@ export const SendForm: React.FC<SendFormProps> = ({
               <span
                 className={`${theme === "dark" ? "text-white" : "text-gray-900"}`}
               >
-                {toAmountFormatted} {selectedDestToken.symbol}
+                {toAmountFormatted} {selectedDestToken?.symbol}
               </span>
               <span
                 className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
@@ -482,12 +489,12 @@ export const SendForm: React.FC<SendFormProps> = ({
                       theme === "dark" ? "text-gray-400" : "text-gray-500"
                     }
                   >
-                    {selectedDestToken.symbol}
+                    {selectedDestToken?.symbol}
                   </span>
                 </div>
               </div>
               <div className="h-6 mt-1">
-                {amount && selectedDestToken.symbol && (
+                {amount && selectedDestToken?.symbol && (
                   <div
                     className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
                   >
@@ -599,7 +606,8 @@ export const SendForm: React.FC<SendFormProps> = ({
               !amount ||
               !isValidRecipient ||
               isSubmitting ||
-              !destinationTokenAddress
+              !destinationTokenAddress ||
+              !isValidCustomToken
             }
             className={`w-full font-semibold py-3 px-4 rounded-[24px] transition-colors relative ${
               theme === "dark"

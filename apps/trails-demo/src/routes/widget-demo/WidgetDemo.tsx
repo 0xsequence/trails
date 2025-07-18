@@ -27,6 +27,7 @@ export const WidgetDemo = () => {
     Array<{ chainId: number; url: string }>
   >([])
   const [gasless, setGasless] = useState<boolean | null>(null)
+  const [customTokenAddress, setCustomTokenAddress] = useState("")
 
   useEffect(() => {
     if (!localStorage.getItem(STORAGE_KEYS.RENDER_INLINE)) {
@@ -97,6 +98,8 @@ export const WidgetDemo = () => {
               setPaymasterUrls={setPaymasterUrls}
               gasless={gasless}
               setGasless={setGasless}
+              customTokenAddress={customTokenAddress}
+              setCustomTokenAddress={setCustomTokenAddress}
             />
           </div>
 
@@ -107,7 +110,7 @@ export const WidgetDemo = () => {
               toAddress={toAddress}
               toAmount={toAmount}
               toChainId={toChainId}
-              toToken={toToken}
+              toToken={customTokenAddress || toToken}
               toCalldata={toCalldata}
               useCustomButton={useCustomButton}
               renderInline={renderInline}

@@ -4,20 +4,18 @@ import { Address } from "ox"
 import { useEffect, useMemo, useState } from "react"
 import { isAddressEqual, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
-import { getChainInfo } from "../../chains.js"
-import { SUPPORTED_TO_CHAINS } from "../../constants.js"
+import { getChainInfo, useSupportedChains } from "../../chains.js"
 import type {
   TokenBalanceExtended,
   TokenBalanceWithPrice,
 } from "../../tokenBalances.js"
 import {
   formatBalance,
-  getFormatttedTokenName,
   useAccountTotalBalanceUsd,
   useHasSufficientBalanceUsd,
-  useSourceTokenList,
   useTokenBalances,
 } from "../../tokenBalances.js"
+import { getFormatttedTokenName, useSourceTokenList } from "../../tokens.js"
 
 export interface Token {
   id: number
@@ -99,11 +97,11 @@ export function useTokenList({
   } = useHasSufficientBalanceUsd(address as Address.Address, targetAmountUsd)
   const showContinueButton = false
   const sourceTokenList = useSourceTokenList()
+  const { supportedChains: supportedToChains } = useSupportedChains()
 
-  const supportedChainIds = useMemo(
-    () => new Set(SUPPORTED_TO_CHAINS.map((c) => c.id)),
-    [],
-  )
+  const supportedChainIds = useMemo(() => {
+    return new Set(supportedToChains.map((c) => c.id))
+  }, [supportedToChains])
 
   const sortedTokens = useMemo<Array<TokenBalanceExtended>>(() => {
     return allSortedTokens.filter((token: TokenBalanceExtended) => {
@@ -128,8 +126,7 @@ export function useTokenList({
   const handleTokenSelect = (token: TokenFormatted) => {
     const isNative = !("contractAddress" in token)
     const chainInfo = getChainInfo(token.chainId)
-    const contractAddress = isNative ? zeroAddress : token.contractAddress
-    const imageUrl = `https://assets.sequence.info/images/tokens/small/${token.chainId}/${contractAddress}.webp`
+    const imageUrl = token.imageUrl
 
     let formattedToken: Token
     if (isNative) {

@@ -1,14 +1,12 @@
-import { InfoIcon, TokenImage, Tooltip } from "@0xsequence/design-system"
-import {
-  SUPPORTED_TO_CHAINS,
-  SUPPORTED_TO_TOKENS,
-} from "@0xsequence/trails-sdk"
+import { InfoIcon, Tooltip } from "@0xsequence/design-system"
+import { useSupportedChains, useSupportedTokens } from "@0xsequence/trails-sdk"
 import { defaultWalletOptions } from "@0xsequence/trails-sdk/widget"
-import { ChevronDown } from "lucide-react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { ChevronDown, X } from "lucide-react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { encodeFunctionData, parseUnits, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
 import { ChainSelector } from "./ChainSelector"
+import { TokenSelector } from "./TokenSelector"
 
 // Reusable Checkmark Component
 const Checkmark: React.FC<{ className?: string }> = ({
@@ -49,6 +47,8 @@ interface CustomizationFormProps {
   setPaymasterUrls: (value: Array<{ chainId: number; url: string }>) => void
   gasless: boolean | null
   setGasless: (value: boolean | null) => void
+  customTokenAddress: string
+  setCustomTokenAddress: (value: string) => void
 }
 
 // Local storage keys
@@ -66,6 +66,7 @@ export const STORAGE_KEYS = {
   WALLET_OPTIONS: "trails_demo_wallet_options",
   PAYMASTER_URLS: "trails_demo_paymaster_urls",
   GASLESS: "trails_demo_gasless",
+  CUSTOM_TOKEN_ADDRESS: "trails_demo_custom_token_address",
 } as const
 
 interface UseAccountButtonProps {
@@ -148,13 +149,13 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   setPaymasterUrls,
   gasless,
   setGasless,
+  customTokenAddress,
+  setCustomTokenAddress,
 }) => {
   const { address, isConnected } = useAccount()
-  const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
   const [isScenarioDropdownOpen, setIsScenarioDropdownOpen] = useState(false)
   const [selectedScenario, setSelectedScenario] = useState<string>("")
-
-  const tokenDropdownRef = useRef<HTMLDivElement>(null)
+  const [showCustomTokenInput, setShowCustomTokenInput] = useState(false)
 
   // Scenario keys
   const SCENARIO_KEYS = {
@@ -336,6 +337,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     const savedWalletOptions = localStorage.getItem(STORAGE_KEYS.WALLET_OPTIONS)
     const savedPaymasterUrls = localStorage.getItem(STORAGE_KEYS.PAYMASTER_URLS)
     const savedGasless = localStorage.getItem(STORAGE_KEYS.GASLESS)
+    const savedCustomTokenAddress = localStorage.getItem(
+      STORAGE_KEYS.CUSTOM_TOKEN_ADDRESS,
+    )
 
     // Only set values if they exist in localStorage
     if (savedAppId !== null) setAppId(savedAppId)
@@ -372,6 +376,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       }
     }
     if (savedGasless !== null) setGasless(savedGasless === "true")
+    if (savedCustomTokenAddress !== null) {
+      setCustomTokenAddress(savedCustomTokenAddress)
+      setShowCustomTokenInput(true) // Show custom input if custom token address exists
+    }
   }, [
     setAppId,
     setToAddress,
@@ -385,6 +393,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setWalletOptions,
     setPaymasterUrls,
     setGasless,
+    setCustomTokenAddress,
   ])
 
   // Save values to localStorage whenever they change
@@ -494,14 +503,20 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
   }, [gasless])
 
+  // Save customTokenAddress to localStorage
+  useEffect(() => {
+    if (customTokenAddress) {
+      localStorage.setItem(
+        STORAGE_KEYS.CUSTOM_TOKEN_ADDRESS,
+        customTokenAddress,
+      )
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.CUSTOM_TOKEN_ADDRESS)
+    }
+  }, [customTokenAddress])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        tokenDropdownRef.current &&
-        !tokenDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsTokenDropdownOpen(false)
-      }
       // Close scenario dropdown when clicking outside
       if (
         !event.target ||
@@ -531,6 +546,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setTheme("auto") // Reset to default autoj
     setPaymasterUrls([]) // Reset paymasterUrls
     setGasless(false) // Reset gasless to default false
+    setCustomTokenAddress("") // Reset customTokenAddress
+    setShowCustomTokenInput(false) // Reset custom token input visibility
     // Clear localStorage
     Object.values(STORAGE_KEYS).forEach((key) => {
       localStorage.removeItem(key)
@@ -549,6 +566,46 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     } else {
       setWalletOptions([...walletOptions, wallet])
     }
+  }
+
+  const { supportedChains: supportedToChains, isLoadingChains } =
+    useSupportedChains()
+
+  const { supportedTokens: supportedDestinationTokens } = useSupportedTokens()
+
+  // Filter tokens based on selected chain
+  const filteredTokens = useMemo(() => {
+    if (!toChainId) return []
+
+    return supportedDestinationTokens.filter((token: any) => {
+      // If token has chainId property, filter by it
+      if (token.chainId !== undefined) {
+        return token.chainId === toChainId
+      }
+      // Otherwise, include all tokens (fallback for tokens without chainId)
+      return true
+    })
+  }, [supportedDestinationTokens, toChainId])
+
+  const handleCustomTokenToggle = () => {
+    setShowCustomTokenInput(!showCustomTokenInput)
+    if (showCustomTokenInput) {
+      // When hiding custom input, clear the custom token address
+      setCustomTokenAddress("")
+    } else {
+      // When showing custom input, focus on the input field after a brief delay
+      setTimeout(() => {
+        const customTokenInput = document.getElementById("custom-token-input")
+        if (customTokenInput) {
+          customTokenInput.focus()
+        }
+      }, 100)
+    }
+  }
+
+  const handleClearCustomToken = () => {
+    setCustomTokenAddress("")
+    setShowCustomTokenInput(false)
   }
 
   return (
@@ -688,7 +745,22 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           />
         </div>
 
-        <div className="flex gap-4">
+        <div className="space-y-2">
+          <label
+            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
+            htmlFor="toChainId"
+          >
+            To Chain ID
+          </label>
+          <ChainSelector
+            selectedChainId={toChainId}
+            onChainSelect={setToChainId}
+            chains={supportedToChains}
+            disabled={!!selectedScenario}
+          />
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <label
               className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
@@ -702,7 +774,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               onChange={(e) => setToAmount(e.target.value.trim())}
               placeholder="0.00"
               disabled={!!selectedScenario}
-              className={`w-full px-3 sm:px-4 py-2 border rounded-lg placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm ${
+              className={`w-full px-3 sm:px-4 h-12 border rounded-lg placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm leading-none ${
                 selectedScenario
                   ? "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
                   : "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200"
@@ -710,140 +782,72 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             />
           </div>
 
-          <div className="flex-1 space-y-2" ref={tokenDropdownRef}>
+          <div className="flex-1 space-y-2">
             <label
               className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
               htmlFor="toToken"
             >
               To Token
             </label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() =>
-                  !selectedScenario &&
-                  setIsTokenDropdownOpen(!isTokenDropdownOpen)
-                }
-                disabled={!!selectedScenario}
-                className={`w-full flex items-center px-3 sm:px-4 py-3 border rounded-lg cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  selectedScenario
-                    ? "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
-                    : "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-900 dark:text-gray-200"
-                }`}
-              >
-                {toToken ? (
-                  <>
-                    <TokenImage
-                      symbol={toToken}
-                      src={
-                        SUPPORTED_TO_TOKENS.find(
-                          (t: { symbol: string; imageUrl: string }) =>
-                            t.symbol === toToken,
-                        )?.imageUrl
-                      }
-                      size="sm"
-                      disableAnimation={true}
-                      className={selectedScenario ? "opacity-50" : ""}
-                    />
-                    <span
-                      className={`ml-2 flex-1 text-left text-sm truncate ${
-                        selectedScenario
-                          ? "text-gray-500"
-                          : "text-gray-900 dark:text-gray-200"
-                      }`}
-                    >
-                      {
-                        SUPPORTED_TO_TOKENS.find(
-                          (t: { symbol: string; name: string }) =>
-                            t.symbol === toToken,
-                        )?.name
-                      }{" "}
-                      ({toToken})
-                    </span>
-                  </>
-                ) : (
-                  <span
-                    className={`flex-1 text-left text-sm truncate ${
-                      selectedScenario
-                        ? "text-gray-500"
-                        : "text-gray-500 dark:text-gray-400"
-                    }`}
-                  >
-                    Select Token
-                  </span>
-                )}
-                <ChevronDown
-                  className={`h-5 w-5 text-gray-500 dark:text-gray-400 transition-transform ${isTokenDropdownOpen ? "transform rotate-180" : ""}`}
+            {showCustomTokenInput ? (
+              <div className="relative">
+                <input
+                  id="custom-token-input"
+                  type="text"
+                  value={customTokenAddress}
+                  onChange={(e) => setCustomTokenAddress(e.target.value.trim())}
+                  placeholder="0x..."
+                  disabled={!!selectedScenario || !toChainId}
+                  className={`w-full px-3 sm:px-4 h-12 pr-10 border rounded-lg placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm leading-none ${
+                    selectedScenario || !toChainId
+                      ? "bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-500 cursor-not-allowed"
+                      : "bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200"
+                  }`}
                 />
-              </button>
-
-              {isTokenDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setToToken(undefined)
-                      setIsTokenDropdownOpen(false)
-                    }}
-                    className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 ${!toToken ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400" : "text-gray-900 dark:text-gray-200"} cursor-pointer text-sm`}
-                  >
-                    <span className="ml-2">Select Token</span>
-                    {!toToken && (
-                      <span className="ml-auto text-blue-400">•</span>
-                    )}
-                  </button>
-                  {SUPPORTED_TO_TOKENS.map(
-                    (token: {
-                      symbol: string
-                      name: string
-                      imageUrl: string
-                    }) => (
-                      <button
-                        key={token.symbol}
-                        type="button"
-                        onClick={() => {
-                          setToToken(token.symbol as "ETH" | "USDC")
-                          setIsTokenDropdownOpen(false)
-                        }}
-                        className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm ${
-                          toToken === token.symbol
-                            ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
-                            : "text-gray-900 dark:text-gray-200"
-                        }`}
-                      >
-                        <TokenImage
-                          symbol={token.symbol}
-                          src={token.imageUrl}
-                          size="sm"
-                          disableAnimation={true}
-                        />
-                        <span className="ml-2">
-                          {token.name} ({token.symbol})
-                        </span>
-                        {toToken === token.symbol && (
-                          <span className="ml-auto text-blue-400">•</span>
-                        )}
-                      </button>
-                    ),
-                  )}
-                </div>
-              )}
-            </div>
+                <button
+                  type="button"
+                  onClick={handleClearCustomToken}
+                  className="absolute cursor-pointer right-2 top-1/2 transform -translate-y-1/2 p-1.5 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 rounded transition-colors"
+                  title="Clear custom token"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <TokenSelector
+                  selectedToken={
+                    toToken && toChainId
+                      ? {
+                          chainId: toChainId,
+                          contractAddress:
+                            filteredTokens.find((t) => t.symbol === toToken)
+                              ?.contractAddress || zeroAddress,
+                        }
+                      : undefined
+                  }
+                  onTokenSelect={(token) =>
+                    setToToken(token?.symbol || undefined)
+                  }
+                  tokens={filteredTokens}
+                  disabled={!!selectedScenario || !toChainId}
+                  placeholder="Select Token"
+                />
+                <button
+                  type="button"
+                  onClick={handleCustomTokenToggle}
+                  disabled={!!selectedScenario || !toChainId}
+                  className={`text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors ${
+                    selectedScenario || !toChainId
+                      ? "text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                >
+                  Use Custom Token
+                </button>
+              </>
+            )}
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <label
-            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
-            htmlFor="toChainId"
-          >
-            To Chain ID
-          </label>
-          <ChainSelector
-            selectedChainId={toChainId}
-            onChainSelect={setToChainId}
-            disabled={!!selectedScenario}
-          />
         </div>
 
         <div>
@@ -959,6 +963,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                               setPaymasterUrls(newPaymasterUrls)
                               setPaymasterKey((prev) => prev + 1) // Force re-render
                             }}
+                            chains={supportedToChains}
                             className="w-full sm:w-32"
                             showIconsOnly={true}
                           />
@@ -1004,8 +1009,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     onClick={() => {
                       // Find first available chain that's not already used
                       const usedChainIds = paymasterUrls.map((p) => p.chainId)
-                      const availableChain = SUPPORTED_TO_CHAINS.find(
-                        (chain) => !usedChainIds.includes(chain.id),
+                      const availableChain = supportedToChains.find(
+                        (chain: { id: number }) =>
+                          !usedChainIds.includes(chain.id),
                       )
                       if (availableChain) {
                         setPaymasterUrls([
@@ -1015,7 +1021,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       }
                     }}
                     disabled={
-                      paymasterUrls.length >= SUPPORTED_TO_CHAINS.length
+                      isLoadingChains ||
+                      paymasterUrls.length >= supportedToChains.length
                     }
                     className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium disabled:cursor-not-allowed cursor-pointer"
                   >

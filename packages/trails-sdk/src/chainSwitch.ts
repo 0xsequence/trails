@@ -1,4 +1,5 @@
 import type { WalletClient } from "viem"
+import { getChainInfo } from "./chains.js"
 
 export type AttemptSwitchChainParams = {
   walletClient: WalletClient
@@ -33,6 +34,19 @@ export async function attemptSwitchChain({
 
     console.log("[trails-sdk] Chain switched to:", desiredChainId)
   } catch (error: unknown) {
+    if (
+      error instanceof Error &&
+      error.message.includes("wallet_addEthereumChain")
+    ) {
+      const chainInfo = getChainInfo(desiredChainId)
+      if (chainInfo) {
+        await walletClient.addChain({
+          chain: chainInfo,
+        })
+        return attemptSwitchChain({ walletClient, desiredChainId })
+      }
+    }
+
     console.error("[trails-sdk] Chain switch failed:", error)
     throw new Error(
       `[trails-sdk] Failed to switch chain: ${error instanceof Error ? error.message : "Unknown error"}`,

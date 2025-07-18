@@ -2,7 +2,7 @@ import type { SequenceAPIClient } from "@0xsequence/trails-api"
 import { useQuery } from "@tanstack/react-query"
 import { useTokenPrice } from "../../prices.js"
 import { formatUsdValue } from "../../tokenBalances.js"
-import { useTokenAddress } from "./useTokenAddress.js"
+import { useTokenAddress } from "../../tokens.js"
 
 type UseAmountUsdProps = {
   amount?: string | null
@@ -20,9 +20,14 @@ export function useAmountUsd({
   amountUsd: number | null
   amountUsdFormatted: string
 } {
-  const tokenAddress = useTokenAddress({ chainId, tokenSymbol: token })
+  const isTokenAddress = token?.startsWith("0x")
+  const resolvedTokenAddress = useTokenAddress({
+    chainId,
+    tokenSymbol: isTokenAddress ? undefined : token,
+  })
+  const tokenAddress = isTokenAddress ? token : resolvedTokenAddress
 
-  const { data: tokenPrice } = useTokenPrice(
+  const { tokenPrice } = useTokenPrice(
     token && tokenAddress && chainId
       ? {
           tokenId: token,

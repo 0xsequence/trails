@@ -10,13 +10,12 @@ import {
   parseUnits,
   type TransactionReceipt,
   type WalletClient,
-  zeroAddress,
 } from "viem"
-import * as chains from "viem/chains"
 import { mainnet } from "viem/chains"
 import { useEnsAddress } from "wagmi"
 import { useAPIClient } from "../../apiClient.js"
-import { getChainInfo } from "../../chains.js"
+import { getChainInfo, useSupportedChains } from "../../chains.js"
+import { getFullErrorMessage } from "../../error.js"
 import { prepareSend, type TransactionState } from "../../prepareSend.js"
 import { useTokenPrices } from "../../prices.js"
 import { useQueryParams } from "../../queryParams.js"
@@ -27,16 +26,13 @@ import {
   formatUsdValue,
   formatValue,
 } from "../../tokenBalances.js"
-import { getTokenAddress } from "./useTokenAddress.js"
-
-// Available chains
-export const SUPPORTED_TO_CHAINS: ChainInfo[] = [
-  { id: chains.mainnet.id, name: "Ethereum" },
-  { id: chains.base.id, name: "Base" },
-  { id: chains.optimism.id, name: "Optimism" },
-  { id: chains.arbitrum.id, name: "Arbitrum" },
-  { id: chains.polygon.id, name: "Polygon" },
-]
+import type { SupportedToken } from "../../tokens.js"
+import {
+  useSupportedTokens,
+  useTokenAddress,
+  useTokenInfo,
+} from "../../tokens.js"
+import { DEFAULT_USE_V3_RELAYERS } from "../../constants.js"
 
 export interface Token {
   id: number
@@ -55,7 +51,7 @@ export interface Token {
   }
 }
 
-type TokenInfo = {
+export type TokenInfo = {
   symbol: string
   name: string
   imageUrl: string
@@ -72,41 +68,6 @@ type PaymasterUrl = {
   chainId: number
   url: string
 }
-
-// Available tokens
-// TODO: make this dynamic
-export const SUPPORTED_TO_TOKENS = [
-  {
-    symbol: "ETH",
-    name: "Ethereum",
-    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp`,
-    decimals: 18,
-  },
-  {
-    symbol: "USDC",
-    name: "USD Coin",
-    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp`,
-    decimals: 6,
-  },
-  {
-    symbol: "USDT",
-    name: "Tether",
-    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0xdac17f958d2ee523a2206206994597c13d831ec7.webp`,
-    decimals: 6,
-  },
-  {
-    symbol: "BAT",
-    name: "Basic Attention Token",
-    imageUrl: `https://assets.sequence.info/images/tokens/large/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp`,
-    decimals: 18,
-  },
-  {
-    symbol: "ARB",
-    name: "Arbitrum",
-    imageUrl: `https://assets.sequence.info/images/tokens/large/42161/0x912ce59144191c1204e64559fe8253a0e49e6548.webp`,
-    decimals: 18,
-  },
-]
 
 // Add FEE_TOKENS constant after SUPPORTED_TOKENS
 const FEE_TOKENS: TokenInfo[] = [
@@ -182,17 +143,17 @@ export type UseSendReturn = {
   isTokenDropdownOpen: boolean
   recipient: string
   recipientInput: string
-  selectedChain: ChainInfo | null
+  selectedDestinationChain: ChainInfo | null
   selectedDestToken: TokenInfo
   setAmount: (amount: string) => void
   setRecipient: (recipient: string) => void
   setRecipientInput: (recipientInput: string) => void
-  setSelectedChain: (chain: ChainInfo) => void
+  setSelectedDestinationChain: (chain: ChainInfo) => void
   setSelectedDestToken: (token: TokenInfo) => void
   setSelectedFeeToken: (token: TokenInfo) => void
   FEE_TOKENS: TokenInfo[]
-  SUPPORTED_TO_TOKENS: TokenInfo[]
-  SUPPORTED_TO_CHAINS: ChainInfo[]
+  supportedTokens: SupportedToken[]
+  supportedChains: ChainInfo[]
   ensAddress: string | null
   isWaitingForWalletConfirm: boolean
   buttonText: string
@@ -205,6 +166,7 @@ export type UseSendReturn = {
   setIsTokenDropdownOpen: (isOpen: boolean) => void
   toAmountFormatted: string
   destinationTokenAddress: string | null
+  isValidCustomToken: boolean
 }
 
 export function useSendForm({
@@ -234,6 +196,8 @@ export function useSendForm({
   const [recipientInput, setRecipientInput] = useState(toRecipient ?? "")
   const [recipient, setRecipient] = useState(toRecipient ?? "")
   const [error, setError] = useState<string | null>(null)
+  const { supportedChains } = useSupportedChains()
+  const { supportedTokens } = useSupportedTokens()
   const { data: ensAddress } = useEnsAddress({
     name: recipientInput?.endsWith(".eth") ? recipientInput : undefined,
     chainId: mainnet.id,
@@ -262,45 +226,96 @@ export function useSendForm({
     setRecipientInput(e.target.value.trim())
   }
 
-  const [selectedChain, setSelectedChain] = useState<ChainInfo>(
-    () =>
-      SUPPORTED_TO_CHAINS.find(
-        (chain) => chain.id === (toChainId ?? selectedToken.chainId),
-      ) || SUPPORTED_TO_CHAINS[0]!,
+  const originChainId = useMemo<number | null>(
+    () => selectedToken?.chainId,
+    [selectedToken?.chainId],
   )
+  const [selectedDestinationChain, setSelectedDestinationChain] =
+    useState<ChainInfo>(() => {
+      const chain = supportedChains.find((chain) => chain.id === toChainId)
+      if (chain) {
+        return chain
+      }
+      return supportedChains[0]!
+    })
+
+  const isCustomToken = useMemo(() => toToken?.startsWith("0x"), [toToken])
+
+  const {
+    tokenInfo: customTokenInfo,
+    isLoading: isLoadingCustomToken,
+    error: errorCustomToken,
+  } = useTokenInfo({
+    address: isCustomToken ? toToken! : "",
+    chainId: toChainId,
+  })
+
+  const isValidCustomToken = useMemo(() => {
+    return Boolean(
+      isCustomToken &&
+        !errorCustomToken &&
+        !isLoadingCustomToken &&
+        !!customTokenInfo,
+    )
+  }, [isCustomToken, errorCustomToken, isLoadingCustomToken, customTokenInfo])
+
+  useEffect(() => {
+    if (isCustomToken && customTokenInfo && !isLoadingCustomToken) {
+      setSelectedDestToken(customTokenInfo as TokenInfo)
+    }
+  }, [customTokenInfo, isCustomToken, isLoadingCustomToken])
+
+  useEffect(() => {
+    if (isCustomToken && errorCustomToken && !isLoadingCustomToken) {
+      console.error("[trails-sdk] errorCustomToken", errorCustomToken)
+      setError(
+        `Invalid custom toToken address. Error: ${errorCustomToken.message}`,
+      )
+    }
+  }, [errorCustomToken, isCustomToken, isLoadingCustomToken])
+
   const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
   const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
-  const [selectedDestToken, setSelectedDestToken] = useState(() =>
-    toToken
-      ? SUPPORTED_TO_TOKENS.find((token) => token.symbol === toToken) ||
-        SUPPORTED_TO_TOKENS[0]!
-      : SUPPORTED_TO_TOKENS[0]!,
-  )
+  const [selectedDestToken, setSelectedDestToken] = useState<TokenInfo>(() => {
+    const defaultToken = supportedTokens?.find(
+      (token) => token.chainId === originChainId, // match the token to the origin chain as default
+    )
+    let token = defaultToken
+    if (toToken && !isCustomToken) {
+      const isToTokenAddress = isAddress(toToken)
+      token = supportedTokens.find(
+        (token) =>
+          (isToTokenAddress // Match by specified destination token address or symbol
+            ? token.contractAddress === toToken
+            : token.symbol === toToken) &&
+          (toChainId // Match by specified destination chain id
+            ? token.chainId === toChainId
+            : selectedDestinationChain.id), // Select by selected destination chain id
+      )
+    }
+
+    return token as TokenInfo
+  })
 
   const apiClient = useAPIClient({
     apiUrl,
     projectAccessKey: sequenceProjectAccessKey,
   })
 
-  const { data: destTokenPrices } = useTokenPrices(
-    selectedDestToken
-      ? (() => {
-          try {
-            const contractAddress = getTokenAddress(
-              selectedChain.id,
-              selectedDestToken.symbol,
-            )
-            return [
-              {
-                tokenId: selectedDestToken.symbol,
-                contractAddress,
-                chainId: selectedChain.id,
-              },
-            ]
-          } catch (_error) {
-            return []
-          }
-        })()
+  const destTokenAddress = useTokenAddress({
+    chainId: selectedDestinationChain?.id,
+    tokenSymbol: selectedDestToken?.symbol,
+  })
+
+  const { tokenPrices: destTokenPrices } = useTokenPrices(
+    selectedDestToken && destTokenAddress
+      ? [
+          {
+            tokenId: selectedDestToken.symbol,
+            contractAddress: destTokenAddress,
+            chainId: selectedDestinationChain.id,
+          },
+        ]
       : [],
     apiClient,
   )
@@ -308,26 +323,37 @@ export function useSendForm({
   // Update selectedChain when toChainId prop changes
   useEffect(() => {
     if (toChainId) {
-      const newChain = SUPPORTED_TO_CHAINS.find(
-        (chain) => chain.id === toChainId,
-      )
+      const newChain = supportedChains.find((chain) => chain.id === toChainId)
       if (newChain) {
-        setSelectedChain(newChain)
+        setSelectedDestinationChain(newChain)
       }
     }
-  }, [toChainId])
+  }, [toChainId, supportedChains])
 
   // Update selectedDestToken when toToken prop changes
   useEffect(() => {
-    if (toToken) {
-      const newToken = SUPPORTED_TO_TOKENS.find(
-        (token) => token.symbol === toToken,
+    if (toToken && !isCustomToken) {
+      const isToTokenAddress = isAddress(toToken)
+      const newToken = supportedTokens.find(
+        (token) =>
+          (isToTokenAddress // Match by specified destination token address or symbol
+            ? token.contractAddress === toToken
+            : token.symbol === toToken) &&
+          (toChainId // Match by specified destination chain id
+            ? token.chainId === toChainId
+            : token.chainId === selectedDestinationChain.id),
       )
       if (newToken) {
-        setSelectedDestToken(newToken)
+        setSelectedDestToken(newToken as TokenInfo)
       }
     }
-  }, [toToken])
+  }, [
+    toToken,
+    supportedTokens,
+    toChainId,
+    selectedDestinationChain.id,
+    isCustomToken,
+  ])
 
   // Update amount when toAmount prop changes
   useEffect(() => {
@@ -354,7 +380,10 @@ export function useSendForm({
     selectedToken.contractInfo?.decimals,
   )
   const balanceUsdFormatted = selectedToken.balanceUsdFormatted ?? ""
-  const relayerConfig = useMemo(() => ({ env, useV3Relayers: true }), [env])
+  const relayerConfig = useMemo(
+    () => ({ env, useV3Relayers: DEFAULT_USE_V3_RELAYERS }),
+    [env],
+  )
 
   const isValidRecipient = Boolean(recipient && isAddress(recipient))
 
@@ -371,31 +400,17 @@ export function useSendForm({
   const { hasParam } = useQueryParams()
   const isDryMode = hasParam("dryMode", "true")
 
+  const destinationTokenAddressFromTokenSymbol = useTokenAddress({
+    chainId: selectedDestinationChain?.id,
+    tokenSymbol: selectedDestToken?.symbol,
+  })
+
   const destinationTokenAddress = useMemo(() => {
-    let destinationTokenAddress: string | null
-    try {
-      setError(null)
-      if (!selectedDestToken) {
-        return null
-      }
-      destinationTokenAddress =
-        selectedDestToken.symbol === "ETH"
-          ? zeroAddress
-          : getTokenAddress(selectedChain.id, selectedDestToken.symbol)
-    } catch (_error) {
-      console.error("[trails-sdk] Error getting token address:", _error)
-      setError(
-        `${selectedDestToken.symbol} is not available on ${selectedChain.name}`,
-      )
-      return null
+    if (isCustomToken) {
+      return toToken ?? null
     }
-    return destinationTokenAddress
-  }, [
-    selectedDestToken,
-    selectedDestToken?.symbol,
-    selectedChain?.name,
-    selectedChain?.id,
-  ])
+    return destinationTokenAddressFromTokenSymbol ?? null
+  }, [isCustomToken, toToken, destinationTokenAddressFromTokenSymbol])
 
   const processSend = useCallback(async () => {
     try {
@@ -409,7 +424,10 @@ export function useSendForm({
       const parsedAmount = parseUnits(amount, decimals).toString()
 
       const originRelayer = getRelayer(relayerConfig, selectedToken.chainId)
-      const destinationRelayer = getRelayer(relayerConfig, selectedChain.id)
+      const destinationRelayer = getRelayer(
+        relayerConfig,
+        selectedDestinationChain.id,
+      )
 
       const sourceTokenDecimals =
         typeof selectedToken.contractInfo?.decimals === "number"
@@ -435,7 +453,7 @@ export function useSendForm({
         originTokenAddress: selectedToken.contractAddress,
         originChainId: selectedToken.chainId,
         originTokenAmount: selectedToken.balance,
-        destinationChainId: selectedChain.id,
+        destinationChainId: selectedDestinationChain.id,
         recipient,
         destinationTokenAddress,
         destinationTokenAmount: parsedAmount,
@@ -513,7 +531,7 @@ export function useSendForm({
         // Move to receipt screen
         onComplete({
           originChainId: selectedToken.chainId,
-          destinationChainId: selectedChain.id,
+          destinationChainId: selectedDestinationChain.id,
           originUserTxReceipt,
           originMetaTxnReceipt,
           destinationMetaTxnReceipt,
@@ -531,10 +549,7 @@ export function useSendForm({
             "[trails-sdk] Error in prepareSend walletConfirmRetryHandler:",
             error,
           )
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : "An unexpected error occurred"
+          const errorMessage = getFullErrorMessage(error)
           setError(errorMessage)
           if (onError) {
             onError(errorMessage)
@@ -549,8 +564,7 @@ export function useSendForm({
       await handleSend()
     } catch (error) {
       console.error("[trails-sdk] Error in prepareSend:", error)
-      const errorMessage =
-        error instanceof Error ? error.message : "An unexpected error occurred"
+      const errorMessage = getFullErrorMessage(error)
       setError(errorMessage)
       if (onError) {
         onError(errorMessage)
@@ -570,7 +584,7 @@ export function useSendForm({
     relayerConfig,
     isDryMode,
     selectedDestToken,
-    selectedChain,
+    selectedDestinationChain,
     toCalldata,
     paymasterUrls,
     gasless,
@@ -603,13 +617,14 @@ export function useSendForm({
     if (!isValidRecipient) return "Enter recipient"
 
     const amountFormatted = formatValue(amount)
+    const destTokenSymbol = selectedDestToken?.symbol ?? "Token"
 
     try {
       const checksummedRecipient = getAddress(recipient)
       const checksummedAccount = getAddress(account.address)
 
       if (checksummedRecipient === checksummedAccount) {
-        return `Receive ${amountFormatted} ${selectedDestToken.symbol}`
+        return `Receive ${amountFormatted} ${destTokenSymbol}`
       }
       if (toCalldata) {
         if (useSourceTokenForButtonText) {
@@ -622,18 +637,18 @@ export function useSendForm({
             return `Spend ~${formattedSourceAmount} ${selectedToken.symbol}`
           }
         }
-        return `Spend ${amountFormatted} ${selectedDestToken.symbol}`
+        return `Spend ${amountFormatted} ${destTokenSymbol}`
       }
-      return `Pay ${amountFormatted} ${selectedDestToken.symbol}`
+      return `Pay ${amountFormatted} ${destTokenSymbol}`
     } catch {
-      return `Send ${amountFormatted} ${selectedDestToken.symbol}`
+      return `Send ${amountFormatted} ${destTokenSymbol}`
     }
   }, [
     amount,
     isValidRecipient,
     recipient,
     account.address,
-    selectedDestToken.symbol,
+    selectedDestToken?.symbol,
     toCalldata,
     isWaitingForWalletConfirm,
     isSubmitting,
@@ -657,17 +672,17 @@ export function useSendForm({
     isTokenDropdownOpen,
     recipient,
     recipientInput,
-    selectedChain,
+    selectedDestinationChain,
     selectedDestToken,
     setAmount,
     setRecipient,
     setRecipientInput,
-    setSelectedChain,
+    setSelectedDestinationChain,
     setSelectedDestToken,
     setSelectedFeeToken,
     FEE_TOKENS,
-    SUPPORTED_TO_TOKENS,
-    SUPPORTED_TO_CHAINS,
+    supportedTokens,
+    supportedChains,
     ensAddress: ensAddress ?? null,
     isWaitingForWalletConfirm,
     buttonText,
@@ -680,5 +695,6 @@ export function useSendForm({
     setIsTokenDropdownOpen,
     toAmountFormatted,
     destinationTokenAddress,
+    isValidCustomToken,
   }
 }

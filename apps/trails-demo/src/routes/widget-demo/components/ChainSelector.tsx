@@ -1,30 +1,36 @@
 import { NetworkImage } from "@0xsequence/design-system"
-import { SUPPORTED_TO_CHAINS } from "@0xsequence/trails-sdk"
-import { ChevronDown } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
+import { ChevronDown, Search } from "lucide-react"
+import { useEffect, useMemo, useRef, useState } from "react"
+
+interface Chain {
+  id: number
+  name: string
+}
 
 interface ChainSelectorProps {
   selectedChainId: number | undefined
   onChainSelect: (chainId: number) => void
+  chains: Chain[]
   disabled?: boolean
   className?: string
-  theme?: "light" | "dark"
   showIconsOnly?: boolean
 }
 
 export const ChainSelector: React.FC<ChainSelectorProps> = ({
   selectedChainId,
   onChainSelect,
+  chains,
   disabled = false,
   className = "",
-  theme = "dark",
   showIconsOnly = false,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
-  const selectedChain = SUPPORTED_TO_CHAINS.find(
-    (chain) => chain.id === selectedChainId,
+  const selectedChain = chains.find(
+    (chain: Chain) => chain.id === selectedChainId,
   )
 
   useEffect(() => {
@@ -44,7 +50,58 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
   const handleChainSelect = (chainId: number) => {
     onChainSelect(chainId)
     setIsDropdownOpen(false)
+    setSearchTerm("") // Clear search when selecting
   }
+
+  // Focus search input when dropdown opens
+  useEffect(() => {
+    if (isDropdownOpen && searchInputRef.current) {
+      // Small delay to ensure the dropdown is rendered
+      setTimeout(() => {
+        searchInputRef.current?.focus()
+      }, 100)
+    }
+  }, [isDropdownOpen])
+
+  // Filter chains based on search term
+  const filteredChains = useMemo(() => {
+    if (!searchTerm.trim()) {
+      return chains
+    }
+
+    const query = searchTerm.toLowerCase().trim()
+    const queryParts = query.split(/\s+/).filter((part) => part.length > 0)
+
+    const filtered = chains.filter((chain: Chain) => {
+      const chainName = chain.name || ""
+      const chainNameLower = chainName.toLowerCase()
+      const chainIdStr = chain.id.toString()
+
+      // If multiple query parts, check if they match chain name + chain ID combination
+      if (queryParts.length > 1) {
+        const matchesName = queryParts.some((part) =>
+          chainNameLower.includes(part),
+        )
+        const matchesId = queryParts.some((part) => chainIdStr.includes(part))
+        return matchesName || matchesId
+      }
+
+      // Single query part - match against any field
+      return queryParts.some(
+        (part) => chainNameLower.includes(part) || chainIdStr.includes(part),
+      )
+    })
+
+    // Deduplicate by chain ID
+    const seen = new Set<number>()
+    return filtered.filter((chain: Chain) => {
+      if (seen.has(chain.id)) {
+        return false
+      }
+      seen.add(chain.id)
+      return true
+    })
+  }, [chains, searchTerm])
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
@@ -52,9 +109,7 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
         type="button"
         onClick={() => !disabled && setIsDropdownOpen(!isDropdownOpen)}
         disabled={disabled}
-        className={`w-full flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed ${
-          theme === "dark" ? "text-gray-200" : "text-gray-900"
-        } ${showIconsOnly ? "justify-center" : ""}`}
+        className={`w-full flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-gray-900 dark:text-gray-200 ${showIconsOnly ? "justify-center" : ""}`}
       >
         {selectedChain ? (
           <>
@@ -65,9 +120,14 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
               disableAnimation={true}
             />
             {!showIconsOnly && (
-              <span className="ml-2 flex-1 text-left text-gray-900 dark:text-gray-200 truncate">
-                {selectedChain.name} ({selectedChain.id})
-              </span>
+              <div className="ml-2 flex-1 text-left">
+                <div className="font-medium text-gray-900 dark:text-gray-200 truncate">
+                  {selectedChain.name}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  ID: {selectedChain.id}
+                </div>
+              </div>
             )}
           </>
         ) : (
@@ -83,7 +143,24 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
       </button>
 
       {isDropdownOpen && !disabled && (
-        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
+        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-80 overflow-y-auto">
+          {/* Search Input */}
+          <div className="sticky top-0 p-3 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search chains..."
+                className={`w-full pl-10 pr-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400`}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+
+          {/* Clear Selection Option */}
           <button
             type="button"
             onClick={() => handleChainSelect(0)}
@@ -100,9 +177,9 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
               <span className="ml-auto text-blue-400">•</span>
             )}
           </button>
-          {SUPPORTED_TO_CHAINS.map((chain) => (
+          {filteredChains.map((chain: Chain, index: number) => (
             <button
-              key={chain.id}
+              key={`${chain.id}-${index}`}
               type="button"
               onClick={() => handleChainSelect(chain.id)}
               className={`w-full flex items-center px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer ${showIconsOnly ? "justify-center" : ""} ${
@@ -118,9 +195,12 @@ export const ChainSelector: React.FC<ChainSelectorProps> = ({
                 disableAnimation={true}
               />
               {!showIconsOnly && (
-                <span className="ml-2">
-                  {chain.name} ({chain.id})
-                </span>
+                <div className="ml-2 flex-1 text-left">
+                  <div className="font-medium">{chain.name}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    ID: {chain.id}
+                  </div>
+                </div>
               )}
               {selectedChainId === chain.id && !showIconsOnly && (
                 <span className="ml-auto text-blue-400">•</span>

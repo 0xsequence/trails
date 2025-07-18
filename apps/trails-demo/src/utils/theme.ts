@@ -24,8 +24,6 @@ export const applyTheme = (theme: ActiveTheme) => {
   const root = document.documentElement
   const body = document.body
 
-  console.log("applyTheme", theme)
-
   if (theme === "dark") {
     root?.classList.add("dark")
     body?.classList.add("dark")
