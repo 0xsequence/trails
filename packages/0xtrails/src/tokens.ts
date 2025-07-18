@@ -418,6 +418,26 @@ export function useTokenInfo({
       error: null,
     }
   }
+  if (address === zeroAddress) {
+    const tokenInfo = useMemo(() => {
+      return {
+        id: "ETH",
+        name: "Ethereum",
+        symbol: "ETH",
+        decimals: 18,
+        chainId,
+        contractAddress: address,
+        chainName: "Ethereum",
+        imageUrl:
+          "https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp",
+      }
+    }, [])
+    return {
+      tokenInfo,
+      isLoading: false,
+      error: null,
+    }
+  }
 
   const contract = {
     address: address as `0x${string}`,

@@ -1,7 +1,10 @@
 import { useConfig } from "@0xsequence/hooks"
 import { SequenceIndexerGateway } from "@0xsequence/indexer"
 import { useMemo } from "react"
-import { DEFAULT_INDEXER_GATEWAY_URL } from "./constants.js"
+import {
+  DEFAULT_INDEXER_GATEWAY_URL,
+  DEFAULT_SEQUENCE_PROJECT_ACCESS_KEY,
+} from "./constants.js"
 
 export type IndexerGatewayConfig = {
   indexerGatewayUrl?: string
@@ -11,7 +14,7 @@ export type IndexerGatewayConfig = {
 
 export function getIndexerGatewayClient({
   indexerGatewayUrl = DEFAULT_INDEXER_GATEWAY_URL,
-  projectAccessKey,
+  projectAccessKey = DEFAULT_SEQUENCE_PROJECT_ACCESS_KEY,
   jwt,
 }: IndexerGatewayConfig): SequenceIndexerGateway {
   return new SequenceIndexerGateway(
@@ -22,7 +25,11 @@ export function getIndexerGatewayClient({
 }
 
 export const useIndexerGatewayClient = (config?: IndexerGatewayConfig) => {
-  const { projectAccessKey, jwt, env } = useConfig()
+  const {
+    projectAccessKey = DEFAULT_SEQUENCE_PROJECT_ACCESS_KEY,
+    jwt,
+    env,
+  } = useConfig()
 
   const indexerGatewayClient = useMemo(() => {
     return getIndexerGatewayClient({

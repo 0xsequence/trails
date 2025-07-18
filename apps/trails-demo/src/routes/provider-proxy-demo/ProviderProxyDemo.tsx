@@ -1,9 +1,11 @@
 import { useState } from "react"
+import * as chains from "viem/chains"
 import {
   useAccount,
   useConnect,
   useDisconnect,
   useSendTransaction,
+  useWalletClient,
 } from "wagmi"
 
 export function ProviderProxyDemo() {
@@ -11,7 +13,8 @@ export function ProviderProxyDemo() {
   const { connect, connectors } = useConnect()
   const { disconnect } = useDisconnect()
   const { sendTransaction, isPending } = useSendTransaction()
-  const [amount, setAmount] = useState("0.001")
+  const [amount, setAmount] = useState("0.00001")
+  const { data: walletClient } = useWalletClient()
 
   const handleSendTransaction = async () => {
     console.log(
@@ -24,12 +27,14 @@ export function ProviderProxyDemo() {
     if (!address) return
 
     try {
+      await walletClient?.switchChain({ id: chains.arbitrumSepolia.id })
       const result = await sendTransaction({
         to: address, // Send to self for demo
         value: BigInt(parseFloat(amount) * 10 ** 18),
+        chainId: chains.arbitrumSepolia.id,
       })
       console.log(
-        "[trails-demo provider-proxy-demo] ransaction result:",
+        "[trails-demo provider-proxy-demo] transaction result:",
         result,
       )
     } catch (error) {

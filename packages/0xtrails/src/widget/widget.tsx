@@ -25,6 +25,7 @@ import React, {
   useState,
 } from "react"
 import { createPortal } from "react-dom"
+import * as ReactDOM from "react-dom/client"
 import type { Chain, TransactionReceipt, WalletClient } from "viem"
 import { createWalletClient, custom, http } from "viem"
 import { mainnet } from "viem/chains"
@@ -97,18 +98,25 @@ export type TrailsWidgetProps = {
   walletOptions?: string[]
   onOriginConfirmation?: (txHash: string, chainId: number) => void
   onDestinationConfirmation?: (txHash: string, chainId: number) => void
+  onClose?: () => void
   privyAppId?: string
   privyClientId?: string
   useSourceTokenForButtonText?: boolean
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
   buttonText?: string
+  hidden?: boolean
 }
 
 export interface TrailsWidgetRef {
   openModal: () => void
   closeModal: () => void
   isModalOpen: boolean
+  setToChainId: (chainId: number | string | null) => void
+  setToCalldata: (calldata: string | null) => void
+  setToAddress: (address: string | null) => void
+  setToToken: (token: string | null) => void
+  setToAmount: (amount: string | null) => void
 }
 
 const queryClient = new QueryClient()
@@ -270,10 +278,12 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       walletOptions,
       onOriginConfirmation,
       onDestinationConfirmation,
+      onClose,
       useSourceTokenForButtonText,
       paymasterUrls,
       gasless,
       buttonText,
+      hidden = false,
     },
     ref,
   ) => {
@@ -287,6 +297,45 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const [selectedToken, setSelectedToken] = useState<Token | null>(null)
     const [error, setError] = useState<string | null>(null)
     const [intentAddress, setIntentAddress] = useState<string | null>(null)
+
+    // Dynamic props state
+    const [dynamicToChainId, setDynamicToChainId] = useState<
+      number | string | null
+    >(toChainId || null)
+    const [dynamicToCalldata, setDynamicToCalldata] = useState<string | null>(
+      toCalldata || null,
+    )
+    const [dynamicToAddress, setDynamicToAddress] = useState<string | null>(
+      toAddress || null,
+    )
+    const [dynamicToToken, setDynamicToToken] = useState<string | null>(
+      toToken || null,
+    )
+    const [dynamicToAmount, setDynamicToAmount] = useState<string | null>(
+      toAmount || null,
+    )
+
+    // Update dynamic state when props change
+    useEffect(() => {
+      setDynamicToChainId(toChainId || null)
+    }, [toChainId])
+
+    useEffect(() => {
+      setDynamicToCalldata(toCalldata || null)
+    }, [toCalldata])
+
+    useEffect(() => {
+      setDynamicToAddress(toAddress || null)
+    }, [toAddress])
+
+    useEffect(() => {
+      setDynamicToToken(toToken || null)
+    }, [toToken])
+
+    useEffect(() => {
+      setDynamicToAmount(toAmount || null)
+    }, [toAmount])
+
     const [originTokenInfo, setOriginTokenInfo] = useState<{
       amount: string
       amountUsd: string
@@ -507,6 +556,21 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           resetState()
         },
         isModalOpen,
+        setToChainId: (chainId: number | string | null) => {
+          setDynamicToChainId(chainId)
+        },
+        setToCalldata: (calldata: string | null) => {
+          setDynamicToCalldata(calldata)
+        },
+        setToAddress: (address: string | null) => {
+          setDynamicToAddress(address)
+        },
+        setToToken: (token: string | null) => {
+          setDynamicToToken(token)
+        },
+        setToAmount: (amount: string | null) => {
+          setDynamicToAmount(amount)
+        },
       }),
       [isModalOpen, resetState],
     )
@@ -514,6 +578,10 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const handleCloseModal = () => {
       setIsModalOpen(false)
       resetState()
+      // Call onClose callback if provided
+      if (onClose) {
+        onClose()
+      }
     }
 
     const handleBack = () => {
@@ -1066,9 +1134,9 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       amountUsd: targetAmountUsd,
       amountUsdFormatted: targetAmountUsdFormatted,
     } = useAmountUsd({
-      amount: toAmount,
-      token: toToken,
-      chainId: Number(toChainId),
+      amount: dynamicToAmount,
+      token: dynamicToToken,
+      chainId: Number(dynamicToChainId),
       apiClient: apiClient,
     })
 
@@ -1110,11 +1178,13 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               sequenceProjectAccessKey={sequenceProjectAccessKey}
               apiUrl={sequenceApiUrl || undefined}
               env={sequenceEnv}
-              toRecipient={toAddress || undefined}
-              toAmount={toAmount || undefined}
-              toChainId={toChainId ? Number(toChainId) : undefined}
-              toToken={toToken || undefined}
-              toCalldata={toCalldata || undefined}
+              toRecipient={dynamicToAddress || undefined}
+              toAmount={dynamicToAmount || undefined}
+              toChainId={
+                dynamicToChainId ? Number(dynamicToChainId) : undefined
+              }
+              toToken={dynamicToToken || undefined}
+              toCalldata={dynamicToCalldata || undefined}
               walletClient={walletClient}
               theme={theme}
               onTransactionStateChange={handleTransactionStateChange}
@@ -1245,7 +1315,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
 
     return (
       <div className="flex flex-col items-center justify-center space-y-8 py-12">
-        {!children ? (
+        {hidden ? null : !children ? (
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -1432,7 +1502,15 @@ export const createModalController = (
 ) => ({
   openModal: () => ref.current?.openModal?.(),
   closeModal: () => ref.current?.closeModal?.(),
-  isModalOpen: ref.current?.isModalOpen ?? false,
+  get isModalOpen() {
+    return ref.current?.isModalOpen ?? false
+  },
+  setToChainId: (chainId: number | string | null) =>
+    ref.current?.setToChainId?.(chainId),
+  setToCalldata: (calldata: string | null) =>
+    ref.current?.setToCalldata?.(calldata),
+  setToAddress: (address: string | null) =>
+    ref.current?.setToAddress?.(address),
+  setToToken: (token: string | null) => ref.current?.setToToken?.(token),
+  setToAmount: (amount: string | null) => ref.current?.setToAmount?.(amount),
 })
-
-export default TrailsWidget
