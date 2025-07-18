@@ -1467,7 +1467,10 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
   }
 
   function createIntent(args: GetIntentCallsPayloadsArgs) {
-    createIntentMutation.mutate(args)
+    createIntentMutation.mutate({
+      ...args,
+      destinationSalt: Date.now().toString(),
+    } as GetIntentCallsPayloadsArgs)
   }
 
   const createIntentPending = createIntentMutation.isPending
