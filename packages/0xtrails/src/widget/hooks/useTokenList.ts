@@ -15,7 +15,7 @@ import {
   useHasSufficientBalanceUsd,
   useTokenBalances,
 } from "../../tokenBalances.js"
-import { getFormatttedTokenName, useSourceTokenList } from "../../tokens.js"
+import { getFormatttedTokenName } from "../../tokens.js"
 
 export interface Token {
   id: number
@@ -96,7 +96,6 @@ export function useTokenList({
     hasSufficientBalanceUsdError,
   } = useHasSufficientBalanceUsd(address as Address.Address, targetAmountUsd)
   const showContinueButton = false
-  const sourceTokenList = useSourceTokenList()
   const { supportedChains: supportedToChains } = useSupportedChains()
 
   const supportedChainIds = useMemo(() => {
@@ -108,14 +107,9 @@ export function useTokenList({
       if (!supportedChainIds.has(token.chainId)) {
         return false
       }
-      return (
-        !(token as TokenBalanceWithPrice).contractAddress ||
-        sourceTokenList.includes(
-          (token as TokenBalanceWithPrice).contractInfo?.symbol || "",
-        )
-      )
+      return true
     })
-  }, [allSortedTokens, sourceTokenList, supportedChainIds])
+  }, [allSortedTokens, supportedChainIds])
 
   useEffect(() => {
     if (onError) {
