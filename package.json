@@ -1,0 +1,111 @@
+{
+  "name": "@0xsequence/trails-sdk",
+  "version": "0.0.5",
+  "description": "SDK for Trails",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
+  "private": false,
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "npm run build:react && npm run build:umd && npm run build:copy-js && npm run build:ts",
+    "build:react": "vite build --config vite.config.ts && tsc -p tsconfig.build.json",
+    "build:umd": "BUILD_MODE=umd vite build --config vite.umd.config.ts",
+    "build:copy-js": "mkdir -p ../../apps/trails-demo/public/js && cp ./dist/umd/trails.min.js ../../apps/trails-demo/public/js/trails.min.js",
+    "build:ts": "tsc -p tsconfig.json",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "clean": "rimraf dist",
+    "lint": "biome lint ./src",
+    "lint:fix": "biome lint --write ./src",
+    "format": "biome format --write ./src",
+    "prepublishOnly": "node scripts/replace-workspace-versions.cjs",
+    "postpublish": "node scripts/restore-workspace-versions.cjs"
+  },
+  "keywords": [
+    "trails",
+    "sdk",
+    "wallet"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@0xsequence/account": "^2.3.23",
+    "@0xsequence/core": "^2.3.23",
+    "@0xsequence/design-system": "^2.1.15",
+    "@0xsequence/hooks": "^5.3.7",
+    "@0xsequence/indexer": "^2.3.23",
+    "@0xsequence/network": "^2.3.23",
+    "@0xsequence/sessions": "^2.3.23",
+    "@0xsequence/signhub": "^2.3.23",
+    "@0xsequence/trails-api": "workspace:*",
+    "@0xsequence/trails-relayer": "workspace:*",
+    "@0xsequence/wagmi-connector": "^4.0.1",
+    "@0xsequence/wallet-core": "github:0xsequence/sequence.js#dists/wallet/core",
+    "@0xsequence/wallet-primitives": "github:0xsequence/sequence.js#dists/wallet/primitives",
+    "@privy-io/react-auth": "^2.18.2",
+    "@privy-io/wagmi": "^1.0.5",
+    "@reservoir0x/relay-sdk": "^2.3.0",
+    "@tanstack/query-core": "^5.83.0",
+    "@tanstack/react-query": "^5.83.0",
+    "@wagmi/core": "^2.17.3",
+    "buffer": "^6.0.3",
+    "ethers": "^6.15.0",
+    "framer-motion": "^12.23.6",
+    "isomorphic-fetch": "^3.0.0",
+    "lucide-react": "^0.493.0",
+    "motion": "^12.23.6",
+    "ox": "^0.7.2",
+    "vite-plugin-dts": "^4.5.4",
+    "wagmi": "^2.15.7"
+  },
+  "peerDependencies": {
+    "@0xsequence/design-system": "^2.1.15",
+    "@0xsequence/hooks": "^5.3.6",
+    "@0xsequence/indexer": "^2.3.20",
+    "@0xsequence/trails-api": "workspace:*",
+    "@0xsequence/trails-relayer": "workspace:*",
+    "@0xsequence/wagmi-connector": "^4.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "wagmi": "^2.15.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "@types/isomorphic-fetch": "^0.0.39",
+    "@types/node": "^22.16.4",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.4.21",
+    "dotenv": "^16.6.1",
+    "globals": "^15.15.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11",
+    "turbo": "^2.5.5",
+    "typescript": "^5.8.3",
+    "viem": "^2.32.0",
+    "vite": "^5.4.19",
+    "vite-plugin-css-injected-by-js": "^3.5.2",
+    "vitest": "^3.2.4"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./widget": {
+      "import": "./dist/widget/widget/index.js",
+      "require": "./dist/widget/widget/index.js",
+      "types": "./dist/widget/widget/index.d.ts"
+    }
+  }
+}

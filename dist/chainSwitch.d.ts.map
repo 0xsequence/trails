@@ -1,0 +1,1 @@
+{"version":3,"file":"chainSwitch.d.ts","sourceRoot":"","sources":["../src/chainSwitch.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,MAAM,CAAA;AAGxC,MAAM,MAAM,wBAAwB,GAAG;IACrC,YAAY,EAAE,YAAY,CAAA;IAC1B,cAAc,EAAE,MAAM,CAAA;CACvB,CAAA;AAED,wBAAsB,kBAAkB,CAAC,EACvC,YAAY,EACZ,cAAc,GACf,EAAE,wBAAwB,GAAG,OAAO,CAAC,IAAI,CAAC,CA2C1C"}
