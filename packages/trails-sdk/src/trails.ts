@@ -1473,11 +1473,6 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     } as GetIntentCallsPayloadsArgs)
   }
 
-  const createIntentPending = createIntentMutation.isPending
-  const createIntentSuccess = createIntentMutation.isSuccess
-  const createIntentError = createIntentMutation.error
-  const createIntentArgs = createIntentMutation.variables
-
   function commitIntentConfig(args: {
     mainSignerAddress: string
     calls: IntentCallsPayload[]
@@ -1509,6 +1504,21 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
 
   const originChainIdFromParams = originCallParams?.chainId
 
+  const createIntentPending = createIntentMutation.isPending
+  const createIntentSuccess = createIntentMutation.isSuccess
+  const createIntentError = createIntentMutation.error
+  const createIntentArgs = createIntentMutation.variables
+
+  const commitIntentConfigPending = commitIntentConfigMutation.isPending
+  const commitIntentConfigSuccess = commitIntentConfigMutation.isSuccess
+  const commitIntentConfigError = commitIntentConfigMutation.error
+  const commitIntentConfigArgs = commitIntentConfigMutation.variables
+
+  const sendMetaTxnPending = sendMetaTxnMutation.isPending
+  const sendMetaTxnSuccess = sendMetaTxnMutation.isSuccess
+  const sendMetaTxnError = sendMetaTxnMutation.error
+  const sendMetaTxnArgs = sendMetaTxnMutation.variables
+
   return {
     apiClient,
     metaTxns,
@@ -1529,10 +1539,10 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     isLoadingCommittedConfig,
     committedConfigError,
     commitIntentConfig,
-    commitIntentConfigPending: commitIntentConfigMutation.isPending,
-    commitIntentConfigSuccess: commitIntentConfigMutation.isSuccess,
-    commitIntentConfigError: commitIntentConfigMutation.error,
-    commitIntentConfigArgs: commitIntentConfigMutation.variables,
+    commitIntentConfigPending,
+    commitIntentConfigSuccess,
+    commitIntentConfigError,
+    commitIntentConfigArgs,
     getIntentCallsPayloads,
     operationHashes,
     callIntentCallsPayload,
@@ -1559,10 +1569,10 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     originCallSuccess: sendOriginTxn.isSuccess,
     sentMetaTxns,
     sendMetaTxn,
-    sendMetaTxnPending: sendMetaTxnMutation.isPending,
-    sendMetaTxnSuccess: sendMetaTxnMutation.isSuccess,
-    sendMetaTxnError: sendMetaTxnMutation.error,
-    sendMetaTxnArgs: sendMetaTxnMutation.variables,
+    sendMetaTxnPending,
+    sendMetaTxnSuccess,
+    sendMetaTxnError,
+    sendMetaTxnArgs,
     clearIntent,
     metaTxnMonitorStatuses,
     createIntent,
