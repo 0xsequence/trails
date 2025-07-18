@@ -177,7 +177,9 @@ export const RelayerStatusSection = ({
               Number.isFinite(originBlockTimestamp) && (
                 <div className="bg-gray-800/70 p-3 rounded-md">
                   <Text variant="small" color="secondary">
-                    <strong className="text-blue-300">Block Timestamp: </strong>
+                    <strong className="text-blue-300 ">
+                      Block Timestamp:{" "}
+                    </strong>
                     <span className="font-mono text-gray-300">
                       {new Date(originBlockTimestamp * 1000).toLocaleString()}{" "}
                       (Epoch: {originBlockTimestamp})
@@ -286,7 +288,7 @@ export const RelayerStatusSection = ({
                           <strong className="text-blue-300">
                             Block Timestamp:{" "}
                           </strong>
-                          <span className="font-mono">
+                          <span className="font-mono text-gray-300">
                             {new Date(
                               (metaTxnBlockTimestamps[operationKey]
                                 ?.timestamp || 0) * 1000,
@@ -343,7 +345,7 @@ export const RelayerStatusSection = ({
                       "reason" in monitorStatus && (
                         <Text variant="small" color="negative">
                           <strong className="text-red-300">Error: </strong>
-                          <span className="font-mono break-all">
+                          <span className="font-mono break-all text-gray-300">
                             {String((monitorStatus as any).reason)}
                           </span>
                         </Text>

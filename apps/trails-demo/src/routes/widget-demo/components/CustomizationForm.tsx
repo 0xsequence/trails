@@ -1095,10 +1095,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             <div className="mt-3 space-y-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
                 <label
-                  className="block text-sm font-medium text-gray-900 dark:text-gray-200"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200 flex items-center gap-2"
                   htmlFor="theme"
                 >
                   Theme Mode
+                  <Tooltip message="Set widget theme to light or dark mode. Auto mode detects your OS appearance theme preference">
+                    <InfoIcon
+                      size="sm"
+                      className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                    />
+                  </Tooltip>
                 </label>
                 <div className="flex space-x-4">
                   {(["auto", "light", "dark"] as const).map((mode) => (
