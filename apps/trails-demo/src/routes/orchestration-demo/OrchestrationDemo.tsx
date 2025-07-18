@@ -97,7 +97,6 @@ function useOrchestrationDemo() {
   } = useTrails({
     account: account as WagmiAccount,
     env: import.meta.env.VITE_ENV,
-    useV3Relayers: import.meta.env.VITE_USE_V3_RELAYERS === "true",
   })
 
   useEffect(() => {
