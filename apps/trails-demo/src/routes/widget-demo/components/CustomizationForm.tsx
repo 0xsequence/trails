@@ -877,12 +877,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
                 Gas & Wallet Settings
               </span>
-              <span className="text-gray-500 dark:text-gray-400 text-lg font-medium group-open:hidden ml-2">
-                +
-              </span>
-              <span className="text-gray-500 dark:text-gray-400 text-lg font-medium hidden group-open:inline ml-2">
-                −
-              </span>
+              <ChevronDown className="text-gray-500 dark:text-gray-400 h-5 w-5 transition-transform group-open:rotate-180 ml-2" />
             </summary>
             <div className="mt-3 space-y-4">
               <div className="flex items-center justify-between py-2">
@@ -1095,12 +1090,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
                 UI & Interaction Settings
               </span>
-              <span className="text-gray-500 dark:text-gray-400 text-lg font-medium group-open:hidden ml-2">
-                +
-              </span>
-              <span className="text-gray-500 dark:text-gray-400 text-lg font-medium hidden group-open:inline ml-2">
-                −
-              </span>
+              <ChevronDown className="text-gray-500 dark:text-gray-400 h-5 w-5 transition-transform group-open:rotate-180 ml-2" />
             </summary>
             <div className="mt-3 space-y-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
