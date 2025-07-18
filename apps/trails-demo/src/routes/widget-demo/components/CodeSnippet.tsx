@@ -78,7 +78,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
         `onDestinationConfirmation={${onDestinationConfirmation}}`,
     ].filter(Boolean)
 
-    return `import { TrailsWidget } from '@0xsequence/trails-sdk/widget'
+    return `import { TrailsWidget } from '0xtrails/widget'
 
 export const App = () => {
   return (${

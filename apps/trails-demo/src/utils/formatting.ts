@@ -1,4 +1,4 @@
-import type { NativeTokenBalance, TokenBalance } from "@0xsequence/trails-sdk"
+import type { NativeTokenBalance, TokenBalance } from "0xtrails"
 import { formatUnits } from "viem"
 import * as chains from "viem/chains"
 

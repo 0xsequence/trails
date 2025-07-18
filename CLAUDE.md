@@ -21,15 +21,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Package-specific Commands
 Run commands in specific packages using:
-- `cd packages/trails-sdk && pnpm test` - Run SDK tests with Vitest
-- `cd packages/trails-sdk && pnpm build:umd` - Build UMD bundle for browser
+- `cd packages/0xtrails && pnpm test` - Run SDK tests with Vitest
+- `cd packages/0xtrails && pnpm build:umd` - Build UMD bundle for browser
 
 ## Architecture Overview
 
 **Trails** is a blockchain payment SDK that enables "pay with any token" functionality through intent-based transactions and automatic cross-chain routing.
 
 ### Monorepo Structure
-- `packages/trails-sdk/` - Main React SDK with hooks and embeddable widgets
+- `packages/0xtrails/` - Main React SDK with hooks and embeddable widgets
 - `packages/trails-api/` - Generated API client for backend services  
 - `packages/trails-relayer/` - Meta-transaction relayer client
 - `apps/trails-demo/` - Demo application showcasing SDK features
@@ -61,11 +61,11 @@ Supports Ethereum, Base, Optimism, Arbitrum, and Polygon with configurable netwo
 
 - Tests use **Vitest** with extensive mocking of blockchain interactions
 - E2E tests validate full payment flows
-- Run individual test files: `cd packages/trails-sdk && pnpm test intents.test.ts`
+- Run individual test files: `cd packages/0xtrails && pnpm test intents.test.ts`
 
 ## Important Files
 
-- `packages/trails-sdk/src/trails.ts` - Main React hooks and core functionality
-- `packages/trails-sdk/src/intents.ts` - Intent configuration and execution logic
-- `packages/trails-sdk/src/widget/` - Embeddable widget components
-- `packages/trails-sdk/src/constants.ts` - Network and token configurations
+- `packages/0xtrails/src/trails.ts` - Main React hooks and core functionality
+- `packages/0xtrailsk/src/intents.ts` - Intent configuration and execution logic
+- `packages/0xtrails/src/widget/` - Embeddable widget components
+- `packages/0xtrails/src/constants.ts` - Network and token configurations

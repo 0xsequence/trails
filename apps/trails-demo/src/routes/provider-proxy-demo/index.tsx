@@ -2,7 +2,7 @@ import {
   getAPIClient,
   getHasSufficientBalanceToken,
   getIndexerGatewayClient,
-} from "@0xsequence/trails-sdk"
+} from "0xtrails"
 import { formatUnits, zeroAddress } from "viem"
 import { mainnet } from "viem/chains"
 import { createConfig, injected, WagmiProvider } from "wagmi"
@@ -68,6 +68,7 @@ const TrailsWagmiConnectorWrapper =
     console.log("🔍 Injected", args)
     const injectedConnector = connector(...args)
     const originalGetProvider = injectedConnector.getProvider
+
     injectedConnector.getProvider = async () => {
       const provider: any = await originalGetProvider()
       console.log("🔍 Injected Provider", provider)

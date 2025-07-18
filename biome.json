@@ -48,15 +48,11 @@
       "semicolons": "asNeeded"
     }
   },
-
   "assist": {
     "actions": {
       "source": {
         "organizeImports": {
-          "level": "on",
-          "options": {
-            "groups": []
-          }
+          "level": "off"
         }
       }
     }

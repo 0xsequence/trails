@@ -2,14 +2,8 @@ import { NetworkImage, Text } from "@0xsequence/design-system"
 import type {
   IntentCallsPayload,
   IntentPrecondition,
-  TrailsExecutionInfo,
 } from "@0xsequence/trails-api"
-import type {
-  MetaTxn,
-  TokenBalance,
-  TrailsFee,
-  WagmiAccount,
-} from "@0xsequence/trails-sdk"
+import type { MetaTxn, TokenBalance, TrailsFee, WagmiAccount } from "0xtrails"
 import {
   AlertCircle,
   AlertTriangle,
@@ -46,12 +40,10 @@ interface IntentQuoteDisplayStepProps {
   intentCallsPayloads: IntentCallsPayload[] | null
   intentPreconditions: IntentPrecondition[] | null
   metaTxns: MetaTxn[] | null
-  trailsInfos: TrailsExecutionInfo[] | null
   trailsFee: TrailsFee | null
   intentActionType: IntentAction | null
   selectedToken: TokenBalance | null
   account: WagmiAccount | undefined
-  calculatedIntentAddress: string | null
   customCallData: {
     to: string
     value: string
@@ -66,12 +58,10 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
   intentCallsPayloads,
   intentPreconditions,
   metaTxns,
-  trailsInfos,
   trailsFee,
   intentActionType,
   selectedToken,
   account,
-  calculatedIntentAddress,
   customCallData,
 }) => {
   if (createIntentPending) {
@@ -221,7 +211,6 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
       !intentActionType ||
       !selectedToken ||
       !account?.address ||
-      !trailsInfos ||
       !intentPreconditions
     )
       return null
@@ -292,9 +281,9 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             to intent addr:
             <strong
               className="text-gray-200 font-mono mx-1 truncate max-w-[70px] sm:max-w-[100px] inline-block align-bottom"
-              title={calculatedIntentAddress || "N/A"}
+              title={undefined}
             >
-              {calculatedIntentAddress || "N/A"}
+              {undefined}
             </strong>
           </span>
         </>
@@ -730,39 +719,6 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                 </div>
                 <pre className="text-xs overflow-x-auto whitespace-pre-wrap bg-gray-900/50 p-2 rounded border border-gray-700/50 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
                   {JSON.stringify(trailsFee, null, 2)}
-                </pre>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {trailsInfos && trailsInfos.length > 0 && (
-          <div className="mt-4">
-            <Text
-              variant="medium"
-              color="primary"
-              className="mb-2 pb-1 border-b border-gray-700/50 flex items-center"
-            >
-              <Info className="h-4 w-4 mr-1" />
-              Lifi Infos
-              <Text variant="small" color="secondary" className="ml-1">
-                (Details from Lifi integration):
-              </Text>
-            </Text>
-            <div className="space-y-2">
-              <div className="bg-gray-800/70 p-3 rounded-md mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <Text
-                    variant="small"
-                    color="primary"
-                    className="font-semibold flex items-center"
-                  >
-                    <Clipboard className="h-4 w-4 mr-2" />
-                    Raw JSON Data
-                  </Text>
-                </div>
-                <pre className="text-xs overflow-x-auto whitespace-pre-wrap bg-gray-900/50 p-2 rounded border border-gray-700/50 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-                  {JSON.stringify(trailsInfos, null, 2)}
                 </pre>
               </div>
             </div>

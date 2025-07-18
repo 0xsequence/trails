@@ -11,7 +11,8 @@ export default defineConfig({
     // TODO: This shouldn't be needed, fix sdk build
     include: [
       "@0xsequence/trails-api",
-      "@0xsequence/trails-sdk",
+      "@0xsequence/trails-relayer",
+      "0xtrails",
       "@0xsequence/hooks",
       "@0xsequence/wallet-core",
       "@0xsequence/wallet-primitives",

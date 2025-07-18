@@ -1,20 +1,20 @@
 import {
-  getAccountTotalBalanceUsd,
-  getHasSufficientBalanceToken,
-  getHasSufficientBalanceUsd,
-  useAPIClient,
-  useIndexerGatewayClient,
-} from "@0xsequence/trails-sdk"
-import { useQuery } from "@tanstack/react-query"
-import { useState } from "react"
+  useAccountTotalBalanceUsd,
+  useHasSufficientBalanceToken,
+  useHasSufficientBalanceUsd,
+  useQuote,
+  useTokenList,
+} from "0xtrails"
+import { useEffect, useState } from "react"
 import { Link } from "react-router"
-import { useAccount } from "wagmi"
+import { formatUnits, parseUnits } from "viem"
+import { useAccount, useWalletClient } from "wagmi"
 import { ConnectButton } from "@/routes/widget-demo/components/ConnectButton"
+import { TokenSelector } from "../widget-demo/components/TokenSelector"
 
 export function SdkSandbox() {
   const { address, isConnected } = useAccount()
-  const indexerGatewayClient = useIndexerGatewayClient()
-  const apiClient = useAPIClient()
+  const { data: walletClient } = useWalletClient()
 
   // State for input parameters
   const [targetAmountUsd, setTargetAmountUsd] = useState("10")
@@ -24,54 +24,89 @@ export function SdkSandbox() {
   const [tokenAmount, setTokenAmount] = useState("5")
   const [chainId, setChainId] = useState("8453")
 
-  const { data: totalBalanceUsd, isLoading: isLoadingTotalBalance } = useQuery({
-    queryKey: ["totalBalanceUsd", address],
-    queryFn: () =>
-      address
-        ? getAccountTotalBalanceUsd({
-            account: address,
-            indexerGatewayClient: indexerGatewayClient,
-            apiClient: apiClient,
-          })
-        : null,
+  // Quote state
+  const [quoteFromToken, setQuoteFromToken] = useState<
+    { chainId: number; contractAddress: string; decimals: number } | undefined
+  >({
+    chainId: 8453,
+    contractAddress: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    decimals: 6,
   })
-  const { data: hasSufficientBalanceUsd, isLoading: isLoadingSufficientUsd } =
-    useQuery({
-      queryKey: ["hasSufficientBalanceUsd", address, targetAmountUsd],
-      queryFn: () =>
-        address
-          ? getHasSufficientBalanceUsd({
-              account: address,
-              targetAmountUsd: targetAmountUsd,
-              indexerGatewayClient: indexerGatewayClient,
-              apiClient: apiClient,
-            })
-          : null,
-    })
+  const [quoteToToken, setQuoteToToken] = useState<
+    { chainId: number; contractAddress: string; decimals: number } | undefined
+  >({
+    chainId: 42161,
+    contractAddress: "0x0000000000000000000000000000000000000000",
+    decimals: 18,
+  })
+  const [quoteToAmount, setQuoteToAmount] = useState("0.00001")
+  const [quoteToRecipient, setQuoteToRecipient] = useState("")
 
-  const {
-    data: hasSufficientBalanceToken,
-    isLoading: isLoadingSufficientToken,
-  } = useQuery({
-    queryKey: [
-      "hasSufficientBalanceToken",
-      address,
+  // Prefill recipient with connected account address
+  useEffect(() => {
+    if (address && !quoteToRecipient) {
+      setQuoteToRecipient(address)
+    }
+  }, [address, quoteToRecipient])
+
+  // Use the hook-based methods instead of manual queries
+  const { totalBalanceUsd, isLoadingTotalBalanceUsd } =
+    useAccountTotalBalanceUsd(address || "")
+
+  const { hasSufficientBalanceUsd, isLoadingHasSufficientBalanceUsd } =
+    useHasSufficientBalanceUsd(address || "", targetAmountUsd)
+
+  const { hasSufficientBalanceToken, isLoadingHasSufficientBalanceToken } =
+    useHasSufficientBalanceToken(
+      address || "",
       tokenAddress,
       tokenAmount,
-      chainId,
-    ],
-    queryFn: () =>
-      address
-        ? getHasSufficientBalanceToken({
-            account: address,
-            token: tokenAddress,
-            amount: tokenAmount,
-            chainId: parseInt(chainId),
-            indexerGatewayClient: indexerGatewayClient,
-            apiClient: apiClient,
-          })
-        : null,
-  })
+      parseInt(chainId) || 0,
+    )
+
+  // Get supported tokens
+  const { tokens: tokenList, isLoadingTokens } = useTokenList()
+
+  // Quote hook - only call when walletClient is available
+  const quoteParams =
+    walletClient &&
+    quoteFromToken?.contractAddress &&
+    quoteToToken?.contractAddress &&
+    quoteToRecipient
+      ? {
+          walletClient: walletClient,
+          fromTokenAddress: quoteFromToken.contractAddress,
+          fromChainId: quoteFromToken.chainId,
+          toTokenAddress: quoteToToken.contractAddress,
+          toChainId: quoteToToken.chainId,
+          toAmount: parseUnits(
+            quoteToAmount,
+            quoteToToken?.decimals || 18,
+          ).toString(),
+          toRecipient: quoteToRecipient,
+        }
+      : null
+
+  const { quote, swap, isLoadingQuote, quoteError } = useQuote(
+    quoteParams || {
+      walletClient: null as any,
+      fromTokenAddress: "",
+      fromChainId: 0,
+      toTokenAddress: "",
+      toChainId: 0,
+      toAmount: "",
+      toRecipient: "",
+    },
+  )
+
+  const [executedOriginTxHash, setExecutedOriginTxHash] = useState<
+    string | null
+  >(null)
+  const [executedDestinationTxHash, setExecutedDestinationTxHash] = useState<
+    string | null
+  >(null)
+  const [swapError, setSwapError] = useState<string | null>(null)
+  const [isSwapLoading, setIsSwapLoading] = useState(false)
 
   return (
     <div className="max-w-6xl mx-auto p-8 space-y-8 bg-white dark:bg-gray-900">
@@ -142,7 +177,7 @@ export function SdkSandbox() {
             <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {!isConnected ? (
                 <span className="text-sm">Connect wallet to view balance</span>
-              ) : isLoadingTotalBalance ? (
+              ) : isLoadingTotalBalanceUsd ? (
                 <span className="inline-flex items-center text-sm">
                   <svg
                     className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500 dark:text-blue-400"
@@ -150,6 +185,7 @@ export function SdkSandbox() {
                     fill="none"
                     viewBox="0 0 24 24"
                   >
+                    <title>Loading spinner</title>
                     <circle
                       className="opacity-25"
                       cx="12"
@@ -180,6 +216,7 @@ export function SdkSandbox() {
               fill="currentColor"
               viewBox="0 0 20 20"
             >
+              <title>Help icon</title>
               <path
                 fillRule="evenodd"
                 d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
@@ -219,7 +256,7 @@ export function SdkSandbox() {
               className={`w-8 h-8 rounded-full flex items-center justify-center ${
                 !isConnected
                   ? "bg-gray-300 dark:bg-gray-600"
-                  : isLoadingSufficientUsd
+                  : isLoadingHasSufficientBalanceUsd
                     ? "bg-gray-300 dark:bg-gray-600"
                     : hasSufficientBalanceUsd
                       ? "bg-green-100 dark:bg-green-900"
@@ -230,13 +267,14 @@ export function SdkSandbox() {
                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                   -
                 </span>
-              ) : isLoadingSufficientUsd ? (
+              ) : isLoadingHasSufficientBalanceUsd ? (
                 <svg
                   className="animate-spin h-4 w-4 text-gray-500 dark:text-gray-400"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
+                  <title>Loading spinner</title>
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -289,7 +327,7 @@ export function SdkSandbox() {
                   <span className="text-sm">
                     Connect wallet to check balance
                   </span>
-                ) : isLoadingSufficientUsd ? (
+                ) : isLoadingHasSufficientBalanceUsd ? (
                   <span className="inline-flex items-center text-sm">
                     <svg
                       className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500 dark:text-blue-400"
@@ -297,6 +335,7 @@ export function SdkSandbox() {
                       fill="none"
                       viewBox="0 0 24 24"
                     >
+                      <title>Loading spinner</title>
                       <circle
                         className="opacity-25"
                         cx="12"
@@ -335,6 +374,7 @@ export function SdkSandbox() {
               fill="currentColor"
               viewBox="0 0 20 20"
             >
+              <title>Help icon</title>
               <path
                 fillRule="evenodd"
                 d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
@@ -373,20 +413,21 @@ export function SdkSandbox() {
             </div>
             <div
               className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                isLoadingSufficientToken
+                isLoadingHasSufficientBalanceToken
                   ? "bg-gray-300 dark:bg-gray-600"
                   : hasSufficientBalanceToken
                     ? "bg-green-100 dark:bg-green-900"
                     : "bg-red-100 dark:bg-red-900"
               }`}
             >
-              {isLoadingSufficientToken ? (
+              {isLoadingHasSufficientBalanceToken ? (
                 <svg
                   className="animate-spin h-4 w-4 text-gray-500 dark:text-gray-400"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
+                  <title>Loading spinner</title>
                   <circle
                     className="opacity-25"
                     cx="12"
@@ -473,7 +514,7 @@ export function SdkSandbox() {
                   <span className="text-sm">
                     Connect wallet to check balance
                   </span>
-                ) : isLoadingSufficientToken ? (
+                ) : isLoadingHasSufficientBalanceToken ? (
                   <span className="inline-flex items-center text-sm">
                     <svg
                       className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500 dark:text-blue-400"
@@ -481,6 +522,7 @@ export function SdkSandbox() {
                       fill="none"
                       viewBox="0 0 24 24"
                     >
+                      <title>Loading spinner</title>
                       <circle
                         className="opacity-25"
                         cx="12"
@@ -519,6 +561,7 @@ export function SdkSandbox() {
               fill="currentColor"
               viewBox="0 0 20 20"
             >
+              <title>Help icon</title>
               <path
                 fillRule="evenodd"
                 d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
@@ -544,6 +587,316 @@ export function SdkSandbox() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Tokens JSON Card */}
+      <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          Tokens (JSON)
+        </h2>
+        {isLoadingTokens ? (
+          <div className="text-gray-500 dark:text-gray-400">
+            Loading tokens...
+          </div>
+        ) : (
+          <pre className="overflow-x-auto text-xs bg-gray-100 dark:bg-gray-900 p-4 rounded-md border border-gray-200 dark:border-gray-700 max-h-96">
+            {JSON.stringify(tokenList, null, 2)}
+          </pre>
+        )}
+      </div>
+
+      {/* Swap Card */}
+      <div className="bg-gray-50 dark:bg-gray-800 rounded-xl shadow-lg p-8 border border-gray-200 dark:border-gray-700 mt-8">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          Swap
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label
+              htmlFor="from-token-selector"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              From Token
+            </label>
+            <TokenSelector
+              selectedToken={
+                quoteFromToken
+                  ? {
+                      chainId: quoteFromToken.chainId,
+                      contractAddress: quoteFromToken.contractAddress,
+                    }
+                  : undefined
+              }
+              onTokenSelect={(token) => {
+                if (token) {
+                  setQuoteFromToken({
+                    chainId: token.chainId,
+                    contractAddress: token.contractAddress,
+                    decimals: token.decimals,
+                  })
+                } else {
+                  setQuoteFromToken(undefined)
+                }
+              }}
+              tokens={tokenList}
+              placeholder="From Token"
+              className=""
+              // @ts-ignore
+              id="from-token-selector"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="to-token-selector"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              To Token
+            </label>
+            <TokenSelector
+              selectedToken={
+                quoteToToken
+                  ? {
+                      chainId: quoteToToken.chainId,
+                      contractAddress: quoteToToken.contractAddress,
+                    }
+                  : undefined
+              }
+              onTokenSelect={(token) => {
+                if (token) {
+                  setQuoteToToken({
+                    chainId: token.chainId,
+                    contractAddress: token.contractAddress,
+                    decimals: token.decimals,
+                  })
+                } else {
+                  setQuoteToToken(undefined)
+                }
+              }}
+              tokens={tokenList}
+              placeholder="To Token"
+              className=""
+              // @ts-ignore
+              id="to-token-selector"
+            />
+          </div>
+        </div>
+
+        {/* Amount and Recipient Fields */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label
+              htmlFor="quote-to-amount"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              To Amount
+            </label>
+            <input
+              id="quote-to-amount"
+              type="text"
+              value={quoteToAmount}
+              onChange={(e) => setQuoteToAmount(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+              placeholder="1.0"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="quote-to-recipient"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Recipient
+            </label>
+            <input
+              id="quote-to-recipient"
+              type="text"
+              value={quoteToRecipient}
+              onChange={(e) => setQuoteToRecipient(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
+              placeholder="0."
+            />
+          </div>
+        </div>
+
+        {/* Quote Results */}
+        <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">
+            Quote Results
+          </h3>
+
+          {isLoadingQuote ? (
+            <div className="flex items-center text-gray-500 dark:text-gray-400">
+              <svg
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <title>Loading spinner</title>
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Loading quote...
+            </div>
+          ) : quoteError ? (
+            <div className="text-red-600 dark:text-red-400">
+              Error:{" "}
+              {typeof quoteError === "object" &&
+              quoteError &&
+              "message" in quoteError
+                ? (quoteError as any).message
+                : String(quoteError)}
+            </div>
+          ) : quote ? (
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">
+                  From Amount:
+                </span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {formatUnits(
+                    BigInt(quote.fromAmount || "0"),
+                    quoteFromToken?.decimals || 18,
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">
+                  To Amount:
+                </span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  {quoteToAmount}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="text-gray-500 dark:text-gray-400">
+              Select tokens above to get a quote
+            </div>
+          )}
+        </div>
+
+        {/* Execute Quote Button */}
+        {quote && swap && (
+          <>
+            <button
+              type="button"
+              className="w-full md:w-auto cursor-pointer px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isSwapLoading}
+              onClick={async () => {
+                try {
+                  setIsSwapLoading(true)
+                  setSwapError(null)
+                  const result = await swap()
+                  if (result) {
+                    setExecutedOriginTxHash(
+                      result.originTransaction?.transactionHash || null,
+                    )
+                    setExecutedDestinationTxHash(
+                      result.destinationTransaction?.transactionHash || null,
+                    )
+                  }
+                } catch (error) {
+                  console.error("Quote execution failed:", error)
+                  setSwapError(
+                    error instanceof Error ? error.message : String(error),
+                  )
+                } finally {
+                  setIsSwapLoading(false)
+                }
+              }}
+            >
+              {isSwapLoading ? (
+                <div className="flex items-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <title>Loading spinner</title>
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Swapping...
+                </div>
+              ) : (
+                "Swap"
+              )}
+            </button>
+            {(executedOriginTxHash || executedDestinationTxHash) && (
+              <div className="mt-4 space-y-2">
+                {executedOriginTxHash && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
+                      Origin Tx Hash:
+                    </span>
+                    <span className="text-xs font-mono break-all text-blue-700 dark:text-blue-300">
+                      {executedOriginTxHash}
+                    </span>
+                    <button
+                      type="button"
+                      className="ml-2 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none"
+                      onClick={() =>
+                        navigator.clipboard.writeText(executedOriginTxHash)
+                      }
+                      title="Copy to clipboard"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                )}
+                {executedDestinationTxHash && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
+                      Destination Tx Hash:
+                    </span>
+                    <span className="text-xs font-mono break-all text-blue-700 dark:text-blue-300">
+                      {executedDestinationTxHash}
+                    </span>
+                    <button
+                      type="button"
+                      className="ml-2 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none"
+                      onClick={() =>
+                        navigator.clipboard.writeText(executedDestinationTxHash)
+                      }
+                      title="Copy to clipboard"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+            {swapError && (
+              <div className="mt-4 text-red-600 dark:text-red-400 text-sm">
+                Error: {swapError}
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   )

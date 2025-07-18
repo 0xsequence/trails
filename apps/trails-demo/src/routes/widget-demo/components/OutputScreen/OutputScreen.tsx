@@ -1,4 +1,4 @@
-import { TrailsWidget } from "@0xsequence/trails-sdk/widget"
+import { TrailsWidget } from "0xtrails/widget"
 import { forwardRef, useEffect, useRef, useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router"
 import { GIT_COMMIT_SHA } from "@/config"

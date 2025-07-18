@@ -1,10 +1,7 @@
 import { NetworkImage, Text } from "@0xsequence/design-system"
-import type {
-  MetaTxn,
-  MetaTxnStatus,
-  OriginCallParams,
-} from "@0xsequence/trails-sdk"
+import type { MetaTxn, MetaTxnStatus, OriginCallParams } from "0xtrails"
 import { Box, Layers } from "lucide-react"
+import { useEffect, useState } from "react"
 import { SectionHeader } from "@/routes/orchestration-demo/components/SectionHeader"
 import {
   formatTimeSinceOrigin,
@@ -30,6 +27,7 @@ interface RelayerStatusSectionProps {
     [key: string]: { timestamp: number | null; error?: string }
   }
   originCallParams: OriginCallParams | null
+  originCallSuccess: boolean
 }
 
 export const RelayerStatusSection = ({
@@ -40,7 +38,25 @@ export const RelayerStatusSection = ({
   originBlockTimestamp,
   metaTxnBlockTimestamps,
   originCallParams,
+  originCallSuccess,
 }: RelayerStatusSectionProps) => {
+  const [lastMetaTxns, setLastMetaTxns] = useState<any[] | null>(null)
+
+  // Track the meta transactions that were present when the origin call was made
+  useEffect(() => {
+    if (originCallSuccess && metaTxns && metaTxns.length > 0) {
+      setLastMetaTxns(metaTxns)
+    }
+  }, [originCallSuccess, metaTxns])
+
+  const displayMetaTxns = originCallSuccess ? lastMetaTxns : metaTxns
+  const sectionVisible =
+    originCallStatus || isWaitingForReceipt || displayMetaTxns
+
+  if (!sectionVisible) {
+    return null
+  }
+
   return (
     <SectionHeader
       className="bg-gray-800/80 rounded-xl shadow-lg border border-gray-700/50 backdrop-blur-sm transition-all duration-300 hover:shadow-blue-900/20 mb-6"
@@ -161,7 +177,9 @@ export const RelayerStatusSection = ({
               Number.isFinite(originBlockTimestamp) && (
                 <div className="bg-gray-800/70 p-3 rounded-md">
                   <Text variant="small" color="secondary">
-                    <strong className="text-blue-300">Block Timestamp: </strong>
+                    <strong className="text-blue-300 ">
+                      Block Timestamp:{" "}
+                    </strong>
                     <span className="font-mono text-gray-300">
                       {new Date(originBlockTimestamp * 1000).toLocaleString()}{" "}
                       (Epoch: {originBlockTimestamp})
@@ -183,7 +201,7 @@ export const RelayerStatusSection = ({
             Meta Transactions Status
           </Text>
           <div className="space-y-4">
-            {metaTxns?.map((metaTxn: MetaTxn, index: number) => {
+            {displayMetaTxns?.map((metaTxn: MetaTxn, index: number) => {
               const operationKey = `${metaTxn.chainId}-${metaTxn.id}`
               const monitorStatus = metaTxnMonitorStatuses[operationKey]
 
@@ -270,7 +288,7 @@ export const RelayerStatusSection = ({
                           <strong className="text-blue-300">
                             Block Timestamp:{" "}
                           </strong>
-                          <span className="font-mono">
+                          <span className="font-mono text-gray-300">
                             {new Date(
                               (metaTxnBlockTimestamps[operationKey]
                                 ?.timestamp || 0) * 1000,
@@ -327,7 +345,7 @@ export const RelayerStatusSection = ({
                       "reason" in monitorStatus && (
                         <Text variant="small" color="negative">
                           <strong className="text-red-300">Error: </strong>
-                          <span className="font-mono break-all">
+                          <span className="font-mono break-all text-gray-300">
                             {String((monitorStatus as any).reason)}
                           </span>
                         </Text>
@@ -365,7 +383,7 @@ export const RelayerStatusSection = ({
                 </div>
               )
             })}
-            {(!metaTxns || metaTxns.length === 0) && (
+            {(!displayMetaTxns || displayMetaTxns.length === 0) && (
               <div className="bg-gray-800/70 p-3 rounded-md text-gray-300">
                 <Text
                   variant="small"
