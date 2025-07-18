@@ -1,4 +1,3 @@
-import { NetworkImage } from "@0xsequence/design-system"
 import type { SequenceIndexerGateway } from "@0xsequence/indexer"
 import { ChevronLeft, Search } from "lucide-react"
 import type React from "react"

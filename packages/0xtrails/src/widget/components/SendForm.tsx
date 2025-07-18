@@ -1,4 +1,3 @@
-import { NetworkImage } from "@0xsequence/design-system"
 import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
 import type React from "react"
 import { useEffect, useRef } from "react"
@@ -9,8 +8,9 @@ import type { RelayerEnv } from "../../relayer.js"
 import type { ActiveTheme } from "../../theme.js"
 import type { OnCompleteProps, Token, TokenInfo } from "../hooks/useSendForm.js"
 import { useSendForm } from "../hooks/useSendForm.js"
-import { TokenImage } from "./TokenImage.js"
+import { ChainImage } from "./ChainImage.js"
 import { FeeOptions } from "./FeeOptions.js"
+import { TokenImage } from "./TokenImage.js"
 
 interface SendFormProps {
   selectedToken: Token
@@ -269,12 +269,7 @@ export const SendForm: React.FC<SendFormProps> = ({
           </label>
           {toChainId ? (
             <div className="flex items-center px-2 py-1">
-              <NetworkImage
-                chainId={selectedDestinationChain.id}
-                size="sm"
-                className="w-5 h-5"
-                disableAnimation={true}
-              />
+              <ChainImage chainId={selectedDestinationChain.id} size={24} />
               <span
                 className={`ml-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
               >
@@ -292,12 +287,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                     : "bg-white border-gray-300 text-gray-900"
                 }`}
               >
-                <NetworkImage
-                  chainId={selectedDestinationChain.id}
-                  size="sm"
-                  className="w-5 h-5"
-                  disableAnimation={true}
-                />
+                <ChainImage chainId={selectedDestinationChain.id} size={24} />
                 <span className="ml-2 flex-1 text-left">
                   {selectedDestinationChain.name}
                 </span>
@@ -340,12 +330,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                             : "text-gray-900 hover:bg-gray-50"
                       }`}
                     >
-                      <NetworkImage
-                        chainId={chain.id}
-                        size="sm"
-                        className="w-5 h-5"
-                        disableAnimation={true}
-                      />
+                      <ChainImage chainId={chain.id} size={24} />
                       <span className="ml-2">{chain.name}</span>
                       {selectedDestinationChain.id === chain.id && (
                         <span

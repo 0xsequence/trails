@@ -173,8 +173,8 @@ export const FeeOptions: React.FC<FeeOptionsProps> = ({
                 >
                   <TokenImage
                     symbol={option.symbol}
-                    src={option.imageUrl}
-                    size="xs"
+                    imageUrl={option.imageUrl}
+                    size={16}
                   />
                 </div>
                 <span className="ml-1.5">{option.symbol}</span>
