@@ -3,15 +3,12 @@ import type {
   TokenBalance,
   WagmiAccount,
 } from "@0xsequence/trails-sdk"
-import {
-  calculateIntentAddress,
-  useTokenBalances,
-  useTrails,
-} from "@0xsequence/trails-sdk"
+import { useTokenBalances, useTrails } from "@0xsequence/trails-sdk"
 import { Loader2 } from "lucide-react"
 import { AbiFunction, type Address } from "ox"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import type { Hex } from "viem"
+
 import { useAccount, useConnect, useDisconnect } from "wagmi"
 import { DemoTabs } from "@/components/DemoTabs"
 import {
@@ -61,8 +58,8 @@ function useOrchestrationDemo() {
     metaTxns,
     intentCallsPayloads,
     intentPreconditions,
-    trailsInfos,
-    committedIntentAddress,
+    committedOriginIntentAddress,
+    committedDestinationIntentAddress,
     verificationStatus,
     committedIntentConfig,
     isLoadingCommittedConfig,
@@ -99,27 +96,21 @@ function useOrchestrationDemo() {
     originBlockTimestamp,
     metaTxnBlockTimestamps,
     trailsFee,
+    originIntentAddress,
+    originCallSuccess,
   } = useTrails({
     account: account as WagmiAccount,
     env: import.meta.env.VITE_ENV,
   })
 
-  const calculatedIntentAddress = useMemo(() => {
-    if (
-      !account.address ||
-      !intentCallsPayloads ||
-      !trailsInfos ||
-      !trailsFee
-    ) {
-      return null
+  useEffect(() => {
+    if (createIntentArgs) {
+      updateOriginCallParams({
+        originChainId: createIntentArgs.originChainId,
+        tokenAddress: createIntentArgs.originTokenAddress,
+      })
     }
-    return calculateIntentAddress(
-      account.address,
-      intentCallsPayloads as any,
-      trailsInfos as any,
-      trailsFee.quoteProvider as QuoteProvider,
-    )
-  }, [account.address, intentCallsPayloads, trailsInfos, trailsFee])
+  }, [createIntentArgs, updateOriginCallParams])
 
   const { sortedTokens, isLoadingBalances, balanceError } = useTokenBalances(
     account.address as Address.Address,
@@ -325,13 +316,16 @@ function useOrchestrationDemo() {
   )
 
   const isSendButtonDisabled =
-    !verificationStatus?.success ||
-    isSendingTransaction ||
-    isWaitingForReceipt ||
     !originCallParams ||
     !!originCallParams.error ||
-    isSwitchingChain ||
-    (isAutoExecuteEnabled && commitIntentConfigSuccess) // Disable if auto-execute is on and commit was successful
+    !originCallParams.to ||
+    originCallParams.data === null ||
+    originCallParams.value === null ||
+    isSendingTransaction ||
+    isWaitingForReceipt ||
+    isEstimatingGas ||
+    hasAutoExecuted ||
+    !commitIntentConfigSuccess
 
   // Replace the sendMetaTxn function with a wrapper that uses the mutation
   const handleSendMetaTxn = (selectedId: string | null) => {
@@ -366,9 +360,8 @@ function useOrchestrationDemo() {
     intentCallsPayloads,
     intentPreconditions,
     metaTxns,
-    trailsInfos,
-    committedIntentAddress,
-    committedIntentConfig,
+    committedOriginIntentAddress,
+    committedDestinationIntentAddress,
     verificationStatus,
     intentActionType,
     trailsFee,
@@ -383,6 +376,7 @@ function useOrchestrationDemo() {
     isEstimatingGas,
     isChainSwitchRequired,
     hasAutoExecuted,
+    originCallSuccess,
 
     // Auto-Execute Controls
     isAutoExecuteEnabled,
@@ -427,6 +421,7 @@ function useOrchestrationDemo() {
     commitIntentConfigArgs,
     isLoadingCommittedConfig,
     committedConfigError,
+    committedIntentConfig,
 
     // UI State
     sendButtonText,
@@ -434,7 +429,7 @@ function useOrchestrationDemo() {
     commitButtonText,
     isCommitButtonDisabled,
 
-    calculatedIntentAddress,
+    originIntentAddress,
     originBlockTimestamp,
     metaTxnBlockTimestamps,
   }
@@ -465,9 +460,8 @@ export const OrchestrationDemo = () => {
     intentCallsPayloads,
     intentPreconditions,
     metaTxns,
-    trailsInfos,
-    committedIntentAddress,
-    committedIntentConfig,
+    committedOriginIntentAddress,
+    committedDestinationIntentAddress,
     verificationStatus,
     intentActionType,
     trailsFee,
@@ -476,6 +470,7 @@ export const OrchestrationDemo = () => {
     originCallParams,
     originCallStatus,
     isWaitingForReceipt,
+    originCallSuccess,
 
     // Auto-Execute Controls
     isAutoExecuteEnabled,
@@ -512,6 +507,7 @@ export const OrchestrationDemo = () => {
     commitIntentConfigError,
     isLoadingCommittedConfig,
     committedConfigError,
+    committedIntentConfig,
     // commitIntentConfigPending,
     // commitIntentConfigArgs,
 
@@ -521,7 +517,7 @@ export const OrchestrationDemo = () => {
     commitButtonText,
     isCommitButtonDisabled,
 
-    calculatedIntentAddress,
+    originIntentAddress,
     sendMetaTxnPending,
     originBlockTimestamp,
     metaTxnBlockTimestamps,
@@ -601,65 +597,52 @@ export const OrchestrationDemo = () => {
               intentCallsPayloads={intentCallsPayloads}
               intentPreconditions={intentPreconditions}
               metaTxns={metaTxns}
-              trailsInfos={trailsInfos}
               trailsFee={trailsFee}
               intentActionType={intentActionType}
               selectedToken={selectedToken}
               account={account as any}
-              calculatedIntentAddress={calculatedIntentAddress}
               customCallData={customCallData}
             />
 
             {/* Step 5: Commit Intent */}
-            <CommitIntentStep
-              intentCallsPayloads={intentCallsPayloads}
-              intentPreconditions={intentPreconditions}
-              trailsInfos={trailsInfos}
-              trailsFee={trailsFee}
-              verificationStatus={verificationStatus}
-              commitIntentConfigError={commitIntentConfigError}
-              commitIntentConfigSuccess={commitIntentConfigSuccess}
-              committedIntentAddress={committedIntentAddress}
-              isLoadingCommittedConfig={isLoadingCommittedConfig}
-              committedConfigError={committedConfigError}
-              committedIntentConfigData={committedIntentConfig}
-              commitIntentConfig={commitIntentConfig}
-              isCommitButtonDisabled={isCommitButtonDisabled}
-              commitButtonText={commitButtonText}
-              calculatedIntentAddress={calculatedIntentAddress}
-              accountAddress={account?.address}
-            />
+            {originIntentAddress && (
+              <CommitIntentStep
+                intentCallsPayloads={intentCallsPayloads}
+                intentPreconditions={intentPreconditions}
+                trailsFee={trailsFee}
+                verificationStatus={verificationStatus}
+                commitIntentConfigError={commitIntentConfigError}
+                commitIntentConfigSuccess={commitIntentConfigSuccess}
+                committedOriginIntentAddress={committedOriginIntentAddress}
+                committedDestinationIntentAddress={
+                  committedDestinationIntentAddress
+                }
+                isLoadingCommittedConfig={isLoadingCommittedConfig}
+                committedConfigError={committedConfigError}
+                committedIntentConfigData={committedIntentConfig}
+                commitIntentConfig={commitIntentConfig}
+                isCommitButtonDisabled={isCommitButtonDisabled}
+                commitButtonText={commitButtonText}
+                accountAddress={account.address}
+              />
+            )}
 
             {/* Step 6: Origin Call - Replace with Component */}
-            <OriginCallStep
-              intentCallsPayloads={intentCallsPayloads}
-              intentPreconditions={intentPreconditions}
-              accountAddress={account?.address}
-              originCallParams={originCallParams}
-              isSendButtonDisabled={isSendButtonDisabled}
-              sendButtonText={sendButtonText}
-              handleSendOriginCall={handleSendOriginCall}
-            />
-
-            {/* Replace Preview Calculated Address and Manual Meta Txn Controls with Component */}
-            <AdvancedControlsSection
-              accountAddress={account?.address}
-              intentCallsPayloads={intentCallsPayloads}
-              metaTxns={metaTxns}
-              calculatedIntentAddress={calculatedIntentAddress}
-              intentActionType={intentActionType}
-              customCallData={customCallData}
-              isManualMetaTxnEnabled={isManualMetaTxnEnabled}
-              setIsManualMetaTxnEnabled={setIsManualMetaTxnEnabled}
-              selectedMetaTxnId={selectedMetaTxnId}
-              setSelectedMetaTxnId={setSelectedMetaTxnId}
-              handleSendMetaTxn={handleSendMetaTxn}
-              sendMetaTxnPending={sendMetaTxnPending}
-            />
+            {commitIntentConfigSuccess && originIntentAddress && (
+              <OriginCallStep
+                intentCallsPayloads={intentCallsPayloads}
+                intentPreconditions={intentPreconditions}
+                accountAddress={account?.address}
+                originCallParams={originCallParams}
+                isSendButtonDisabled={isSendButtonDisabled}
+                sendButtonText={sendButtonText}
+                handleSendOriginCall={handleSendOriginCall}
+              />
+            )}
           </div>
         )}
 
-        {account.status === "connected" && (
+        {originCallSuccess && (
           <RelayerStatusSection
             originCallStatus={originCallStatus}
             isWaitingForReceipt={isWaitingForReceipt}
@@ -668,9 +651,26 @@ export const OrchestrationDemo = () => {
             originBlockTimestamp={originBlockTimestamp}
             metaTxnBlockTimestamps={metaTxnBlockTimestamps}
             originCallParams={originCallParams}
+            originCallSuccess={originCallSuccess}
           />
         )}
       </div>
+
+      {account.status === "connected" && originIntentAddress && (
+        <div className="w-full max-w-3xl bg-gray-900/80 p-6 rounded-lg mt-6 shadow-xl border border-gray-700/50 backdrop-blur-sm">
+          <AdvancedControlsSection
+            accountAddress={account?.address}
+            intentCallsPayloads={intentCallsPayloads}
+            metaTxns={metaTxns}
+            isManualMetaTxnEnabled={isManualMetaTxnEnabled}
+            setIsManualMetaTxnEnabled={setIsManualMetaTxnEnabled}
+            selectedMetaTxnId={selectedMetaTxnId}
+            setSelectedMetaTxnId={setSelectedMetaTxnId}
+            handleSendMetaTxn={handleSendMetaTxn}
+            sendMetaTxnPending={sendMetaTxnPending}
+          />
+        </div>
+      )}
     </div>
   )
 }
