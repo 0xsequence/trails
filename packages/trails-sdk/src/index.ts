@@ -9,8 +9,18 @@ export {
   getIndexerGatewayClient,
   useIndexerGatewayClient,
 } from "./indexerClient.js"
-export { calculateIntentAddress } from "./intents.js"
-export type { OriginCallParams, QuoteProvider, TrailsFee } from "./intents.js"
+export type {
+  GetIntentCallsPayloadsReturn,
+  OriginCallParams,
+  QuoteProvider,
+  TrailsFee,
+} from "./intents.js"
+export {
+  calculateIntentAddress,
+  calculateOriginAndDestinationIntentAddresses,
+  commitIntentConfig,
+  getIntentCallsPayloads,
+} from "./intents.js"
 export type {
   MetaTxn,
   MetaTxnStatus,

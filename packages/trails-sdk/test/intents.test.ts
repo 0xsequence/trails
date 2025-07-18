@@ -14,10 +14,8 @@ import { isAddressEqual } from "viem"
 import { describe, expect, it, vi } from "vitest"
 import {
   calculateIntentConfigurationAddress,
-  getTrailsExecutionInfoHash,
   hashIntentParams,
   type IntentCallsPayload,
-  type TrailsExecutionInfo,
 } from "../src/intents.js"
 import { bigintToString } from "../src/utils.js"
 
@@ -656,18 +654,9 @@ describe.skip("Intent Configuration Address with LifiInfo", () => {
   }
 
   const mainSigner = Address.from("0x1111111111111111111111111111111111111111")
-  const attestationSigner = Address.from(
+  const _attestationSigner = Address.from(
     "0x0000000000000000000000000000000000000001",
   )
-
-  const executionInfos: TrailsExecutionInfo[] = [
-    {
-      originToken: Address.from("0x1111111111111111111111111111111111111111"),
-      amount: bigintToString(100n),
-      originChainId: bigintToString(1n),
-      destinationChainId: bigintToString(10n),
-    },
-  ]
 
   it("should calculate address for single operation with lifiInfo", () => {
     const payload: IntentCallsPayload = {
@@ -691,9 +680,6 @@ describe.skip("Intent Configuration Address with LifiInfo", () => {
       mainSigner,
       [payload],
       testContext,
-      attestationSigner,
-      executionInfos,
-      "lifi",
     )
 
     console.log("Single Operation with LifiInfo Test Address:", address)
@@ -741,9 +727,6 @@ describe.skip("Intent Configuration Address with LifiInfo", () => {
       mainSigner,
       [payload1, payload2],
       testContext,
-      attestationSigner,
-      executionInfos,
-      "lifi",
     )
 
     console.log("Multiple Operations with LifiInfo Test Address:", address)
@@ -1041,77 +1024,5 @@ describe.skip("HashIntentParams", () => {
     expect(hash.toLowerCase()).toBe(
       "0x64631a48bc218cd8196dca22437223d90dc9caa8208284cdcea4b7f32bfc7cec",
     )
-  })
-})
-
-describe("GetTrailsExecutionInfoHash", () => {
-  it("should match hash for single TrailsExecutionInfo", () => {
-    const executionInfos: TrailsExecutionInfo[] = [
-      {
-        originToken: Address.from("0x1111111111111111111111111111111111111111"),
-        amount: bigintToString(100n),
-        originChainId: bigintToString(1n),
-        destinationChainId: bigintToString(10n),
-      },
-    ]
-    const attestationAddress = Address.from(
-      "0xaAaAaAaaAaAaAaaAaAAAAAAAAaaaAaAaAaaAaaAa",
-    )
-
-    const hash = getTrailsExecutionInfoHash(executionInfos, attestationAddress)
-    expect(hash.toLowerCase()).toBe(
-      "0x21872bd6b64711c4a5aecba95829c612f0b50c63f1a26991c2f76cf4a754aede",
-    )
-  })
-
-  it("should match hash for multiple TrailsExecutionInfo", () => {
-    const executionInfos: TrailsExecutionInfo[] = [
-      {
-        originToken: Address.from("0x1111111111111111111111111111111111111111"),
-        amount: bigintToString(100n),
-        originChainId: bigintToString(1n),
-        destinationChainId: bigintToString(10n),
-      },
-      {
-        originToken: Address.from("0x2222222222222222222222222222222222222222"),
-        amount: bigintToString(200n),
-        originChainId: bigintToString(137n),
-        destinationChainId: bigintToString(42161n),
-      },
-    ]
-    const attestationAddress = Address.from(
-      "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB",
-    )
-
-    const hash = getTrailsExecutionInfoHash(executionInfos, attestationAddress)
-    expect(hash.toLowerCase()).toBe(
-      "0xd18e54455db64ba31b9f9a447e181f83977cb70b136228d64ac85d64a6aefe71",
-    )
-  })
-
-  it("should error on empty executionInfos", () => {
-    const attestationAddress = Address.from(
-      "0xaAaAaAaaAaAaAaaAaAAAAAAAAaaaAaAaAaaAaaAa",
-    )
-    expect(() => getTrailsExecutionInfoHash([], attestationAddress)).toThrow(
-      "executionInfos is empty",
-    )
-  })
-
-  it("should error on zero attestationAddress", () => {
-    const executionInfos: TrailsExecutionInfo[] = [
-      {
-        originToken: Address.from("0x1111111111111111111111111111111111111111"),
-        amount: bigintToString(100n),
-        originChainId: bigintToString(1n),
-        destinationChainId: bigintToString(10n),
-      },
-    ]
-    const attestationAddress = Address.from(
-      "0x0000000000000000000000000000000000000000",
-    )
-    expect(() =>
-      getTrailsExecutionInfoHash(executionInfos, attestationAddress),
-    ).toThrow("attestationAddress is zero")
   })
 })

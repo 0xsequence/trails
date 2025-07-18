@@ -43,7 +43,6 @@ import {
   getPermitSignature,
 } from "./gasless.js"
 import { useIndexerGatewayClient } from "./indexerClient.js"
-import type { QuoteProvider } from "./intents.js"
 import {
   calculateIntentAddress,
   commitIntentConfig,
@@ -587,20 +586,11 @@ async function sendHandlerForDifferentChainDifferentToken({
     throw new Error("Invalid intent")
   }
 
-  if (
-    !intent.preconditions?.length ||
-    !intent.calls?.length ||
-    !intent.trailsInfos?.length
-  ) {
+  if (!intent.preconditions?.length || !intent.calls?.length) {
     throw new Error("Invalid intent")
   }
 
-  const intentAddress = calculateIntentAddress(
-    mainSignerAddress,
-    intent.calls,
-    intent.trailsInfos,
-    intent.trailsFee?.quoteProvider as QuoteProvider,
-  )
+  const intentAddress = calculateIntentAddress(mainSignerAddress, intent.calls)
   console.log(
     "[trails-sdk] Calculated intent address:",
     intentAddress.toString(),
@@ -611,8 +601,6 @@ async function sendHandlerForDifferentChainDifferentToken({
     mainSignerAddress,
     intent.calls,
     intent.preconditions,
-    intent.trailsInfos,
-    intent.trailsFee?.quoteProvider as QuoteProvider,
   )
 
   console.log("[trails-sdk] Committed intent config")
