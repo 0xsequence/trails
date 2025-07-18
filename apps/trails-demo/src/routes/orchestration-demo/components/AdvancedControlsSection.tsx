@@ -1,6 +1,6 @@
 import { Button, NetworkImage, Text } from "@0xsequence/design-system"
 import type { IntentCallsPayload } from "@0xsequence/trails-api"
-import type { MetaTxn } from "@0xsequence/trails-sdk"
+import type { MetaTxn } from "0xtrails"
 import { Info, Layers, Loader2 } from "lucide-react"
 import type React from "react"
 import { SectionHeader } from "./SectionHeader"

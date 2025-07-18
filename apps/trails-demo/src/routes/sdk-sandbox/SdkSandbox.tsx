@@ -4,7 +4,7 @@ import {
   useHasSufficientBalanceUsd,
   useQuote,
   useTokenList,
-} from "@0xsequence/trails-sdk"
+} from "0xtrails"
 import { useEffect, useState } from "react"
 import { Link } from "react-router"
 import { formatUnits, parseUnits } from "viem"

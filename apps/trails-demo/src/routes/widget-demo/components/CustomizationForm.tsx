@@ -1,6 +1,6 @@
 import { InfoIcon, Tooltip } from "@0xsequence/design-system"
-import { useSupportedChains, useSupportedTokens } from "@0xsequence/trails-sdk"
-import { defaultWalletOptions } from "@0xsequence/trails-sdk/widget"
+import { useSupportedChains, useSupportedTokens } from "0xtrails"
+import { defaultWalletOptions } from "0xtrails/widget"
 import { ChevronDown, X } from "lucide-react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { encodeFunctionData, parseUnits, zeroAddress } from "viem"

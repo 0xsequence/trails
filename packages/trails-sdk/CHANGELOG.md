@@ -1,1 +1,0 @@
-# @0xsequence/trails-sdk

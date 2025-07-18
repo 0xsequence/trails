@@ -1,9 +1,5 @@
 import { NetworkImage, Text } from "@0xsequence/design-system"
-import type {
-  MetaTxn,
-  MetaTxnStatus,
-  OriginCallParams,
-} from "@0xsequence/trails-sdk"
+import type { MetaTxn, MetaTxnStatus, OriginCallParams } from "0xtrails"
 import { Box, Layers } from "lucide-react"
 import { useEffect, useState } from "react"
 import { SectionHeader } from "@/routes/orchestration-demo/components/SectionHeader"

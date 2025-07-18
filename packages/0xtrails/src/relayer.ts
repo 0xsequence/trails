@@ -81,9 +81,6 @@ export function getRelayerUrl(
           ? "https://dev-relayer.sequence.app"
           : "https://"
 
-  // TODO: override useV3Relayers and use them default for now
-  config.useV3Relayers = true
-
   // Chain-specific relayer endpoints
   if (config.env === "dev" && config.useV3Relayers) {
     if (chainId === 42161) {

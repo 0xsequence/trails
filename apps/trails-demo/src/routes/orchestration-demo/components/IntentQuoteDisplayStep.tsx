@@ -3,12 +3,7 @@ import type {
   IntentCallsPayload,
   IntentPrecondition,
 } from "@0xsequence/trails-api"
-import type {
-  MetaTxn,
-  TokenBalance,
-  TrailsFee,
-  WagmiAccount,
-} from "@0xsequence/trails-sdk"
+import type { MetaTxn, TokenBalance, TrailsFee, WagmiAccount } from "0xtrails"
 import {
   AlertCircle,
   AlertTriangle,

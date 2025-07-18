@@ -1,11 +1,11 @@
-# @0xsequence/trails-sdk
+# 0xtrails
 
 > Trails SDK for sending any token from any chain.
 
 ## Installation
 
 ```bash
-npm install @0xsequence/trails-sdk
+npm install 0xtrails
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ npm install @0xsequence/trails-sdk
 The easiest way to integrate Trails is using our pre-built React widget:
 
 ```typescript
-import { TrailsWidget } from '@0xsequence/trails-sdk/widget'
+import { TrailsWidget } from '0xtrails/widget'
 
 export const App = () => {
   return (

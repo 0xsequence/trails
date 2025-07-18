@@ -1,6 +1,6 @@
 {
-  "name": "@0xsequence/trails-sdk",
-  "version": "0.0.5",
+  "name": "0xtrails",
+  "version": "0.0.0",
   "description": "SDK for Trails",
   "type": "module",
   "main": "./dist/index.js",

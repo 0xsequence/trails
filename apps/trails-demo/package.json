@@ -22,7 +22,7 @@
     "@0xsequence/indexer": "^2.3.23",
     "@0xsequence/network": "^2.3.23",
     "@0xsequence/trails-api": "workspace:*",
-    "@0xsequence/trails-sdk": "workspace:*",
+    "0xtrails": "workspace:*",
     "@0xsequence/wagmi-connector": "^4.0.1",
     "@0xsequence/wallet-core": "github:0xsequence/sequence.js#dists/wallet/core",
     "@0xsequence/wallet-primitives": "github:0xsequence/sequence.js#dists/wallet/primitives",

@@ -1,1 +1,1 @@
-declare module "@0xsequence/trails-sdk/widget"
+declare module "0xtrails/widget"

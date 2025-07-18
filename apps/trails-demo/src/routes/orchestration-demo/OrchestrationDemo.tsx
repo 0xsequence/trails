@@ -1,9 +1,5 @@
-import type {
-  QuoteProvider,
-  TokenBalance,
-  WagmiAccount,
-} from "@0xsequence/trails-sdk"
-import { useTokenBalances, useTrails } from "@0xsequence/trails-sdk"
+import type { QuoteProvider, TokenBalance, WagmiAccount } from "0xtrails"
+import { useTokenBalances, useTrails } from "0xtrails"
 import { Loader2 } from "lucide-react"
 import { AbiFunction, type Address } from "ox"
 import { useEffect, useState } from "react"

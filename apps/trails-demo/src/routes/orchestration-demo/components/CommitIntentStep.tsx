@@ -4,7 +4,7 @@ import type {
   IntentCallsPayload,
   IntentPrecondition,
 } from "@0xsequence/trails-api"
-import type { QuoteProvider, TrailsFee } from "@0xsequence/trails-sdk"
+import type { QuoteProvider, TrailsFee } from "0xtrails"
 import { AlertCircle, Loader2, Zap } from "lucide-react"
 import type React from "react"
 import { SectionHeader } from "@/routes/orchestration-demo/components/SectionHeader"

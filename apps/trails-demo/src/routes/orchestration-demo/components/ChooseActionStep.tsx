@@ -1,5 +1,5 @@
 import { Button, NetworkImage, Text } from "@0xsequence/design-system"
-import type { QuoteProvider, TokenBalance } from "@0xsequence/trails-sdk"
+import type { QuoteProvider, TokenBalance } from "0xtrails"
 import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group"
 import { AlertTriangle, PenSquare, Waves, Zap } from "lucide-react"
 import type React from "react"
