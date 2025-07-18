@@ -147,6 +147,7 @@ export type UseTrailsReturn = {
   receiptIsError: boolean
   receiptError: Error | null
   hasAutoExecuted: boolean
+  originCallSuccess: boolean
   sentMetaTxns: { [key: string]: number }
   sendMetaTxn: (selectedId: string | null) => void
   sendMetaTxnPending: boolean
@@ -207,13 +208,13 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
   const [committedOriginIntentAddress, setCommittedOriginIntentAddress] =
     useState<string | null>(null)
   const [
-    _committedDestinationIntentAddress,
+    committedDestinationIntentAddress,
     setCommittedDestinationIntentAddress,
   ] = useState<string | null>(null)
   const [originIntentAddress, setOriginIntentAddress] = useState<string | null>(
     null,
   )
-  const [_destinationIntentAddress, setDestinationIntentAddress] = useState<
+  const [destinationIntentAddress, setDestinationIntentAddress] = useState<
     string | null
   >(null)
   // const [preconditionStatuses, setPreconditionStatuses] = useState<boolean[]>([])
@@ -221,7 +222,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
   const [originCallParams, setOriginCallParams] =
     useState<OriginCallParams | null>(null)
 
-  const [_operationHashes, setOperationHashes] = useState<{
+  const [operationHashes, setOperationHashes] = useState<{
     [key: string]: Hex
   }>({})
   const [isTransactionInProgress, setIsTransactionInProgress] = useState(false)
@@ -231,9 +232,10 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     isPending: isSwitchingChain,
     error: switchChainError,
   } = useSwitchChain()
-  const { sendTransaction, isPending: isSendingTransaction } =
-    useSendTransaction()
-  const [_isEstimatingGas, setIsEstimatingGas] = useState(false)
+
+  const sendOriginTxn = useSendTransaction()
+
+  const [isEstimatingGas, setIsEstimatingGas] = useState(false)
   const [originCallStatus, setOriginCallStatus] = useState<{
     txnHash?: string
     status?: string
@@ -242,14 +244,14 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     effectiveGasPrice?: string
   } | null>(null)
 
-  const [_originBlockTimestamp, setOriginBlockTimestamp] = useState<
+  const [originBlockTimestamp, setOriginBlockTimestamp] = useState<
     number | null
   >(null)
   const [metaTxnBlockTimestamps, setMetaTxnBlockTimestamps] = useState<{
     [key: string]: { timestamp: number | null; error?: string }
   }>({})
 
-  const [_verificationStatus, setVerificationStatus] = useState<{
+  const [verificationStatus, setVerificationStatus] = useState<{
     success: boolean
     calculatedOriginAddress?: string
     calculatedDestinationAddress?: string
@@ -546,11 +548,11 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     },
   })
 
-  function _callIntentCallsPayload(args: GetIntentCallsPayloadsArgs) {
+  function callIntentCallsPayload(args: GetIntentCallsPayloadsArgs) {
     createIntentMutation.mutate(args)
   }
 
-  const _clearIntent = useCallback(() => {
+  const clearIntent = useCallback(() => {
     console.log("[Trails] Clearing intent state")
     setIntentCallsPayloads(null)
     setIntentPreconditions(null)
@@ -595,7 +597,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     [],
   )
 
-  const _sendOriginTransaction = async () => {
+  const sendOriginTransaction = async () => {
     console.log("Sending origin transaction...")
     console.log(
       isTransactionInProgress,
@@ -699,7 +701,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
         ? BigInt(Math.floor(Number(estimatedGas) * 1.2))
         : undefined
 
-      sendTransaction(
+      sendOriginTxn.sendTransaction(
         {
           to: originCallParams.to,
           data: originCallParams.data,
@@ -946,7 +948,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       originCallParams.to &&
       originCallParams.data !== null &&
       originCallParams.value !== null &&
-      !isSendingTransaction &&
+      !sendOriginTxn.isPending &&
       !isWaitingForReceipt &&
       !txnHash &&
       !isChainSwitchRequired &&
@@ -962,7 +964,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
         status: "Sending...",
       })
 
-      sendTransaction(
+      sendOriginTxn.sendTransaction(
         {
           to: originCallParams.to!,
           data: originCallParams.data!,
@@ -998,13 +1000,13 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     commitIntentConfigMutation.isSuccess,
     originCallParams,
     account.chainId,
-    isSendingTransaction,
+    sendOriginTxn.isPending,
     isWaitingForReceipt,
     txnHash,
     isChainSwitchRequired,
     originCallStatus,
     hasAutoExecuted,
-    sendTransaction,
+    sendOriginTxn,
   ])
 
   // Effect to auto-commit when intent calls payloads are ready
@@ -1036,8 +1038,6 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     account.address,
     originIntentAddress,
     commitIntentConfigMutation,
-    commitIntentConfigMutation.isPending,
-    commitIntentConfigMutation.isSuccess,
     createIntentMutation.variables,
   ])
 
@@ -1178,8 +1178,8 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   })
 
-  const [tokenAddress, _setTokenAddress] = useState<string | null>(null)
-  const [originChainId, _setOriginChainId] = useState<number | null>(null)
+  const [tokenAddress, setTokenAddress] = useState<string | null>(null)
+  const [originChainId, setOriginChainId] = useState<number | null>(null)
 
   useEffect(() => {
     if (
@@ -1462,18 +1462,18 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     })
   }, [metaTxns, metaTxnMonitorStatuses, metaTxnBlockTimestamps])
 
-  const _updateAutoExecute = (enabled: boolean) => {
+  const updateAutoExecute = (enabled: boolean) => {
     setIsAutoExecute(enabled)
   }
 
-  function _createIntent(args: GetIntentCallsPayloadsArgs) {
+  function createIntent(args: GetIntentCallsPayloadsArgs) {
     createIntentMutation.mutate(args)
   }
 
-  const _createIntentPending = createIntentMutation.isPending
-  const _createIntentSuccess = createIntentMutation.isSuccess
-  const _createIntentError = createIntentMutation.error
-  const _createIntentArgs = createIntentMutation.variables
+  const createIntentPending = createIntentMutation.isPending
+  const createIntentSuccess = createIntentMutation.isSuccess
+  const createIntentError = createIntentMutation.error
+  const createIntentArgs = createIntentMutation.variables
 
   function commitIntentConfig(args: {
     mainSignerAddress: string
@@ -1494,23 +1494,17 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       return
     }
     const { originChainId, tokenAddress } = args
-    _setOriginChainId(originChainId)
-    _setTokenAddress(tokenAddress)
+    setOriginChainId(originChainId)
+    setTokenAddress(tokenAddress)
   }
 
   function sendMetaTxn(selectedId: string | null) {
     sendMetaTxnMutation.mutate({ selectedId })
   }
 
-  const commitIntentConfigPending = commitIntentConfigMutation.isPending
-  const commitIntentConfigSuccess = commitIntentConfigMutation.isSuccess
-  const commitIntentConfigError = commitIntentConfigMutation.error
-  const commitIntentConfigArgs = commitIntentConfigMutation.variables
+  const { chainId } = account
 
-  const sendMetaTxnPending = sendMetaTxnMutation.isPending
-  const sendMetaTxnSuccess = sendMetaTxnMutation.isSuccess
-  const sendMetaTxnError = sendMetaTxnMutation.error
-  const sendMetaTxnArgs = sendMetaTxnMutation.variables
+  const originChainIdFromParams = originCallParams?.chainId
 
   return {
     apiClient,
@@ -1520,8 +1514,8 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     trailsFee,
     txnHash,
     committedOriginIntentAddress,
-    committedDestinationIntentAddress: _committedDestinationIntentAddress,
-    verificationStatus: _verificationStatus,
+    committedDestinationIntentAddress,
+    verificationStatus,
     getRelayer,
     estimatedGas,
     isEstimateError,
@@ -1532,50 +1526,52 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     isLoadingCommittedConfig,
     committedConfigError,
     commitIntentConfig,
-    commitIntentConfigPending,
-    commitIntentConfigSuccess,
-    commitIntentConfigError,
-    commitIntentConfigArgs,
+    commitIntentConfigPending: commitIntentConfigMutation.isPending,
+    commitIntentConfigSuccess: commitIntentConfigMutation.isSuccess,
+    commitIntentConfigError: commitIntentConfigMutation.error,
+    commitIntentConfigArgs: commitIntentConfigMutation.variables,
     getIntentCallsPayloads,
-    operationHashes: _operationHashes,
-    callIntentCallsPayload: _callIntentCallsPayload,
-    sendOriginTransaction: _sendOriginTransaction,
+    operationHashes,
+    callIntentCallsPayload,
+    sendOriginTransaction,
     switchChain,
     isSwitchingChain,
     switchChainError,
     isTransactionInProgress,
-    isChainSwitchRequired,
-    sendTransaction,
-    isSendingTransaction,
+    isChainSwitchRequired:
+      chainId !== originChainIdFromParams && !!originChainIdFromParams,
+    sendTransaction: sendOriginTxn.sendTransaction,
+    isSendingTransaction: sendOriginTxn.isPending,
     originCallStatus,
     updateOriginCallStatus,
-    isEstimatingGas: _isEstimatingGas,
+    isEstimatingGas,
     isAutoExecute,
-    updateAutoExecute: _updateAutoExecute,
+    updateAutoExecute,
     receipt,
     isWaitingForReceipt,
     receiptIsSuccess,
     receiptIsError,
     receiptError,
     hasAutoExecuted,
+    originCallSuccess: sendOriginTxn.isSuccess,
     sentMetaTxns,
     sendMetaTxn,
-    sendMetaTxnPending,
-    sendMetaTxnSuccess,
-    sendMetaTxnError,
-    sendMetaTxnArgs,
-    clearIntent: _clearIntent,
+    sendMetaTxnPending: sendMetaTxnMutation.isPending,
+    sendMetaTxnSuccess: sendMetaTxnMutation.isSuccess,
+    sendMetaTxnError: sendMetaTxnMutation.error,
+    sendMetaTxnArgs: sendMetaTxnMutation.variables,
+    clearIntent,
     metaTxnMonitorStatuses,
-    createIntent: _createIntent,
-    createIntentPending: _createIntentPending,
-    createIntentSuccess: _createIntentSuccess,
-    createIntentError: _createIntentError,
-    createIntentArgs: _createIntentArgs,
+    createIntent,
+    createIntentPending,
+    createIntentSuccess,
+    createIntentError,
+    createIntentArgs,
     originCallParams,
     updateOriginCallParams,
-    originBlockTimestamp: _originBlockTimestamp,
+    originBlockTimestamp,
     metaTxnBlockTimestamps,
     originIntentAddress,
-    destinationIntentAddress: _destinationIntentAddress,
+    destinationIntentAddress,
   }
 }

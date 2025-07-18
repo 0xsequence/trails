@@ -1,4 +1,4 @@
-import { Button, Text } from "@0xsequence/design-system"
+import { Button, NetworkImage, Text } from "@0xsequence/design-system"
 import type {
   GetIntentConfigReturn,
   IntentCallsPayload,
@@ -8,6 +8,7 @@ import type { QuoteProvider, TrailsFee } from "@0xsequence/trails-sdk"
 import { AlertCircle, Loader2, Zap } from "lucide-react"
 import type React from "react"
 import { SectionHeader } from "@/routes/orchestration-demo/components/SectionHeader"
+import { getChainInfo, getExplorerUrl } from "@/utils/formatting"
 
 interface CommitIntentStepProps {
   intentCallsPayloads: IntentCallsPayload[] | null
@@ -73,6 +74,48 @@ const renderAddressParts = (addressString: string, success: boolean) => {
   })
 }
 
+const renderExplorerLink = (address: string, chainId: number) => {
+  if (!address || address === "N/A") return null
+
+  const explorerUrl = getExplorerUrl(chainId, address)
+  const chainInfo = getChainInfo(chainId)
+  if (!explorerUrl) return null
+
+  return (
+    <div className="mt-1">
+      <a
+        href={explorerUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={`View ${address} on ${chainInfo?.name || "explorer"}`}
+        className="flex items-center space-x-2 hover:underline text-xs break-all text-blue-400"
+      >
+        <NetworkImage chainId={chainId} size="xs" className="w-4 h-4" />
+        <span>{explorerUrl}</span>
+      </a>
+    </div>
+  )
+}
+
+const AddressDisplay: React.FC<{
+  label: string
+  address?: string
+  chainId?: number
+  success: boolean
+}> = ({ label, address, chainId, success }) => {
+  if (!address) return null
+
+  return (
+    <div>
+      <div className="text-blue-300 text-sm">{label}:</div>
+      <div className="font-mono text-sm break-all text-yellow-300 mt-1">
+        {address}
+      </div>
+      {success && chainId && renderExplorerLink(address, chainId)}
+    </div>
+  )
+}
+
 export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
   intentCallsPayloads,
   intentPreconditions,
@@ -129,47 +172,56 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                         : "Address Verification Failed"}
                     </Text>
                     <div className="mt-2 text-xs text-gray-400 flex flex-col space-y-2 w-full">
-                      <div className="bg-gray-800/70 p-2 rounded-md">
-                        <strong className="text-blue-300">
-                          Calculated Origin Intent Address:
-                        </strong>
-                        <div className="pl-2 space-y-1">
-                          {renderAddressParts(
-                            verificationStatus.calculatedOriginAddress || "N/A",
-                            verificationStatus.success,
-                          )}
+                      <div className="bg-gray-800/70 p-2 rounded-md space-y-2">
+                        <div>
+                          <strong className="text-blue-300">
+                            Calculated Origin Intent Address:
+                          </strong>
+                          <div className="pl-2 space-y-1">
+                            {renderAddressParts(
+                              verificationStatus.calculatedOriginAddress ||
+                                "N/A",
+                              verificationStatus.success,
+                            )}
+                          </div>
                         </div>
-                        <strong className="text-blue-300 mt-2">
-                          Calculated Destination Intent Address:
-                        </strong>
-                        <div className="pl-2 space-y-1">
-                          {renderAddressParts(
-                            verificationStatus.calculatedDestinationAddress ||
-                              "N/A",
-                            verificationStatus.success,
-                          )}
+                        <div>
+                          <strong className="text-blue-300">
+                            Calculated Destination Intent Address:
+                          </strong>
+                          <div className="pl-2 space-y-1">
+                            {renderAddressParts(
+                              verificationStatus.calculatedDestinationAddress ||
+                                "N/A",
+                              verificationStatus.success,
+                            )}
+                          </div>
                         </div>
                       </div>
-                      <div className="bg-gray-800/70 p-2 rounded-md">
-                        <strong className="text-blue-300">
-                          Expected Origin Intent Address (from preconditions):
-                        </strong>
-                        <div className="pl-2 space-y-1">
-                          {renderAddressParts(
-                            verificationStatus.receivedOriginAddress || "N/A",
-                            verificationStatus.success,
-                          )}
+                      <div className="bg-gray-800/70 p-2 rounded-md space-y-2">
+                        <div>
+                          <strong className="text-blue-300">
+                            Expected Origin Intent Address (from preconditions):
+                          </strong>
+                          <div className="pl-2 space-y-1">
+                            {renderAddressParts(
+                              verificationStatus.receivedOriginAddress || "N/A",
+                              verificationStatus.success,
+                            )}
+                          </div>
                         </div>
-                        <strong className="text-blue-300 mt-2">
-                          Expected Destination Intent Address (from
-                          preconditions):
-                        </strong>
-                        <div className="pl-2 space-y-1">
-                          {renderAddressParts(
-                            verificationStatus.receivedDestinationAddress ||
-                              "N/A",
-                            verificationStatus.success,
-                          )}
+                        <div>
+                          <strong className="text-blue-300">
+                            Expected Destination Intent Address (from
+                            preconditions):
+                          </strong>
+                          <div className="pl-2 space-y-1">
+                            {renderAddressParts(
+                              verificationStatus.receivedDestinationAddress ||
+                                "N/A",
+                              verificationStatus.success,
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -190,31 +242,36 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                 <Text variant="small" color="white">
                   Intent configuration committed successfully!
                 </Text>
-                {(committedOriginIntentAddress ||
-                  committedDestinationIntentAddress) && (
-                  <div className="mt-2 text-xs text-gray-400 flex flex-col space-y-2 w-full">
-                    {committedOriginIntentAddress && (
-                      <div className="bg-gray-800/70 p-2 rounded-md">
-                        <strong className="text-blue-300">
-                          Committed Origin Intent Address:
-                        </strong>
-                        <div className="pl-2 font-mono text-xs break-all text-yellow-300">
-                          {committedOriginIntentAddress}
-                        </div>
-                      </div>
-                    )}
-                    {committedDestinationIntentAddress && (
-                      <div className="bg-gray-800/70 p-2 rounded-md">
-                        <strong className="text-blue-300">
-                          Committed Destination Intent Address:
-                        </strong>
-                        <div className="pl-2 font-mono text-xs break-all text-yellow-300">
-                          {committedDestinationIntentAddress}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+                <div className="mt-2 text-xs text-gray-400 flex flex-col space-y-2 w-full">
+                  {committedOriginIntentAddress && (
+                    <div className="bg-gray-800/70 p-3 rounded-md">
+                      <AddressDisplay
+                        label="Committed Origin Intent Address"
+                        address={committedOriginIntentAddress}
+                        chainId={
+                          intentCallsPayloads?.[0]?.chainId
+                            ? Number(intentCallsPayloads[0].chainId)
+                            : undefined
+                        }
+                        success={true}
+                      />
+                    </div>
+                  )}
+                  {committedDestinationIntentAddress && (
+                    <div className="bg-gray-800/70 p-3 rounded-md">
+                      <AddressDisplay
+                        label="Committed Destination Intent Address"
+                        address={committedDestinationIntentAddress}
+                        chainId={
+                          intentCallsPayloads?.[1]?.chainId
+                            ? Number(intentCallsPayloads[1].chainId)
+                            : undefined
+                        }
+                        success={true}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

@@ -97,6 +97,7 @@ function useOrchestrationDemo() {
     metaTxnBlockTimestamps,
     trailsFee,
     originIntentAddress,
+    originCallSuccess,
   } = useTrails({
     account: account as WagmiAccount,
     env: import.meta.env.VITE_ENV,
@@ -375,6 +376,7 @@ function useOrchestrationDemo() {
     isEstimatingGas,
     isChainSwitchRequired,
     hasAutoExecuted,
+    originCallSuccess,
 
     // Auto-Execute Controls
     isAutoExecuteEnabled,
@@ -468,6 +470,7 @@ export const OrchestrationDemo = () => {
     originCallParams,
     originCallStatus,
     isWaitingForReceipt,
+    originCallSuccess,
 
     // Auto-Execute Controls
     isAutoExecuteEnabled,
@@ -639,7 +642,7 @@ export const OrchestrationDemo = () => {
           </div>
         )}
 
-        {account.status === "connected" && (
+        {originCallSuccess && (
           <RelayerStatusSection
             originCallStatus={originCallStatus}
             isWaitingForReceipt={isWaitingForReceipt}
@@ -648,28 +651,26 @@ export const OrchestrationDemo = () => {
             originBlockTimestamp={originBlockTimestamp}
             metaTxnBlockTimestamps={metaTxnBlockTimestamps}
             originCallParams={originCallParams}
+            originCallSuccess={originCallSuccess}
           />
         )}
       </div>
 
-      <div className="w-full max-w-3xl bg-gray-900/80 p-6 rounded-lg mt-6 shadow-xl border border-gray-700/50 backdrop-blur-sm">
-        <AdvancedControlsSection
-          accountAddress={account?.address}
-          intentCallsPayloads={intentCallsPayloads}
-          metaTxns={metaTxns}
-          calculatedIntentAddress={originIntentAddress}
-          intentActionType={intentActionType}
-          customCallData={customCallData}
-          isManualMetaTxnEnabled={isManualMetaTxnEnabled}
-          setIsManualMetaTxnEnabled={setIsManualMetaTxnEnabled}
-          selectedMetaTxnId={selectedMetaTxnId}
-          setSelectedMetaTxnId={setSelectedMetaTxnId}
-          handleSendMetaTxn={handleSendMetaTxn}
-          sendMetaTxnPending={sendMetaTxnPending}
-        />
-      </div>
-
-      {/* Relayer Status Section */}
+      {account.status === "connected" && (
+        <div className="w-full max-w-3xl bg-gray-900/80 p-6 rounded-lg mt-6 shadow-xl border border-gray-700/50 backdrop-blur-sm">
+          <AdvancedControlsSection
+            accountAddress={account?.address}
+            intentCallsPayloads={intentCallsPayloads}
+            metaTxns={metaTxns}
+            isManualMetaTxnEnabled={isManualMetaTxnEnabled}
+            setIsManualMetaTxnEnabled={setIsManualMetaTxnEnabled}
+            selectedMetaTxnId={selectedMetaTxnId}
+            setSelectedMetaTxnId={setSelectedMetaTxnId}
+            handleSendMetaTxn={handleSendMetaTxn}
+            sendMetaTxnPending={sendMetaTxnPending}
+          />
+        </div>
+      )}
     </div>
   )
 }
