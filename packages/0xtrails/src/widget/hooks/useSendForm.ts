@@ -174,11 +174,11 @@ export function useSendForm({
   sequenceProjectAccessKey,
   apiUrl,
   env,
-  toAmount,
-  toRecipient,
-  toChainId,
-  toToken,
-  toCalldata,
+  toAmount, // Custom specified amount
+  toRecipient, // Custom specified recipient
+  toChainId, // Custom specified destination chain id
+  toToken, // Custom specified destination token address or symbol
+  toCalldata, // Custom specified destination calldata
   walletClient,
   onTransactionStateChange,
   useSourceTokenForButtonText,
@@ -197,7 +197,6 @@ export function useSendForm({
   const [recipient, setRecipient] = useState(toRecipient ?? "")
   const [error, setError] = useState<string | null>(null)
   const { supportedChains } = useSupportedChains()
-  const { supportedTokens } = useSupportedTokens()
   const { data: ensAddress } = useEnsAddress({
     name: recipientInput?.endsWith(".eth") ? recipientInput : undefined,
     chainId: mainnet.id,
@@ -226,10 +225,6 @@ export function useSendForm({
     setRecipientInput(e.target.value.trim())
   }
 
-  const originChainId = useMemo<number | null>(
-    () => selectedToken?.chainId,
-    [selectedToken?.chainId],
-  )
   const [selectedDestinationChain, setSelectedDestinationChain] =
     useState<ChainInfo>(() => {
       const chain = supportedChains.find((chain) => chain.id === toChainId)
@@ -238,6 +233,10 @@ export function useSendForm({
       }
       return supportedChains[0]!
     })
+
+  const { supportedTokens } = useSupportedTokens({
+    chainId: selectedDestinationChain?.id,
+  })
 
   const isCustomToken = useMemo(() => toToken?.startsWith("0x"), [toToken])
 
@@ -278,13 +277,19 @@ export function useSendForm({
     }
   }, [errorCustomToken, isCustomToken, isLoadingCustomToken])
 
+  const defaultDestToken = useMemo(() => {
+    if (selectedDestinationChain) {
+      return supportedTokens.find(
+        (token) => token.chainId === selectedDestinationChain.id,
+      )
+    }
+    return supportedTokens?.[0] as TokenInfo
+  }, [supportedTokens, selectedDestinationChain])
+
   const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
   const [isTokenDropdownOpen, setIsTokenDropdownOpen] = useState(false)
   const [selectedDestToken, setSelectedDestToken] = useState<TokenInfo>(() => {
-    const defaultToken = supportedTokens?.find(
-      (token) => token.chainId === originChainId, // match the token to the origin chain as default
-    )
-    let token = defaultToken
+    let token = defaultDestToken
     if (toToken && !isCustomToken) {
       const isToTokenAddress = isAddress(toToken)
       token = supportedTokens.find(
@@ -300,6 +305,12 @@ export function useSendForm({
 
     return token as TokenInfo
   })
+
+  useEffect(() => {
+    if (!selectedDestToken && defaultDestToken) {
+      setSelectedDestToken(defaultDestToken as TokenInfo)
+    }
+  }, [selectedDestToken, defaultDestToken])
 
   const apiClient = useAPIClient({
     apiUrl,

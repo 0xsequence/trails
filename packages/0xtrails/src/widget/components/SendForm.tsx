@@ -137,6 +137,9 @@ export const SendForm: React.FC<SendFormProps> = ({
     isSubmitting,
     destinationTokenAddress,
     isValidCustomToken,
+    isChainDropdownOpen,
+    selectedDestinationChain,
+    supportedChains: supportedChains.length,
   })
 
   const chainDropdownRef = useRef<HTMLDivElement>(null)
@@ -144,10 +147,15 @@ export const SendForm: React.FC<SendFormProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      console.log(
+        "[trails-sdk] click outside handler called, isChainDropdownOpen:",
+        isChainDropdownOpen,
+      )
       if (
         chainDropdownRef.current &&
         !chainDropdownRef.current.contains(event.target as Node)
       ) {
+        console.log("[trails-sdk] closing chain dropdown from outside click")
         setIsChainDropdownOpen(false)
       }
       if (
@@ -158,9 +166,16 @@ export const SendForm: React.FC<SendFormProps> = ({
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [setIsChainDropdownOpen, setIsTokenDropdownOpen])
+    if (isChainDropdownOpen || isTokenDropdownOpen) {
+      document.addEventListener("click", handleClickOutside)
+      return () => document.removeEventListener("click", handleClickOutside)
+    }
+  }, [
+    setIsChainDropdownOpen,
+    setIsTokenDropdownOpen,
+    isChainDropdownOpen,
+    isTokenDropdownOpen,
+  ])
 
   if (!selectedDestinationChain) {
     return null
@@ -307,9 +322,15 @@ export const SendForm: React.FC<SendFormProps> = ({
                     <button
                       key={chain.id}
                       type="button"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
                         setSelectedDestinationChain(chain)
                         setIsChainDropdownOpen(false)
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
                       }}
                       className={`w-full flex items-center px-4 py-3 ${
                         theme === "dark"
@@ -409,7 +430,7 @@ export const SendForm: React.FC<SendFormProps> = ({
                 >
                   {supportedTokens.map((token) => (
                     <button
-                      key={token.symbol}
+                      key={`${token.contractAddress}-${token.chainId}`}
                       type="button"
                       onClick={() => {
                         setSelectedDestToken(token as TokenInfo)

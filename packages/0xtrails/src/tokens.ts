@@ -129,7 +129,13 @@ function sortTokens(tokens: SupportedToken[]): SupportedToken[] {
     if (!aHasImage && bHasImage) return 1
 
     // 3. Alphabetical by symbol
-    return a.symbol.localeCompare(b.symbol)
+    const symbolComparison = a.symbol.localeCompare(b.symbol)
+    if (symbolComparison !== 0) {
+      return symbolComparison
+    }
+
+    // 4. If symbols are the same, sort by chainName
+    return a.chainName.localeCompare(b.chainName)
   })
 }
 
@@ -212,7 +218,7 @@ export async function getSupportedTokens(): Promise<SupportedToken[]> {
   return sortTokens(uniqueTokens as SupportedToken[])
 }
 
-export function useSupportedTokens(): {
+export function useSupportedTokens({ chainId }: { chainId?: number } = {}): {
   supportedTokens: SupportedToken[]
   isLoadingTokens: boolean
 } {
@@ -225,8 +231,15 @@ export function useSupportedTokens(): {
     refetchOnReconnect: false, // Don't refetch on network reconnect
   })
 
+  const filteredTokens = useMemo(() => {
+    if (!chainId) {
+      return supportedTokens
+    }
+    return supportedTokens.filter((token) => token.chainId === chainId)
+  }, [supportedTokens, chainId])
+
   return {
-    supportedTokens: supportedTokens || [],
+    supportedTokens: filteredTokens || [],
     isLoadingTokens,
   }
 }

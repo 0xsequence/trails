@@ -39,8 +39,8 @@ export const AdvancedControlsSection: React.FC<
       <SectionHeader
         title={
           <div className="flex items-center">
-            <Layers className="h-5 w-5 mr-2" />
-            <span className="text-lg font-bold text-gray-900 dark:text-white">
+            <Layers className="h-5 w-5 mr-2 text-gray-200" />
+            <span className="text-lg font-bold text-gray-200">
               Manual Meta Transaction Controls
             </span>
           </div>
