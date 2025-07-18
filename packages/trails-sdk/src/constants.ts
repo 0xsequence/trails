@@ -23,4 +23,4 @@ export const intentEntrypoints: Record<number, `0x${string}`> = {
 export const DEFAULT_SEQUENCE_PROJECT_ACCESS_KEY =
   "AQAAAAAAAAaq1E41OU0QxifQgrVBMgfqg7k"
 
-export const DEFAULT_USE_V3_RELAYERS = true
+export const DEFAULT_USE_V3_RELAYERS = false

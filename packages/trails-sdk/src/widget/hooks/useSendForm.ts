@@ -251,6 +251,10 @@ export function useSendForm({
   })
 
   const isValidCustomToken = useMemo(() => {
+    if (!isCustomToken) {
+      return true
+    }
+
     return Boolean(
       isCustomToken &&
         !errorCustomToken &&
