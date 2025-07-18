@@ -131,6 +131,14 @@ export const SendForm: React.FC<SendFormProps> = ({
     setWalletConfirmRetryHandler,
   })
 
+  console.log("[trails-sdk] SendForm", {
+    amount,
+    isValidRecipient,
+    isSubmitting,
+    destinationTokenAddress,
+    isValidCustomToken,
+  })
+
   const chainDropdownRef = useRef<HTMLDivElement>(null)
   const tokenDropdownRef = useRef<HTMLDivElement>(null)
 
@@ -606,8 +614,8 @@ export const SendForm: React.FC<SendFormProps> = ({
               !amount ||
               !isValidRecipient ||
               isSubmitting ||
-              !destinationTokenAddress ||
-              !isValidCustomToken
+              !destinationTokenAddress
+              // !isValidCustomToken
             }
             className={`w-full font-semibold py-3 px-4 rounded-[24px] transition-colors relative ${
               theme === "dark"
