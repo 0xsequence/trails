@@ -44,7 +44,6 @@ import {
 } from "./gasless.js"
 import { useIndexerGatewayClient } from "./indexerClient.js"
 import {
-  calculateIntentAddress,
   commitIntentConfig,
   getIntentCallsPayloads as getIntentCallsPayloadsFromIntents,
   sendOriginTransaction,
@@ -590,11 +589,8 @@ async function sendHandlerForDifferentChainDifferentToken({
     throw new Error("Invalid intent")
   }
 
-  const intentAddress = calculateIntentAddress(mainSignerAddress, intent.calls)
-  console.log(
-    "[trails-sdk] Calculated intent address:",
-    intentAddress.toString(),
-  )
+  const intentAddress = intent.originIntentAddress
+  console.log("[trails-sdk] intent address:", intentAddress.toString())
 
   await commitIntentConfig(
     apiClient,

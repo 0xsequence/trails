@@ -34,6 +34,7 @@ import {
   TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
   TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
   TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS,
+  DEFAULT_USE_V3_RELAYERS,
 } from "./constants.js"
 import { getERC20TransferData } from "./encoders.js"
 import type {
@@ -180,7 +181,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     account,
     disableAutoExecute = false,
     env,
-    useV3Relayers = false,
+    useV3Relayers = DEFAULT_USE_V3_RELAYERS,
     sequenceProjectAccessKey,
   } = config
   const apiClient = useAPIClient({ projectAccessKey: sequenceProjectAccessKey })

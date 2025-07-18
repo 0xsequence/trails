@@ -97,6 +97,7 @@ function useOrchestrationDemo() {
   } = useTrails({
     account: account as WagmiAccount,
     env: import.meta.env.VITE_ENV,
+    useV3Relayers: import.meta.env.VITE_USE_V3_RELAYERS === "true",
   })
 
   useEffect(() => {
@@ -650,10 +651,8 @@ export const OrchestrationDemo = () => {
             originCallSuccess={originCallSuccess}
           />
         )}
-      </div>
 
-      {account.status === "connected" && originIntentAddress && (
-        <div className="w-full max-w-3xl bg-gray-900/80 p-6 rounded-lg mt-6 shadow-xl border border-gray-700/50 backdrop-blur-sm">
+        {account.status === "connected" && originIntentAddress && (
           <AdvancedControlsSection
             accountAddress={account?.address}
             intentCallsPayloads={intentCallsPayloads}
@@ -665,8 +664,8 @@ export const OrchestrationDemo = () => {
             handleSendMetaTxn={handleSendMetaTxn}
             sendMetaTxnPending={sendMetaTxnPending}
           />
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
