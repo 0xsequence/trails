@@ -6,13 +6,11 @@ import type {
   IntentCallsPayload,
   IntentPrecondition,
   SequenceAPIClient,
-  TrailsExecutionInfo,
 } from "@0xsequence/trails-api"
 
 export type {
   IntentCallsPayload,
   IntentPrecondition,
-  TrailsExecutionInfo,
 } from "@0xsequence/trails-api"
 
 import type { Context as ContextLike } from "@0xsequence/wallet-primitives"
@@ -405,52 +403,6 @@ export function hashIntentParams({
 // TODO: Add proper type
 export function bigintReplacer(_key: string, value: any) {
   return typeof value === "bigint" ? value.toString() : value
-}
-
-export function getTrailsExecutionInfoHash(
-  executionInfos: TrailsExecutionInfo[],
-  attestationAddress: Address.Address,
-): Hex.Hex {
-  if (!executionInfos || executionInfos.length === 0) {
-    throw new Error("executionInfos is empty")
-  }
-  if (
-    !attestationAddress ||
-    attestationAddress === "0x0000000000000000000000000000000000000000"
-  ) {
-    throw new Error("attestationAddress is zero")
-  }
-
-  const TrailsExecutionInfoComponents = [
-    { name: "originToken", type: "address" },
-    { name: "amount", type: "uint256" },
-    { name: "originChainId", type: "uint256" },
-    { name: "destinationChainId", type: "uint256" },
-  ]
-
-  const executionInfosForAbi = executionInfos.map((info) => ({
-    originToken: info.originToken,
-    amount: info.amount,
-    originChainId: info.originChainId,
-    destinationChainId: info.destinationChainId,
-  }))
-
-  const abiSchema = [
-    {
-      type: "tuple[]",
-      name: "executionInfos",
-      components: TrailsExecutionInfoComponents,
-    },
-    { type: "address", name: "attestationAddress" },
-  ]
-
-  const encodedHex = AbiParameters.encode(abiSchema, [
-    executionInfosForAbi,
-    attestationAddress,
-  ]) as Hex.Hex
-  const encodedBytes = Bytes.fromHex(encodedHex)
-  const hashBytes = Hash.keccak256(encodedBytes)
-  return Bytes.toHex(hashBytes)
 }
 
 export function calculateIntentConfigurationAddress(
