@@ -1,9 +1,9 @@
-import { TokenImage } from "@0xsequence/design-system"
 import { ExternalLink } from "lucide-react"
 import type React from "react"
 import { useEffect, useState } from "react"
 import type { TransactionState } from "../../prepareSend.js"
 import type { ActiveTheme } from "../../theme.js"
+import { TokenImage } from "./TokenImage.js"
 
 interface TransferPendingProps {
   onComplete: () => void
@@ -329,12 +329,10 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
             <div className="flex items-center space-x-2">
               <div style={{ width: "24px", height: "24px" }}>
                 <TokenImage
-                  src={fromTokenImageUrl}
+                  imageUrl={fromTokenImageUrl}
                   symbol={fromTokenSymbol}
-                  size="sm"
-                  className="w-24 h-24 w-full h-full"
-                  withNetwork={fromChainId}
-                  disableAnimation={true}
+                  chainId={fromChainId}
+                  size={24}
                 />
               </div>
               <div className="flex flex-col">

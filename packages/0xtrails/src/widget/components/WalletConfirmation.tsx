@@ -1,4 +1,4 @@
-import { TokenImage } from "@0xsequence/design-system"
+import { TokenImage } from "./TokenImage.js"
 import { ChevronLeft } from "lucide-react"
 import type React from "react"
 import { useEffect, useState } from "react"
@@ -69,14 +69,14 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
               />
             )}
 
-            <TokenImage
-              src={fromTokenImageUrl?.replace("/small/", "/large/")}
-              symbol={fromTokenSymbol}
-              size="xl"
-              className="absolute w-16 h-16"
-              withNetwork={fromChainId}
-              disableAnimation={true}
-            />
+            <div className="absolute">
+              <TokenImage
+                imageUrl={fromTokenImageUrl}
+                symbol={fromTokenSymbol}
+                chainId={fromChainId}
+                size={64}
+              />
+            </div>
           </div>
 
           <div

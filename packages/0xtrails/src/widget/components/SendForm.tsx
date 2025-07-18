@@ -1,4 +1,4 @@
-import { NetworkImage, TokenImage } from "@0xsequence/design-system"
+import { NetworkImage } from "@0xsequence/design-system"
 import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
 import type React from "react"
 import { useEffect, useRef } from "react"
@@ -9,7 +9,7 @@ import type { RelayerEnv } from "../../relayer.js"
 import type { ActiveTheme } from "../../theme.js"
 import type { OnCompleteProps, Token, TokenInfo } from "../hooks/useSendForm.js"
 import { useSendForm } from "../hooks/useSendForm.js"
-
+import { TokenImage } from "./TokenImage.js"
 import { FeeOptions } from "./FeeOptions.js"
 
 interface SendFormProps {
@@ -217,11 +217,9 @@ export const SendForm: React.FC<SendFormProps> = ({
               <div style={{ width: "32px", height: "32px" }}>
                 <TokenImage
                   symbol={selectedToken.symbol}
-                  src={selectedToken.imageUrl}
-                  size="sm"
-                  className="w-32 h-32 w-full h-full"
-                  withNetwork={selectedToken.chainId}
-                  disableAnimation={true}
+                  imageUrl={selectedToken.imageUrl}
+                  chainId={selectedToken.chainId}
+                  size={32}
                 />
               </div>
               <div className="flex flex-col">
@@ -376,9 +374,8 @@ export const SendForm: React.FC<SendFormProps> = ({
             <div className="flex items-center px-2 py-1">
               <TokenImage
                 symbol={selectedDestToken?.symbol}
-                src={selectedDestToken?.imageUrl}
-                size="sm"
-                disableAnimation={true}
+                imageUrl={selectedDestToken?.imageUrl}
+                size={24}
               />
               <span
                 className={`ml-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
@@ -405,9 +402,8 @@ export const SendForm: React.FC<SendFormProps> = ({
                 >
                   <TokenImage
                     symbol={selectedDestToken?.symbol}
-                    src={selectedDestToken?.imageUrl}
-                    size="sm"
-                    disableAnimation={true}
+                    imageUrl={selectedDestToken?.imageUrl}
+                    size={24}
                   />
                 </div>
                 <span className="ml-2 flex-1 text-left">
@@ -453,9 +449,8 @@ export const SendForm: React.FC<SendFormProps> = ({
                       >
                         <TokenImage
                           symbol={token.symbol}
-                          src={token.imageUrl}
-                          size="sm"
-                          disableAnimation={true}
+                          imageUrl={token.imageUrl}
+                          size={24}
                         />
                       </div>
                       <span className="ml-2">

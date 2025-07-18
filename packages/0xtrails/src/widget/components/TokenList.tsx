@@ -1,10 +1,11 @@
-import { NetworkImage, TokenImage } from "@0xsequence/design-system"
+import { NetworkImage } from "@0xsequence/design-system"
 import type { SequenceIndexerGateway } from "@0xsequence/indexer"
 import { ChevronLeft, Search } from "lucide-react"
 import type React from "react"
 import type { ActiveTheme } from "../../theme.js"
 import type { Token, TokenFormatted } from "../hooks/useTokenList.js"
 import { useTokenList } from "../hooks/useTokenList.js"
+import { TokenImage } from "./TokenImage.js"
 
 interface TokenListProps {
   onContinue: (selectedToken: Token) => void
@@ -172,15 +173,16 @@ export const TokenList: React.FC<TokenListProps> = ({
             >
               <div className="relative flex-shrink-0">
                 <div
-                  className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                  className={`rounded-full flex items-center justify-center ${
                     theme === "dark" ? "bg-gray-700" : "bg-gray-100"
                   }`}
                 >
                   {contractAddress ? (
                     <TokenImage
                       symbol={symbol[0]}
-                      src={imageUrl}
-                      disableAnimation={true}
+                      imageUrl={imageUrl}
+                      chainId={chainId}
+                      size={32}
                     />
                   ) : (
                     <span
@@ -189,14 +191,6 @@ export const TokenList: React.FC<TokenListProps> = ({
                       {symbol}
                     </span>
                   )}
-                </div>
-                <div className="absolute -bottom-0.5 -right-0.5">
-                  <NetworkImage
-                    chainId={chainId}
-                    size="sm"
-                    className="w-3.5 h-3.5"
-                    disableAnimation={true}
-                  />
                 </div>
               </div>
 

@@ -1,4 +1,4 @@
-import { TokenImage } from "@0xsequence/design-system"
+import { TokenImage } from "./TokenImage.js"
 import { ChevronDown } from "lucide-react"
 import type React from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
@@ -119,8 +119,8 @@ export const FeeOptions: React.FC<FeeOptionsProps> = ({
             <>
               <TokenImage
                 symbol={selectedOption.symbol}
-                src={selectedOption.imageUrl}
-                size="xs"
+                imageUrl={selectedOption.imageUrl}
+                size={16}
               />
               <span className="ml-1.5 flex-1 text-left">
                 {selectedOption.symbol}
