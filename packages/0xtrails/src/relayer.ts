@@ -118,6 +118,8 @@ export function getRelayerUrl(
       relayerUrl = "https://v3-soneium-relayer.sequence.app"
     } else if (chainId === 660279) {
       relayerUrl = "https://v3-xai-relayer.sequence.app"
+    } else if (chainId === 56) {
+      relayerUrl = "https://v3-bsc-relayer.sequence.app"
     } else {
       // Fallback to general dev relayer for other chains if V3 is specified but chain not V3-supported
       relayerUrl = `${baseUrl}${getChainInfo(chainId)!.name?.replace(" ", "-")}-relayer.sequence.app`
@@ -161,6 +163,8 @@ export function getRelayerUrl(
       relayerUrl = "https://dev-soneium-relayer.sequence.app"
     } else if (chainId === 660279) {
       relayerUrl = "https://dev-xai-relayer.sequence.app"
+    } else if (chainId === 56) {
+      relayerUrl = "https://dev-bsc-relayer.sequence.app"
     } else {
       // Fallback to general dev relayer for other chains if V3 is specified but chain not V3-supported
       relayerUrl = `${baseUrl}${getChainInfo(chainId)!.name?.replace(" ", "-")}-relayer.sequence.app`

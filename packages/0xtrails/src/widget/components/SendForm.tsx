@@ -427,17 +427,11 @@ export const SendForm: React.FC<SendFormProps> = ({
                             : "text-gray-900 hover:bg-gray-50"
                       }`}
                     >
-                      <div
-                        className={`w-5 h-5 rounded-full flex items-center justify-center text-sm ${
-                          theme === "dark" ? "bg-gray-700" : "bg-gray-100"
-                        }`}
-                      >
-                        <TokenImage
-                          symbol={token.symbol}
-                          imageUrl={token.imageUrl}
-                          size={24}
-                        />
-                      </div>
+                      <TokenImage
+                        symbol={token.symbol}
+                        imageUrl={token.imageUrl}
+                        size={24}
+                      />
                       <span className="ml-2">
                         {token.name} ({token.symbol})
                       </span>

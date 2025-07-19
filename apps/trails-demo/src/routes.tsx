@@ -5,33 +5,40 @@ import { OrchestrationDemo } from "./routes/orchestration-demo"
 import { RootLayout } from "./routes/root-layout"
 import { SdkSandbox } from "./routes/sdk-sandbox"
 import { WidgetDemo } from "./routes/widget-demo"
+import { AuthWrapper } from "./routes/auth-wrapper"
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    Component: RootLayout,
+    Component: AuthWrapper,
     ErrorBoundary: ErrorRoute,
     children: [
       {
         path: "",
-        index: true,
-        Component: WidgetDemo,
-      },
-      {
-        path: "orchestration",
-        Component: OrchestrationDemo,
-      },
-      {
-        path: "widget",
-        Component: WidgetDemo,
-      },
-      {
-        path: "sdk-sandbox",
-        Component: SdkSandbox,
-      },
-      {
-        path: "*",
-        Component: NotFound,
+        Component: RootLayout,
+        children: [
+          {
+            path: "",
+            index: true,
+            Component: WidgetDemo,
+          },
+          {
+            path: "orchestration",
+            Component: OrchestrationDemo,
+          },
+          {
+            path: "widget",
+            Component: WidgetDemo,
+          },
+          {
+            path: "sdk-sandbox",
+            Component: SdkSandbox,
+          },
+          {
+            path: "*",
+            Component: NotFound,
+          },
+        ],
       },
     ],
   },
