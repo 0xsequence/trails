@@ -1,6 +1,14 @@
 export async function onRequest(context) {
   const { request, env, next } = context
 
+  // Check if authentication is required (both env vars must exist)
+  const authRequired = env.DEMO_USERNAME && env.DEMO_PASSWORD
+
+  // If authentication is not required, skip auth and continue
+  if (!authRequired) {
+    return next()
+  }
+
   // Get the authorization header from the request
   const auth = request.headers.get("Authorization")
 
