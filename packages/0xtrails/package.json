@@ -50,6 +50,7 @@
     "@0xsequence/wagmi-connector": "^4.0.1",
     "@0xsequence/wallet-core": "github:0xsequence/sequence.js#dists/wallet/core",
     "@0xsequence/wallet-primitives": "github:0xsequence/sequence.js#dists/wallet/primitives",
+    "@databeat/tracker": "^0.9.3",
     "@privy-io/react-auth": "^2.19.0",
     "@privy-io/wagmi": "^1.0.5",
     "@reservoir0x/relay-sdk": "^2.3.0",

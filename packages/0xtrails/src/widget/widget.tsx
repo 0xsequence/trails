@@ -55,6 +55,7 @@ import WalletConfirmation from "./components/WalletConfirmation.js"
 import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
 import { useAmountUsd } from "./hooks/useAmountUsd.js"
 import css from "./index.css?inline"
+import { trackWidgetScreen } from "../analytics.js"
 
 type Screen =
   | "connect"
@@ -337,6 +338,10 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         }
       }
     }, [isConnected, currentScreen])
+
+    useEffect(() => {
+      trackWidgetScreen(currentScreen)
+    }, [currentScreen])
 
     const indexerGatewayClient = useIndexerGatewayClient({
       indexerGatewayUrl: sequenceIndexerUrl || undefined,
