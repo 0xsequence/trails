@@ -204,13 +204,28 @@ export async function getSupportedTokens(): Promise<SupportedToken[]> {
       })
   }
 
-  const uniqueTokens = tokens.filter(
+  const additionalTokens: SupportedToken[] = []
+  for (const standardToken of standardTokens) {
+    const contractAddress = standardToken.contractAddress
+    const exists = tokens.some(
+      (t) =>
+        t.chainId === standardToken.chainId &&
+        t.contractAddress.toLowerCase() === contractAddress.toLowerCase(),
+    )
+    if (!exists) {
+      additionalTokens.push(standardToken)
+    }
+  }
+
+  const allTokens = [...tokens, ...additionalTokens]
+  const uniqueTokens = allTokens.filter(
     (token, index, self) =>
       index ===
       self.findIndex(
         (t) =>
           t.chainId === token.chainId &&
-          t.contractAddress === token.contractAddress,
+          t.contractAddress.toLowerCase() ===
+            token.contractAddress.toLowerCase(),
       ),
   )
 
@@ -356,7 +371,10 @@ export function useTokenAddress({
 }
 
 export function getTokenImageUrl(chainId: number, contractAddress: string) {
-  const imageUrl = `https://assets.sequence.info/images/tokens/large/${chainId}/${contractAddress}.webp`
+  if (!chainId || !contractAddress) {
+    return ""
+  }
+  const imageUrl = `https://assets.sequence.info/images/tokens/large/${chainId}/${contractAddress.toLowerCase()}.webp`
   return imageUrl
 }
 
@@ -409,41 +427,31 @@ export function useTokenInfo({
   isLoading: boolean
   error: Error | null
 } {
+  // Always call hooks unconditionally
   const isAddress = address?.startsWith("0x") ?? false
-
-  if (!isAddress || !chainId) {
-    return {
-      tokenInfo: null,
-      isLoading: false,
-      error: null,
-    }
-  }
-
   const contract = {
     address: address as `0x${string}`,
     abi: erc20Abi,
     chainId,
   } as const
-
   const result = useReadContracts({
-    contracts: [
-      { ...contract, functionName: "name" },
-      { ...contract, functionName: "symbol" },
-      { ...contract, functionName: "decimals" },
-    ],
+    contracts:
+      !!isAddress && !!chainId
+        ? [
+            { ...contract, functionName: "name" },
+            { ...contract, functionName: "symbol" },
+            { ...contract, functionName: "decimals" },
+          ]
+        : [],
   })
-
   const error =
     result?.error ?? result?.data?.find((r) => r.error)?.error ?? null
-
   const [name, symbol, decimals] = result.data ?? []
-  const chainInfo = getChainInfo(chainId)
-
+  const chainInfo = getChainInfo(chainId!)
   const tokenInfo = useMemo(() => {
     if (!symbol?.result || !name?.result || decimals?.result == null) {
       return null
     }
-
     return {
       id: symbol.result,
       name: name.result,
@@ -462,10 +470,238 @@ export function useTokenInfo({
     symbol?.result,
     decimals?.result,
   ])
-
+  // Early return if not a valid address or chainId
+  if (!isAddress || !chainId) {
+    return {
+      tokenInfo: null,
+      isLoading: false,
+      error: null,
+    }
+  }
   return {
     tokenInfo,
     isLoading: result.isLoading,
     error: error,
   }
 }
+
+export const standardTokens: SupportedToken[] = [
+  // Native tokens
+  {
+    id: "ETH-ethereum",
+    symbol: "ETH",
+    name: "Ethereum",
+    contractAddress: "0x0000000000000000000000000000000000000000",
+    decimals: 18,
+    chainId: chains.mainnet.id,
+    chainName: chains.mainnet.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp",
+  },
+  {
+    id: "ETH-arbitrum",
+    symbol: "ETH",
+    name: "ETH Arbitrum",
+    contractAddress: "0x0000000000000000000000000000000000000000",
+    decimals: 18,
+    chainId: chains.arbitrum.id,
+    chainName: chains.arbitrum.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp",
+  },
+  {
+    id: "ETH-optimism",
+    symbol: "ETH",
+    name: "ETH Optimism",
+    contractAddress: "0x0000000000000000000000000000000000000000",
+    decimals: 18,
+    chainId: chains.optimism.id,
+    chainName: chains.optimism.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp",
+  },
+  {
+    id: "ETH-base",
+    symbol: "ETH",
+    name: "ETH Base",
+    contractAddress: "0x0000000000000000000000000000000000000000",
+    decimals: 18,
+    chainId: chains.base.id,
+    chainName: chains.base.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp",
+  },
+  {
+    id: "POL-polygon",
+    symbol: "POL",
+    name: "Polygon",
+    contractAddress: "0x0000000000000000000000000000000000000000",
+    decimals: 18,
+    chainId: chains.polygon.id,
+    chainName: chains.polygon.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/137/0x0000000000000000000000000000000000000000.webp",
+  },
+
+  // USDC
+  {
+    id: "USDC-ethereum",
+    symbol: "USDC",
+    name: "USDC",
+    contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    decimals: 6,
+    chainId: chains.mainnet.id,
+    chainName: chains.mainnet.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+  },
+  {
+    id: "USDC-arbitrum",
+    symbol: "USDC",
+    name: "USDC Arbitrum",
+    contractAddress: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+    decimals: 6,
+    chainId: chains.arbitrum.id,
+    chainName: chains.arbitrum.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+  },
+  {
+    id: "USDC-avalanche",
+    symbol: "USDC",
+    name: "USDC Avalanche",
+    contractAddress: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+    decimals: 6,
+    chainId: chains.avalanche.id,
+    chainName: chains.avalanche.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+  },
+  {
+    id: "USDC-base",
+    symbol: "USDC",
+    name: "USDC Base",
+    contractAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    decimals: 6,
+    chainId: chains.base.id,
+    chainName: chains.base.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+  },
+  {
+    id: "USDC-linea",
+    symbol: "USDC",
+    name: "USDC Linea",
+    contractAddress: "0x176211869cA2b568f2A7D4EE941E073a821EE1ff",
+    decimals: 6,
+    chainId: chains.linea.id,
+    chainName: chains.linea.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+  },
+  {
+    id: "USDC-optimism",
+    symbol: "USDC",
+    name: "USDC Optimism",
+    contractAddress: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+    decimals: 6,
+    chainId: chains.optimism.id,
+    chainName: chains.optimism.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+  },
+  {
+    id: "USDC-polygon",
+    symbol: "USDC",
+    name: "USDC Polygon",
+    contractAddress: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+    decimals: 6,
+    chainId: chains.polygon.id,
+    chainName: chains.polygon.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+  },
+  {
+    id: "USDC-unichain",
+    symbol: "USDC",
+    name: "USDC Unichain",
+    contractAddress: "0x078D782b760474a361dDA0AF3839290b0EF57AD6",
+    decimals: 6,
+    chainId: chains.unichain.id,
+    chainName: chains.unichain.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+  },
+  {
+    id: "USDC-worldchain",
+    symbol: "USDC",
+    name: "USDC WorldChain",
+    contractAddress: "0x79A02482A880bCe3F13E09da970dC34dB4cD24D1",
+    decimals: 6,
+    chainId: chains.worldchain.id,
+    chainName: chains.worldchain.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+  },
+
+  // Basic Attention Token
+  {
+    id: "BAT-polygon",
+    symbol: "BAT",
+    name: "Basic Attention Token",
+    contractAddress: "0x0D8775F648430679A709E98d2b0Cb6250d2887EF",
+    decimals: 18,
+    chainId: chains.mainnet.id,
+    chainName: chains.mainnet.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp",
+  },
+  {
+    id: "BAT-polygon",
+    symbol: "BAT",
+    name: "Basic Attention Token",
+    contractAddress: "0x3Cef98bb43d732E2F285eE605a8158cDE967D219",
+    decimals: 18,
+    chainId: chains.polygon.id,
+    chainName: chains.polygon.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/137/0x3cef98bb43d732e2f285ee605a8158cde967d219.webp",
+  },
+  {
+    id: "BAT-avalanche",
+    symbol: "BAT",
+    name: "Basic Attention Token",
+    contractAddress: "0x98443B96EA4b0858FDF3219Cd13e98C7A4690588",
+    decimals: 18,
+    chainId: chains.avalanche.id,
+    chainName: chains.avalanche.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/43114/0x98443b96ea4b0858fdf3219cd13e98c7a4690588.webp",
+  },
+
+  // ARB
+  {
+    id: "ARB-arbitrum",
+    symbol: "ARB",
+    name: "Arbitrum",
+    contractAddress: "0x912CE59144191C1204E64559FE8253a0e49E6548",
+    decimals: 18,
+    chainId: chains.arbitrum.id,
+    chainName: chains.arbitrum.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/42161/0x912ce59144191c1204e64559fe8253a0e49e6548.webp",
+  },
+
+  // Chainlink
+  {
+    id: "LINK-ethereum",
+    symbol: "LINK",
+    name: "Chainlink",
+    contractAddress: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+    decimals: 18,
+    chainId: chains.mainnet.id,
+    chainName: chains.mainnet.name,
+    imageUrl:
+      "https://assets.sequence.info/images/tokens/large/1/0x514910771af9ca656af840dff83e8264ecf986ca.webp",
+  },
+]

@@ -20,7 +20,13 @@ export const intentEntrypoints: Record<number, `0x${string}`> = {
   137: "0x4dBb20eA3A969F1A44d7653D4Dc8632B853E36DE",
 }
 
+// This is used for Sequence Indexer and API
 export const DEFAULT_SEQUENCE_PROJECT_ACCESS_KEY =
   "AQAAAAAAAJbd_5JOcE50AqglZCtvu51YlGI"
 
+// This is used for SequenceRPC URLS
+export const DEFAULT_RPC_SEQUENCE_PROJECT_ACCESS_KEY =
+  "AQAAAAAAAJbd_5JOcE50AqglZCtvu51YlGI"
+
+// This is used for getting v3 relayer URLS
 export const DEFAULT_USE_V3_RELAYERS = true

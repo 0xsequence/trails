@@ -28,9 +28,13 @@ import {
   type Chain,
   isAddressEqual,
   type WalletClient,
+  publicActions,
+  http,
+  createPublicClient,
 } from "viem"
 import { ATTESATION_SIGNER_ADDRESS } from "./constants.js"
 import { findPreconditionAddresses } from "./preconditions.js"
+import { getChainInfo } from "./chains.js"
 
 export interface MetaTxnFeeDetail {
   metaTxnID: string
@@ -255,6 +259,20 @@ export async function sendOriginTransaction(
     )
   }
 
+  const publicClient = createPublicClient({
+    chain: getChainInfo(originParams.chain.id)!,
+    transport: http(),
+  })
+
+  const gasLimit = await publicClient.estimateGas({
+    account: account,
+    to: originParams.to as `0x${string}`,
+    data: originParams.data as `0x${string}`,
+    value: BigInt(originParams.value),
+  })
+
+  console.log("[trails-sdk] estimated gasLimit:", gasLimit)
+
   console.log(
     "[trails-sdk] sending origin tx with walletClient.sendTransaction()",
   )
@@ -266,7 +284,7 @@ export async function sendOriginTransaction(
     data: originParams.data as `0x${string}`,
     value: BigInt(originParams.value),
     chain: originParams.chain,
-    gas: 200000n,
+    gas: gasLimit,
   })
   console.timeEnd(`[trails-sdk] walletClient.sendTransaction-${id}`)
   console.log("[trails-sdk] done sending, origin tx hash", hash)

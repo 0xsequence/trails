@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import type { Chain } from "viem"
 import * as chains from "viem/chains"
 import { getRelaySupportedChains } from "./relaySdk.js"
-import { DEFAULT_SEQUENCE_PROJECT_ACCESS_KEY } from "./constants.js"
+import { DEFAULT_RPC_SEQUENCE_PROJECT_ACCESS_KEY } from "./constants.js"
 
 export const sequenceRpcUrls: Record<number, string> = {
   [chains.arbitrum.id]: "https://nodes.sequence.app/arbitrum",
@@ -18,11 +18,12 @@ export const sequenceRpcUrls: Record<number, string> = {
   [chains.avalanche.id]: "https://nodes.sequence.app/avalanche",
   [chains.b3.id]: "https://nodes.sequence.app/b3",
   [chains.blast.id]: "https://nodes.sequence.app/blast",
+  [chains.bsc.id]: "https://nodes.sequence.app/bsc",
 }
 
 export const getRpcUrl = (
   chainId: number,
-  sequenceProjectAccessKey: string = DEFAULT_SEQUENCE_PROJECT_ACCESS_KEY,
+  sequenceProjectAccessKey: string = DEFAULT_RPC_SEQUENCE_PROJECT_ACCESS_KEY,
 ): string | null => {
   if (!sequenceRpcUrls[chainId]) {
     return null
@@ -38,7 +39,7 @@ export const supportedSequenceChains: Record<number, Chain> = {
   [chains.b3.id]: getChainInfo(chains.b3.id)!,
   [chains.base.id]: getChainInfo(chains.base.id)!,
   [chains.blast.id]: getChainInfo(chains.polygon.id)!,
-  // [chains.opBNB.id]: chains.opBNB, // Needs chain image
+  [chains.bsc.id]: getChainInfo(chains.bsc.id)!,
   [chains.mainnet.id]: getChainInfo(chains.mainnet.id)!,
   [chains.gnosis.id]: getChainInfo(chains.gnosis.id)!,
   [chains.optimism.id]: getChainInfo(chains.optimism.id)!,
@@ -53,7 +54,7 @@ export const supportedSequenceTestnetChains: Record<number, Chain> = {
   [chains.b3Sepolia.id]: getChainInfo(chains.b3Sepolia.id)!,
   [chains.baseSepolia.id]: getChainInfo(chains.baseSepolia.id)!,
   [chains.blastSepolia.id]: getChainInfo(chains.blastSepolia.id)!,
-  [chains.opBNBTestnet.id]: getChainInfo(chains.opBNBTestnet.id)!,
+  [chains.bscTestnet.id]: getChainInfo(chains.bscTestnet.id)!,
   [chains.sepolia.id]: getChainInfo(chains.sepolia.id)!,
   [chains.gnosisChiado.id]: getChainInfo(chains.gnosisChiado.id)!,
   [chains.polygonAmoy.id]: getChainInfo(chains.polygonAmoy.id)!,
