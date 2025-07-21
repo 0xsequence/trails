@@ -184,7 +184,8 @@ function getIntentArgs(
   destinationTokenAmount: string,
   destinationTokenSymbol: string,
   recipient: string,
-  destinationCalldata?: string,
+  destinationCalldata: string | undefined,
+  destinationSalt: string = Date.now().toString(),
 ): GetIntentCallsPayloadsArgs {
   const _destinationCalldata =
     destinationCalldata ||
@@ -217,6 +218,7 @@ function getIntentArgs(
     destinationTokenSymbol: destinationTokenSymbol,
     destinationCallData: _destinationCalldata,
     destinationCallValue: _destinationCallValue,
+    destinationSalt,
   }
 
   return intentArgs
@@ -566,6 +568,8 @@ async function sendHandlerForDifferentChainDifferentToken({
     }
   }
 
+  const destinationSalt = Date.now().toString()
+
   const intentArgs = getIntentArgs(
     mainSignerAddress,
     originChainId,
@@ -577,6 +581,7 @@ async function sendHandlerForDifferentChainDifferentToken({
     destinationTokenSymbol,
     recipient,
     destinationCalldata,
+    destinationSalt,
   )
   console.log("[trails-sdk] Creating intent with args:", intentArgs)
   const intent = await getIntentCallsPayloadsFromIntents(apiClient, intentArgs)
@@ -687,77 +692,89 @@ async function sendHandlerForDifferentChainDifferentToken({
 
       console.log("[trails-sdk] testnet", testnet)
 
-      originUserTxReceipt = await attemptUserDepositTx({
-        originTokenAddress: testnet
-          ? testnetOriginTokenAddress
-          : originTokenAddress,
-        gasless,
-        paymasterUrl,
-        chain: chainToUse,
-        account,
-        relayerConfig,
-        sequenceProjectAccessKey,
-        originRelayer,
-        firstPreconditionMin,
-        intentAddress,
-        onOriginSend,
-        publicClient,
-        walletClient,
-        destinationTokenDecimals,
-        sourceTokenDecimals,
-        fee,
-        dryMode,
-        sourceTokenPriceUsd: sourceTokenPriceUsd ?? null,
-        destinationTokenPriceUsd: destinationTokenPriceUsd ?? null,
-        destinationTokenAmount,
-        onTransactionStateChange,
-        transactionStates,
-      })
-
-      if (!originUserTxReceipt) {
-        throw new Error("Failed to send origin transaction")
-      }
-
-      transactionStates[0] = getTransactionStateFromReceipt(
-        originUserTxReceipt,
-        originChainId,
-        "Transfer",
-      )
-      onTransactionStateChange(transactionStates)
-
-      if (intent.metaTxns[0] && intent.preconditions[0]) {
-        originMetaTxnReceipt = await sendMetaTxAndWaitForReceipt({
-          metaTx: intent.metaTxns[0] as MetaTxn,
-          relayer: originRelayer,
-          precondition: intent.preconditions[0] as IntentPrecondition,
+      const depositPromise = async () => {
+        originUserTxReceipt = await attemptUserDepositTx({
+          originTokenAddress: testnet
+            ? testnetOriginTokenAddress
+            : originTokenAddress,
+          gasless,
+          paymasterUrl,
+          chain: chainToUse,
+          account,
+          relayerConfig,
+          sequenceProjectAccessKey,
+          originRelayer,
+          firstPreconditionMin,
+          intentAddress,
+          onOriginSend,
+          publicClient,
+          walletClient,
+          destinationTokenDecimals,
+          sourceTokenDecimals,
+          fee,
+          dryMode,
+          sourceTokenPriceUsd: sourceTokenPriceUsd ?? null,
+          destinationTokenPriceUsd: destinationTokenPriceUsd ?? null,
+          destinationTokenAmount,
+          onTransactionStateChange,
+          transactionStates,
         })
 
-        if (originMetaTxnReceipt) {
-          transactionStates[1] = getTransactionStateFromReceipt(
-            originMetaTxnReceipt,
-            originChainId,
-            "Swap & Bridge",
-          )
-          onTransactionStateChange(transactionStates)
+        if (!originUserTxReceipt) {
+          throw new Error("Failed to send origin transaction")
+        }
+
+        transactionStates[0] = getTransactionStateFromReceipt(
+          originUserTxReceipt,
+          originChainId,
+          "Transfer",
+        )
+        onTransactionStateChange(transactionStates)
+      }
+
+      const originMetaTxnPromise = async () => {
+        if (intent.metaTxns[0] && intent.preconditions[0]) {
+          originMetaTxnReceipt = await sendMetaTxAndWaitForReceipt({
+            metaTx: intent.metaTxns[0] as MetaTxn,
+            relayer: originRelayer,
+            precondition: intent.preconditions[0] as IntentPrecondition,
+          })
+
+          if (originMetaTxnReceipt) {
+            transactionStates[1] = getTransactionStateFromReceipt(
+              originMetaTxnReceipt,
+              originChainId,
+              "Swap & Bridge",
+            )
+            onTransactionStateChange(transactionStates)
+          }
         }
       }
 
-      if (intent.metaTxns[1] && intent.preconditions[1]) {
-        destinationMetaTxnReceipt = await sendMetaTxAndWaitForReceipt({
-          metaTx: intent.metaTxns[1] as MetaTxn,
-          relayer: destinationRelayer,
-          precondition: intent.preconditions[1] as IntentPrecondition,
-        })
+      const destinationMetaTxnPromise = async () => {
+        if (intent.metaTxns[1] && intent.preconditions[1]) {
+          destinationMetaTxnReceipt = await sendMetaTxAndWaitForReceipt({
+            metaTx: intent.metaTxns[1] as MetaTxn,
+            relayer: destinationRelayer,
+            precondition: intent.preconditions[1] as IntentPrecondition,
+          })
 
-        if (destinationMetaTxnReceipt) {
-          transactionStates[2] = getTransactionStateFromReceipt(
-            destinationMetaTxnReceipt,
-            destinationChainId,
-            "Execute",
-          )
-          onTransactionStateChange(transactionStates)
+          if (destinationMetaTxnReceipt) {
+            transactionStates[2] = getTransactionStateFromReceipt(
+              destinationMetaTxnReceipt,
+              destinationChainId,
+              "Execute",
+            )
+            onTransactionStateChange(transactionStates)
+          }
         }
       }
+
+      await Promise.all([
+        depositPromise(),
+        originMetaTxnPromise(),
+        destinationMetaTxnPromise(),
+      ])
 
       return {
         originUserTxReceipt,

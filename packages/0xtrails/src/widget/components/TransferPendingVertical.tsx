@@ -171,6 +171,21 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
     return `Sent ${diffInDays} days ago`
   }
 
+  // Compute effective states: a tx is only confirmed if all previous are confirmed, else pending
+  const effectiveStates: TransactionState[] = []
+  let foundUnconfirmed = false
+  for (const tx of transactionStates) {
+    if (foundUnconfirmed || tx.state !== "confirmed") {
+      foundUnconfirmed = true
+      effectiveStates.push({
+        ...tx,
+        state: tx.state === "confirmed" ? "pending" : tx.state,
+      })
+    } else {
+      effectiveStates.push(tx)
+    }
+  }
+
   const renderStep = (tx: TransactionState, index: number) => {
     const isActivePending = index === activePendingIndex
     const isCompleted = tx.state === "confirmed"
@@ -408,7 +423,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
 
           {/* Steps */}
           <div className="space-y-6">
-            {transactionStates.map((tx, index) => (
+            {effectiveStates.map((tx, index) => (
               <div
                 key={`${tx.transactionHash}-${index}`}
                 className="relative transition-all duration-300 ease-out"
