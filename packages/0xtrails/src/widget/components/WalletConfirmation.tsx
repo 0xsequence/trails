@@ -85,7 +85,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
             <h2
               className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
             >
-              {retryEnabled ? "Try again" : "Waiting for wallet..."}
+              {retryEnabled ? "Try again" : "Waiting for wallet…"}
             </h2>
             <p
               className={`mt-2 text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
@@ -138,7 +138,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
                     rel="noopener noreferrer"
                     className={`font-mono text-xs hover:underline ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
                   >
-                    {recipient.slice(0, 6)}...{recipient.slice(-4)}
+                    {recipient.slice(0, 6)}…{recipient.slice(-4)}
                   </a>
                 </div>
               )}

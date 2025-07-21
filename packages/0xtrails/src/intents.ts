@@ -28,7 +28,6 @@ import {
   type Chain,
   isAddressEqual,
   type WalletClient,
-  publicActions,
   http,
   createPublicClient,
 } from "viem"

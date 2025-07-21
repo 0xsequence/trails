@@ -1,5 +1,8 @@
-// biome-ignore lint/style/useImportType: False positive
-import React, { useEffect, useState } from "react"
+import { useQuery } from "@tanstack/react-query"
+import type React from "react"
+import { useEffect, useState } from "react"
+import { createPublicClient, http } from "viem"
+import { getChainInfo } from "../../chains.js"
 import type { TransactionState } from "../../prepareSend.js"
 import type { ActiveTheme } from "../../theme.js"
 import { GreenCheckAnimation } from "./GreenCheckAnimation.js"
@@ -10,6 +13,107 @@ interface ReceiptProps {
   theme?: ActiveTheme
   renderInline?: boolean
   transactionStates?: TransactionState[]
+}
+
+// Hook to fetch the time difference in seconds between two transactions on possibly different chains
+function useTxTimeDiff(firstTx?: TransactionState, lastTx?: TransactionState) {
+  const enabled = Boolean(
+    firstTx?.chainId &&
+      lastTx?.chainId &&
+      firstTx &&
+      lastTx &&
+      (firstTx.blockNumber || firstTx.transactionHash) &&
+      (lastTx.blockNumber || lastTx.transactionHash) &&
+      (firstTx.blockNumber !== lastTx.blockNumber ||
+        firstTx.transactionHash !== lastTx.transactionHash),
+  )
+  const { data: completionTimeSeconds = 0 } = useQuery({
+    queryKey: [
+      "completionTimeSeconds",
+      firstTx?.blockNumber,
+      lastTx?.blockNumber,
+      firstTx?.transactionHash,
+      lastTx?.transactionHash,
+      firstTx?.chainId,
+      lastTx?.chainId,
+    ],
+    enabled,
+    queryFn: async () => {
+      const firstChainInfo = getChainInfo(firstTx!.chainId)
+      const lastChainInfo = getChainInfo(lastTx!.chainId)
+      if (!firstChainInfo || !lastChainInfo) return 0
+
+      const firstClient = createPublicClient({
+        chain: firstChainInfo,
+        transport: http(),
+      })
+      const lastClient = createPublicClient({
+        chain: lastChainInfo,
+        transport: http(),
+      })
+
+      async function getBlockNumber(
+        client: ReturnType<typeof createPublicClient>,
+        tx: TransactionState,
+      ) {
+        if (tx.blockNumber) return BigInt(tx.blockNumber)
+        const receipt = await client.getTransactionReceipt({
+          hash: tx.transactionHash as `0x${string}`,
+        })
+        return receipt.blockNumber
+      }
+
+      async function getTimestamp(
+        client: ReturnType<typeof createPublicClient>,
+        blockNumber: bigint,
+      ) {
+        const block = await client.getBlock({ blockNumber })
+        return typeof block.timestamp === "bigint"
+          ? Number(block.timestamp)
+          : block.timestamp
+      }
+
+      const [firstBlockNumber, lastBlockNumber] = await Promise.all([
+        getBlockNumber(firstClient, firstTx!),
+        getBlockNumber(lastClient, lastTx!),
+      ])
+
+      const [firstTs, lastTs] = await Promise.all([
+        getTimestamp(firstClient, firstBlockNumber),
+        getTimestamp(lastClient, lastBlockNumber),
+      ])
+
+      const diff = lastTs - firstTs
+      if (diff < 1) {
+        return 1 // round up to 1 second
+      }
+
+      return diff
+    },
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    retry: false,
+  })
+  return completionTimeSeconds
+}
+
+// Custom hook to compute finalExplorerUrl and completionTimeSeconds
+function useReceipt(transactionStates?: TransactionState[]) {
+  const finalExplorerUrl =
+    transactionStates?.[transactionStates.length - 1]?.explorerUrl
+
+  // Only consider confirmed transactions
+  const confirmedTxs = (transactionStates || []).filter(
+    (tx) => tx.state === "confirmed",
+  )
+
+  const first = confirmedTxs[0]
+  const last = confirmedTxs[confirmedTxs.length - 1]
+
+  const completionTimeSeconds = useTxTimeDiff(first, last)
+  return { finalExplorerUrl, completionTimeSeconds }
 }
 
 export const Receipt: React.FC<ReceiptProps> = ({
@@ -29,8 +133,8 @@ export const Receipt: React.FC<ReceiptProps> = ({
     return () => clearTimeout(timer)
   }, [])
 
-  const finalExplorerUrl =
-    transactionStates?.[transactionStates.length - 1]?.explorerUrl
+  const { finalExplorerUrl, completionTimeSeconds } =
+    useReceipt(transactionStates)
 
   if (!finalExplorerUrl) {
     return null
@@ -51,6 +155,41 @@ export const Receipt: React.FC<ReceiptProps> = ({
           >
             Transaction Confirmed
           </h2>
+          {completionTimeSeconds > 0 && completionTimeSeconds < 15 && (
+            <div
+              className={`mt-1 text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"} flex items-center gap-1 justify-center animate-fade-in-up`}
+              style={{
+                animation: "fadeInUp 0.7s cubic-bezier(0.23, 1, 0.32, 1)",
+                animationFillMode: "both",
+              }}
+            >
+              <span className="inline-block animate-fade-in-up">
+                Completed in <strong>{completionTimeSeconds}s</strong>
+              </span>
+              <svg
+                className="w-4 h-4 ml-1 text-yellow-400 inline"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <title>Lightning Fast</title>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                  fill="currentColor"
+                />
+              </svg>
+              <style>{`
+                @keyframes fadeInUp {
+                  0% { opacity: 0; transform: translateY(16px); }
+                  100% { opacity: 1; transform: translateY(0); }
+                }
+              `}</style>
+            </div>
+          )}
         </div>
       </div>
 
@@ -76,6 +215,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
             viewBox="0 0 24 24"
             stroke={theme === "dark" ? "currentColor" : "black"}
           >
+            <title>External Link</title>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -91,6 +231,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
       >
         {!renderInline && (
           <button
+            type="button"
             onClick={onClose}
             className={`w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${
               theme === "dark"
@@ -102,6 +243,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
           </button>
         )}
         <button
+          type="button"
           onClick={() => setShowDetails(!showDetails)}
           className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-[24px] transition-colors cursor-pointer text-sm ${
             theme === "dark"
@@ -116,6 +258,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
+            <title>Expand</title>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -213,6 +356,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
                             viewBox="0 0 24 24"
                             stroke="currentColor"
                           >
+                            <title>External Link</title>
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"

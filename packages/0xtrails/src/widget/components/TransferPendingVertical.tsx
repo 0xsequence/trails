@@ -18,10 +18,6 @@ interface TransferPendingProps {
   timestamp?: number
 }
 
-const _truncateHash = (hash: string) => {
-  return `${hash.slice(0, 6)}...${hash.slice(-4)}`
-}
-
 export const TransferPending: React.FC<TransferPendingProps> = ({
   onComplete,
   theme = "light",
@@ -132,6 +128,24 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
       document.head.removeChild(style)
     }
   }, [])
+
+  // Live timer state for 'Sent just now'
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setElapsedSeconds(elapsedSeconds + 1)
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [elapsedSeconds])
+
+  // Format timer as 'Xs…', '1m1s…', etc.
+  function formatElapsed(seconds: number) {
+    if (seconds < 60) return `${seconds}s…`
+    const m = Math.floor(seconds / 60)
+    const s = seconds % 60
+    return `${m}m${s}s…`
+  }
 
   // Calculate time difference
   const getTimeAgo = () => {
@@ -342,9 +356,14 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
                   {fromTokenName}
                 </span>
                 <span
-                  className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                  className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"} flex items-center`}
                 >
                   {getTimeAgo()}
+                  <span
+                    className={`ml-1 font-mono animate-pulse ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                  >
+                    {formatElapsed(elapsedSeconds)}
+                  </span>
                 </span>
               </div>
             </div>

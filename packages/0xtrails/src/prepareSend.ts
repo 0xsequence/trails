@@ -80,6 +80,7 @@ type TransactionStateStatus = "pending" | "failed" | "confirmed"
 export type TransactionState = {
   transactionHash: string
   explorerUrl: string
+  blockNumber?: number
   chainId: number
   state: TransactionStateStatus
   label: string
@@ -1540,18 +1541,22 @@ function getTransactionStateFromReceipt(
 ): TransactionState {
   let txHash: string = ""
   let state: TransactionStateStatus = "pending"
+  let blockNumber: number = 0
   if ("transactionHash" in receipt) {
     txHash = receipt.transactionHash
     state = receipt.status === "success" ? "confirmed" : "failed"
+    blockNumber = Number(receipt.blockNumber)
   } else if ("txnHash" in receipt) {
     txHash = receipt.txnHash
     state = receipt.status === "SUCCEEDED" ? "confirmed" : "failed"
+    blockNumber = Number(receipt.blockNumber)
   }
 
   return {
     transactionHash: txHash,
     explorerUrl: getExplorerUrl({ txHash, chainId }),
     chainId,
+    blockNumber,
     state,
     label,
   }
