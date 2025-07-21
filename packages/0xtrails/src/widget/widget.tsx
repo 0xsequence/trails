@@ -1010,7 +1010,10 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         console.error("[trails-sdk] Error sending transaction", error)
       }
       const errorMessage = error instanceof Error ? error.message : error
-      if (errorMessage?.toLowerCase().includes("rejected")) {
+      const isRejected = /rejected|denied/gi.test(
+        errorMessage?.toLowerCase() ?? "",
+      )
+      if (isRejected) {
         console.log("[trails-sdk] currentScreen", currentScreen)
         setShowWalletConfirmRetry(true)
       } else {

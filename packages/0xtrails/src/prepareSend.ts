@@ -629,16 +629,20 @@ async function sendHandlerForDifferentChainDifferentToken({
     originSendAmount: depositAmount,
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       console.log("[trails-sdk] sending origin transaction")
+      const usingLIfi = false
+      let needsNativeFee = false
 
-      const needsNativeFee = getNeedsLifiNativeFee({
-        originTokenAddress,
-        destinationTokenAmount,
-        destinationTokenDecimals,
-        sourceTokenDecimals,
-        sourceTokenPriceUsd: sourceTokenPriceUsd ?? null,
-        destinationTokenPriceUsd: destinationTokenPriceUsd ?? null,
-        depositAmount,
-      })
+      if (usingLIfi) {
+        needsNativeFee = getNeedsLifiNativeFee({
+          originTokenAddress,
+          destinationTokenAmount,
+          destinationTokenDecimals,
+          sourceTokenDecimals,
+          sourceTokenPriceUsd: sourceTokenPriceUsd ?? null,
+          destinationTokenPriceUsd: destinationTokenPriceUsd ?? null,
+          depositAmount,
+        })
+      }
 
       console.log("[trails-sdk] needsNativeFee", needsNativeFee)
       console.log("[trails-sdk] sourceTokenPriceUsd", sourceTokenPriceUsd)
@@ -705,6 +709,8 @@ async function sendHandlerForDifferentChainDifferentToken({
         sourceTokenPriceUsd: sourceTokenPriceUsd ?? null,
         destinationTokenPriceUsd: destinationTokenPriceUsd ?? null,
         destinationTokenAmount,
+        onTransactionStateChange,
+        transactionStates,
       })
 
       if (!originUserTxReceipt) {
@@ -1192,6 +1198,8 @@ export async function attemptNonGaslessUserDeposit({
   destinationTokenDecimals,
   sourceTokenDecimals,
   intentAddress,
+  onTransactionStateChange,
+  transactionStates,
 }: {
   originTokenAddress: string
   firstPreconditionMin: string
@@ -1209,18 +1217,24 @@ export async function attemptNonGaslessUserDeposit({
   destinationTokenDecimals: number
   sourceTokenDecimals: number
   intentAddress: string
+  onTransactionStateChange: (transactionStates: TransactionState[]) => void
+  transactionStates: TransactionState[]
 }): Promise<TransactionReceipt | null> {
   let originUserTxReceipt: TransactionReceipt | null = null
+  const usingLIfi = false
+  let needsNativeFee = false
 
-  const needsNativeFee = await getNeedsLifiNativeFee({
-    originTokenAddress,
-    destinationTokenAmount,
-    destinationTokenDecimals,
-    sourceTokenDecimals,
-    sourceTokenPriceUsd: sourceTokenPriceUsd ?? null,
-    destinationTokenPriceUsd: destinationTokenPriceUsd ?? null,
-    depositAmount: firstPreconditionMin,
-  })
+  if (usingLIfi) {
+    needsNativeFee = await getNeedsLifiNativeFee({
+      originTokenAddress,
+      destinationTokenAmount,
+      destinationTokenDecimals,
+      sourceTokenDecimals,
+      sourceTokenPriceUsd: sourceTokenPriceUsd ?? null,
+      destinationTokenPriceUsd: destinationTokenPriceUsd ?? null,
+      depositAmount: firstPreconditionMin,
+    })
+  }
   let nativeFee = parseUnits("0.00005", 18).toString()
   if (originChainId === 137) {
     nativeFee = parseUnits("1.5", 18).toString()
@@ -1394,6 +1408,11 @@ export async function attemptNonGaslessUserDeposit({
         onOriginSend()
       }
 
+      if (transactionStates[0]) {
+        transactionStates[0].state = "pending"
+        onTransactionStateChange(transactionStates)
+      }
+
       // Wait for transaction receipt
       const receipt = await publicClient.waitForTransactionReceipt({
         hash: tx,
@@ -1427,6 +1446,8 @@ async function attemptUserDepositTx({
   sourceTokenPriceUsd,
   destinationTokenPriceUsd,
   destinationTokenAmount,
+  onTransactionStateChange,
+  transactionStates,
 }: {
   originTokenAddress: string
   gasless: boolean
@@ -1448,6 +1469,8 @@ async function attemptUserDepositTx({
   sourceTokenPriceUsd: number | null
   destinationTokenPriceUsd: number | null
   fee: string
+  onTransactionStateChange: (transactionStates: TransactionState[]) => void
+  transactionStates: TransactionState[]
 }): Promise<TransactionReceipt | null> {
   let originUserTxReceipt: TransactionReceipt | null = null
   const originChainId = chain.id
@@ -1492,6 +1515,8 @@ async function attemptUserDepositTx({
       destinationTokenAmount,
       destinationTokenDecimals,
       sourceTokenDecimals,
+      onTransactionStateChange,
+      transactionStates,
     })
   }
 

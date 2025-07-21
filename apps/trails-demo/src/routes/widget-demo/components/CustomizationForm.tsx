@@ -679,6 +679,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       setSelectedScenario(scenario.key)
                       setIsScenarioDropdownOpen(false)
                       applyScenario(scenario.key)
+                      setCustomTokenAddress("")
+                      setShowCustomTokenInput(false)
                     }}
                     className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 ${
                       selectedScenario === scenario.key

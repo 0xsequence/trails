@@ -38,7 +38,9 @@ export async function attemptSwitchChain({
       error instanceof Error &&
       error.message.includes("wallet_addEthereumChain")
     ) {
-      const chainInfo = getChainInfo(desiredChainId)
+      const chainInfo = getChainInfo(desiredChainId, {
+        usePublicRpc: true,
+      })
       if (chainInfo) {
         await walletClient.addChain({
           chain: chainInfo,
