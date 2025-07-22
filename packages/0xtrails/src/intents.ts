@@ -41,6 +41,17 @@ import {
   trackTransactionFailed,
   trackWalletDeployed,
   trackWalletDeploymentError,
+  trackIntentQuoteRequested,
+  trackIntentQuoteReceived,
+  trackIntentQuoteError,
+  trackIntentCommitted,
+  trackIntentCommitError,
+  trackCrossChainSwapStarted,
+  trackCrossChainSwapCompleted,
+  trackCrossChainSwapFailed,
+  trackRelayerCallStarted,
+  trackRelayerCallCompleted,
+  trackRelayerCallFailed,
 } from "./analytics.js"
 
 export interface MetaTxnFeeDetail {
@@ -108,7 +119,43 @@ export async function getIntentCallsPayloads(
   apiClient: SequenceAPIClient,
   args: GetIntentCallsPayloadsArgs,
 ): Promise<GetIntentCallsPayloadsReturn> {
-  return apiClient.getIntentCallsPayloads(args)
+  // Track intent quote request
+  trackIntentQuoteRequested({
+    originChainId: args.originChainId || 0,
+    destinationChainId: args.destinationChainId || 0,
+    originTokenAddress: args.originTokenAddress,
+    destinationTokenAddress: args.destinationTokenAddress,
+    userAddress: args.userAddress,
+  })
+
+  try {
+    const result = await apiClient.getIntentCallsPayloads(args)
+
+    // Track successful intent quote received
+    trackIntentQuoteReceived({
+      quoteId: result.quoteId || "unknown",
+      totalFeeUSD: result.fee?.totalFeeUSD,
+      trailsFixedFeeUSD: result.fee?.trailsFixedFeeUSD,
+      crossChainFeeTotalUSD: result.fee?.crossChainFee?.totalFeeUSD,
+      takerFeeUSD: result.fee?.crossChainFee?.providerFeeUSD,
+      providerFeeUSD: result.fee?.crossChainFee?.providerFeeUSD,
+      trailsSwapFeeUSD: result.fee?.crossChainFee?.trailsSwapFeeUSD,
+      originTokenTotalAmount: result.fee?.originTokenTotalAmount,
+      destinationTokenAmount: result.fee?.destinationTokenAmount,
+      provider: result.fee?.quoteProvider,
+      feeToken: result.fee?.feeToken,
+      userAddress: args.userAddress,
+    })
+
+    return result
+  } catch (error) {
+    // Track intent quote error
+    trackIntentQuoteError({
+      error: error instanceof Error ? error.message : "Unknown error",
+      userAddress: args.userAddress,
+    })
+    throw error
+  }
 }
 
 export function calculateIntentAddress(
@@ -189,7 +236,7 @@ export function calculateOriginAndDestinationIntentAddresses(
   return { originIntentAddress, destinationIntentAddress }
 }
 
-export function commitIntentConfig(
+export async function commitIntentConfig(
   apiClient: SequenceAPIClient,
   mainSignerAddress: string,
   calls: Array<IntentCallsPayload>,
@@ -242,7 +289,44 @@ export function commitIntentConfig(
     preconditions: preconditions,
   }
 
-  return apiClient.commitIntentConfig(args)
+  try {
+    const result = await apiClient.commitIntentConfig(args)
+
+    // Track successful intent commit
+    trackIntentCommitted({
+      intentAddress: originIntentAddress.toString(),
+      userAddress: mainSignerAddress,
+      originChainId: originChainIdStr ? Number(originChainIdStr) : undefined,
+      destinationChainId: destinationChainIdStr
+        ? Number(destinationChainIdStr)
+        : undefined,
+    })
+
+    // Track cross-chain swap started if this is a cross-chain intent
+    if (
+      originChainIdStr &&
+      destinationChainIdStr &&
+      originChainIdStr !== destinationChainIdStr
+    ) {
+      trackCrossChainSwapStarted({
+        originChainId: Number(originChainIdStr),
+        destinationChainId: Number(destinationChainIdStr),
+        provider: "trails", // Default provider
+        userAddress: mainSignerAddress,
+        intentAddress: originIntentAddress.toString(),
+      })
+    }
+
+    return result
+  } catch (error) {
+    // Track intent commit error
+    trackIntentCommitError({
+      error: error instanceof Error ? error.message : "Unknown error",
+      userAddress: mainSignerAddress,
+      intentAddress: originIntentAddress.toString(),
+    })
+    throw error
+  }
 }
 
 export async function sendOriginTransaction(
