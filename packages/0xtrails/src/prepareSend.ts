@@ -74,6 +74,31 @@ import {
 import { useAccountTokenBalance } from "./tokenBalances.js"
 import { useSupportedTokens } from "./tokens.js"
 import { requestWithTimeout } from "./utils.js"
+import {
+  trackPaymentStart,
+  trackPaymentCompleted,
+  trackPaymentError,
+  trackIntentQuoteRequested,
+  trackIntentQuoteReceived,
+  trackIntentQuoteError,
+  trackIntentCommitted,
+  trackIntentCommitError,
+  trackTransactionStarted,
+  trackTransactionSubmitted,
+  trackTransactionConfirmed,
+  trackTransactionFailed,
+  trackCrossChainSwapStarted,
+  trackCrossChainSwapCompleted,
+  trackCrossChainSwapFailed,
+  trackRelayerCallStarted,
+  trackRelayerCallCompleted,
+  trackRelayerCallFailed,
+  trackFeeQuoteRequested,
+  trackFeeQuoteReceived,
+  trackFeeQuoteError,
+  trackWalletDeployed,
+  trackWalletDeploymentError,
+} from "./analytics.js"
 
 type TransactionStateStatus = "pending" | "failed" | "confirmed"
 
@@ -255,12 +280,31 @@ export async function prepareSend(
     sequenceProjectAccessKey,
   } = options
 
+  // Track payment start
+  trackPaymentStart({
+    userAddress: account.address,
+    originChainId,
+    destinationChainId,
+    originTokenAddress,
+    destinationTokenAddress,
+    destinationTokenAmount,
+    gasless,
+  })
+
   if (!walletClient) {
+    trackPaymentError({
+      error: "Wallet client not provided",
+      userAddress: account.address,
+    })
     throw new Error("Wallet client not provided")
   }
 
   const chain = getChainInfo(originChainId)
   if (!chain) {
+    trackPaymentError({
+      error: `Chain ${originChainId} not found`,
+      userAddress: account.address,
+    })
     throw new Error(`Chain ${originChainId} not found`)
   }
   const isToSameChain = getIsToSameChain(originChainId, destinationChainId)
@@ -584,11 +628,59 @@ async function sendHandlerForDifferentChainDifferentToken({
     destinationSalt,
   )
   console.log("[trails-sdk] Creating intent with args:", intentArgs)
-  const intent = await getIntentCallsPayloadsFromIntents(apiClient, intentArgs)
-  console.log("[trails-sdk] Got intent:", intent)
 
-  if (!intent) {
-    throw new Error("Invalid intent")
+  // Track intent quote request
+  trackIntentQuoteRequested({
+    originChainId,
+    destinationChainId,
+    originTokenAddress,
+    destinationTokenAddress,
+    userAddress: mainSignerAddress,
+  })
+
+  let intent: any
+  try {
+    intent = await getIntentCallsPayloadsFromIntents(apiClient, intentArgs)
+    console.log("[trails-sdk] Got intent:", intent)
+
+    if (!intent) {
+      trackIntentQuoteError({
+        error: "Invalid intent response",
+        userAddress: mainSignerAddress,
+      })
+      throw new Error("Invalid intent")
+    }
+
+    // Track successful intent quote with comprehensive data
+    if (intent.trailsFee) {
+      const gasFeesPerChainUSD =
+        intent.trailsFee.executeQuote?.chainQuotes?.map(
+          (quote: any) => quote.totalFeeUSD,
+        ) || []
+
+      trackIntentQuoteReceived({
+        quoteId: intent.originIntentAddress || Date.now().toString(),
+        totalFeeUSD: intent.trailsFee.totalFeeUSD?.toString(),
+        trailsFixedFeeUSD: intent.trailsFee.trailsFixedFeeUSD,
+        crossChainFeeTotalUSD: intent.trailsFee.crossChainFee?.totalFeeUSD,
+        takerFeeUSD: intent.trailsFee.takerFeeUSD,
+        providerFeeUSD: intent.trailsFee.crossChainFee?.providerFeeUSD,
+        trailsSwapFeeUSD: intent.trailsFee.crossChainFee?.trailsSwapFeeUSD,
+        gasFeesPerChainUSD,
+        originTokenTotalAmount: intent.trailsFee.originTokenTotalAmount,
+        destinationTokenAmount,
+        provider: intent.trailsFee.quoteProvider,
+        feeToken: intent.trailsFee.feeToken,
+        userAddress: mainSignerAddress,
+        intentAddress: intent.originIntentAddress,
+      })
+    }
+  } catch (error) {
+    trackIntentQuoteError({
+      error: error instanceof Error ? error.message : "Unknown error",
+      userAddress: mainSignerAddress,
+    })
+    throw error
   }
 
   if (!intent.preconditions?.length || !intent.calls?.length) {
@@ -598,14 +690,29 @@ async function sendHandlerForDifferentChainDifferentToken({
   const intentAddress = intent.originIntentAddress
   console.log("[trails-sdk] intent address:", intentAddress.toString())
 
-  await commitIntentConfig(
-    apiClient,
-    mainSignerAddress,
-    intent.calls,
-    intent.preconditions,
-  )
+  try {
+    await commitIntentConfig(
+      apiClient,
+      mainSignerAddress,
+      intent.calls,
+      intent.preconditions,
+    )
 
-  console.log("[trails-sdk] Committed intent config")
+    console.log("[trails-sdk] Committed intent config")
+
+    // Track successful intent commit
+    trackIntentCommitted({
+      intentAddress,
+      userAddress: mainSignerAddress,
+    })
+  } catch (error) {
+    trackIntentCommitError({
+      error: error instanceof Error ? error.message : "Unknown error",
+      userAddress: mainSignerAddress,
+      intentAddress,
+    })
+    throw error
+  }
 
   const firstPrecondition = findFirstPreconditionForChainId(
     intent.preconditions,

@@ -340,8 +340,11 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     }, [isConnected, currentScreen])
 
     useEffect(() => {
-      trackWidgetScreen(currentScreen)
-    }, [currentScreen])
+      trackWidgetScreen({
+        screen: currentScreen,
+        userAddress: address || undefined,
+      })
+    }, [currentScreen, address])
 
     const indexerGatewayClient = useIndexerGatewayClient({
       indexerGatewayUrl: sequenceIndexerUrl || undefined,

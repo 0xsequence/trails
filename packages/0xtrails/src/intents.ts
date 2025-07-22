@@ -34,6 +34,14 @@ import {
 import { ATTESATION_SIGNER_ADDRESS } from "./constants.js"
 import { findPreconditionAddresses } from "./preconditions.js"
 import { getChainInfo } from "./chains.js"
+import {
+  trackTransactionStarted,
+  trackTransactionSubmitted,
+  trackTransactionConfirmed,
+  trackTransactionFailed,
+  trackWalletDeployed,
+  trackWalletDeploymentError,
+} from "./analytics.js"
 
 export interface MetaTxnFeeDetail {
   metaTxnID: string
@@ -258,6 +266,13 @@ export async function sendOriginTransaction(
     )
   }
 
+  // Track transaction start
+  trackTransactionStarted({
+    transactionType: "origin_call",
+    chainId: originParams.chain.id,
+    userAddress: account.address,
+  })
+
   const publicClient = createPublicClient({
     chain: getChainInfo(originParams.chain.id)!,
     transport: http(),
@@ -277,18 +292,39 @@ export async function sendOriginTransaction(
   )
   const id = Date.now()
   console.time(`[trails-sdk] walletClient.sendTransaction-${id}`)
-  const hash = await walletClient.sendTransaction({
-    account: account,
-    to: originParams.to as `0x${string}`,
-    data: originParams.data as `0x${string}`,
-    value: BigInt(originParams.value),
-    chain: originParams.chain,
-    gas: gasLimit,
-  })
-  console.timeEnd(`[trails-sdk] walletClient.sendTransaction-${id}`)
-  console.log("[trails-sdk] done sending, origin tx hash", hash)
 
-  return hash
+  try {
+    const hash = await walletClient.sendTransaction({
+      account: account,
+      to: originParams.to as `0x${string}`,
+      data: originParams.data as `0x${string}`,
+      value: BigInt(originParams.value),
+      chain: originParams.chain,
+      gas: gasLimit,
+    })
+    console.timeEnd(`[trails-sdk] walletClient.sendTransaction-${id}`)
+    console.log("[trails-sdk] done sending, origin tx hash", hash)
+
+    // Track successful transaction submission (pseudonymize() is called inside analytics)
+    trackTransactionSubmitted({
+      transactionHash: hash,
+      chainId: originParams.chain.id,
+      userAddress: account.address,
+    })
+
+    return hash
+  } catch (error) {
+    console.timeEnd(`[trails-sdk] walletClient.sendTransaction-${id}`)
+
+    // Track failed transaction
+    trackTransactionFailed({
+      transactionHash: "",
+      error: error instanceof Error ? error.message : "Unknown error",
+      userAddress: account.address,
+    })
+
+    throw error
+  }
 }
 
 export interface OriginTokenParam {
