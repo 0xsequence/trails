@@ -25,7 +25,7 @@ export type {
   MetaTxn,
   MetaTxnStatus,
 } from "./metaTxnMonitor.js"
-export { prepareSend, useQuote } from "./prepareSend.js"
+export { prepareSend, useQuote, type TransactionState } from "./prepareSend.js"
 export {
   getAccountTotalBalanceUsd,
   getHasSufficientBalanceToken,

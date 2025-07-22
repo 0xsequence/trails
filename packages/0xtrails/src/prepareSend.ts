@@ -285,6 +285,10 @@ export async function prepareSend(
     destinationTokenAmount,
   })
 
+  if (originTokenAmount === "0") {
+    throw new Error("Origin token amount must be greater than 0")
+  }
+
   if (!walletClient) {
     trackPaymentError({
       error: "Wallet client not provided",
@@ -1857,21 +1861,12 @@ export type UseQuoteProps = {
   onStatusUpdate?: (transactionStates: TransactionState[]) => void
 }
 
-export function useQuote({
-  walletClient,
-  fromTokenAddress,
-  fromChainId,
-  toTokenAddress,
-  toChainId,
-  toAmount,
-  toRecipient,
-  onStatusUpdate,
-}: UseQuoteProps = {}): {
+export type UseQuoteReturn = {
   quote: {
     fromAmount: string
-    fees: PrepareSendFees
-    slippageTolerance: string
-    priceImpact: string
+    fees?: PrepareSendFees | null
+    slippageTolerance?: string | null
+    priceImpact?: string | null
   } | null
   swap:
     | (() => Promise<{
@@ -1887,7 +1882,18 @@ export function useQuote({
     | null
   isLoadingQuote: boolean
   quoteError: unknown
-} {
+}
+
+export function useQuote({
+  walletClient,
+  fromTokenAddress,
+  fromChainId,
+  toTokenAddress,
+  toChainId,
+  toAmount,
+  toRecipient,
+  onStatusUpdate,
+}: UseQuoteProps = {}): UseQuoteReturn {
   const apiClient = useAPIClient()
   const { getRelayer } = useRelayers({
     env: "dev",
@@ -1938,7 +1944,8 @@ export function useQuote({
         !toAmount ||
         !toRecipient ||
         !fromChainId ||
-        !toChainId
+        !toChainId ||
+        !originTokenBalance?.balance
       ) {
         return null
       }
@@ -1949,6 +1956,10 @@ export function useQuote({
       const originRelayer = getRelayer(fromChainId)
       const sourceTokenPriceUsd = originTokenBalance?.price?.value ?? 0
       const destinationTokenPriceUsd = destinationTokenPrice?.price?.value ?? 0
+
+      if (originTokenAmount === "0") {
+        return null
+      }
 
       const originToken = supportedTokens?.find(
         (token) =>
@@ -2052,13 +2063,13 @@ export function getFeesFromIntent(intent: GetIntentCallsPayloadsReturn): {
 }
 
 export function getSlippageToleranceFromIntent(
-  intent: GetIntentCallsPayloadsReturn,
+  _intent: GetIntentCallsPayloadsReturn,
 ): string {
   return "0.03" // TODO: implement in API side
 }
 
 export function getPriceImpactFromIntent(
-  intent: GetIntentCallsPayloadsReturn,
+  _intent: GetIntentCallsPayloadsReturn,
 ): string {
   return "-0.07" // TODO: implement in API side
 }

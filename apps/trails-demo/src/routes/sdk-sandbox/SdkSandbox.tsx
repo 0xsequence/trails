@@ -4,8 +4,9 @@ import {
   useHasSufficientBalanceUsd,
   useQuote,
   useTokenList,
+  type TransactionState,
 } from "0xtrails"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Link } from "react-router"
 import { formatUnits, parseUnits } from "viem"
 import { useAccount, useWalletClient } from "wagmi"
@@ -67,6 +68,26 @@ export function SdkSandbox() {
   // Get supported tokens
   const { tokens: tokenList, isLoadingTokens } = useTokenList()
 
+  const [executedOriginTxHash, setExecutedOriginTxHash] = useState<
+    string | null
+  >(null)
+  const [executedDestinationTxHash, setExecutedDestinationTxHash] = useState<
+    string | null
+  >(null)
+  const [swapError, setSwapError] = useState<string | null>(null)
+  const [isSwapLoading, setIsSwapLoading] = useState(false)
+  const [transactionStates, setTransactionStates] = useState<
+    TransactionState[]
+  >([])
+
+  const onStatusUpdate = useCallback(
+    (transactionStates: TransactionState[]) => {
+      console.log("[trails-sdk-sandbox] transactionStates", transactionStates)
+      setTransactionStates([...transactionStates])
+    },
+    [],
+  )
+
   // Quote hook - only call when walletClient is available
   const quoteParams =
     walletClient &&
@@ -84,6 +105,7 @@ export function SdkSandbox() {
             quoteToToken?.decimals || 18,
           ).toString(),
           toRecipient: quoteToRecipient,
+          onStatusUpdate,
         }
       : null
 
@@ -96,6 +118,7 @@ export function SdkSandbox() {
       toChainId: 0,
       toAmount: "",
       toRecipient: "",
+      onStatusUpdate,
     },
   )
 
@@ -104,15 +127,6 @@ export function SdkSandbox() {
       console.log("[trails-sdk-sandbox] quote", quote)
     }
   }, [quote])
-
-  const [executedOriginTxHash, setExecutedOriginTxHash] = useState<
-    string | null
-  >(null)
-  const [executedDestinationTxHash, setExecutedDestinationTxHash] = useState<
-    string | null
-  >(null)
-  const [swapError, setSwapError] = useState<string | null>(null)
-  const [isSwapLoading, setIsSwapLoading] = useState(false)
 
   return (
     <div className="max-w-6xl mx-auto p-8 space-y-8 bg-white dark:bg-gray-900">
@@ -907,6 +921,11 @@ export function SdkSandbox() {
                 try {
                   setIsSwapLoading(true)
                   setSwapError(null)
+                  setTransactionStates([])
+                  setExecutedOriginTxHash(null)
+                  setExecutedDestinationTxHash(null)
+                  setSwapError(null)
+
                   const result = await swap()
                   if (result) {
                     setExecutedOriginTxHash(
@@ -1005,6 +1024,74 @@ export function SdkSandbox() {
               </div>
             )}
           </>
+        )}
+
+        {/* Transaction States */}
+        {transactionStates.length > 0 && (
+          <div className="mt-8">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              Transaction States
+            </h3>
+            <div className="space-y-3">
+              {transactionStates.map((tx, index) => (
+                <div
+                  key={index}
+                  className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
+                        {tx.label}
+                      </span>
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full ${
+                          tx.state === "confirmed"
+                            ? "bg-green-600 text-white"
+                            : tx.state === "pending"
+                              ? "bg-yellow-600 text-white"
+                              : "bg-gray-600 text-white"
+                        }`}
+                      >
+                        {tx.state}
+                      </span>
+                    </div>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      Chain ID: {tx.chainId}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        Transaction Hash:
+                      </span>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-xs font-mono text-gray-900 dark:text-white">
+                          {tx.transactionHash}
+                        </span>
+                      </div>
+                    </div>
+
+                    {tx.explorerUrl && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          Explorer:
+                        </span>
+                        <a
+                          href={tx.explorerUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
+                        >
+                          View on Explorer
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </div>
