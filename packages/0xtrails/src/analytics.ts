@@ -20,7 +20,7 @@ export function pseudonymize(value: string): string {
 export const EventType = {
   PAGEVIEW: "PAGEVIEW" as const,
   WIDGET_SCREEN: "WIDGET_SCREEN" as const,
-  PAYMENT_START: "PAYMENT_START" as const,
+  PAYMENT_STARTED: "PAYMENT_STARTED" as const,
   PAYMENT_COMPLETED: "PAYMENT_COMPLETED" as const,
   PAYMENT_ERROR: "PAYMENT_ERROR" as const,
 
@@ -32,7 +32,8 @@ export const EventType = {
   INTENT_QUOTE_REQUESTED: "INTENT_QUOTE_REQUESTED" as const,
   INTENT_QUOTE_RECEIVED: "INTENT_QUOTE_RECEIVED" as const,
   INTENT_QUOTE_ERROR: "INTENT_QUOTE_ERROR" as const,
-  INTENT_COMMITTED: "INTENT_COMMITTED" as const,
+  INTENT_COMMIT_STARTED: "INTENT_COMMIT_STARTED" as const,
+  INTENT_COMMIT_COMPLETED: "INTENT_COMMIT_COMPLETED" as const,
   INTENT_COMMIT_ERROR: "INTENT_COMMIT_ERROR" as const,
 
   // Transaction events
@@ -40,12 +41,12 @@ export const EventType = {
   TRANSACTION_SIGNED: "TRANSACTION_SIGNED" as const,
   TRANSACTION_SUBMITTED: "TRANSACTION_SUBMITTED" as const,
   TRANSACTION_CONFIRMED: "TRANSACTION_CONFIRMED" as const,
-  TRANSACTION_FAILED: "TRANSACTION_FAILED" as const,
+  TRANSACTION_ERROR: "TRANSACTION_ERROR" as const,
 
   // Relayer events
   RELAYER_CALL_STARTED: "RELAYER_CALL_STARTED" as const,
   RELAYER_CALL_COMPLETED: "RELAYER_CALL_COMPLETED" as const,
-  RELAYER_CALL_FAILED: "RELAYER_CALL_FAILED" as const,
+  RELAYER_CALL_ERROR: "RELAYER_CALL_ERROR" as const,
 }
 
 export type EventTypes = keyof typeof EventType
@@ -87,7 +88,7 @@ abstract class BaseAnalytics {
     })
   }
 
-  trackPaymentStart(data: {
+  trackPaymentStarted(data: {
     userAddress?: string
     intentAddress?: string
     originChainId?: number
@@ -98,7 +99,7 @@ abstract class BaseAnalytics {
     [key: string]: any
   }) {
     this.track({
-      event: EventType.PAYMENT_START,
+      event: EventType.PAYMENT_STARTED,
       props: {
         ...this.getCommonProps(),
         ...data,
@@ -268,13 +269,31 @@ abstract class BaseAnalytics {
     })
   }
 
-  trackIntentCommitted(data: {
+  trackIntentCommitStarted(data: {
     intentAddress: string
     userAddress?: string
     [key: string]: any
   }) {
     this.track({
-      event: EventType.INTENT_COMMITTED,
+      event: EventType.INTENT_COMMIT_STARTED,
+      props: {
+        ...this.getCommonProps(),
+        ...data,
+        intentAddress: pseudonymize(data.intentAddress),
+        ...(data.userAddress && {
+          userAddress: pseudonymize(data.userAddress),
+        }),
+      },
+    })
+  }
+
+  trackIntentCommitCompleted(data: {
+    intentAddress: string
+    userAddress?: string
+    [key: string]: any
+  }) {
+    this.track({
+      event: EventType.INTENT_COMMIT_COMPLETED,
       props: {
         ...this.getCommonProps(),
         ...data,
@@ -290,6 +309,8 @@ abstract class BaseAnalytics {
     error: string
     userAddress?: string
     intentAddress?: string
+    originChainId?: number
+    destinationChainId?: number
     [key: string]: any
   }) {
     this.track({
@@ -398,7 +419,7 @@ abstract class BaseAnalytics {
     })
   }
 
-  trackTransactionFailed(data: {
+  trackTransactionError(data: {
     transactionHash: string
     error: string
     userAddress?: string
@@ -406,7 +427,7 @@ abstract class BaseAnalytics {
     [key: string]: any
   }) {
     this.track({
-      event: EventType.TRANSACTION_FAILED,
+      event: EventType.TRANSACTION_ERROR,
       props: {
         ...this.getCommonProps(),
         ...data,
@@ -464,7 +485,7 @@ abstract class BaseAnalytics {
     })
   }
 
-  trackRelayerCallFailed(data: {
+  trackRelayerCallError(data: {
     error: string
     walletAddress?: string
     contractAddress?: string
@@ -472,7 +493,7 @@ abstract class BaseAnalytics {
     [key: string]: any
   }) {
     this.track({
-      event: EventType.RELAYER_CALL_FAILED,
+      event: EventType.RELAYER_CALL_ERROR,
       props: {
         ...this.getCommonProps(),
         ...data,
@@ -489,6 +510,7 @@ abstract class BaseAnalytics {
 
 class Analytics extends BaseAnalytics {
   private databeat: Databeat<EventTypes>
+  private loggingEnabled: boolean = false
 
   constructor(server: string, config: any) {
     super()
@@ -515,11 +537,15 @@ class Analytics extends BaseAnalytics {
   }
 
   logEvent(event: EventProps) {
-    console.log("[trails-sdk] Analytics track:", event)
+    if (this.loggingEnabled) {
+      console.log("[trails-sdk] Analytics track:", event)
+    }
   }
 }
 
 class MockAnalytics extends BaseAnalytics {
+  private loggingEnabled: boolean = true
+
   enable() {
     return this
   }
@@ -538,7 +564,9 @@ class MockAnalytics extends BaseAnalytics {
   }
 
   logEvent(event: EventProps) {
-    console.log("[trails-sdk] MockAnalytics track:", event)
+    if (this.loggingEnabled) {
+      console.log("[trails-sdk] MockAnalytics track:", event)
+    }
   }
 }
 
@@ -584,7 +612,7 @@ export const trackWidgetScreen = (data: {
   analytics.trackWidgetScreen(data)
 }
 
-export const trackPaymentStart = (data: {
+export const trackPaymentStarted = (data: {
   userAddress?: string
   intentAddress?: string
   originChainId?: number
@@ -595,7 +623,7 @@ export const trackPaymentStart = (data: {
   [key: string]: any
 }) => {
   const analytics = getAnalytics()
-  analytics.trackPaymentStart(data)
+  analytics.trackPaymentStarted(data)
 }
 
 export const trackPaymentCompleted = (data: {
@@ -679,19 +707,34 @@ export const trackIntentQuoteError = (data: {
   analytics.trackIntentQuoteError(data)
 }
 
-export const trackIntentCommitted = (data: {
+export const trackIntentCommitStarted = (data: {
   intentAddress: string
   userAddress?: string
+  originChainId?: number
+  destinationChainId?: number
   [key: string]: any
 }) => {
   const analytics = getAnalytics()
-  analytics.trackIntentCommitted(data)
+  analytics.trackIntentCommitStarted(data)
+}
+
+export const trackIntentCommitCompleted = (data: {
+  intentAddress: string
+  userAddress?: string
+  originChainId?: number
+  destinationChainId?: number
+  [key: string]: any
+}) => {
+  const analytics = getAnalytics()
+  analytics.trackIntentCommitCompleted(data)
 }
 
 export const trackIntentCommitError = (data: {
   error: string
   userAddress?: string
   intentAddress?: string
+  originChainId?: number
+  destinationChainId?: number
   [key: string]: any
 }) => {
   const analytics = getAnalytics()
@@ -742,7 +785,7 @@ export const trackTransactionConfirmed = (data: {
   analytics.trackTransactionConfirmed(data)
 }
 
-export const trackTransactionFailed = (data: {
+export const trackTransactionError = (data: {
   transactionHash: string
   error: string
   userAddress?: string
@@ -750,7 +793,7 @@ export const trackTransactionFailed = (data: {
   [key: string]: any
 }) => {
   const analytics = getAnalytics()
-  analytics.trackTransactionFailed(data)
+  analytics.trackTransactionError(data)
 }
 
 // Relayer tracking exports
@@ -774,7 +817,7 @@ export const trackRelayerCallCompleted = (data: {
   analytics.trackRelayerCallCompleted(data)
 }
 
-export const trackRelayerCallFailed = (data: {
+export const trackRelayerCallError = (data: {
   error: string
   walletAddress?: string
   contractAddress?: string
@@ -782,5 +825,5 @@ export const trackRelayerCallFailed = (data: {
   [key: string]: any
 }) => {
   const analytics = getAnalytics()
-  analytics.trackRelayerCallFailed(data)
+  analytics.trackRelayerCallError(data)
 }

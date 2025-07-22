@@ -75,12 +75,12 @@ import { useAccountTokenBalance } from "./tokenBalances.js"
 import { useSupportedTokens } from "./tokens.js"
 import { requestWithTimeout } from "./utils.js"
 import {
-  trackPaymentStart,
+  trackPaymentStarted,
   trackPaymentCompleted,
   trackPaymentError,
   trackRelayerCallStarted,
   trackRelayerCallCompleted,
-  trackRelayerCallFailed,
+  trackRelayerCallError,
   trackTransactionConfirmed,
 } from "./analytics.js"
 
@@ -265,7 +265,7 @@ export async function prepareSend(
   } = options
 
   // Track payment start
-  trackPaymentStart({
+  trackPaymentStarted({
     userAddress: account.address,
     originChainId,
     destinationChainId,
@@ -1716,7 +1716,7 @@ async function sendMetaTxAndWaitForReceipt({
 
     return originMetaTxnReceipt
   } catch (error) {
-    trackRelayerCallFailed({
+    trackRelayerCallError({
       walletAddress: metaTx.walletAddress as `0x${string}`,
       contractAddress: metaTx.contract as `0x${string}`,
       chainId: Number(metaTx.chainId),

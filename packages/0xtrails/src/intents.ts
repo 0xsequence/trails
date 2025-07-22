@@ -37,11 +37,12 @@ import { getChainInfo } from "./chains.js"
 import {
   trackTransactionStarted,
   trackTransactionSubmitted,
-  trackTransactionFailed,
+  trackTransactionError,
   trackIntentQuoteRequested,
   trackIntentQuoteReceived,
   trackIntentQuoteError,
-  trackIntentCommitted,
+  trackIntentCommitStarted,
+  trackIntentCommitCompleted,
   trackIntentCommitError,
 } from "./analytics.js"
 
@@ -294,10 +295,20 @@ export async function commitIntentConfig(
   }
 
   try {
+    // Track successful intent commit
+    trackIntentCommitStarted({
+      intentAddress: originIntentAddress.toString(),
+      userAddress: mainSignerAddress,
+      originChainId: originChainIdStr ? Number(originChainIdStr) : undefined,
+      destinationChainId: destinationChainIdStr
+        ? Number(destinationChainIdStr)
+        : undefined,
+    })
+
     const result = await apiClient.commitIntentConfig(args)
 
     // Track successful intent commit
-    trackIntentCommitted({
+    trackIntentCommitCompleted({
       intentAddress: originIntentAddress.toString(),
       userAddress: mainSignerAddress,
       originChainId: originChainIdStr ? Number(originChainIdStr) : undefined,
@@ -313,6 +324,10 @@ export async function commitIntentConfig(
       error: error instanceof Error ? error.message : "Unknown error",
       userAddress: mainSignerAddress,
       intentAddress: originIntentAddress.toString(),
+      originChainId: originChainIdStr ? Number(originChainIdStr) : undefined,
+      destinationChainId: destinationChainIdStr
+        ? Number(destinationChainIdStr)
+        : undefined,
     })
     throw error
   }
@@ -390,7 +405,7 @@ export async function sendOriginTransaction(
     console.timeEnd(`[trails-sdk] walletClient.sendTransaction-${id}`)
 
     // Track failed transaction
-    trackTransactionFailed({
+    trackTransactionError({
       transactionHash: "",
       error: error instanceof Error ? error.message : "Unknown error",
       userAddress: account.address,
