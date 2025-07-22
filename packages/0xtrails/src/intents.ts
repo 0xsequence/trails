@@ -133,18 +133,23 @@ export async function getIntentCallsPayloads(
 
     // Track successful intent quote received
     trackIntentQuoteReceived({
-      quoteId: result.quoteId || "unknown",
-      totalFeeUSD: result.fee?.totalFeeUSD,
-      trailsFixedFeeUSD: result.fee?.trailsFixedFeeUSD,
-      crossChainFeeTotalUSD: result.fee?.crossChainFee?.totalFeeUSD,
-      takerFeeUSD: result.fee?.crossChainFee?.providerFeeUSD,
-      providerFeeUSD: result.fee?.crossChainFee?.providerFeeUSD,
-      trailsSwapFeeUSD: result.fee?.crossChainFee?.trailsSwapFeeUSD,
-      originTokenTotalAmount: result.fee?.originTokenTotalAmount,
-      destinationTokenAmount: result.fee?.destinationTokenAmount,
-      provider: result.fee?.quoteProvider,
-      feeToken: result.fee?.feeToken,
+      quoteId: result.originIntentAddress || "unknown",
+      totalFeeUSD: result.trailsFee?.totalFeeUSD,
+      trailsFixedFeeUSD: result.trailsFee?.trailsFixedFeeUSD,
+      crossChainFeeTotalUSD: result.trailsFee?.crossChainFee?.totalFeeUSD,
+      takerFeeUSD: result.trailsFee?.crossChainFee?.providerFeeUSD,
+      providerFeeUSD: result.trailsFee?.crossChainFee?.providerFeeUSD,
+      trailsSwapFeeUSD: result.trailsFee?.crossChainFee?.trailsSwapFeeUSD,
+      gasFeesPerChainUSD:
+        result.trailsFee?.executeQuote?.chainQuotes?.map((quote: any) =>
+          parseFloat(quote.totalFeeUSD || "0"),
+        ) || [],
+      originTokenTotalAmount: result.trailsFee?.originTokenTotalAmount,
+      destinationTokenAmount: result.trailsFee?.totalFeeAmount, // Using available property
+      provider: result.trailsFee?.quoteProvider,
+      feeToken: result.trailsFee?.feeToken,
       userAddress: args.userAddress,
+      intentAddress: result.originIntentAddress,
     })
 
     return result

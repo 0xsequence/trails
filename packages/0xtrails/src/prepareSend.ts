@@ -654,21 +654,20 @@ async function sendHandlerForDifferentChainDifferentToken({
     // Track successful intent quote with comprehensive data
     if (intent.trailsFee) {
       const gasFeesPerChainUSD =
-        intent.trailsFee.executeQuote?.chainQuotes?.map(
-          (quote: any) => quote.totalFeeUSD,
+        intent.trailsFee.executeQuote?.chainQuotes?.map((quote: any) =>
+          parseFloat(quote.totalFeeUSD || "0"),
         ) || []
 
       trackIntentQuoteReceived({
         quoteId: intent.originIntentAddress || Date.now().toString(),
-        totalFeeUSD: intent.trailsFee.totalFeeUSD?.toString(),
+        totalFeeUSD: intent.trailsFee.totalFeeUSD,
         trailsFixedFeeUSD: intent.trailsFee.trailsFixedFeeUSD,
         crossChainFeeTotalUSD: intent.trailsFee.crossChainFee?.totalFeeUSD,
-        takerFeeUSD: intent.trailsFee.takerFeeUSD,
         providerFeeUSD: intent.trailsFee.crossChainFee?.providerFeeUSD,
         trailsSwapFeeUSD: intent.trailsFee.crossChainFee?.trailsSwapFeeUSD,
         gasFeesPerChainUSD,
         originTokenTotalAmount: intent.trailsFee.originTokenTotalAmount,
-        destinationTokenAmount,
+        destinationTokenAmount: intent.trailsFee.totalFeeAmount, // Using available property
         provider: intent.trailsFee.quoteProvider,
         feeToken: intent.trailsFee.feeToken,
         userAddress: mainSignerAddress,
@@ -883,6 +882,43 @@ async function sendHandlerForDifferentChainDifferentToken({
         destinationMetaTxnPromise(),
       ])
 
+      // Track payment completion
+      if (originUserTxReceipt && destinationMetaTxnReceipt) {
+        trackPaymentCompleted({
+          userAddress: account.address,
+          intentAddress,
+          originTxHash: (originUserTxReceipt as TransactionReceipt)
+            .transactionHash,
+          destinationTxHash: (destinationMetaTxnReceipt as MetaTxnReceipt)
+            ?.txnHash,
+          originChainId,
+          destinationChainId,
+        })
+
+        // Track cross-chain swap completion if applicable
+        if (
+          originChainId !== destinationChainId &&
+          originMetaTxnReceipt &&
+          destinationMetaTxnReceipt
+        ) {
+          trackCrossChainSwapCompleted({
+            originTxHash: (originUserTxReceipt as TransactionReceipt)
+              .transactionHash,
+            destinationTxHash: (destinationMetaTxnReceipt as MetaTxnReceipt)
+              .txnHash,
+            userAddress: account.address,
+            intentAddress,
+          })
+        }
+      } else {
+        // Track payment error if transactions didn't complete successfully
+        trackPaymentError({
+          error: "Payment transactions did not complete successfully",
+          userAddress: account.address,
+          intentAddress,
+        })
+      }
+
       return {
         originUserTxReceipt,
         originMetaTxnReceipt,
@@ -1002,6 +1038,21 @@ async function sendHandlerForSameChainSameToken({
             "Swap",
           ),
         ])
+
+        // Track payment completion for same-chain same-token transaction
+        if (originUserTxReceipt && originUserTxReceipt.status === "success") {
+          trackPaymentCompleted({
+            userAddress: account.address,
+            originTxHash: originUserTxReceipt.transactionHash,
+            originChainId,
+            destinationChainId: originChainId, // Same chain
+          })
+        } else if (originUserTxReceipt) {
+          trackPaymentError({
+            error: "Transaction failed",
+            userAddress: account.address,
+          })
+        }
       }
 
       return {
@@ -1105,6 +1156,21 @@ async function sendHandlerForSameChainDifferentToken({
       const originUserTxReceipt = await publicClient.waitForTransactionReceipt({
         hash: txHash as `0x${string}`,
       })
+
+      // Track payment completion for same-chain different-token transaction
+      if (originUserTxReceipt && originUserTxReceipt.status === "success") {
+        trackPaymentCompleted({
+          userAddress: account.address,
+          originTxHash: originUserTxReceipt.transactionHash,
+          originChainId,
+          destinationChainId: originChainId, // Same chain
+        })
+      } else if (originUserTxReceipt) {
+        trackPaymentError({
+          error: "Relay transaction failed",
+          userAddress: account.address,
+        })
+      }
 
       return {
         originUserTxReceipt: originUserTxReceipt,
@@ -1974,6 +2040,24 @@ export function useQuote({
 
       const swap = async () => {
         const { originUserTxReceipt, destinationMetaTxnReceipt } = await send()
+
+        // Track payment completion in useQuote hook
+        if (originUserTxReceipt && originUserTxReceipt.status === "success") {
+          trackPaymentCompleted({
+            userAddress: walletClient.account?.address,
+            originTxHash: originUserTxReceipt.transactionHash,
+            destinationTxHash: destinationMetaTxnReceipt?.txnHash,
+            originChainId: fromChainId!,
+            destinationChainId: toChainId!,
+            intentAddress: intentAddress,
+          })
+        } else if (originUserTxReceipt) {
+          trackPaymentError({
+            error: "useQuote swap transaction failed",
+            userAddress: walletClient.account?.address,
+            intentAddress: intentAddress,
+          })
+        }
 
         return {
           originTransaction: {
