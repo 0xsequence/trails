@@ -78,26 +78,10 @@ import {
   trackPaymentStart,
   trackPaymentCompleted,
   trackPaymentError,
-  trackIntentQuoteRequested,
-  trackIntentQuoteReceived,
-  trackIntentQuoteError,
-  trackIntentCommitted,
-  trackIntentCommitError,
-  trackTransactionStarted,
-  trackTransactionSubmitted,
-  trackTransactionConfirmed,
-  trackTransactionFailed,
-  trackCrossChainSwapStarted,
-  trackCrossChainSwapCompleted,
-  trackCrossChainSwapFailed,
   trackRelayerCallStarted,
   trackRelayerCallCompleted,
   trackRelayerCallFailed,
-  trackFeeQuoteRequested,
-  trackFeeQuoteReceived,
-  trackFeeQuoteError,
-  trackWalletDeployed,
-  trackWalletDeploymentError,
+  trackTransactionConfirmed,
 } from "./analytics.js"
 
 type TransactionStateStatus = "pending" | "failed" | "confirmed"
@@ -288,7 +272,6 @@ export async function prepareSend(
     originTokenAddress,
     destinationTokenAddress,
     destinationTokenAmount,
-    gasless,
   })
 
   if (!walletClient) {
@@ -629,58 +612,8 @@ async function sendHandlerForDifferentChainDifferentToken({
   )
   console.log("[trails-sdk] Creating intent with args:", intentArgs)
 
-  // Track intent quote request
-  trackIntentQuoteRequested({
-    originChainId,
-    destinationChainId,
-    originTokenAddress,
-    destinationTokenAddress,
-    userAddress: mainSignerAddress,
-  })
-
-  let intent: any
-  try {
-    intent = await getIntentCallsPayloadsFromIntents(apiClient, intentArgs)
-    console.log("[trails-sdk] Got intent:", intent)
-
-    if (!intent) {
-      trackIntentQuoteError({
-        error: "Invalid intent response",
-        userAddress: mainSignerAddress,
-      })
-      throw new Error("Invalid intent")
-    }
-
-    // Track successful intent quote with comprehensive data
-    if (intent.trailsFee) {
-      const gasFeesPerChainUSD =
-        intent.trailsFee.executeQuote?.chainQuotes?.map((quote: any) =>
-          parseFloat(quote.totalFeeUSD || "0"),
-        ) || []
-
-      trackIntentQuoteReceived({
-        quoteId: intent.originIntentAddress || Date.now().toString(),
-        totalFeeUSD: intent.trailsFee.totalFeeUSD,
-        trailsFixedFeeUSD: intent.trailsFee.trailsFixedFeeUSD,
-        crossChainFeeTotalUSD: intent.trailsFee.crossChainFee?.totalFeeUSD,
-        providerFeeUSD: intent.trailsFee.crossChainFee?.providerFeeUSD,
-        trailsSwapFeeUSD: intent.trailsFee.crossChainFee?.trailsSwapFeeUSD,
-        gasFeesPerChainUSD,
-        originTokenTotalAmount: intent.trailsFee.originTokenTotalAmount,
-        destinationTokenAmount: intent.trailsFee.totalFeeAmount, // Using available property
-        provider: intent.trailsFee.quoteProvider,
-        feeToken: intent.trailsFee.feeToken,
-        userAddress: mainSignerAddress,
-        intentAddress: intent.originIntentAddress,
-      })
-    }
-  } catch (error) {
-    trackIntentQuoteError({
-      error: error instanceof Error ? error.message : "Unknown error",
-      userAddress: mainSignerAddress,
-    })
-    throw error
-  }
+  const intent = await getIntentCallsPayloadsFromIntents(apiClient, intentArgs)
+  console.log("[trails-sdk] Got intent:", intent)
 
   if (!intent.preconditions?.length || !intent.calls?.length) {
     throw new Error("Invalid intent")
@@ -689,29 +622,12 @@ async function sendHandlerForDifferentChainDifferentToken({
   const intentAddress = intent.originIntentAddress
   console.log("[trails-sdk] intent address:", intentAddress.toString())
 
-  try {
-    await commitIntentConfig(
-      apiClient,
-      mainSignerAddress,
-      intent.calls,
-      intent.preconditions,
-    )
-
-    console.log("[trails-sdk] Committed intent config")
-
-    // Track successful intent commit
-    trackIntentCommitted({
-      intentAddress,
-      userAddress: mainSignerAddress,
-    })
-  } catch (error) {
-    trackIntentCommitError({
-      error: error instanceof Error ? error.message : "Unknown error",
-      userAddress: mainSignerAddress,
-      intentAddress,
-    })
-    throw error
-  }
+  await commitIntentConfig(
+    apiClient,
+    mainSignerAddress,
+    intent.calls,
+    intent.preconditions,
+  )
 
   const firstPrecondition = findFirstPreconditionForChainId(
     intent.preconditions,
@@ -894,22 +810,6 @@ async function sendHandlerForDifferentChainDifferentToken({
           originChainId,
           destinationChainId,
         })
-
-        // Track cross-chain swap completion if applicable
-        if (
-          originChainId !== destinationChainId &&
-          originMetaTxnReceipt &&
-          destinationMetaTxnReceipt
-        ) {
-          trackCrossChainSwapCompleted({
-            originTxHash: (originUserTxReceipt as TransactionReceipt)
-              .transactionHash,
-            destinationTxHash: (destinationMetaTxnReceipt as MetaTxnReceipt)
-              .txnHash,
-            userAddress: account.address,
-            intentAddress,
-          })
-        }
       } else {
         // Track payment error if transactions didn't complete successfully
         trackPaymentError({
@@ -1030,6 +930,13 @@ async function sendHandlerForSameChainSameToken({
         })
         console.log("[trails-sdk] receipt", receipt)
         originUserTxReceipt = receipt
+
+        trackTransactionConfirmed({
+          transactionHash: txHash,
+          chainId: originChainId,
+          userAddress: account.address,
+          blockNumber: Number(receipt.blockNumber),
+        })
 
         onTransactionStateChange([
           getTransactionStateFromReceipt(
@@ -1608,6 +1515,15 @@ export async function attemptNonGaslessUserDeposit({
       const receipt = await publicClient.waitForTransactionReceipt({
         hash: tx,
       })
+
+      trackTransactionConfirmed({
+        transactionHash: tx,
+        chainId: originChainId,
+        userAddress: account.address,
+        blockNumber: Number(receipt.blockNumber),
+        intentAddress,
+      })
+
       console.log("[trails-sdk] receipt", receipt)
       originUserTxReceipt = receipt
     }
@@ -1761,33 +1677,53 @@ async function sendMetaTxAndWaitForReceipt({
   relayer: Relayer.Standard.Rpc.RpcRelayer
   precondition: IntentPrecondition
 }): Promise<MetaTxnReceipt | null> {
-  let originMetaTxnReceipt: MetaTxnReceipt | null = null
-  console.log("[trails-sdk] metaTx", metaTx)
-  const opHash = await relayerSendMetaTx(relayer, metaTx, [precondition])
+  try {
+    let originMetaTxnReceipt: MetaTxnReceipt | null = null
+    console.log("[trails-sdk] metaTx", metaTx)
+    trackRelayerCallStarted({
+      walletAddress: metaTx.walletAddress as `0x${string}`,
+      contractAddress: metaTx.contract as `0x${string}`,
+      chainId: Number(metaTx.chainId),
+    })
+    const opHash = await relayerSendMetaTx(relayer, metaTx, [precondition])
+    console.log("[trails-sdk] opHash", opHash)
 
-  console.log("[trails-sdk] opHash", opHash)
+    trackRelayerCallCompleted({
+      walletAddress: metaTx.walletAddress as `0x${string}`,
+      contractAddress: metaTx.contract as `0x${string}`,
+      chainId: Number(metaTx.chainId),
+    })
 
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    console.log(
-      "[trails-sdk] polling status",
-      metaTx.id as `0x${string}`,
-      BigInt(metaTx.chainId),
-    )
-    const receipt: any = await getMetaTxStatus(
-      relayer,
-      metaTx.id,
-      Number(metaTx.chainId),
-    )
-    console.log("[trails-sdk] status", receipt)
-    if (receipt?.transactionHash) {
-      originMetaTxnReceipt = receipt.data?.receipt
-      break
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      console.log(
+        "[trails-sdk] polling status",
+        metaTx.id as `0x${string}`,
+        BigInt(metaTx.chainId),
+      )
+      const receipt: any = await getMetaTxStatus(
+        relayer,
+        metaTx.id,
+        Number(metaTx.chainId),
+      )
+      console.log("[trails-sdk] status", receipt)
+      if (receipt?.transactionHash) {
+        originMetaTxnReceipt = receipt.data?.receipt
+        break
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000))
     }
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-  }
 
-  return originMetaTxnReceipt
+    return originMetaTxnReceipt
+  } catch (error) {
+    trackRelayerCallFailed({
+      walletAddress: metaTx.walletAddress as `0x${string}`,
+      contractAddress: metaTx.contract as `0x${string}`,
+      chainId: Number(metaTx.chainId),
+      error: error instanceof Error ? error.message : "Unknown error",
+    })
+    throw error
+  }
 }
 
 /**
@@ -2040,24 +1976,6 @@ export function useQuote({
 
       const swap = async () => {
         const { originUserTxReceipt, destinationMetaTxnReceipt } = await send()
-
-        // Track payment completion in useQuote hook
-        if (originUserTxReceipt && originUserTxReceipt.status === "success") {
-          trackPaymentCompleted({
-            userAddress: walletClient.account?.address,
-            originTxHash: originUserTxReceipt.transactionHash,
-            destinationTxHash: destinationMetaTxnReceipt?.txnHash,
-            originChainId: fromChainId!,
-            destinationChainId: toChainId!,
-            intentAddress: intentAddress,
-          })
-        } else if (originUserTxReceipt) {
-          trackPaymentError({
-            error: "useQuote swap transaction failed",
-            userAddress: walletClient.account?.address,
-            intentAddress: intentAddress,
-          })
-        }
 
         return {
           originTransaction: {

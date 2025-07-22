@@ -37,21 +37,12 @@ import { getChainInfo } from "./chains.js"
 import {
   trackTransactionStarted,
   trackTransactionSubmitted,
-  trackTransactionConfirmed,
   trackTransactionFailed,
-  trackWalletDeployed,
-  trackWalletDeploymentError,
   trackIntentQuoteRequested,
   trackIntentQuoteReceived,
   trackIntentQuoteError,
   trackIntentCommitted,
   trackIntentCommitError,
-  trackCrossChainSwapStarted,
-  trackCrossChainSwapCompleted,
-  trackCrossChainSwapFailed,
-  trackRelayerCallStarted,
-  trackRelayerCallCompleted,
-  trackRelayerCallFailed,
 } from "./analytics.js"
 
 export interface MetaTxnFeeDetail {
@@ -131,6 +122,10 @@ export async function getIntentCallsPayloads(
   try {
     const result = await apiClient.getIntentCallsPayloads(args)
 
+    if (!result) {
+      throw new Error("No result from getIntentCallsPayloads")
+    }
+
     // Track successful intent quote received
     trackIntentQuoteReceived({
       quoteId: result.originIntentAddress || "unknown",
@@ -158,6 +153,10 @@ export async function getIntentCallsPayloads(
     trackIntentQuoteError({
       error: error instanceof Error ? error.message : "Unknown error",
       userAddress: args.userAddress,
+      originChainId: args.originChainId || 0,
+      destinationChainId: args.destinationChainId || 0,
+      originTokenAddress: args.originTokenAddress,
+      destinationTokenAddress: args.destinationTokenAddress,
     })
     throw error
   }
@@ -306,21 +305,6 @@ export async function commitIntentConfig(
         ? Number(destinationChainIdStr)
         : undefined,
     })
-
-    // Track cross-chain swap started if this is a cross-chain intent
-    if (
-      originChainIdStr &&
-      destinationChainIdStr &&
-      originChainIdStr !== destinationChainIdStr
-    ) {
-      trackCrossChainSwapStarted({
-        originChainId: Number(originChainIdStr),
-        destinationChainId: Number(destinationChainIdStr),
-        provider: "trails", // Default provider
-        userAddress: mainSignerAddress,
-        intentAddress: originIntentAddress.toString(),
-      })
-    }
 
     return result
   } catch (error) {
