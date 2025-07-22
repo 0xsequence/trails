@@ -51,7 +51,7 @@
     "@0xsequence/wallet-core": "github:0xsequence/sequence.js#dists/wallet/core",
     "@0xsequence/wallet-primitives": "github:0xsequence/sequence.js#dists/wallet/primitives",
     "@databeat/tracker": "^0.9.3",
-    "@privy-io/react-auth": "^2.19.0",
+    "@privy-io/react-auth": "^2.19.2",
     "@privy-io/wagmi": "^1.0.5",
     "@reservoir0x/relay-sdk": "^2.3.0",
     "@tanstack/query-core": "^5.83.0",
@@ -92,7 +92,7 @@
     "tailwindcss": "^4.1.11",
     "turbo": "^2.5.5",
     "typescript": "^5.8.3",
-    "viem": "^2.32.1",
+    "viem": "^2.33.0",
     "vite": "^5.4.19",
     "vite-plugin-css-injected-by-js": "^3.5.2",
     "vitest": "^3.2.4"
