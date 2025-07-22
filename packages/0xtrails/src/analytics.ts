@@ -9,7 +9,8 @@ export function pseudonymize(value: string): string {
 
   // Use ox Hash function for proper synchronous hashing
   // Convert any string to Bytes and then to hex
-  const inputBytes = Bytes.fromString(value?.toString() || "")
+  const normalizedValue = value?.toString()?.trim().toLowerCase() || ""
+  const inputBytes = Bytes.fromString(normalizedValue)
   const hashBytes = Hash.sha256(inputBytes)
   const hashHex = Bytes.toHex(hashBytes)
   const id = `anon_${hashHex.replace("0x", "")}`
@@ -56,9 +57,57 @@ export type EventProps = any
 abstract class BaseAnalytics {
   private getCommonProps(): Record<string, string> {
     return {
+      ...this.getNavigatorProps(),
+      ...this.getDocumentProps(),
+      ...this.getWindowProps(),
+    }
+  }
+
+  private getNavigatorProps(): Record<string, string> {
+    if (typeof navigator === "undefined") {
+      return {
+        userAgent: "",
+      }
+    }
+
+    return {
+      userAgent: navigator.userAgent,
+    }
+  }
+
+  private getDocumentProps(): Record<string, string> {
+    if (typeof window === "undefined") {
+      return {
+        userAgent: "",
+        title: "",
+      }
+    }
+
+    return {
       title: document.title,
-      url: window.location.href,
       referrer: document.referrer,
+    }
+  }
+
+  private getWindowProps(): Record<string, string> {
+    if (typeof window === "undefined") {
+      return {
+        url: "",
+        screenWidth: "",
+        screenHeight: "",
+        screenPixelRatio: "",
+        screenResolution: "",
+        screenOrientation: "",
+      }
+    }
+
+    return {
+      url: window.location?.href,
+      screenWidth: window.innerWidth?.toString(),
+      screenHeight: window.innerHeight?.toString(),
+      screenPixelRatio: window.devicePixelRatio?.toString(),
+      screenResolution: `${window.screen?.width}x${window.screen?.height}`,
+      screenOrientation: window.screen?.orientation?.toString(),
     }
   }
 
