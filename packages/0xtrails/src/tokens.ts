@@ -1,7 +1,7 @@
 import { QueryClient, useQuery } from "@tanstack/react-query"
 import { zeroAddress, erc20Abi } from "viem"
 import * as chains from "viem/chains"
-import { getChainInfo } from "./chains.js"
+import { getChainInfo, getSupportedChains } from "./chains.js"
 import { getRelaySupportedTokens } from "./relaySdk.js"
 import { useReadContracts } from "wagmi"
 import { useMemo } from "react"
@@ -18,7 +18,7 @@ export type SupportedToken = {
 }
 
 // LocalStorage cache utilities for token images
-const TOKEN_IMAGE_CACHE_KEY = "trails-sdk:token-image-cache"
+const TOKEN_IMAGE_CACHE_KEY = "trails-sdk:token-image-cache:01"
 const TOKEN_IMAGE_CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000 // 7 days
 
 interface TokenImageCacheEntry {
@@ -139,12 +139,17 @@ function sortTokens(tokens: SupportedToken[]): SupportedToken[] {
   })
 }
 
-export async function getTokenImageUrlOrFallback(
-  chainId: number,
-  contractAddress: string,
-): Promise<string> {
+export async function getTokenImageUrlOrFallback({
+  chainId,
+  contractAddress,
+  symbol,
+}: {
+  chainId?: number
+  contractAddress?: string
+  symbol?: string
+}): Promise<string> {
   const cacheKey = `${chainId}:${contractAddress}`
-  const imageUrl = getTokenImageUrl(chainId, contractAddress)
+  const imageUrl = getTokenImageUrl({ chainId, contractAddress, symbol })
 
   // Check localStorage cache first
   const cache = getTokenImageCache()
@@ -192,10 +197,18 @@ export async function getSupportedTokens(): Promise<SupportedToken[]> {
   const tokens = await getRelaySupportedTokens()
   for (const token of tokens) {
     if (!token.imageUrl) {
-      token.imageUrl = getTokenImageUrl(token.chainId, token.contractAddress)
+      token.imageUrl = getTokenImageUrl({
+        chainId: token.chainId,
+        contractAddress: token.contractAddress,
+        symbol: token.symbol,
+      })
     }
 
-    getTokenImageUrlOrFallback(token.chainId, token.contractAddress)
+    getTokenImageUrlOrFallback({
+      chainId: token.chainId,
+      contractAddress: token.contractAddress,
+      symbol: token.symbol,
+    })
       .then((imageUrl) => {
         token.imageUrl = imageUrl
       })
@@ -205,20 +218,24 @@ export async function getSupportedTokens(): Promise<SupportedToken[]> {
   }
 
   const additionalTokens: SupportedToken[] = []
-  for (const standardToken of standardTokens) {
-    const contractAddress = standardToken.contractAddress
+  for (const commonToken of commonTokens) {
+    const contractAddress = commonToken.contractAddress
     const exists = tokens.some(
       (t) =>
-        t.chainId === standardToken.chainId &&
+        t.chainId === commonToken.chainId &&
         t.contractAddress.toLowerCase() === contractAddress.toLowerCase(),
     )
     if (!exists) {
-      additionalTokens.push(standardToken)
+      additionalTokens.push(commonToken)
     }
   }
 
+  const supportedChains = await getSupportedChains()
   const allTokens = [...tokens, ...additionalTokens]
-  const uniqueTokens = allTokens.filter(
+  const supportedChainTokens = allTokens.filter((token) =>
+    supportedChains.some((chain) => chain.id === token.chainId),
+  )
+  const uniqueTokens = supportedChainTokens.filter(
     (token, index, self) =>
       index ===
       self.findIndex(
@@ -370,26 +387,53 @@ export function useTokenAddress({
   return tokenAddress || null
 }
 
-export function getTokenImageUrl(chainId: number, contractAddress: string) {
-  if (!chainId || !contractAddress) {
+export function getTokenImageUrl({
+  chainId,
+  contractAddress,
+  symbol,
+}: {
+  chainId?: number
+  contractAddress?: string
+  symbol?: string
+}) {
+  if (!chainId || !contractAddress || !symbol) {
     return ""
   }
+
+  if (symbol) {
+    const symbolKey = tokenImageSymbolMap[symbol] ?? symbol
+    if (commonTokenImages[symbolKey]) {
+      return commonTokenImages[symbolKey]
+    }
+  }
+
   const imageUrl = `https://assets.sequence.info/images/tokens/large/${chainId}/${contractAddress.toLowerCase()}.webp`
   return imageUrl
 }
 
 // React hook for token image fetching with caching
-export function useTokenImageUrl(
-  chainId: number | undefined,
-  contractAddress: string | undefined,
-) {
+export function useTokenImageUrl({
+  chainId,
+  contractAddress,
+  symbol,
+}: {
+  chainId?: number
+  contractAddress?: string
+  symbol?: string
+}): {
+  imageUrl: string
+  isLoading: boolean
+  error: Error | null
+  hasImage: boolean
+} {
   const {
     data: imageUrl = "",
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["tokenImage", chainId, contractAddress],
-    queryFn: () => getTokenImageUrlOrFallback(chainId!, contractAddress!),
+    queryKey: ["tokenImage", chainId, contractAddress, symbol],
+    queryFn: () =>
+      getTokenImageUrlOrFallback({ chainId, contractAddress, symbol }),
     enabled: !!chainId && !!contractAddress,
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
     gcTime: 7 * 24 * 60 * 60 * 1000, // 7 days
@@ -485,7 +529,33 @@ export function useTokenInfo({
   }
 }
 
-export const standardTokens: SupportedToken[] = [
+export const commonTokenImages: Record<string, string> = {
+  ETH: "https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp",
+  POL: "https://assets.sequence.info/images/tokens/large/137/0x0000000000000000000000000000000000000000.webp",
+  USDC: "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+  USDT: "https://assets.sequence.info/images/tokens/large/1/0xdac17f958d2ee523a2206206994597c13d831ec7.webp",
+  DAI: "https://assets.sequence.info/images/tokens/large/1/0x6b175474e89094c44da98b954eedeac495271d0f.webp",
+  WBTC: "https://assets.sequence.info/images/tokens/large/1/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.webp",
+  BAT: "https://assets.sequence.info/images/tokens/large/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp",
+}
+
+export const tokenImageSymbolMap: Record<string, string> = {
+  ETH: "ETH",
+  WETH: "ETH",
+  cbETH: "ETH",
+  POL: "POL",
+  WPOL: "POL",
+  USDC: "USDC",
+  "USDC.e": "USDC",
+  USDT: "USDT",
+  DAI: "DAI",
+  xDAI: "DAI",
+  WBTC: "WBTC",
+  cbBTC: "WBTC",
+  BAT: "BAT",
+}
+
+export const commonTokens: SupportedToken[] = [
   // Native tokens
   {
     id: "ETH-ethereum",
@@ -646,7 +716,7 @@ export const standardTokens: SupportedToken[] = [
 
   // Basic Attention Token
   {
-    id: "BAT-polygon",
+    id: "BAT-ethereum",
     symbol: "BAT",
     name: "Basic Attention Token",
     contractAddress: "0x0D8775F648430679A709E98d2b0Cb6250d2887EF",
@@ -665,7 +735,7 @@ export const standardTokens: SupportedToken[] = [
     chainId: chains.polygon.id,
     chainName: chains.polygon.name,
     imageUrl:
-      "https://assets.sequence.info/images/tokens/large/137/0x3cef98bb43d732e2f285ee605a8158cde967d219.webp",
+      "https://assets.sequence.info/images/tokens/large/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp",
   },
   {
     id: "BAT-avalanche",
@@ -676,7 +746,7 @@ export const standardTokens: SupportedToken[] = [
     chainId: chains.avalanche.id,
     chainName: chains.avalanche.name,
     imageUrl:
-      "https://assets.sequence.info/images/tokens/large/43114/0x98443b96ea4b0858fdf3219cd13e98c7a4690588.webp",
+      "https://assets.sequence.info/images/tokens/large/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp",
   },
 
   // ARB
