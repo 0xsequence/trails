@@ -593,7 +593,12 @@ class Analytics extends BaseAnalytics {
 }
 
 class MockAnalytics extends BaseAnalytics {
-  private loggingEnabled: boolean = true
+  private loggingEnabled: boolean = false
+
+  constructor({ loggingEnabled }: { loggingEnabled: boolean }) {
+    super()
+    this.loggingEnabled = loggingEnabled
+  }
 
   enable() {
     return this
@@ -623,8 +628,11 @@ let singleton: Analytics | null = null
 
 export const getAnalytics = () => {
   const debugMode = getQueryParam("analyticsDebug") === "true"
-  if (!DATABEAT_KEY || debugMode) {
-    return new MockAnalytics() // return a dummy analytics object
+  const isLocalhost =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+  if (!DATABEAT_KEY || debugMode || isLocalhost) {
+    return new MockAnalytics({ loggingEnabled: true }) // return a dummy analytics object
   }
   if (!singleton) {
     singleton = new Analytics(DATABEAT_SERVER, {

@@ -321,11 +321,15 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
         <Text
           variant="medium"
           color="primary"
-          className="mb-2 pb-1 border-b border-gray-700/50 flex items-center"
+          className="mb-2 pb-1 border-b border-gray-700/50 flex items-center text-gray-300"
         >
-          <Zap className="h-4 w-4 mr-1" />
+          <Zap className="h-4 w-4 mr-1 text-gray-300" />
           Intent all payloads
-          <Text variant="small" color="secondary" className="ml-1">
+          <Text
+            variant="small"
+            color="secondary"
+            className="ml-1 text-gray-300"
+          >
             (List of all payloads that are pre-authorized to be executed):
           </Text>
         </Text>
@@ -337,7 +341,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                 <Text
                   variant="small"
                   color="primary"
-                  className="font-semibold flex items-center"
+                  className="font-semibold flex items-center text-gray-300"
                 >
                   <Clipboard className="h-4 w-4 mr-2" />
                   Raw JSON Data
@@ -356,7 +360,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                   <Text
                     variant="small"
                     color="primary"
-                    className="font-semibold"
+                    className="font-semibold text-gray-300"
                   >
                     Payload #{index + 1}
                   </Text>
@@ -379,7 +383,9 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                       <div className="bg-gray-800/70 p-2 rounded-md mb-1">
                         <Text variant="small" color="secondary">
                           <strong className="text-blue-300">Value: </strong>
-                          <span className="font-mono">{call.value || "0"}</span>
+                          <span className="font-mono text-gray-300">
+                            {call.value || "0"}
+                          </span>
                         </Text>
                       </div>
                       <div className="bg-gray-800/70 p-2 rounded-md mb-1">
@@ -397,7 +403,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                       <div className="bg-gray-800/70 p-2 rounded-md mb-1 flex items-center">
                         <Text variant="small" color="secondary">
                           <strong className="text-blue-300">Chain ID: </strong>
-                          <span className="font-mono bg-blue-900/30 px-2 py-0.5 rounded-full">
+                          <span className="font-mono bg-blue-900/30 px-2 py-0.5 rounded-full text-gray-300">
                             {operation.chainId.toString()}
                           </span>
                         </Text>
@@ -433,11 +439,15 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             <Text
               variant="medium"
               color="primary"
-              className="mb-2 pb-1 border-b border-gray-700/50 flex items-center"
+              className="mb-2 pb-1 border-b border-gray-700/50 flex items-center text-gray-300"
             >
-              <Layers className="h-4 w-4 mr-1" />
+              <Layers className="h-4 w-4 mr-1 text-gray-300" />
               Meta-transactions
-              <Text variant="small" color="secondary" className="ml-1">
+              <Text
+                variant="small"
+                color="secondary"
+                className="ml-1 text-gray-300"
+              >
                 (Transactions that will be relayed):
               </Text>
             </Text>
@@ -447,7 +457,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                   <Text
                     variant="small"
                     color="primary"
-                    className="font-semibold flex items-center"
+                    className="font-semibold flex items-center text-gray-300"
                   >
                     <Clipboard className="h-4 w-4 mr-2" />
                     Raw JSON Data
@@ -522,9 +532,9 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             <Text
               variant="medium"
               color="primary"
-              className="mb-2 pb-1 border-b border-gray-700/50 flex items-center"
+              className="mb-2 pb-1 border-b border-gray-700/50 flex items-center text-gray-300"
             >
-              <Zap className="h-4 w-4 mr-1" />
+              <Zap className="h-4 w-4 mr-1 text-gray-300" />
               Trails Fee
             </Text>
             <div className="space-y-2">
@@ -711,7 +721,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                   <Text
                     variant="small"
                     color="primary"
-                    className="font-semibold flex items-center"
+                    className="font-semibold flex items-center text-gray-300"
                   >
                     <Clipboard className="h-4 w-4 mr-2" />
                     Raw JSON Data
@@ -730,9 +740,9 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
             <Text
               variant="medium"
               color="primary"
-              className="mt-4 mb-2 pb-1 border-b border-gray-700/50 flex items-center"
+              className="mt-4 mb-2 pb-1 border-b border-gray-700/50 flex items-center text-gray-300"
             >
-              <Box className="h-4 w-4 mr-1" />
+              <Box className="h-4 w-4 mr-1 text-gray-300" />
               Preconditions
               <Text
                 variant="small"

@@ -99,6 +99,12 @@ export function SdkSandbox() {
     },
   )
 
+  useEffect(() => {
+    if (quote) {
+      console.log("[trails-sdk-sandbox] quote", quote)
+    }
+  }, [quote])
+
   const [executedOriginTxHash, setExecutedOriginTxHash] = useState<
     string | null
   >(null)
@@ -759,7 +765,7 @@ export function SdkSandbox() {
                 : String(quoteError)}
             </div>
           ) : quote ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">
                   From Amount:
@@ -779,6 +785,109 @@ export function SdkSandbox() {
                   {quoteToAmount}
                 </span>
               </div>
+
+              {/* Additional Quote Details */}
+              {(quote?.fees?.feeTokenAddress ||
+                quote?.fees?.totalFeeAmount ||
+                quote?.fees?.totalFeeAmountUsd) && (
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
+                  <div className="space-y-2">
+                    {quote?.fees?.totalFeeAmountUsd && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          Total Fee (USD):
+                        </span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          $
+                          {Number(quote?.fees?.totalFeeAmountUsd ?? 0).toFixed(
+                            4,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {(quote as any).fees?.totalFeeAmount && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          Total Fee Amount:
+                        </span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          {formatUnits(
+                            BigInt(quote?.fees?.totalFeeAmount ?? 0),
+                            tokenList.find(
+                              (t) =>
+                                t.contractAddress.toLowerCase() ===
+                                quote?.fees?.feeTokenAddress?.toLowerCase(),
+                            )?.decimals || 18,
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    {(quote as any).fees?.feeTokenAddress && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          Fee Token:
+                        </span>
+                        <div className="flex items-center space-x-2">
+                          {(() => {
+                            const feeToken = tokenList.find(
+                              (t) =>
+                                t.contractAddress.toLowerCase() ===
+                                quote.fees?.feeTokenAddress?.toLowerCase(),
+                            )
+                            return (
+                              <>
+                                {feeToken?.imageUrl && (
+                                  <img
+                                    src={feeToken.imageUrl}
+                                    alt={feeToken.symbol}
+                                    className="w-4 h-4 rounded-full"
+                                  />
+                                )}
+                                <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                  {feeToken?.symbol || "Unknown"} (
+                                  {feeToken?.name || "Unknown Token"})
+                                </span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                                  {quote?.fees.feeTokenAddress}
+                                </span>
+                              </>
+                            )
+                          })()}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Slippage and Price Impact */}
+              {((quote as any).slippageTolerance ||
+                (quote as any).priceImpact) && (
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
+                  <div className="space-y-2">
+                    {(quote as any).slippageTolerance && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          Slippage Tolerance:
+                        </span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">
+                          {Number(quote?.slippageTolerance) * 100}%
+                        </span>
+                      </div>
+                    )}
+                    {(quote as any).priceImpact && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          Price Impact:
+                        </span>
+                        <span className="text-sm font-medium">
+                          {Number(quote?.priceImpact).toFixed(2)}%
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-gray-500 dark:text-gray-400">

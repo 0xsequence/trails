@@ -1,5 +1,6 @@
 import type {
   GetIntentCallsPayloadsArgs,
+  GetIntentCallsPayloadsReturn,
   IntentPrecondition,
   SequenceAPIClient,
 } from "@0xsequence/trails-api"
@@ -64,6 +65,7 @@ import { useRelayers } from "./relayer.js"
 import {
   executeSimpleRelayTransaction,
   getRelaySDKQuote,
+  type RelayQuote,
   getTxHashFromRelayResult,
 } from "./relaySdk.js"
 import {
@@ -123,9 +125,18 @@ export type SendOptions = {
   relayerConfig: RelayerEnvConfig
 }
 
+export type PrepareSendFees = {
+  feeTokenAddress: string | null
+  totalFeeAmount: string | null
+  totalFeeAmountUsd: string | null
+}
+
 export type PrepareSendReturn = {
   intentAddress?: string
   originSendAmount: string
+  fees?: PrepareSendFees
+  slippageTolerance?: string
+  priceImpact?: string
   send: (onOriginSend?: () => void) => Promise<SendReturn>
 }
 
@@ -478,6 +489,9 @@ async function sendHandlerForDifferentChainDifferentToken({
     return {
       intentAddress: "",
       originSendAmount: amount,
+      fees: getZeroFees(),
+      slippageTolerance: "0",
+      priceImpact: "0",
       send: async (onOriginSend?: () => void): Promise<SendReturn> => {
         const originChain = testnet ? getTestnetChainInfo(chain)! : chain
         const destinationChain = testnet
@@ -655,6 +669,9 @@ async function sendHandlerForDifferentChainDifferentToken({
   return {
     intentAddress,
     originSendAmount: depositAmount,
+    fees: getFeesFromIntent(intent),
+    slippageTolerance: getSlippageToleranceFromIntent(intent),
+    priceImpact: getPriceImpactFromIntent(intent),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       console.log("[trails-sdk] sending origin transaction")
       const usingLIfi = false
@@ -868,6 +885,9 @@ async function sendHandlerForSameChainSameToken({
 
   return {
     originSendAmount: destinationTokenAmount,
+    fees: getZeroFees(),
+    slippageTolerance: "0",
+    priceImpact: "0",
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const originCallParams = {
         to: destinationCalldata
@@ -1045,6 +1065,9 @@ async function sendHandlerForSameChainDifferentToken({
 
   return {
     originSendAmount: depositAmount,
+    fees: getFeesFromRelaySdkQuote(quote),
+    slippageTolerance: getSlippageToleranceFromRelaySdkQuote(quote),
+    priceImpact: getPriceImpactFromRelaySdkQuote(quote),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       await attemptSwitchChain({
         walletClient,
@@ -1831,6 +1854,7 @@ export type UseQuoteProps = {
   toChainId?: number
   toAmount?: string | bigint
   toRecipient?: string
+  onStatusUpdate?: (transactionStates: TransactionState[]) => void
 }
 
 export function useQuote({
@@ -1841,9 +1865,13 @@ export function useQuote({
   toChainId,
   toAmount,
   toRecipient,
+  onStatusUpdate,
 }: UseQuoteProps = {}): {
   quote: {
     fromAmount: string
+    fees: PrepareSendFees
+    slippageTolerance: string
+    priceImpact: string
   } | null
   swap:
     | (() => Promise<{
@@ -1919,8 +1947,6 @@ export function useQuote({
       const sequenceProjectAccessKey = ""
       const destinationRelayer = getRelayer(toChainId)
       const originRelayer = getRelayer(fromChainId)
-      console.log("originRelayer", originRelayer)
-      console.log("destinationRelayer", destinationRelayer)
       const sourceTokenPriceUsd = originTokenBalance?.price?.value ?? 0
       const destinationTokenPriceUsd = destinationTokenPrice?.price?.value ?? 0
 
@@ -1960,18 +1986,27 @@ export function useQuote({
         destinationTokenDecimals,
         fee: "0",
         dryMode: false,
-        onTransactionStateChange: () => {},
+        onTransactionStateChange: onStatusUpdate ?? (() => {}),
         relayerConfig: {},
       }
 
       console.log("[trails-sdk] options", options)
 
-      const { intentAddress, originSendAmount, send } =
-        await prepareSend(options)
+      const {
+        intentAddress,
+        originSendAmount,
+        send,
+        fees,
+        slippageTolerance,
+        priceImpact,
+      } = await prepareSend(options)
       console.log("[trails-sdk] Intent address:", intentAddress?.toString())
 
       const quote = {
         fromAmount: originSendAmount,
+        fees,
+        slippageTolerance,
+        priceImpact,
       }
 
       const swap = async () => {
@@ -2001,5 +2036,55 @@ export function useQuote({
     swap: data?.swap || null,
     isLoadingQuote: isLoading,
     quoteError: error,
+  }
+}
+
+export function getFeesFromIntent(intent: GetIntentCallsPayloadsReturn): {
+  feeTokenAddress: string | null
+  totalFeeAmount: string | null
+  totalFeeAmountUsd: string | null
+} {
+  return {
+    feeTokenAddress: intent.trailsFee?.feeToken ?? zeroAddress,
+    totalFeeAmount: intent.trailsFee?.totalFeeAmount ?? "0",
+    totalFeeAmountUsd: intent.trailsFee?.totalFeeUSD ?? "0",
+  }
+}
+
+export function getSlippageToleranceFromIntent(
+  intent: GetIntentCallsPayloadsReturn,
+): string {
+  return "0.03" // TODO: implement in API side
+}
+
+export function getPriceImpactFromIntent(
+  intent: GetIntentCallsPayloadsReturn,
+): string {
+  return "-0.07" // TODO: implement in API side
+}
+
+export function getFeesFromRelaySdkQuote(quote: RelayQuote): PrepareSendFees {
+  return {
+    feeTokenAddress: quote?.fees?.relayer?.currency?.address ?? zeroAddress,
+    totalFeeAmount: quote?.fees?.relayer?.amount ?? "0",
+    totalFeeAmountUsd: quote?.fees?.relayer?.amountUsd ?? "0",
+  }
+}
+
+export function getSlippageToleranceFromRelaySdkQuote(
+  quote: RelayQuote,
+): string {
+  return quote?.details?.slippageTolerance?.origin?.percent ?? "0"
+}
+
+export function getPriceImpactFromRelaySdkQuote(quote: RelayQuote): string {
+  return quote?.details?.swapImpact?.percent ?? "0"
+}
+
+export function getZeroFees(): PrepareSendFees {
+  return {
+    feeTokenAddress: zeroAddress,
+    totalFeeAmount: "0",
+    totalFeeAmountUsd: "0",
   }
 }
