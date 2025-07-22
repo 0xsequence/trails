@@ -5,6 +5,7 @@ import {
   useQuote,
   useTokenList,
   type TransactionState,
+  type SwapReturn,
 } from "0xtrails"
 import { useCallback, useEffect, useState } from "react"
 import { Link } from "react-router"
@@ -68,12 +69,7 @@ export function SdkSandbox() {
   // Get supported tokens
   const { tokens: tokenList, isLoadingTokens } = useTokenList()
 
-  const [executedOriginTxHash, setExecutedOriginTxHash] = useState<
-    string | null
-  >(null)
-  const [executedDestinationTxHash, setExecutedDestinationTxHash] = useState<
-    string | null
-  >(null)
+  const [swapResult, setSwapResult] = useState<SwapReturn | null>(null)
   const [swapError, setSwapError] = useState<string | null>(null)
   const [isSwapLoading, setIsSwapLoading] = useState(false)
   const [transactionStates, setTransactionStates] = useState<
@@ -142,7 +138,7 @@ export function SdkSandbox() {
             SDK Sandbox
           </h1>
           <p className="text-gray-600 dark:text-gray-400 text-lg">
-            Debug information for Trails SDK functions
+            Example usage of Trails SDK functions and hooks
           </p>
         </div>
         <div className="w-24"></div> {/* Spacer to balance the layout */}
@@ -800,6 +796,17 @@ export function SdkSandbox() {
                 </span>
               </div>
 
+              {quote?.completionEstimateSeconds && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Estimated Completion Time:
+                  </span>
+                  <span className="font-medium text-gray-900 dark:text-white">
+                    {quote?.completionEstimateSeconds}s
+                  </span>
+                </div>
+              )}
+
               {/* Additional Quote Details */}
               {(quote?.fees?.feeTokenAddress ||
                 quote?.fees?.totalFeeAmount ||
@@ -922,19 +929,11 @@ export function SdkSandbox() {
                   setIsSwapLoading(true)
                   setSwapError(null)
                   setTransactionStates([])
-                  setExecutedOriginTxHash(null)
-                  setExecutedDestinationTxHash(null)
+                  setSwapResult(null)
                   setSwapError(null)
 
                   const result = await swap()
-                  if (result) {
-                    setExecutedOriginTxHash(
-                      result.originTransaction?.transactionHash || null,
-                    )
-                    setExecutedDestinationTxHash(
-                      result.destinationTransaction?.transactionHash || null,
-                    )
-                  }
+                  setSwapResult(result)
                 } catch (error) {
                   console.error("Quote execution failed:", error)
                   setSwapError(
@@ -974,48 +973,61 @@ export function SdkSandbox() {
                 "Swap"
               )}
             </button>
-            {(executedOriginTxHash || executedDestinationTxHash) && (
+            {swapResult && (
               <div className="mt-4 space-y-2">
-                {executedOriginTxHash && (
+                {swapResult.originTransaction.transactionHash && (
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
                       Origin Tx Hash:
                     </span>
-                    <span className="text-xs font-mono break-all text-blue-700 dark:text-blue-300">
-                      {executedOriginTxHash}
-                    </span>
-                    <button
-                      type="button"
-                      className="ml-2 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none"
-                      onClick={() =>
-                        navigator.clipboard.writeText(executedOriginTxHash)
-                      }
-                      title="Copy to clipboard"
-                    >
-                      Copy
-                    </button>
+                    {swapResult.originTransaction.explorerUrl ? (
+                      <a
+                        href={swapResult.originTransaction.explorerUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-mono break-all text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 underline"
+                      >
+                        {swapResult.originTransaction.transactionHash}
+                      </a>
+                    ) : (
+                      <span className="text-xs font-mono break-all text-blue-700 dark:text-blue-300">
+                        {swapResult.originTransaction.transactionHash}
+                      </span>
+                    )}
                   </div>
                 )}
-                {executedDestinationTxHash && (
+                {swapResult.destinationTransaction.transactionHash && (
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
                       Destination Tx Hash:
                     </span>
-                    <span className="text-xs font-mono break-all text-blue-700 dark:text-blue-300">
-                      {executedDestinationTxHash}
-                    </span>
-                    <button
-                      type="button"
-                      className="ml-2 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none"
-                      onClick={() =>
-                        navigator.clipboard.writeText(executedDestinationTxHash)
-                      }
-                      title="Copy to clipboard"
-                    >
-                      Copy
-                    </button>
+                    {swapResult.destinationTransaction.explorerUrl ? (
+                      <a
+                        href={swapResult.destinationTransaction.explorerUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-mono break-all text-blue-700 dark:text-blue-300 hover:text-blue-800 dark:hover:text-blue-200 underline"
+                      >
+                        {swapResult.destinationTransaction.transactionHash}
+                      </a>
+                    ) : (
+                      <span className="text-xs font-mono break-all text-blue-700 dark:text-blue-300">
+                        {swapResult.destinationTransaction.transactionHash}
+                      </span>
+                    )}
                   </div>
                 )}
+                {swapResult.totalCompletionSeconds &&
+                swapResult.totalCompletionSeconds > 0 ? (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-700 dark:text-gray-200 font-medium">
+                      Completion Time:
+                    </span>
+                    <span className="text-sm text-gray-900 dark:text-white font-medium">
+                      {swapResult.totalCompletionSeconds}s
+                    </span>
+                  </div>
+                ) : null}
               </div>
             )}
             {swapError && (

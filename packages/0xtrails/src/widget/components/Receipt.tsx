@@ -1,11 +1,10 @@
 import { useQuery } from "@tanstack/react-query"
 import type React from "react"
 import { useEffect, useState } from "react"
-import { createPublicClient, http } from "viem"
-import { getChainInfo } from "../../chains.js"
-import type { TransactionState } from "../../prepareSend.js"
+import type { TransactionState } from "../../transactions.js"
 import type { ActiveTheme } from "../../theme.js"
 import { GreenCheckAnimation } from "./GreenCheckAnimation.js"
+import { getTxTimeDiff } from "../../transactions.js"
 
 interface ReceiptProps {
   onSendAnother: () => void
@@ -39,56 +38,7 @@ function useTxTimeDiff(firstTx?: TransactionState, lastTx?: TransactionState) {
     ],
     enabled,
     queryFn: async () => {
-      const firstChainInfo = getChainInfo(firstTx!.chainId)
-      const lastChainInfo = getChainInfo(lastTx!.chainId)
-      if (!firstChainInfo || !lastChainInfo) return 0
-
-      const firstClient = createPublicClient({
-        chain: firstChainInfo,
-        transport: http(),
-      })
-      const lastClient = createPublicClient({
-        chain: lastChainInfo,
-        transport: http(),
-      })
-
-      async function getBlockNumber(
-        client: ReturnType<typeof createPublicClient>,
-        tx: TransactionState,
-      ) {
-        if (tx.blockNumber) return BigInt(tx.blockNumber)
-        const receipt = await client.getTransactionReceipt({
-          hash: tx.transactionHash as `0x${string}`,
-        })
-        return receipt.blockNumber
-      }
-
-      async function getTimestamp(
-        client: ReturnType<typeof createPublicClient>,
-        blockNumber: bigint,
-      ) {
-        const block = await client.getBlock({ blockNumber })
-        return typeof block.timestamp === "bigint"
-          ? Number(block.timestamp)
-          : block.timestamp
-      }
-
-      const [firstBlockNumber, lastBlockNumber] = await Promise.all([
-        getBlockNumber(firstClient, firstTx!),
-        getBlockNumber(lastClient, lastTx!),
-      ])
-
-      const [firstTs, lastTs] = await Promise.all([
-        getTimestamp(firstClient, firstBlockNumber),
-        getTimestamp(lastClient, lastBlockNumber),
-      ])
-
-      const diff = lastTs - firstTs
-      if (diff < 1) {
-        return 1 // round up to 1 second
-      }
-
-      return diff
+      return getTxTimeDiff(firstTx, lastTx)
     },
     staleTime: Infinity,
     gcTime: Infinity,

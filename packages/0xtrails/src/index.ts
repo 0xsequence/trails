@@ -25,7 +25,14 @@ export type {
   MetaTxn,
   MetaTxnStatus,
 } from "./metaTxnMonitor.js"
-export { prepareSend, useQuote, type TransactionState } from "./prepareSend.js"
+export {
+  prepareSend,
+  useQuote,
+  type UseQuoteReturn,
+  type UseQuoteProps,
+  type SwapReturn,
+} from "./prepareSend.js"
+export type { TransactionState } from "./transactions.js"
 export {
   getAccountTotalBalanceUsd,
   getHasSufficientBalanceToken,
@@ -44,5 +51,6 @@ export {
   useSupportedTokens,
   useTokenList,
 } from "./tokens.js"
+export { getTxTimeDiff } from "./transactions.js"
 export { useTrails } from "./trails.js"
 export type { WagmiAccount } from "./trails.js"

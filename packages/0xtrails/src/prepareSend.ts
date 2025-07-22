@@ -85,17 +85,12 @@ import {
   trackRelayerCallError,
   trackTransactionConfirmed,
 } from "./analytics.js"
-
-type TransactionStateStatus = "pending" | "failed" | "confirmed"
-
-export type TransactionState = {
-  transactionHash: string
-  explorerUrl: string
-  blockNumber?: number
-  chainId: number
-  state: TransactionStateStatus
-  label: string
-}
+import * as chains from "viem/chains"
+import type {
+  TransactionState,
+  TransactionStateStatus,
+} from "./transactions.js"
+import { getTxTimeDiff } from "./transactions.js"
 
 export type SendOptions = {
   account: Account
@@ -137,6 +132,7 @@ export type PrepareSendReturn = {
   fees?: PrepareSendFees
   slippageTolerance?: string
   priceImpact?: string
+  completionEstimateSeconds?: number
   send: (onOriginSend?: () => void) => Promise<SendReturn>
 }
 
@@ -144,6 +140,7 @@ export type SendReturn = {
   originUserTxReceipt: TransactionReceipt | null
   originMetaTxnReceipt: MetaTxnReceipt | null
   destinationMetaTxnReceipt: MetaTxnReceipt | null
+  totalCompletionSeconds?: number
 }
 
 export function getIsToSameChain(
@@ -496,6 +493,7 @@ async function sendHandlerForDifferentChainDifferentToken({
       fees: getZeroFees(),
       slippageTolerance: "0",
       priceImpact: "0",
+      completionEstimateSeconds: 0,
       send: async (onOriginSend?: () => void): Promise<SendReturn> => {
         const originChain = testnet ? getTestnetChainInfo(chain)! : chain
         const destinationChain = testnet
@@ -608,6 +606,7 @@ async function sendHandlerForDifferentChainDifferentToken({
           originUserTxReceipt: receipt,
           originMetaTxnReceipt: null,
           destinationMetaTxnReceipt: null,
+          totalCompletionSeconds: 0,
         }
       },
     }
@@ -676,6 +675,10 @@ async function sendHandlerForDifferentChainDifferentToken({
     fees: getFeesFromIntent(intent),
     slippageTolerance: getSlippageToleranceFromIntent(intent),
     priceImpact: getPriceImpactFromIntent(intent),
+    completionEstimateSeconds: getCompletionEstimateSeconds({
+      originChainId,
+      destinationChainId,
+    }),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       console.log("[trails-sdk] sending origin transaction")
       const usingLIfi = false
@@ -844,6 +847,10 @@ async function sendHandlerForDifferentChainDifferentToken({
         originUserTxReceipt,
         originMetaTxnReceipt,
         destinationMetaTxnReceipt,
+        totalCompletionSeconds: await getTxTimeDiff(
+          transactionStates[0],
+          transactionStates[2],
+        ),
       }
     },
   }
@@ -892,6 +899,7 @@ async function sendHandlerForSameChainSameToken({
     fees: getZeroFees(),
     slippageTolerance: "0",
     priceImpact: "0",
+    completionEstimateSeconds: 0,
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const originCallParams = {
         to: destinationCalldata
@@ -990,6 +998,7 @@ async function sendHandlerForSameChainSameToken({
         originUserTxReceipt,
         originMetaTxnReceipt,
         destinationMetaTxnReceipt,
+        totalCompletionSeconds: 0,
       }
     },
   }
@@ -1072,6 +1081,7 @@ async function sendHandlerForSameChainDifferentToken({
     fees: getFeesFromRelaySdkQuote(quote),
     slippageTolerance: getSlippageToleranceFromRelaySdkQuote(quote),
     priceImpact: getPriceImpactFromRelaySdkQuote(quote),
+    completionEstimateSeconds: 0,
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       await attemptSwitchChain({
         walletClient,
@@ -1110,6 +1120,7 @@ async function sendHandlerForSameChainDifferentToken({
         originUserTxReceipt: originUserTxReceipt,
         originMetaTxnReceipt: null,
         destinationMetaTxnReceipt: null,
+        totalCompletionSeconds: 0,
       }
     },
   }
@@ -1861,25 +1872,29 @@ export type UseQuoteProps = {
   onStatusUpdate?: (transactionStates: TransactionState[]) => void
 }
 
+export type SwapReturn = {
+  originTransaction: {
+    transactionHash?: string | null
+    explorerUrl?: string | null
+    receipt: TransactionReceipt | MetaTxnReceipt | null
+  }
+  destinationTransaction: {
+    transactionHash?: string | null
+    explorerUrl?: string | null
+    receipt: MetaTxnReceipt | null
+  }
+  totalCompletionSeconds?: number
+}
+
 export type UseQuoteReturn = {
   quote: {
     fromAmount: string
     fees?: PrepareSendFees | null
     slippageTolerance?: string | null
     priceImpact?: string | null
+    completionEstimateSeconds?: number
   } | null
-  swap:
-    | (() => Promise<{
-        originTransaction: {
-          transactionHash: string | undefined
-          receipt: TransactionReceipt | MetaTxnReceipt | null
-        }
-        destinationTransaction: {
-          transactionHash: string | undefined
-          receipt: MetaTxnReceipt | null
-        }
-      } | null>)
-    | null
+  swap: (() => Promise<SwapReturn | null>) | null
   isLoadingQuote: boolean
   quoteError: unknown
 }
@@ -2010,6 +2025,7 @@ export function useQuote({
         fees,
         slippageTolerance,
         priceImpact,
+        completionEstimateSeconds,
       } = await prepareSend(options)
       console.log("[trails-sdk] Intent address:", intentAddress?.toString())
 
@@ -2018,20 +2034,34 @@ export function useQuote({
         fees,
         slippageTolerance,
         priceImpact,
+        completionEstimateSeconds,
       }
 
-      const swap = async () => {
-        const { originUserTxReceipt, destinationMetaTxnReceipt } = await send()
+      const swap = async (): Promise<SwapReturn> => {
+        const {
+          originUserTxReceipt,
+          destinationMetaTxnReceipt,
+          totalCompletionSeconds,
+        } = await send()
 
         return {
           originTransaction: {
             transactionHash: originUserTxReceipt?.transactionHash,
+            explorerUrl: getExplorerUrl({
+              txHash: originUserTxReceipt?.transactionHash as string,
+              chainId: fromChainId,
+            }),
             receipt: originUserTxReceipt,
           },
           destinationTransaction: {
             transactionHash: destinationMetaTxnReceipt?.txnHash,
+            explorerUrl: getExplorerUrl({
+              txHash: destinationMetaTxnReceipt?.txnHash as string,
+              chainId: toChainId,
+            }),
             receipt: destinationMetaTxnReceipt,
           },
+          totalCompletionSeconds,
         }
       }
 
@@ -2098,4 +2128,29 @@ export function getZeroFees(): PrepareSendFees {
     totalFeeAmount: "0",
     totalFeeAmountUsd: "0",
   }
+}
+
+// TODO: make this dyanamic
+export function getCompletionEstimateSeconds({
+  originChainId,
+  destinationChainId,
+}: {
+  originChainId: number
+  destinationChainId: number
+}): number {
+  if (
+    originChainId === chains.mainnet.id &&
+    destinationChainId === chains.mainnet.id
+  ) {
+    return 60
+  }
+
+  if (
+    originChainId === chains.mainnet.id ||
+    destinationChainId === chains.mainnet.id
+  ) {
+    return 30
+  }
+
+  return 10
 }

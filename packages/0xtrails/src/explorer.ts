@@ -24,6 +24,9 @@ export function getBaseExplorerUrl(chainId: number): string {
 }
 
 export function getExplorerUrl({ txHash, chainId }: ExplorerUrlParams): string {
+  if (!txHash) {
+    return ""
+  }
   const baseExplorerUrl = getBaseExplorerUrl(chainId)
   return `${baseExplorerUrl}/tx/${txHash}`
 }
@@ -32,6 +35,9 @@ export function getExplorerUrlForAddress({
   address,
   chainId,
 }: ExplorerUrlForAddressParams): string {
+  if (!address) {
+    return ""
+  }
   const baseExplorerUrl = getBaseExplorerUrl(chainId)
   return `${baseExplorerUrl}/address/${address}`
 }

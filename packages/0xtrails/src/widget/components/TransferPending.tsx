@@ -1,6 +1,6 @@
 import { ExternalLink } from "lucide-react"
 import React, { useEffect } from "react"
-import type { TransactionState } from "../../prepareSend.js"
+import type { TransactionState } from "../../transactions.js"
 import type { ActiveTheme } from "../../theme.js"
 
 interface TransferPendingProps {

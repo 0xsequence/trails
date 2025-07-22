@@ -1,7 +1,7 @@
 import { ExternalLink } from "lucide-react"
 import type React from "react"
 import { useEffect, useState } from "react"
-import type { TransactionState } from "../../prepareSend.js"
+import type { TransactionState } from "../../transactions.js"
 import type { ActiveTheme } from "../../theme.js"
 import { TokenImage } from "./TokenImage.js"
 
