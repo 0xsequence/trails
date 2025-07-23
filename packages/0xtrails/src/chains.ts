@@ -63,6 +63,23 @@ export const supportedSequenceTestnetChains: Record<number, Chain> = {
   [chains.xaiTestnet.id]: getChainInfo(chains.xaiTestnet.id)!,
 }
 
+export const mainnetChainsToTestnetChains: Record<number, Chain> = {
+  [chains.arbitrum.id]: chains.arbitrumSepolia,
+  [chains.avalanche.id]: chains.avalancheFuji,
+  [chains.base.id]: chains.baseSepolia,
+  [chains.gnosis.id]: chains.gnosisChiado,
+  [chains.optimism.id]: chains.optimismSepolia,
+  [chains.polygon.id]: chains.polygonAmoy,
+  [chains.mainnet.id]: chains.sepolia,
+  [chains.xai.id]: chains.xaiTestnet,
+  [chains.soneium.id]: chains.soneiumMinato,
+  [chains.b3.id]: chains.b3Sepolia,
+  [chains.blast.id]: chains.blastSepolia,
+  [chains.bsc.id]: chains.bscTestnet,
+  [chains.arbitrumNova.id]: chains.arbitrumSepolia,
+  [chains.apeChain.id]: chains.sepolia,
+}
+
 // Helper to get chain info
 export function getChainInfo(
   chainId: number,
@@ -97,10 +114,13 @@ export function getChainInfo(
 export function getTestnetChainInfo(
   mainnetChain: Chain | number,
 ): Chain | null {
-  if (typeof mainnetChain === "number") {
-    return supportedSequenceTestnetChains[mainnetChain] || null
+  let chainId = 0
+  if (typeof mainnetChain === "number" || typeof mainnetChain === "string") {
+    chainId = Number(mainnetChain)
+  } else {
+    chainId = mainnetChain.id
   }
-  return supportedSequenceTestnetChains[mainnetChain.id] || null
+  return mainnetChainsToTestnetChains[chainId] || null
 }
 
 export async function getSupportedSequenceChains(): Promise<Chain[]> {

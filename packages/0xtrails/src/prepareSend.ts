@@ -24,6 +24,7 @@ import {
   http,
   parseUnits,
   zeroAddress,
+  maxUint256,
 } from "viem"
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
 import * as chains from "viem/chains"
@@ -42,6 +43,12 @@ import {
   getIsUsdcAddress,
   getMessageTransmitter,
   getMintUSDCData,
+  getCCTPRelayerCallData,
+  cctpTransferWithCustomCall,
+  getNeedsApproval,
+  approveERC20,
+  getUSDCTokenAddress,
+  Attestation,
 } from "./cctp.js"
 import { getChainInfo, getTestnetChainInfo } from "./chains.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
@@ -196,8 +203,8 @@ function isTestnetDebugMode(): boolean {
   return getQueryParam("testnet") === "true"
 }
 
-function getTestnetOriginTokenAddress(): string {
-  return "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+function getTestnetOriginTokenAddress(testnetChainId: number): string {
+  return getUSDCTokenAddress(testnetChainId)!
 }
 
 function getIntentArgs(
@@ -507,7 +514,7 @@ async function sendHandlerForDifferentChainDifferentToken({
   const cctpFlag = getQueryParam("cctp") === "true"
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
 
-  if (useCctp && cctpFlag && !hasCustomCalldata) {
+  if (useCctp && cctpFlag) {
     console.log("[trails-sdk] using cctp")
     const amount = destinationTokenAmount
 
@@ -526,6 +533,14 @@ async function sendHandlerForDifferentChainDifferentToken({
           : getChainInfo(destinationChainId)
 
         if (!originChain || !destinationChain) {
+          console.error("[trails-sdk] Invalid chain", {
+            originChain,
+            destinationChain,
+            originChainId,
+            destinationChainId,
+            chain,
+            testnet,
+          })
           throw new Error("Invalid chain")
         }
 
@@ -537,12 +552,30 @@ async function sendHandlerForDifferentChainDifferentToken({
           transport: http(),
         })
 
-        const { txHash, waitForAttestation } = await cctpTransfer({
-          walletClient,
-          originChain,
-          destinationChain,
-          amount: BigInt(destinationTokenAmount),
-        })
+        let txHash: `0x${string}`
+        let waitForAttestation: () => Promise<Attestation>
+
+        if (hasCustomCalldata) {
+          const result = await cctpTransferWithCustomCall({
+            walletClient,
+            originChain,
+            destinationChain,
+            amount: BigInt(destinationTokenAmount),
+          })
+
+          txHash = result.txHash
+          waitForAttestation = result.waitForAttestation
+        } else {
+          const result = await cctpTransfer({
+            walletClient,
+            originChain,
+            destinationChain,
+            amount: BigInt(destinationTokenAmount),
+          })
+
+          txHash = result.txHash
+          waitForAttestation = result.waitForAttestation
+        }
 
         if (onOriginSend) {
           onOriginSend()
@@ -578,12 +611,30 @@ async function sendHandlerForDifferentChainDifferentToken({
         const tokenMessenger = getMessageTransmitter(destinationChain.id)!
 
         console.log("[trails-sdk] tokenMessenger", tokenMessenger)
-        const calls = [
-          await getMintUSDCData({
-            tokenMessenger,
-            attestation,
-          }),
-        ]
+        const calls: {
+          to: `0x${string}`
+          data: `0x${string}`
+          value: bigint
+        }[] = []
+
+        if (hasCustomCalldata) {
+          calls.push(
+            await getCCTPRelayerCallData({
+              attestation,
+              targetContract: recipient,
+              calldata: destinationCalldata as `0x${string}`,
+              gasLimit: 300000n,
+              destinationChain,
+            }),
+          )
+        } else {
+          calls.push(
+            await getMintUSDCData({
+              tokenMessenger,
+              attestation,
+            }),
+          )
+        }
 
         console.log("[trails-sdk] calls", calls)
         const delegatorPrivateKey = generatePrivateKey()
@@ -761,19 +812,19 @@ async function sendHandlerForDifferentChainDifferentToken({
       let destinationMetaTxnReceipt: MetaTxnReceipt | null = null
 
       const testnet = isTestnetDebugMode()
-      const testnetOriginTokenAddress = getTestnetOriginTokenAddress()
-      const chainToUse = testnet ? getTestnetChainInfo(chain)! : chain
+      const effectiveOriginChain = testnet ? getTestnetChainInfo(chain)! : chain
+      const effectiveOriginTokenAddress = testnet
+        ? getTestnetOriginTokenAddress(effectiveOriginChain.id)
+        : originTokenAddress
 
       console.log("[trails-sdk] testnet", testnet)
 
       const depositPromise = async () => {
         originUserTxReceipt = await attemptUserDepositTx({
-          originTokenAddress: testnet
-            ? testnetOriginTokenAddress
-            : originTokenAddress,
+          originTokenAddress: effectiveOriginTokenAddress,
           gasless,
           paymasterUrl,
-          chain: chainToUse,
+          chain: effectiveOriginChain,
           account,
           relayerConfig,
           sequenceProjectAccessKey,
@@ -912,12 +963,22 @@ async function sendHandlerForSameChainSameToken({
   transactionStates: TransactionState[]
 }): Promise<PrepareSendReturn> {
   console.log("[trails-sdk] isToSameToken && isToSameChain")
+  const testnet = isTestnetDebugMode()
+  const effectiveOriginChain = testnet ? getTestnetChainInfo(chain)! : chain
+  const effectiveOriginChainId = effectiveOriginChain.id
+  const effectiveOriginTokenAddress = testnet
+    ? getTestnetOriginTokenAddress(effectiveOriginChainId)
+    : originTokenAddress
+  const effectivePublicClient = createPublicClient({
+    chain: effectiveOriginChain,
+    transport: http(),
+  })
 
   const hasEnoughBalance = await checkAccountBalance({
     account,
-    tokenAddress: originTokenAddress,
+    tokenAddress: effectiveOriginTokenAddress,
     depositAmount: destinationTokenAmount,
-    publicClient,
+    publicClient: effectivePublicClient,
   })
 
   if (!hasEnoughBalance) {
@@ -936,23 +997,23 @@ async function sendHandlerForSameChainSameToken({
       const originCallParams = {
         to: hasCustomCalldata
           ? recipient
-          : originTokenAddress === zeroAddress
+          : effectiveOriginTokenAddress === zeroAddress
             ? recipient
-            : originTokenAddress,
+            : effectiveOriginTokenAddress,
         data: hasCustomCalldata
           ? destinationCalldata
-          : originTokenAddress === zeroAddress
+          : effectiveOriginTokenAddress === zeroAddress
             ? "0x"
             : getERC20TransferData({
                 recipient,
                 amount: BigInt(destinationTokenAmount),
               }),
         value:
-          originTokenAddress === zeroAddress
+          effectiveOriginTokenAddress === zeroAddress
             ? BigInt(destinationTokenAmount)
             : "0",
-        chainId: originChainId,
-        chain,
+        chainId: effectiveOriginChainId,
+        chain: effectiveOriginChain,
       }
 
       console.log("[trails-sdk] origin call params", originCallParams)
@@ -963,18 +1024,49 @@ async function sendHandlerForSameChainSameToken({
 
       await attemptSwitchChain({
         walletClient,
-        desiredChainId: originChainId,
+        desiredChainId: effectiveOriginChainId,
       })
       if (!dryMode) {
         onTransactionStateChange([
           {
             transactionHash: "",
             explorerUrl: "",
-            chainId: originChainId,
+            chainId: effectiveOriginChainId,
             state: "pending",
             label: "Execute",
           },
         ])
+
+        if (hasCustomCalldata) {
+          try {
+            const needsApproval = await getNeedsApproval({
+              publicClient: effectivePublicClient,
+              token: effectiveOriginTokenAddress,
+              account: account.address,
+              spender: recipient,
+              amount: BigInt(destinationTokenAmount),
+            })
+
+            if (needsApproval) {
+              const txHash = await approveERC20({
+                walletClient,
+                tokenAddress: effectiveOriginTokenAddress,
+                spender: recipient,
+                amount: maxUint256,
+                chain: effectiveOriginChain,
+              })
+
+              console.log("waiting for approve", txHash)
+              await effectivePublicClient.waitForTransactionReceipt({
+                hash: txHash,
+              })
+              console.log("approve done")
+            }
+          } catch (error) {
+            console.error("[trails-sdk] Error approving ERC20", error)
+          }
+        }
+
         console.log("[trails-sdk] origin call params", originCallParams)
         const txHash = await sendOriginTransaction(
           account,
@@ -989,7 +1081,7 @@ async function sendHandlerForSameChainSameToken({
         }
 
         // Wait for transaction receipt
-        const receipt = await publicClient.waitForTransactionReceipt({
+        const receipt = await effectivePublicClient.waitForTransactionReceipt({
           hash: txHash,
         })
         console.log("[trails-sdk] receipt", receipt)
@@ -997,7 +1089,7 @@ async function sendHandlerForSameChainSameToken({
 
         trackTransactionConfirmed({
           transactionHash: txHash,
-          chainId: originChainId,
+          chainId: effectiveOriginChainId,
           userAddress: account.address,
           blockNumber: Number(receipt.blockNumber),
         })
@@ -1005,7 +1097,7 @@ async function sendHandlerForSameChainSameToken({
         onTransactionStateChange([
           getTransactionStateFromReceipt(
             originUserTxReceipt,
-            originChainId,
+            effectiveOriginChainId,
             "Swap",
           ),
         ])
@@ -1015,8 +1107,8 @@ async function sendHandlerForSameChainSameToken({
           trackPaymentCompleted({
             userAddress: account.address,
             originTxHash: originUserTxReceipt.transactionHash,
-            originChainId,
-            destinationChainId: originChainId, // Same chain
+            originChainId: effectiveOriginChainId,
+            destinationChainId: effectiveOriginChainId, // Same chain
           })
         } else if (originUserTxReceipt) {
           trackPaymentError({

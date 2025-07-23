@@ -95,6 +95,11 @@ const messageTransmitters: Record<number, string> = {
   [chains.worldchainSepolia.id]: "0xE737e5cEBEEBa77EFE34D4aa090756590b1CE275",
 }
 
+const customCctpRelayerAddress: Record<number, string> = {
+  //[chains.arbitrumSepolia.id]: "0x58FEFe8A057E736CD361272BA2283DAfD8646198",
+  [chains.arbitrumSepolia.id]: "0x05F3AcC7a7BB0e888Bb1bDE014bD61AfAfaC6943",
+}
+
 export type Attestation = {
   attestation: `0x${string}`
   message: `0x${string}`
@@ -104,7 +109,7 @@ export function getDomain(chainId: number): number | null {
   return domains[chainId] ?? null
 }
 
-export function getTokenAddress(chainId: number): string | null {
+export function getUSDCTokenAddress(chainId: number): string | null {
   return tokenAddresses[chainId] ?? null
 }
 
@@ -130,7 +135,7 @@ export async function cctpTransfer({
   waitForAttestation: () => Promise<Attestation>
   txHash: `0x${string}`
 }> {
-  const originToken = getTokenAddress(originChain.id)
+  const originToken = getUSDCTokenAddress(originChain.id)
   const originDomain = getDomain(originChain.id)
   const destinationDomain = getDomain(destinationChain.id)
   const originTokenMessenger = getTokenMessenger(originChain.id)
@@ -177,7 +182,7 @@ export async function cctpTransfer({
   })
 
   if (needsApproval) {
-    const txHash = await approveUSDC({
+    const txHash = await approveERC20({
       walletClient,
       tokenAddress: originToken,
       spender: originTokenMessenger,
@@ -287,7 +292,7 @@ export async function getNeedsApproval({
   return allowance < amount
 }
 
-export async function approveUSDC({
+export async function approveERC20({
   walletClient,
   tokenAddress,
   spender,
@@ -300,13 +305,13 @@ export async function approveUSDC({
   amount: bigint
   chain: Chain
 }): Promise<`0x${string}`> {
-  const approvalData = await getApproveUSDCData({
+  const approvalData = await getApproveERC20Data({
     tokenAddress,
     spender,
     amount,
   })
 
-  console.log("[trails-sdk] approving USDC transfer", approvalData)
+  console.log("[trails-sdk] approving ERC20 transfer", approvalData)
 
   await attemptSwitchChain({
     walletClient,
@@ -325,7 +330,7 @@ export async function approveUSDC({
   })
 }
 
-async function getApproveUSDCData({
+async function getApproveERC20Data({
   tokenAddress,
   spender,
   amount,
@@ -334,7 +339,7 @@ async function getApproveUSDCData({
   spender: string
   amount: bigint
 }): Promise<{ to: `0x${string}`; data: `0x${string}`; value: bigint }> {
-  console.log("[trails-sdk] get approve USDC transfer data", {
+  console.log("[trails-sdk] get approve ERC20 transfer data", {
     tokenAddress,
     spender,
     amount,
@@ -597,4 +602,429 @@ export async function waitForAttestation({
 
 export function getIsUsdcAddress(address: string, chainId: number): boolean {
   return address?.toLowerCase() === tokenAddresses[chainId]?.toLowerCase()
+}
+
+export async function cctpTransferWithCustomCall({
+  walletClient,
+  originChain,
+  destinationChain,
+  amount,
+}: {
+  walletClient: WalletClient
+  originChain: Chain
+  destinationChain: Chain
+  amount: bigint
+}): Promise<{
+  waitForAttestation: () => Promise<Attestation>
+  txHash: `0x${string}`
+}> {
+  const destinationContract = customCctpRelayerAddress[destinationChain.id]
+  if (!destinationContract) {
+    console.error(
+      "[trails-sdk] cctpTransferWithCustomCall: No custom CCTP relayer address found for this chain",
+      {
+        originChain,
+        destinationChain,
+      },
+    )
+    throw new Error("No custom CCTP relayer address found for this chain")
+  }
+
+  const originToken = getUSDCTokenAddress(originChain.id)
+  const originDomain = getDomain(originChain.id)
+  const destinationDomain = getDomain(destinationChain.id)
+  const originTokenMessenger = getTokenMessenger(originChain.id)
+
+  if (
+    !originToken ||
+    originDomain === null ||
+    !originTokenMessenger ||
+    destinationDomain === null
+  ) {
+    console.error(
+      "[trails-sdk] cctpTransferWithCustomCall: Invalid origin chain config",
+    )
+    throw new Error("Invalid origin chain config")
+  }
+
+  const originClient = createPublicClient({
+    chain: originChain,
+    transport: http(),
+  })
+
+  await attemptSwitchChain({
+    walletClient,
+    desiredChainId: originChain.id,
+  })
+
+  const account = walletClient.account?.address
+  if (!account) {
+    throw new Error("No account found")
+  }
+
+  const needsApproval = await getNeedsApproval({
+    publicClient: originClient,
+    token: originToken,
+    account,
+    spender: originTokenMessenger,
+    amount: amount,
+  })
+
+  if (needsApproval) {
+    const txHash = await approveERC20({
+      walletClient,
+      tokenAddress: originToken,
+      spender: originTokenMessenger,
+      amount: maxUint256,
+      chain: originChain,
+    })
+
+    console.log("waiting for approve", txHash)
+    await originClient.waitForTransactionReceipt({
+      hash: txHash,
+    })
+    console.log("approve done")
+  }
+
+  const maxFee = getMaxFee()
+
+  // Send USDC to your CCTPRelayer contract instead of user wallet
+  const txHash = await burnUSDCToContract({
+    walletClient,
+    tokenMessenger: originTokenMessenger,
+    destinationDomain,
+    destinationContract, // CCTPRelayer contract address
+    amount,
+    burnToken: originToken,
+    maxFee,
+    chain: originChain,
+  })
+
+  return {
+    waitForAttestation: async () => {
+      await originClient.waitForTransactionReceipt({
+        hash: txHash,
+      })
+
+      const testnet = getIsTestnetChainId(originChain.id)
+
+      const attestation = await waitForAttestation({
+        domain: originDomain,
+        transactionHash: txHash,
+        testnet,
+      })
+
+      if (!attestation) {
+        throw new Error("Failed to retrieve attestation")
+      }
+
+      return attestation
+    },
+    txHash: txHash,
+  }
+}
+
+export async function burnUSDCToContract({
+  walletClient,
+  tokenMessenger,
+  destinationDomain,
+  destinationContract,
+  amount,
+  burnToken,
+  maxFee,
+  chain,
+}: {
+  walletClient: WalletClient
+  tokenMessenger: string
+  destinationDomain: number
+  destinationContract: string
+  amount: bigint
+  burnToken: string
+  maxFee: bigint
+  chain: Chain
+}): Promise<`0x${string}`> {
+  const burnData = await getBurnUSDCToContractData({
+    tokenMessenger,
+    destinationDomain,
+    destinationContract,
+    amount,
+    burnToken,
+    maxFee: maxFee,
+  })
+
+  await attemptSwitchChain({
+    walletClient,
+    desiredChainId: chain.id,
+  })
+
+  const account = walletClient.account?.address
+  if (!account) {
+    throw new Error("No account found")
+  }
+
+  return walletClient.sendTransaction({
+    ...burnData,
+    account: account as `0x${string}`,
+    chain,
+  })
+}
+
+export async function getBurnUSDCToContractData({
+  tokenMessenger,
+  destinationDomain,
+  destinationContract,
+  amount,
+  burnToken,
+  maxFee,
+}: {
+  tokenMessenger: string
+  destinationDomain: number
+  destinationContract: string
+  amount: bigint
+  burnToken: string
+  maxFee: bigint
+}): Promise<{ to: `0x${string}`; data: `0x${string}`; value: bigint }> {
+  console.log("[trails-sdk] get burn USDC to contract data", {
+    tokenMessenger,
+    destinationDomain,
+    destinationContract,
+    amount,
+    burnToken,
+    maxFee,
+  })
+
+  // Format destination contract address as bytes32
+  const DESTINATION_CONTRACT_BYTES32 = `0x000000000000000000000000${destinationContract.slice(2)}`
+  const DESTINATION_CALLER_BYTES32 =
+    "0x0000000000000000000000000000000000000000000000000000000000000000" // Empty bytes32 allows any address to call
+
+  return {
+    to: tokenMessenger as `0x${string}`,
+    value: BigInt(0),
+    data: encodeFunctionData({
+      abi: [
+        {
+          type: "function",
+          name: "depositForBurn",
+          stateMutability: "nonpayable",
+          inputs: [
+            { name: "amount", type: "uint256" },
+            { name: "destinationDomain", type: "uint32" },
+            { name: "mintRecipient", type: "bytes32" },
+            { name: "burnToken", type: "address" },
+            { name: "destinationCaller", type: "bytes32" },
+            { name: "maxFee", type: "uint256" },
+            { name: "minFinalityThreshold", type: "uint32" },
+          ],
+          outputs: [],
+        },
+      ],
+      functionName: "depositForBurn",
+      args: [
+        amount,
+        destinationDomain,
+        DESTINATION_CONTRACT_BYTES32 as `0x${string}`,
+        burnToken as `0x${string}`,
+        DESTINATION_CALLER_BYTES32 as `0x${string}`,
+        maxFee,
+        1000, // minFinalityThreshold (1000 or less for Fast Transfer)
+      ],
+    }),
+  }
+}
+
+export async function executeCustomCallWithCCTP({
+  relayerClient,
+  destinationChain,
+  attestation,
+  targetContract,
+  calldata,
+  gasLimit = 500000n,
+}: {
+  relayerClient: WalletClient
+  destinationChain: Chain
+  attestation: Attestation
+  targetContract: string
+  calldata: `0x${string}`
+  gasLimit?: bigint
+}): Promise<`0x${string}`> {
+  await attemptSwitchChain({
+    walletClient: relayerClient,
+    desiredChainId: destinationChain.id,
+  })
+
+  const account = relayerClient.account?.address
+  if (!account) {
+    throw new Error("No account found")
+  }
+
+  const cctpRelayerAddress = customCctpRelayerAddress[destinationChain.id]
+  if (!cctpRelayerAddress) {
+    throw new Error("No custom CCTP relayer address found for this chain")
+  }
+
+  const relayData = encodeFunctionData({
+    abi: [
+      {
+        type: "function",
+        name: "relayWithCustomCall",
+        inputs: [
+          {
+            type: "tuple",
+            name: "request",
+            components: [
+              { name: "message", type: "bytes" },
+              { name: "attestation", type: "bytes" },
+              { name: "targetContract", type: "address" },
+              { name: "data", type: "bytes" },
+              { name: "gasLimit", type: "uint256" },
+            ],
+          },
+        ],
+      },
+    ],
+    functionName: "relayWithCustomCall",
+    args: [
+      {
+        message: attestation.message,
+        attestation: attestation.attestation,
+        targetContract: targetContract as `0x${string}`,
+        data: calldata,
+        gasLimit,
+      },
+    ],
+  })
+
+  return relayerClient.sendTransaction({
+    to: cctpRelayerAddress as `0x${string}`,
+    data: relayData,
+    account: account as `0x${string}`,
+    chain: destinationChain,
+  })
+}
+
+// Complete flow function
+export async function cctpTransferCaller({
+  walletClient,
+  relayerClient, // Can be same as walletClient or different
+  originChain,
+  destinationChain,
+  amount,
+  targetContract, // The contract you want to call
+  calldata, // The function call data
+  gasLimit = 500000n,
+}: {
+  walletClient: WalletClient
+  relayerClient?: WalletClient
+  originChain: Chain
+  destinationChain: Chain
+  amount: bigint
+  targetContract: string
+  calldata: `0x${string}`
+  gasLimit?: bigint
+}): Promise<{
+  burnTxHash: `0x${string}`
+  executeTxHash: `0x${string}`
+}> {
+  // Use walletClient as relayerClient if not provided
+  const actualRelayerClient = relayerClient || walletClient
+
+  console.log("[trails-sdk] Starting CCTP transfer with custom call")
+
+  // Step 1: Burn USDC on origin chain (send to CCTPRelayer)
+  const { waitForAttestation, txHash: burnTxHash } =
+    await cctpTransferWithCustomCall({
+      walletClient,
+      originChain,
+      destinationChain,
+      amount,
+    })
+
+  console.log("[trails-sdk] Burn transaction sent:", burnTxHash)
+
+  // Step 2: Wait for attestation
+  console.log("[trails-sdk] Waiting for attestation...")
+  const attestation = await waitForAttestation()
+
+  console.log("[trails-sdk] Attestation received, executing custom call")
+
+  // Step 3: Execute the relayed call on destination chain
+  const executeTxHash = await executeCustomCallWithCCTP({
+    relayerClient: actualRelayerClient,
+    destinationChain,
+    attestation,
+    targetContract,
+    calldata,
+    gasLimit,
+  })
+
+  console.log("[trails-sdk] Custom call executed:", executeTxHash)
+
+  return {
+    burnTxHash,
+    executeTxHash,
+  }
+}
+
+export async function getCCTPRelayerCallData({
+  attestation,
+  targetContract,
+  calldata,
+  gasLimit = 500000n,
+  destinationChain,
+}: {
+  attestation: Attestation
+  targetContract: string
+  calldata: `0x${string}`
+  gasLimit?: bigint
+  destinationChain: Chain
+}): Promise<{ to: `0x${string}`; data: `0x${string}`; value: bigint }> {
+  const cctpRelayerAddress = customCctpRelayerAddress[destinationChain.id]
+  if (!cctpRelayerAddress) {
+    throw new Error("No custom CCTP relayer address found for this chain")
+  }
+
+  console.log("[trails-sdk] get CCTP relayer call data", {
+    cctpRelayerAddress,
+    targetContract,
+    gasLimit,
+  })
+
+  const relayData = encodeFunctionData({
+    abi: [
+      {
+        type: "function",
+        name: "relayWithCustomCall",
+        inputs: [
+          {
+            type: "tuple",
+            name: "request",
+            components: [
+              { name: "message", type: "bytes" },
+              { name: "attestation", type: "bytes" },
+              { name: "targetContract", type: "address" },
+              { name: "data", type: "bytes" },
+              { name: "gasLimit", type: "uint256" },
+            ],
+          },
+        ],
+      },
+    ],
+    functionName: "relayWithCustomCall",
+    args: [
+      {
+        message: attestation.message,
+        attestation: attestation.attestation,
+        targetContract: targetContract as `0x${string}`,
+        data: calldata,
+        gasLimit,
+      },
+    ],
+  })
+
+  return {
+    to: cctpRelayerAddress as `0x${string}`,
+    data: relayData,
+    value: BigInt(0),
+  }
 }

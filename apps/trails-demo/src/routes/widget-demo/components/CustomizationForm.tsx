@@ -161,6 +161,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   const SCENARIO_KEYS = {
     PAY_USDC_BASE: "pay_usdc_base",
     MINT_NFT_ARBITRUM: "mint_nft_arbitrum",
+    MINT_NFT_ARBITRUM_CCTP_TESTNET: "mint_nft_arbitrum_cctp_testnet",
     MINT_NFT_POLYGON: "mint_nft_polygon",
     DEPOSIT_AAVE_BASE: "deposit_aave_base",
   } as const
@@ -182,6 +183,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     {
       key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE,
       label: "Deposit ETH to Aave lending pool on Base",
+    },
+    {
+      key: SCENARIO_KEYS.MINT_NFT_ARBITRUM_CCTP_TESTNET,
+      label: "Mint an NFT on Arbitrum Sepolia with USDC using CCTP",
     },
   ]
 
@@ -229,6 +234,17 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToAmount("0.00002")
           setToToken("ETH")
           setToChainId(42161)
+          // Encode recipient into calldata if set
+          const arbitrumCalldata = `0x6a627842000000000000000000000000${formatAddressForCalldata(toRecipient || zeroAddress)}`
+          setToCalldata(arbitrumCalldata)
+          break
+        }
+        case SCENARIO_KEYS.MINT_NFT_ARBITRUM_CCTP_TESTNET: {
+          setToAddress("0x8a5dCBf3e5D19cF8Efcc3130BeaCC83B4739D7eD")
+          setToAmount("0.01")
+          setToToken("USDC")
+          setToChainId(42161)
+
           // Encode recipient into calldata if set
           const arbitrumCalldata = `0x6a627842000000000000000000000000${formatAddressForCalldata(toRecipient || zeroAddress)}`
           setToCalldata(arbitrumCalldata)
