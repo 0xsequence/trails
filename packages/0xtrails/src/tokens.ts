@@ -537,6 +537,8 @@ export const commonTokenImages: Record<string, string> = {
   DAI: "https://assets.sequence.info/images/tokens/large/1/0x6b175474e89094c44da98b954eedeac495271d0f.webp",
   WBTC: "https://assets.sequence.info/images/tokens/large/1/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.webp",
   BAT: "https://assets.sequence.info/images/tokens/large/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp",
+  ARB: "https://assets.sequence.info/images/tokens/large/42161/0x912ce59144191c1204e64559fe8253a0e49e6548.webp",
+  LINK: "https://assets.sequence.info/images/tokens/large/1/0x514910771af9ca656af840dff83e8264ecf986ca.webp",
 }
 
 export const tokenImageSymbolMap: Record<string, string> = {
@@ -553,6 +555,8 @@ export const tokenImageSymbolMap: Record<string, string> = {
   WBTC: "WBTC",
   cbBTC: "WBTC",
   BAT: "BAT",
+  ARB: "ARB",
+  LINK: "LINK",
 }
 
 export const commonTokens: SupportedToken[] = [
@@ -565,8 +569,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 18,
     chainId: chains.mainnet.id,
     chainName: chains.mainnet.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp",
+    imageUrl: commonTokenImages.ETH!,
   },
   {
     id: "ETH-arbitrum",
@@ -576,8 +579,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 18,
     chainId: chains.arbitrum.id,
     chainName: chains.arbitrum.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp",
+    imageUrl: commonTokenImages.ETH!,
   },
   {
     id: "ETH-optimism",
@@ -587,8 +589,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 18,
     chainId: chains.optimism.id,
     chainName: chains.optimism.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp",
+    imageUrl: commonTokenImages.ETH!,
   },
   {
     id: "ETH-base",
@@ -598,8 +599,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 18,
     chainId: chains.base.id,
     chainName: chains.base.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0x0000000000000000000000000000000000000000.webp",
+    imageUrl: commonTokenImages.ETH!,
   },
   {
     id: "POL-polygon",
@@ -609,8 +609,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 18,
     chainId: chains.polygon.id,
     chainName: chains.polygon.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/137/0x0000000000000000000000000000000000000000.webp",
+    imageUrl: commonTokenImages.POL!,
   },
 
   // USDC
@@ -622,8 +621,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 6,
     chainId: chains.mainnet.id,
     chainName: chains.mainnet.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+    imageUrl: commonTokenImages.USDC!,
   },
   {
     id: "USDC-arbitrum",
@@ -633,8 +631,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 6,
     chainId: chains.arbitrum.id,
     chainName: chains.arbitrum.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+    imageUrl: commonTokenImages.USDC!,
   },
   {
     id: "USDC-avalanche",
@@ -644,8 +641,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 6,
     chainId: chains.avalanche.id,
     chainName: chains.avalanche.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+    imageUrl: commonTokenImages.USDC!,
   },
   {
     id: "USDC-base",
@@ -655,8 +651,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 6,
     chainId: chains.base.id,
     chainName: chains.base.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+    imageUrl: commonTokenImages.USDC!,
   },
   {
     id: "USDC-linea",
@@ -666,8 +661,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 6,
     chainId: chains.linea.id,
     chainName: chains.linea.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+    imageUrl: commonTokenImages.USDC!,
   },
   {
     id: "USDC-optimism",
@@ -677,8 +671,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 6,
     chainId: chains.optimism.id,
     chainName: chains.optimism.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+    imageUrl: commonTokenImages.USDC!,
   },
   {
     id: "USDC-polygon",
@@ -688,8 +681,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 6,
     chainId: chains.polygon.id,
     chainName: chains.polygon.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+    imageUrl: commonTokenImages.USDC!,
   },
   {
     id: "USDC-unichain",
@@ -699,8 +691,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 6,
     chainId: chains.unichain.id,
     chainName: chains.unichain.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+    imageUrl: commonTokenImages.USDC!,
   },
   {
     id: "USDC-worldchain",
@@ -710,8 +701,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 6,
     chainId: chains.worldchain.id,
     chainName: chains.worldchain.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.webp",
+    imageUrl: commonTokenImages.USDC!,
   },
 
   // Basic Attention Token
@@ -723,8 +713,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 18,
     chainId: chains.mainnet.id,
     chainName: chains.mainnet.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp",
+    imageUrl: commonTokenImages.BAT!,
   },
   {
     id: "BAT-polygon",
@@ -734,8 +723,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 18,
     chainId: chains.polygon.id,
     chainName: chains.polygon.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp",
+    imageUrl: commonTokenImages.BAT!,
   },
   {
     id: "BAT-avalanche",
@@ -745,8 +733,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 18,
     chainId: chains.avalanche.id,
     chainName: chains.avalanche.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0x0d8775f648430679a709e98d2b0cb6250d2887ef.webp",
+    imageUrl: commonTokenImages.BAT!,
   },
 
   // ARB
@@ -758,8 +745,7 @@ export const commonTokens: SupportedToken[] = [
     decimals: 18,
     chainId: chains.arbitrum.id,
     chainName: chains.arbitrum.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/42161/0x912ce59144191c1204e64559fe8253a0e49e6548.webp",
+    imageUrl: commonTokenImages.ARB!,
   },
 
   // Chainlink
@@ -771,7 +757,6 @@ export const commonTokens: SupportedToken[] = [
     decimals: 18,
     chainId: chains.mainnet.id,
     chainName: chains.mainnet.name,
-    imageUrl:
-      "https://assets.sequence.info/images/tokens/large/1/0x514910771af9ca656af840dff83e8264ecf986ca.webp",
+    imageUrl: commonTokenImages.LINK!,
   },
 ]

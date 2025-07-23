@@ -136,13 +136,65 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
 
     // Deduplicate by symbol and chainId combination
     const seen = new Set<string>()
-    return filtered.filter((token: Token) => {
+    const deduplicated = filtered.filter((token: Token) => {
       const key = `${token.symbol}-${token.chainId}`
       if (seen.has(key)) {
         return false
       }
       seen.add(key)
       return true
+    })
+
+    // Sort tokens: group by symbol, then sort by chain name within each symbol group
+    return deduplicated.sort((a: Token, b: Token) => {
+      // If there's a search term, prioritize search relevance
+      if (searchTerm.trim()) {
+        const query = searchTerm.toLowerCase().trim()
+        const queryParts = query.split(/\s+/).filter((part) => part.length > 0)
+
+        // Calculate search relevance scores
+        const getSearchScore = (token: Token) => {
+          const tokenName = token.name?.toLowerCase() || ""
+          const tokenSymbol = token.symbol?.toLowerCase() || ""
+          const chainName = token.chainName?.toLowerCase() || ""
+          const contractAddress = token.contractAddress?.toLowerCase() || ""
+
+          let score = 0
+
+          // Exact matches get higher scores
+          if (tokenSymbol === query) score += 100
+          if (chainName === query) score += 100
+
+          // Partial matches
+          queryParts.forEach((part) => {
+            if (tokenSymbol.includes(part)) score += 50
+            if (chainName.includes(part)) score += 50
+            if (tokenName.includes(part)) score += 30
+            if (contractAddress.includes(part)) score += 10
+          })
+
+          return score
+        }
+
+        const scoreA = getSearchScore(a)
+        const scoreB = getSearchScore(b)
+
+        // Sort by search relevance first
+        if (scoreA !== scoreB) {
+          return scoreB - scoreA // Higher scores first
+        }
+      }
+
+      // Fallback to alphabetical sorting when search relevance is equal
+      const symbolComparison = a.symbol.localeCompare(b.symbol)
+      if (symbolComparison !== 0) {
+        return symbolComparison
+      }
+
+      // If symbols are the same, sort by chain name
+      const aChainName = a.chainName || ""
+      const bChainName = b.chainName || ""
+      return aChainName.localeCompare(bChainName)
     })
   }, [tokens, searchTerm])
 

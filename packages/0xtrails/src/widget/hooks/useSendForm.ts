@@ -16,7 +16,7 @@ import { useEnsAddress } from "wagmi"
 import { useAPIClient } from "../../apiClient.js"
 import { getChainInfo, useSupportedChains } from "../../chains.js"
 import { getFullErrorMessage } from "../../error.js"
-import { prepareSend } from "../../prepareSend.js"
+import { prepareSend, TradeType } from "../../prepareSend.js"
 import type { TransactionState } from "../../transactions.js"
 import { useTokenPrices } from "../../prices.js"
 import { useQueryParams } from "../../queryParams.js"
@@ -472,7 +472,8 @@ export function useSendForm({
         destinationChainId: selectedDestinationChain.id,
         recipient,
         destinationTokenAddress,
-        destinationTokenAmount: parsedAmount,
+        swapAmount: parsedAmount,
+        tradeType: TradeType.EXACT_OUTPUT,
         destinationTokenSymbol: selectedDestToken.symbol,
         sequenceProjectAccessKey,
         fee: "0",

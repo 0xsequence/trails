@@ -31,6 +31,7 @@ export {
   type UseQuoteReturn,
   type UseQuoteProps,
   type SwapReturn,
+  TradeType,
 } from "./prepareSend.js"
 export type { TransactionState } from "./transactions.js"
 export {

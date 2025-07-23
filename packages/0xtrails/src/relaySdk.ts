@@ -20,6 +20,11 @@ createClient({
   ),
 })
 
+export enum RelayTradeType {
+  EXACT_INPUT = "EXACT_INPUT",
+  EXACT_OUTPUT = "EXACT_OUTPUT",
+}
+
 export interface RelayQuoteOptions {
   wallet: WalletClient
   chainId: number
@@ -27,13 +32,14 @@ export interface RelayQuoteOptions {
   amount: string
   currency: string
   toCurrency?: string
-  tradeType?: "EXACT_INPUT" | "EXACT_OUTPUT"
+  tradeType?: RelayTradeType
   txs: Array<{
     to: string
     value: string
     data: string
   }>
   recipient?: string
+  slippageTolerance?: string
 }
 
 export interface RelayExecuteOptions {
@@ -63,10 +69,15 @@ export async function getRelaySDKQuote(
       amount: options.amount,
       currency: options.currency,
       toCurrency: options.toCurrency || options.currency,
-      tradeType: options.tradeType || "EXACT_OUTPUT",
+      tradeType: options.tradeType || RelayTradeType.EXACT_OUTPUT,
       txs: options.txs,
       user: options.wallet.account!.address,
       recipient: options.recipient || options.wallet.account!.address,
+      options: {
+        slippageTolerance: options.slippageTolerance
+          ? (Number(options.slippageTolerance) * 100).toString()
+          : undefined,
+      },
     })
 
     return quote

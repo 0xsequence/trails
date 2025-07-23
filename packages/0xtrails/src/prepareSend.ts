@@ -26,6 +26,16 @@ import {
   zeroAddress,
 } from "viem"
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
+import * as chains from "viem/chains"
+import {
+  trackPaymentCompleted,
+  trackPaymentError,
+  trackPaymentStarted,
+  trackRelayerCallCompleted,
+  trackRelayerCallError,
+  trackRelayerCallStarted,
+  trackTransactionConfirmed,
+} from "./analytics.js"
 import { useAPIClient } from "./apiClient.js"
 import {
   cctpTransfer,
@@ -33,9 +43,9 @@ import {
   getMessageTransmitter,
   getMintUSDCData,
 } from "./cctp.js"
-import { attemptSwitchChain } from "./chainSwitch.js"
 import { getChainInfo, getTestnetChainInfo } from "./chains.js"
-import { intentEntrypoints, DEFAULT_USE_V3_RELAYERS } from "./constants.js"
+import { attemptSwitchChain } from "./chainSwitch.js"
+import { DEFAULT_USE_V3_RELAYERS, intentEntrypoints } from "./constants.js"
 import { getERC20TransferData } from "./encoders.js"
 import { getExplorerUrl } from "./explorer.js"
 import {
@@ -65,8 +75,9 @@ import { useRelayers } from "./relayer.js"
 import {
   executeSimpleRelayTransaction,
   getRelaySDKQuote,
-  type RelayQuote,
   getTxHashFromRelayResult,
+  type RelayTradeType,
+  type RelayQuote,
 } from "./relaySdk.js"
 import {
   getFeeOptions,
@@ -75,22 +86,17 @@ import {
 } from "./sequenceWallet.js"
 import { useAccountTokenBalance } from "./tokenBalances.js"
 import { useSupportedTokens } from "./tokens.js"
-import { requestWithTimeout } from "./utils.js"
-import {
-  trackPaymentStarted,
-  trackPaymentCompleted,
-  trackPaymentError,
-  trackRelayerCallStarted,
-  trackRelayerCallCompleted,
-  trackRelayerCallError,
-  trackTransactionConfirmed,
-} from "./analytics.js"
-import * as chains from "viem/chains"
 import type {
   TransactionState,
   TransactionStateStatus,
 } from "./transactions.js"
 import { getTxTimeDiff } from "./transactions.js"
+import { requestWithTimeout } from "./utils.js"
+
+export enum TradeType {
+  EXACT_INPUT = "EXACT_INPUT",
+  EXACT_OUTPUT = "EXACT_OUTPUT",
+}
 
 export type SendOptions = {
   account: Account
@@ -100,7 +106,8 @@ export type SendOptions = {
   destinationChainId: number
   recipient: string
   destinationTokenAddress: string
-  destinationTokenAmount: string
+  swapAmount: string
+  tradeType?: TradeType
   destinationTokenSymbol: string
   sequenceProjectAccessKey: string
   fee: string
@@ -118,6 +125,7 @@ export type SendOptions = {
   paymasterUrl?: string
   gasless?: boolean
   relayerConfig: RelayerEnvConfig
+  slippageTolerance?: string
 }
 
 export type PrepareSendFees = {
@@ -129,6 +137,7 @@ export type PrepareSendFees = {
 export type PrepareSendReturn = {
   intentAddress?: string
   originSendAmount: string
+  destinationTokenAmount: string
   fees?: PrepareSendFees
   slippageTolerance?: string
   priceImpact?: string
@@ -252,7 +261,8 @@ export async function prepareSend(
     destinationChainId,
     recipient,
     destinationTokenAddress,
-    destinationTokenAmount,
+    swapAmount,
+    tradeType,
     destinationTokenSymbol,
     fee,
     client: walletClient,
@@ -270,7 +280,10 @@ export async function prepareSend(
     gasless = false,
     relayerConfig,
     sequenceProjectAccessKey,
+    slippageTolerance,
   } = options
+
+  const destinationTokenAmount = swapAmount
 
   // Track payment start
   trackPaymentStarted({
@@ -356,7 +369,8 @@ export async function prepareSend(
   if (isToSameChain && !isToSameToken) {
     return await sendHandlerForSameChainDifferentToken({
       originTokenAddress,
-      destinationTokenAmount,
+      swapAmount,
+      tradeType,
       destinationTokenAddress,
       destinationCalldata,
       recipient,
@@ -364,6 +378,7 @@ export async function prepareSend(
       walletClient,
       publicClient,
       account,
+      slippageTolerance,
     })
   }
 
@@ -490,6 +505,7 @@ async function sendHandlerForDifferentChainDifferentToken({
     return {
       intentAddress: "",
       originSendAmount: amount,
+      destinationTokenAmount: amount,
       fees: getZeroFees(),
       slippageTolerance: "0",
       priceImpact: "0",
@@ -672,6 +688,7 @@ async function sendHandlerForDifferentChainDifferentToken({
   return {
     intentAddress,
     originSendAmount: depositAmount,
+    destinationTokenAmount,
     fees: getFeesFromIntent(intent),
     slippageTolerance: getSlippageToleranceFromIntent(intent),
     priceImpact: getPriceImpactFromIntent(intent),
@@ -896,6 +913,7 @@ async function sendHandlerForSameChainSameToken({
 
   return {
     originSendAmount: destinationTokenAmount,
+    destinationTokenAmount: destinationTokenAmount,
     fees: getZeroFees(),
     slippageTolerance: "0",
     priceImpact: "0",
@@ -1006,7 +1024,7 @@ async function sendHandlerForSameChainSameToken({
 
 async function sendHandlerForSameChainDifferentToken({
   originTokenAddress,
-  destinationTokenAmount,
+  swapAmount,
   destinationTokenAddress,
   destinationCalldata,
   recipient,
@@ -1014,9 +1032,11 @@ async function sendHandlerForSameChainDifferentToken({
   walletClient,
   publicClient,
   account,
+  tradeType = TradeType.EXACT_OUTPUT,
+  slippageTolerance,
 }: {
   originTokenAddress: string
-  destinationTokenAmount: string
+  swapAmount: string
   destinationTokenAddress: string
   destinationCalldata?: string
   recipient: string
@@ -1024,13 +1044,14 @@ async function sendHandlerForSameChainDifferentToken({
   walletClient: WalletClient
   publicClient: PublicClient
   account: Account
+  tradeType?: TradeType
+  slippageTolerance?: string
 }): Promise<PrepareSendReturn> {
   const destinationTxs = []
-  if (destinationCalldata) {
+  if (destinationCalldata && tradeType === TradeType.EXACT_OUTPUT) {
     destinationTxs.push({
       to: recipient,
-      value:
-        destinationTokenAddress === zeroAddress ? destinationTokenAmount : "0",
+      value: destinationTokenAddress === zeroAddress ? swapAmount : "0",
       data: destinationCalldata,
     })
   }
@@ -1038,31 +1059,40 @@ async function sendHandlerForSameChainDifferentToken({
   const quote = await getRelaySDKQuote({
     wallet: walletClient,
     chainId: originChainId,
-    amount: destinationTokenAmount,
+    amount: swapAmount,
     currency: originTokenAddress,
     toCurrency: destinationTokenAddress,
     txs: destinationTxs,
+    tradeType: tradeType as unknown as RelayTradeType,
+    slippageTolerance: slippageTolerance,
   })
 
   console.log("[trails-sdk] relaysdk quote", quote)
   let depositAmount = "0"
+  let destinationTokenAmount = "0"
 
-  try {
-    depositAmount = quote.steps?.[0]?.items?.[0]?.data?.value
-    if (originTokenAddress !== zeroAddress) {
-      const decoded = decodeFunctionData({
-        abi: erc20Abi,
-        data: quote.steps?.[0]?.items?.[0]?.data?.data,
-      })
-      if (decoded.functionName === "approve") {
-        depositAmount = decoded.args[1].toString()
+  if (tradeType === TradeType.EXACT_INPUT) {
+    depositAmount = swapAmount
+    destinationTokenAmount = quote?.details?.currencyOut?.amount?.toString()
+  } else {
+    try {
+      destinationTokenAmount = swapAmount
+      depositAmount = quote.steps?.[0]?.items?.[0]?.data?.value
+      if (originTokenAddress !== zeroAddress) {
+        const decoded = decodeFunctionData({
+          abi: erc20Abi,
+          data: quote.steps?.[0]?.items?.[0]?.data?.data,
+        })
+        if (decoded.functionName === "approve") {
+          depositAmount = decoded.args[1].toString()
+        }
+        if (decoded.functionName === "transfer") {
+          depositAmount = decoded.args[1].toString()
+        }
       }
-      if (decoded.functionName === "transfer") {
-        depositAmount = decoded.args[1].toString()
-      }
+    } catch (error) {
+      console.error("[trails-sdk] Error decoding function data:", error)
     }
-  } catch (error) {
-    console.error("[trails-sdk] Error decoding function data:", error)
   }
 
   const hasEnoughBalance = await checkAccountBalance({
@@ -1078,6 +1108,7 @@ async function sendHandlerForSameChainDifferentToken({
 
   return {
     originSendAmount: depositAmount,
+    destinationTokenAmount,
     fees: getFeesFromRelaySdkQuote(quote),
     slippageTolerance: getSlippageToleranceFromRelaySdkQuote(quote),
     priceImpact: getPriceImpactFromRelaySdkQuote(quote),
@@ -1867,8 +1898,10 @@ export type UseQuoteProps = {
   fromChainId?: number
   toTokenAddress?: string
   toChainId?: number
-  toAmount?: string | bigint
+  swapAmount?: string | bigint
   toRecipient?: string
+  tradeType?: TradeType
+  slippageTolerance?: string | number | null
   onStatusUpdate?: (transactionStates: TransactionState[]) => void
 }
 
@@ -1889,6 +1922,7 @@ export type SwapReturn = {
 export type UseQuoteReturn = {
   quote: {
     fromAmount: string
+    toAmount: string
     fees?: PrepareSendFees | null
     slippageTolerance?: string | null
     priceImpact?: string | null
@@ -1905,10 +1939,12 @@ export function useQuote({
   fromChainId,
   toTokenAddress,
   toChainId,
-  toAmount,
+  swapAmount,
+  tradeType,
   toRecipient,
+  slippageTolerance = "0.3",
   onStatusUpdate,
-}: UseQuoteProps = {}): UseQuoteReturn {
+}: Partial<UseQuoteProps> = {}): UseQuoteReturn {
   const apiClient = useAPIClient()
   const { getRelayer } = useRelayers({
     env: "dev",
@@ -1947,8 +1983,10 @@ export function useQuote({
       fromChainId,
       toTokenAddress,
       toChainId,
-      toAmount?.toString(),
+      swapAmount?.toString(),
       toRecipient,
+      tradeType,
+      slippageTolerance,
     ],
     queryFn: async () => {
       if (
@@ -1956,7 +1994,7 @@ export function useQuote({
         !apiClient ||
         !fromTokenAddress ||
         !toTokenAddress ||
-        !toAmount ||
+        !swapAmount ||
         !toRecipient ||
         !fromChainId ||
         !toChainId ||
@@ -1999,7 +2037,8 @@ export function useQuote({
         destinationChainId: toChainId,
         recipient: toRecipient,
         destinationTokenAddress: toTokenAddress,
-        destinationTokenAmount: toAmount.toString(),
+        swapAmount: swapAmount.toString(),
+        tradeType,
         destinationTokenSymbol: destinationTokenSymbol,
         sequenceProjectAccessKey,
         client: walletClient,
@@ -2014,6 +2053,7 @@ export function useQuote({
         dryMode: false,
         onTransactionStateChange: onStatusUpdate ?? (() => {}),
         relayerConfig: {},
+        slippageTolerance: slippageTolerance?.toString(),
       }
 
       console.log("[trails-sdk] options", options)
@@ -2021,9 +2061,9 @@ export function useQuote({
       const {
         intentAddress,
         originSendAmount,
+        destinationTokenAmount,
         send,
         fees,
-        slippageTolerance,
         priceImpact,
         completionEstimateSeconds,
       } = await prepareSend(options)
@@ -2031,10 +2071,11 @@ export function useQuote({
 
       const quote = {
         fromAmount: originSendAmount,
+        toAmount: destinationTokenAmount,
         fees,
-        slippageTolerance,
         priceImpact,
         completionEstimateSeconds,
+        slippageTolerance: slippageTolerance?.toString(),
       }
 
       const swap = async (): Promise<SwapReturn> => {
@@ -2095,13 +2136,13 @@ export function getFeesFromIntent(intent: GetIntentCallsPayloadsReturn): {
 export function getSlippageToleranceFromIntent(
   _intent: GetIntentCallsPayloadsReturn,
 ): string {
-  return "0.03" // TODO: implement in API side
+  return "0.3" // 0.3%, TODO: implement in API side
 }
 
 export function getPriceImpactFromIntent(
   _intent: GetIntentCallsPayloadsReturn,
 ): string {
-  return "-0.07" // TODO: implement in API side
+  return "-0.07" // -0.07%, TODO: implement in API side
 }
 
 export function getFeesFromRelaySdkQuote(quote: RelayQuote): PrepareSendFees {
@@ -2115,7 +2156,9 @@ export function getFeesFromRelaySdkQuote(quote: RelayQuote): PrepareSendFees {
 export function getSlippageToleranceFromRelaySdkQuote(
   quote: RelayQuote,
 ): string {
-  return quote?.details?.slippageTolerance?.origin?.percent ?? "0"
+  return (
+    Number(quote?.details?.slippageTolerance?.origin?.percent ?? "0") / 100
+  ).toString()
 }
 
 export function getPriceImpactFromRelaySdkQuote(quote: RelayQuote): string {

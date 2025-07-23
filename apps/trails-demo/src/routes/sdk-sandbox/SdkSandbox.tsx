@@ -6,6 +6,7 @@ import {
   useTokenList,
   type TransactionState,
   type SwapReturn,
+  TradeType,
 } from "0xtrails"
 import { useCallback, useEffect, useState } from "react"
 import { Link } from "react-router"
@@ -41,7 +42,10 @@ export function SdkSandbox() {
     contractAddress: "0x0000000000000000000000000000000000000000",
     decimals: 18,
   })
-  const [quoteToAmount, setQuoteToAmount] = useState("0.00001")
+  const [quoteSwapAmount, setQuoteSwapAmount] = useState("0.01")
+  const [quoteTradeType, setQuoteTradeType] = useState<TradeType>(
+    TradeType.EXACT_OUTPUT,
+  )
   const [quoteToRecipient, setQuoteToRecipient] = useState("")
 
   // Prefill recipient with connected account address
@@ -96,27 +100,17 @@ export function SdkSandbox() {
           fromChainId: quoteFromToken.chainId,
           toTokenAddress: quoteToToken.contractAddress,
           toChainId: quoteToToken.chainId,
-          toAmount: parseUnits(
-            quoteToAmount,
-            quoteToToken?.decimals || 18,
+          swapAmount: parseUnits(
+            quoteSwapAmount,
+            quoteFromToken?.decimals || 18,
           ).toString(),
+          tradeType: quoteTradeType,
           toRecipient: quoteToRecipient,
           onStatusUpdate,
         }
-      : null
+      : {}
 
-  const { quote, swap, isLoadingQuote, quoteError } = useQuote(
-    quoteParams || {
-      walletClient: null as any,
-      fromTokenAddress: "",
-      fromChainId: 0,
-      toTokenAddress: "",
-      toChainId: 0,
-      toAmount: "",
-      toRecipient: "",
-      onStatusUpdate,
-    },
-  )
+  const { quote, swap, isLoadingQuote, quoteError } = useQuote(quoteParams)
 
   useEffect(() => {
     if (quote) {
@@ -698,22 +692,44 @@ export function SdkSandbox() {
         </div>
 
         {/* Amount and Recipient Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div>
             <label
-              htmlFor="quote-to-amount"
+              htmlFor="quote-swap-amount"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              To Amount
+              Swap Amount
             </label>
             <input
-              id="quote-to-amount"
+              id="quote-swap-amount"
               type="text"
-              value={quoteToAmount}
-              onChange={(e) => setQuoteToAmount(e.target.value)}
+              value={quoteSwapAmount}
+              onChange={(e) => setQuoteSwapAmount(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               placeholder="1.0"
             />
+          </div>
+
+          <div>
+            <label
+              htmlFor="quote-trade-type"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Trade Type
+            </label>
+            <select
+              id="quote-trade-type"
+              value={quoteTradeType}
+              onChange={(e) => setQuoteTradeType(e.target.value as TradeType)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value={TradeType.EXACT_INPUT} disabled>
+                {TradeType.EXACT_INPUT}
+              </option>
+              <option value={TradeType.EXACT_OUTPUT}>
+                {TradeType.EXACT_OUTPUT}
+              </option>
+            </select>
           </div>
 
           <div>
@@ -792,11 +808,15 @@ export function SdkSandbox() {
                   To Amount:
                 </span>
                 <span className="font-medium text-gray-900 dark:text-white">
-                  {quoteToAmount}
+                  {formatUnits(
+                    BigInt(quote.toAmount || "0"),
+                    quoteToToken?.decimals || 18,
+                  )}
                 </span>
               </div>
 
-              {quote?.completionEstimateSeconds && (
+              {quote?.completionEstimateSeconds &&
+              quote?.completionEstimateSeconds > 0 ? (
                 <div className="flex justify-between">
                   <span className="text-gray-600 dark:text-gray-400">
                     Estimated Completion Time:
@@ -805,7 +825,7 @@ export function SdkSandbox() {
                     {quote?.completionEstimateSeconds}s
                   </span>
                 </div>
-              )}
+              ) : null}
 
               {/* Additional Quote Details */}
               {(quote?.fees?.feeTokenAddress ||
@@ -892,7 +912,7 @@ export function SdkSandbox() {
                           Slippage Tolerance:
                         </span>
                         <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          {Number(quote?.slippageTolerance) * 100}%
+                          {Number(quote?.slippageTolerance).toFixed(2)}%
                         </span>
                       </div>
                     )}
