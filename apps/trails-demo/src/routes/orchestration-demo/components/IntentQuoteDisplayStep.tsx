@@ -415,7 +415,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                         <Text
                           variant="small"
                           color="secondary"
-                          className="ml-1"
+                          className="ml-1 text-gray-300"
                         >
                           {getChainInfo(parseInt(operation.chainId.toString()))
                             ?.name || "Unknown Chain"}
@@ -492,7 +492,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                     <div className="bg-gray-800/70 p-2 rounded-md mb-1">
                       <Text variant="small" color="secondary">
                         <strong className="text-blue-300">Chain ID: </strong>
-                        <span className="font-mono bg-blue-900/30 px-2 py-0.5 rounded-full">
+                        <span className="font-mono bg-blue-900/30 px-2 py-0.5 rounded-full text-gray-300">
                           {tx.chainId.toString()}
                         </span>
                         <NetworkImage
@@ -500,7 +500,7 @@ export const IntentQuoteDisplayStep: React.FC<IntentQuoteDisplayStepProps> = ({
                           size="sm"
                           className="w-4 h-4 ml-1 inline-block"
                         />
-                        <span className="ml-1">
+                        <span className="ml-1 text-gray-300">
                           {getChainInfo(parseInt(tx.chainId.toString()))
                             ?.name || "Unknown Chain"}
                         </span>

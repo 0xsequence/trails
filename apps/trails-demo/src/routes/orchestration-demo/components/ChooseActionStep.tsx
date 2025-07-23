@@ -377,7 +377,7 @@ export const ChooseActionStep: React.FC<ChooseActionStepProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowCustomCallForm(false)}
-                className="px-3 sm:px-4 py-2 text-xs sm:text-sm"
+                className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-300"
               >
                 Cancel
               </Button>
