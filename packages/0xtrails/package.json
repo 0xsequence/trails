@@ -51,7 +51,7 @@
     "@0xsequence/wallet-core": "github:0xsequence/sequence.js#dists/wallet/core",
     "@0xsequence/wallet-primitives": "github:0xsequence/sequence.js#dists/wallet/primitives",
     "@databeat/tracker": "^0.9.3",
-    "@privy-io/react-auth": "^2.19.2",
+    "@privy-io/react-auth": "^2.20.0",
     "@privy-io/wagmi": "^1.0.5",
     "@reservoir0x/relay-sdk": "^2.3.0",
     "@tanstack/query-core": "^5.83.0",
