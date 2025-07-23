@@ -380,6 +380,8 @@ export async function prepareSend(
       publicClient,
       account,
       slippageTolerance,
+      onTransactionStateChange,
+      transactionStates,
     })
   }
 
@@ -396,6 +398,7 @@ export async function prepareSend(
       dryMode,
       account,
       chain,
+      transactionStates,
     })
   }
 
@@ -893,6 +896,7 @@ async function sendHandlerForSameChainSameToken({
   dryMode,
   account,
   chain,
+  transactionStates,
 }: {
   originTokenAddress: string
   destinationTokenAmount: string
@@ -905,6 +909,7 @@ async function sendHandlerForSameChainSameToken({
   dryMode: boolean
   account: Account
   chain: Chain
+  transactionStates: TransactionState[]
 }): Promise<PrepareSendReturn> {
   console.log("[trails-sdk] isToSameToken && isToSameChain")
 
@@ -1043,6 +1048,8 @@ async function sendHandlerForSameChainDifferentToken({
   account,
   tradeType = TradeType.EXACT_OUTPUT,
   slippageTolerance,
+  onTransactionStateChange,
+  transactionStates,
 }: {
   originTokenAddress: string
   swapAmount: string
@@ -1055,6 +1062,8 @@ async function sendHandlerForSameChainDifferentToken({
   account: Account
   tradeType?: TradeType
   slippageTolerance?: string
+  onTransactionStateChange: (transactionStates: TransactionState[]) => void
+  transactionStates: TransactionState[]
 }): Promise<PrepareSendReturn> {
   const destinationTxs: { to: string; value: string; data: string }[] = []
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
@@ -1141,6 +1150,13 @@ async function sendHandlerForSameChainDifferentToken({
       const originUserTxReceipt = await publicClient.waitForTransactionReceipt({
         hash: txHash as `0x${string}`,
       })
+
+      transactionStates[0] = getTransactionStateFromReceipt(
+        originUserTxReceipt,
+        originChainId,
+        "Swap",
+      )
+      onTransactionStateChange(transactionStates)
 
       // Track payment completion for same-chain different-token transaction
       if (originUserTxReceipt && originUserTxReceipt.status === "success") {
