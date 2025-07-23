@@ -9,6 +9,7 @@ import {
 } from "viem"
 import * as chains from "viem/chains"
 import { attemptSwitchChain } from "./chainSwitch.js"
+import { getIsTestnetChainId } from "./chains.js"
 
 const domains: Record<number, number> = {
   [chains.mainnet.id]: 0,
@@ -125,7 +126,10 @@ export async function cctpTransfer({
   originChain: Chain
   destinationChain: Chain
   amount: bigint
-}): Promise<{ attestation: Attestation; txHash: `0x${string}` }> {
+}): Promise<{
+  waitForAttestation: () => Promise<Attestation>
+  txHash: `0x${string}`
+}> {
   const originToken = getTokenAddress(originChain.id)
   const originDomain = getDomain(originChain.id)
   const destinationDomain = getDomain(destinationChain.id)
@@ -134,12 +138,19 @@ export async function cctpTransfer({
 
   if (
     !originToken ||
-    !originDomain ||
+    originDomain === null ||
     !originTokenMessenger ||
-    !destinationDomain ||
+    destinationDomain === null ||
     !destinationAddress
   ) {
-    throw new Error("Invalid origin chain")
+    console.error("[trails-sdk] cctpTransfer: Invalid origin chain config", {
+      originToken,
+      originDomain,
+      originTokenMessenger,
+      destinationDomain,
+      destinationAddress,
+    })
+    throw new Error("Invalid origin chain config")
   }
 
   const originClient = createPublicClient({
@@ -194,21 +205,26 @@ export async function cctpTransfer({
     chain: originChain,
   })
 
-  await originClient.waitForTransactionReceipt({
-    hash: txHash,
-  })
-
-  const attestation = await waitForAttestation({
-    domain: originDomain,
-    transactionHash: txHash,
-  })
-
-  if (!attestation) {
-    throw new Error("Failed to retrieve attestation")
-  }
-
   return {
-    attestation,
+    waitForAttestation: async () => {
+      await originClient.waitForTransactionReceipt({
+        hash: txHash,
+      })
+
+      const testnet = getIsTestnetChainId(originChain.id)
+
+      const attestation = await waitForAttestation({
+        domain: originDomain,
+        transactionHash: txHash,
+        testnet,
+      })
+
+      if (!attestation) {
+        throw new Error("Failed to retrieve attestation")
+      }
+
+      return attestation
+    },
     txHash: txHash,
   }
 }
@@ -456,15 +472,17 @@ export async function getBurnUSDCData({
 export async function retrieveAttestation({
   domain,
   transactionHash,
+  testnet,
 }: {
   domain: number
   transactionHash: `0x${string}`
+  testnet: boolean
 }): Promise<Attestation | null> {
   console.log("[trails-sdk] retrieving attestation", {
     domain,
     transactionHash,
   })
-  const url = `https://iris-api-sandbox.circle.com/v2/messages/${domain}?transactionHash=${transactionHash}`
+  const url = `https://iris-api${testnet ? "-sandbox" : ""}.circle.com/v2/messages/${domain}?transactionHash=${transactionHash}`
   while (true) {
     try {
       const response = await fetch(url)
@@ -557,14 +575,17 @@ export async function getMintUSDCData({
 export async function waitForAttestation({
   domain,
   transactionHash,
+  testnet,
 }: {
   domain: number
   transactionHash: `0x${string}`
+  testnet: boolean
 }): Promise<Attestation | null> {
   while (true) {
     const attestation = await retrieveAttestation({
       domain,
       transactionHash,
+      testnet,
     })
     if (attestation) {
       return attestation

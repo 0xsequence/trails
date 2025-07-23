@@ -105,20 +105,11 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
       }
     }, [])
 
-    const handleDebugClick = () => {
+    const handleQueryParamClick = (paramName: string) => {
       const searchParams = new URLSearchParams(location.search)
       searchParams.set(
-        "debug",
-        searchParams.get("debug") === "true" ? "false" : "true",
-      )
-      navigate({ pathname: location.pathname, search: searchParams.toString() })
-    }
-
-    const handleTestnetClick = () => {
-      const searchParams = new URLSearchParams(location.search)
-      searchParams.set(
-        "testnet",
-        searchParams.get("testnet") === "true" ? "false" : "true",
+        paramName,
+        searchParams.get(paramName) === "true" ? "false" : "true",
       )
       navigate({ pathname: location.pathname, search: searchParams.toString() })
     }
@@ -242,18 +233,25 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
           )}
         </div>
         <button
-          onClick={handleDebugClick}
+          onClick={() => handleQueryParamClick("debug")}
           className="absolute bottom-3 right-4 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer z-10 opacity-50 hover:opacity-75 transition-opacity"
           type="button"
         >
           Debug
         </button>
         <button
-          onClick={handleTestnetClick}
+          onClick={() => handleQueryParamClick("testnet")}
           className="absolute bottom-3 right-16 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer z-10 opacity-50 hover:opacity-75 transition-opacity"
           type="button"
         >
           Testnet
+        </button>
+        <button
+          onClick={() => handleQueryParamClick("cctp")}
+          className="absolute bottom-3 right-28 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer z-10 opacity-50 hover:opacity-75 transition-opacity"
+          type="button"
+        >
+          CCTP
         </button>
 
         {/* Git Commit Hash */}

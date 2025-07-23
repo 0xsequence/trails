@@ -171,3 +171,8 @@ export function useSupportedChains(): {
     isLoadingChains,
   }
 }
+
+export function getIsTestnetChainId(chainId: number): boolean {
+  const testnetChainIds = Object.keys(supportedSequenceTestnetChains)
+  return testnetChainIds.includes(chainId.toString())
+}

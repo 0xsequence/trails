@@ -213,14 +213,15 @@ function getIntentArgs(
   destinationCalldata: string | undefined,
   destinationSalt: string = Date.now().toString(),
 ): GetIntentCallsPayloadsArgs {
-  const _destinationCalldata =
-    destinationCalldata ||
-    (destinationTokenAddress === zeroAddress
+  const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
+  const _destinationCalldata = hasCustomCalldata
+    ? destinationCalldata
+    : destinationTokenAddress === zeroAddress
       ? "0x"
       : getERC20TransferData({
           recipient,
           amount: BigInt(destinationTokenAmount),
-        }))
+        })
   const _destinationToAddress = destinationCalldata
     ? recipient
     : destinationTokenAddress === zeroAddress
@@ -499,7 +500,12 @@ async function sendHandlerForDifferentChainDifferentToken({
     originChainId,
     destinationChainId,
   )
-  if (useCctp && testnet) {
+
+  const cctpFlag = getQueryParam("cctp") === "true"
+  const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
+
+  if (useCctp && cctpFlag && !hasCustomCalldata) {
+    console.log("[trails-sdk] using cctp")
     const amount = destinationTokenAmount
 
     return {
@@ -528,16 +534,12 @@ async function sendHandlerForDifferentChainDifferentToken({
           transport: http(),
         })
 
-        const { txHash, attestation } = await cctpTransfer({
+        const { txHash, waitForAttestation } = await cctpTransfer({
           walletClient,
           originChain,
           destinationChain,
           amount: BigInt(destinationTokenAmount),
         })
-
-        if (!attestation) {
-          throw new Error("Failed to retrieve attestation")
-        }
 
         if (onOriginSend) {
           onOriginSend()
@@ -563,6 +565,12 @@ async function sendHandlerForDifferentChainDifferentToken({
         )
 
         onTransactionStateChange(transactionStates)
+
+        const attestation = await waitForAttestation()
+
+        if (!attestation) {
+          throw new Error("Failed to retrieve attestation")
+        }
 
         const tokenMessenger = getMessageTransmitter(destinationChain.id)!
 
@@ -919,20 +927,21 @@ async function sendHandlerForSameChainSameToken({
     priceImpact: "0",
     completionEstimateSeconds: 0,
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
+      const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
       const originCallParams = {
-        to: destinationCalldata
+        to: hasCustomCalldata
           ? recipient
           : originTokenAddress === zeroAddress
             ? recipient
             : originTokenAddress,
-        data:
-          destinationCalldata ||
-          (originTokenAddress === zeroAddress
+        data: hasCustomCalldata
+          ? destinationCalldata
+          : originTokenAddress === zeroAddress
             ? "0x"
             : getERC20TransferData({
                 recipient,
                 amount: BigInt(destinationTokenAmount),
-              })),
+              }),
         value:
           originTokenAddress === zeroAddress
             ? BigInt(destinationTokenAmount)
@@ -1047,12 +1056,13 @@ async function sendHandlerForSameChainDifferentToken({
   tradeType?: TradeType
   slippageTolerance?: string
 }): Promise<PrepareSendReturn> {
-  const destinationTxs = []
-  if (destinationCalldata && tradeType === TradeType.EXACT_OUTPUT) {
+  const destinationTxs: { to: string; value: string; data: string }[] = []
+  const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
+  if (hasCustomCalldata && tradeType === TradeType.EXACT_OUTPUT) {
     destinationTxs.push({
       to: recipient,
       value: destinationTokenAddress === zeroAddress ? swapAmount : "0",
-      data: destinationCalldata,
+      data: destinationCalldata as `0x${string}`,
     })
   }
 
@@ -1902,7 +1912,7 @@ export type UseQuoteProps = {
   toRecipient?: string | null
   tradeType?: TradeType | null
   slippageTolerance?: string | number | null
-  onStatusUpdate?: (transactionStates: TransactionState[]) => void | null
+  onStatusUpdate?: ((transactionStates: TransactionState[]) => void) | null
 }
 
 export type SwapReturn = {
@@ -2196,4 +2206,8 @@ export function getCompletionEstimateSeconds({
   }
 
   return 10
+}
+
+export function getIsCustomCalldata(calldata: string | undefined): boolean {
+  return calldata !== undefined && calldata !== "" && calldata !== "0x"
 }
