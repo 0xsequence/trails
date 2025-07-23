@@ -1893,16 +1893,16 @@ function getNeedsLifiNativeFee({
 }
 
 export type UseQuoteProps = {
-  walletClient?: WalletClient
-  fromTokenAddress?: string
-  fromChainId?: number
-  toTokenAddress?: string
-  toChainId?: number
+  walletClient?: any // TODO: fix this, has to do with viem/wagmi versions
+  fromTokenAddress?: string | null
+  fromChainId?: number | null
+  toTokenAddress?: string | null
+  toChainId?: number | null
   swapAmount?: string | bigint
-  toRecipient?: string
-  tradeType?: TradeType
+  toRecipient?: string | null
+  tradeType?: TradeType | null
   slippageTolerance?: string | number | null
-  onStatusUpdate?: (transactionStates: TransactionState[]) => void
+  onStatusUpdate?: (transactionStates: TransactionState[]) => void | null
 }
 
 export type SwapReturn = {
@@ -2038,7 +2038,7 @@ export function useQuote({
         recipient: toRecipient,
         destinationTokenAddress: toTokenAddress,
         swapAmount: swapAmount.toString(),
-        tradeType,
+        tradeType: tradeType ?? TradeType.EXACT_OUTPUT,
         destinationTokenSymbol: destinationTokenSymbol,
         sequenceProjectAccessKey,
         client: walletClient,

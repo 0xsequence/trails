@@ -500,11 +500,11 @@ export async function getTokenBalancesWithPrices({
 }
 
 export type UseAccountTokenBalanceParams = {
-  account?: string
-  token?: string
-  chainId?: number
-  indexerGatewayClient?: SequenceIndexerGateway
-  apiClient?: SequenceAPIClient
+  account?: string | null
+  token?: string | null
+  chainId?: number | null
+  indexerGatewayClient?: SequenceIndexerGateway | null
+  apiClient?: SequenceAPIClient | null
 }
 
 export function useAccountTokenBalance({

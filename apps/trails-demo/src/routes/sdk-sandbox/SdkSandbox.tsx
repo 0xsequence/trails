@@ -31,16 +31,16 @@ export function SdkSandbox() {
   const [quoteFromToken, setQuoteFromToken] = useState<
     { chainId: number; contractAddress: string; decimals: number } | undefined
   >({
-    chainId: 8453,
-    contractAddress: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    chainId: 42161,
+    contractAddress: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
     decimals: 6,
   })
   const [quoteToToken, setQuoteToToken] = useState<
     { chainId: number; contractAddress: string; decimals: number } | undefined
   >({
-    chainId: 42161,
-    contractAddress: "0x0000000000000000000000000000000000000000",
-    decimals: 18,
+    chainId: 8453,
+    contractAddress: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    decimals: 6,
   })
   const [quoteSwapAmount, setQuoteSwapAmount] = useState("0.01")
   const [quoteTradeType, setQuoteTradeType] = useState<TradeType>(
@@ -88,29 +88,20 @@ export function SdkSandbox() {
     [],
   )
 
-  // Quote hook - only call when walletClient is available
-  const quoteParams =
-    walletClient &&
-    quoteFromToken?.contractAddress &&
-    quoteToToken?.contractAddress &&
-    quoteToRecipient
-      ? {
-          walletClient: walletClient,
-          fromTokenAddress: quoteFromToken.contractAddress,
-          fromChainId: quoteFromToken.chainId,
-          toTokenAddress: quoteToToken.contractAddress,
-          toChainId: quoteToToken.chainId,
-          swapAmount: parseUnits(
-            quoteSwapAmount,
-            quoteFromToken?.decimals || 18,
-          ).toString(),
-          tradeType: quoteTradeType,
-          toRecipient: quoteToRecipient,
-          onStatusUpdate,
-        }
-      : {}
-
-  const { quote, swap, isLoadingQuote, quoteError } = useQuote(quoteParams)
+  const { quote, swap, isLoadingQuote, quoteError } = useQuote({
+    walletClient: walletClient,
+    fromTokenAddress: quoteFromToken?.contractAddress,
+    fromChainId: quoteFromToken?.chainId,
+    toTokenAddress: quoteToToken?.contractAddress,
+    toChainId: quoteToToken?.chainId,
+    swapAmount: parseUnits(
+      quoteSwapAmount || "0",
+      quoteFromToken?.decimals || 18,
+    ).toString(),
+    tradeType: quoteTradeType,
+    toRecipient: quoteToRecipient,
+    onStatusUpdate,
+  })
 
   useEffect(() => {
     if (quote) {
