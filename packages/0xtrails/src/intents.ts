@@ -121,6 +121,7 @@ export async function getIntentCallsPayloads(
   })
 
   try {
+    console.log("[trails-sdk] getIntentCallsPayloads args:", args)
     const result = await apiClient.getIntentCallsPayloads(args)
 
     if (!result) {

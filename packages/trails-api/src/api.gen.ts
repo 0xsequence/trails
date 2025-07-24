@@ -1580,6 +1580,7 @@ export interface GetIntentCallsPayloadsArgs {
   destinationSalt?: string
   takerFee?: TakerFee
   slippageTolerance?: number
+  tradeType?: string
 }
 
 export interface GetIntentCallsPayloadsReturn {

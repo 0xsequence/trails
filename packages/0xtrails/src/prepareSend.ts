@@ -220,6 +220,7 @@ function getIntentArgs(
   destinationCalldata: string | undefined,
   destinationSalt: string = Date.now().toString(),
   slippageTolerance: string, // 0.03 = 3%
+  tradeType: TradeType,
 ): GetIntentCallsPayloadsArgs {
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
   const _destinationCalldata = hasCustomCalldata
@@ -255,6 +256,7 @@ function getIntentArgs(
     destinationCallValue: _destinationCallValue,
     destinationSalt,
     slippageTolerance: Number(slippageTolerance),
+    tradeType,
   }
 
   return intentArgs
@@ -272,7 +274,7 @@ export async function prepareSend(
     recipient,
     destinationTokenAddress,
     swapAmount,
-    tradeType,
+    tradeType = TradeType.EXACT_OUTPUT,
     destinationTokenSymbol,
     fee,
     client: walletClient,
@@ -442,6 +444,7 @@ export async function prepareSend(
     onTransactionStateChange,
     transactionStates,
     slippageTolerance,
+    tradeType,
   })
 }
 
@@ -476,6 +479,7 @@ async function sendHandlerForDifferentChainDifferentToken({
   onTransactionStateChange,
   transactionStates,
   slippageTolerance,
+  tradeType,
 }: {
   mainSignerAddress: string
   originChainId: number
@@ -507,6 +511,7 @@ async function sendHandlerForDifferentChainDifferentToken({
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   transactionStates: TransactionState[]
   slippageTolerance: string
+  tradeType: TradeType
 }): Promise<PrepareSendReturn> {
   const testnet = isTestnetDebugMode()
   const useCctp = getUseCctp(
@@ -701,16 +706,20 @@ async function sendHandlerForDifferentChainDifferentToken({
     mainSignerAddress,
     originChainId,
     originTokenAddress,
-    originTokenAmount,
+    tradeType === TradeType.EXACT_INPUT
+      ? destinationTokenAmount
+      : originTokenAmount, // originTokenAmount
     destinationChainId,
     destinationTokenAddress,
-    destinationTokenAmount,
+    tradeType === TradeType.EXACT_INPUT ? "0" : destinationTokenAmount, // destinationTokenAmount
     destinationTokenSymbol,
     recipient,
     destinationCalldata,
     destinationSalt,
     slippageTolerance,
+    tradeType,
   )
+
   console.log("[trails-sdk] Creating intent with args:", intentArgs)
 
   const intent = await getIntentCallsPayloadsFromIntents(apiClient, intentArgs)
@@ -742,6 +751,13 @@ async function sendHandlerForDifferentChainDifferentToken({
   const firstPreconditionMin = firstPrecondition?.data?.min?.toString()
   const depositAmount = firstPreconditionMin
 
+  const lastPrecondition = findFirstPreconditionForChainId(
+    intent.preconditions,
+    destinationChainId,
+  )
+
+  const lastPreconditionMin = lastPrecondition?.data?.min?.toString()
+
   const hasEnoughBalance = await checkAccountBalance({
     account,
     tokenAddress: originTokenAddress,
@@ -756,7 +772,10 @@ async function sendHandlerForDifferentChainDifferentToken({
   return {
     intentAddress,
     originSendAmount: depositAmount,
-    destinationTokenAmount,
+    destinationTokenAmount:
+      tradeType === TradeType.EXACT_INPUT
+        ? lastPreconditionMin
+        : destinationTokenAmount,
     fees: getFeesFromIntent(intent),
     slippageTolerance: getSlippageToleranceFromIntent(intent),
     priceImpact: getPriceImpactFromIntent(intent),
