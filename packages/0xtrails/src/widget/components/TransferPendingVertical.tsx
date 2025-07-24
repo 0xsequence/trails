@@ -307,8 +307,10 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-2">
             <span className={getTextStyles()}>{tx.label}</span>
-            {stepState === "completed" && (
+            {stepState === "completed" ? (
               <ExternalLink className="w-4 h-4 text-gray-400 transition-opacity duration-300" />
+            ) : (
+              <div className="w-4 h-4" />
             )}
           </div>
         </div>

@@ -164,6 +164,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     MINT_NFT_ARBITRUM_CCTP_TESTNET: "mint_nft_arbitrum_cctp_testnet",
     MINT_NFT_POLYGON: "mint_nft_polygon",
     DEPOSIT_AAVE_BASE: "deposit_aave_base",
+    DEPOSIT_GAUNLET_VAULT_BASE: "deposit_gaunlet_vault_base",
   } as const
 
   // Scenario options based on example subtitles
@@ -187,6 +188,12 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     {
       key: SCENARIO_KEYS.MINT_NFT_ARBITRUM_CCTP_TESTNET,
       label: "Mint an NFT on Arbitrum Sepolia with USDC using CCTP",
+      disabled: true,
+    },
+    {
+      key: SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE,
+      label: "Deposit USDC to Gaunlet vault on Base",
+      disabled: true,
     },
   ]
 
@@ -200,12 +207,6 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   useEffect(() => {
     console.log("[trails-demo] paymasterUrls changed:", paymasterUrls)
   }, [paymasterUrls])
-
-  // Add helper to format address for calldata
-  const formatAddressForCalldata = useCallback((address: string) => {
-    // Remove 0x prefix if present and pad to 40 characters
-    return address.toLowerCase().replace("0x", "").padStart(40, "0")
-  }, [])
 
   // Function to apply scenario settings
   const applyScenario = useCallback(
@@ -234,9 +235,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToAmount("0.00002")
           setToToken("ETH")
           setToChainId(42161)
-          // Encode recipient into calldata if set
-          const arbitrumCalldata = `0x6a627842000000000000000000000000${formatAddressForCalldata(toRecipient || zeroAddress)}`
-          setToCalldata(arbitrumCalldata)
+          setToCalldata(encodeNftMintCalldata(toRecipient || zeroAddress))
           break
         }
         case SCENARIO_KEYS.MINT_NFT_ARBITRUM_CCTP_TESTNET: {
@@ -244,10 +243,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToAmount("0.01")
           setToToken("USDC")
           setToChainId(42161)
-
-          // Encode recipient into calldata if set
-          const arbitrumCalldata = `0x6a627842000000000000000000000000${formatAddressForCalldata(toRecipient || zeroAddress)}`
-          setToCalldata(arbitrumCalldata)
+          setToCalldata(encodeNftMintCalldata(toRecipient || zeroAddress))
           break
         }
         case SCENARIO_KEYS.MINT_NFT_POLYGON: {
@@ -255,9 +251,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToAmount("1")
           setToToken("BAT")
           setToChainId(137)
-          // Encode recipient into calldata if set
-          const polygonCalldata = `0x6a627842000000000000000000000000${formatAddressForCalldata(toRecipient || zeroAddress)}`
-          setToCalldata(polygonCalldata)
+          setToCalldata(encodeNftMintCalldata(toRecipient || zeroAddress))
           break
         }
         case SCENARIO_KEYS.DEPOSIT_AAVE_BASE: {
@@ -265,11 +259,19 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToAmount("0.00004")
           setToToken("ETH")
           setToChainId(8453)
-          // Encode recipient into calldata if set
-          const aaveCalldata = encodeAaveEthDepositCalldata(
-            toRecipient || zeroAddress,
+          setToCalldata(
+            encodeAaveEthDepositCalldata(toRecipient || zeroAddress),
           )
-          setToCalldata(aaveCalldata)
+          break
+        }
+
+        // Currently not working because the requestDeposit function doesn't support onBehalfOf
+        case SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE: {
+          setToAddress("0x18CF8d963E1a727F9bbF3AEffa0Bd04FB4dBdA07")
+          setToAmount("1")
+          setToToken("USDC")
+          setToChainId(8453)
+          setToCalldata(encodeGaunletDepositCalldata())
           break
         }
       }
@@ -283,7 +285,6 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       setToChainId,
       setToCalldata,
       setToAddress,
-      formatAddressForCalldata,
       SCENARIO_KEYS,
     ],
   )
@@ -299,12 +300,12 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
     switch (selectedScenario) {
       case SCENARIO_KEYS.MINT_NFT_ARBITRUM: {
-        const arbitrumCalldata = `0x6a627842000000000000000000000000${formatAddressForCalldata(effectiveRecipient)}`
+        const arbitrumCalldata = encodeNftMintCalldata(effectiveRecipient)
         setToCalldata(arbitrumCalldata)
         break
       }
       case SCENARIO_KEYS.MINT_NFT_POLYGON: {
-        const polygonCalldata = `0x6a627842000000000000000000000000${formatAddressForCalldata(effectiveRecipient)}`
+        const polygonCalldata = encodeNftMintCalldata(effectiveRecipient)
         setToCalldata(polygonCalldata)
         break
       }
@@ -320,7 +321,6 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setToCalldata,
     isConnected,
     address,
-    formatAddressForCalldata,
     SCENARIO_KEYS,
   ])
 
@@ -687,29 +687,31 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     <span className="ml-auto text-blue-400">•</span>
                   )}
                 </button>
-                {scenarioOptions.map((scenario) => (
-                  <button
-                    key={scenario.key}
-                    type="button"
-                    onClick={() => {
-                      setSelectedScenario(scenario.key)
-                      setIsScenarioDropdownOpen(false)
-                      applyScenario(scenario.key)
-                      setCustomTokenAddress("")
-                      setShowCustomTokenInput(false)
-                    }}
-                    className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 ${
-                      selectedScenario === scenario.key
-                        ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
-                        : "text-gray-900 dark:text-gray-200"
-                    } cursor-pointer text-sm`}
-                  >
-                    <span className="ml-2">{scenario.label}</span>
-                    {selectedScenario === scenario.key && (
-                      <span className="ml-auto text-blue-400">•</span>
-                    )}
-                  </button>
-                ))}
+                {scenarioOptions
+                  .filter((scenario) => !scenario.disabled)
+                  .map((scenario) => (
+                    <button
+                      key={scenario.key}
+                      type="button"
+                      onClick={() => {
+                        setSelectedScenario(scenario.key)
+                        setIsScenarioDropdownOpen(false)
+                        applyScenario(scenario.key)
+                        setCustomTokenAddress("")
+                        setShowCustomTokenInput(false)
+                      }}
+                      className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 ${
+                        selectedScenario === scenario.key
+                          ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
+                          : "text-gray-900 dark:text-gray-200"
+                      } cursor-pointer text-sm`}
+                    >
+                      <span className="ml-2">{scenario.label}</span>
+                      {selectedScenario === scenario.key && (
+                        <span className="ml-auto text-blue-400">•</span>
+                      )}
+                    </button>
+                  ))}
               </div>
             )}
           </div>
@@ -1196,6 +1198,23 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   )
 }
 
+export function encodeNftMintCalldata(recipient: string = zeroAddress) {
+  const calldata = encodeFunctionData({
+    abi: [
+      {
+        type: "function",
+        name: "mint",
+        stateMutability: "nonpayable",
+        inputs: [{ name: "to", type: "address" }],
+        outputs: [],
+      },
+    ],
+    functionName: "mint",
+    args: [recipient as `0x${string}`],
+  })
+  return calldata
+}
+
 export function encodeAaveEthDepositCalldata(recipient: string = zeroAddress) {
   const calldata = encodeFunctionData({
     abi: [
@@ -1246,6 +1265,40 @@ export function encodeErc20AaveDepositCalldata(
       parseUnits("0.1", 6), // 0.1 USDC (6 decimals)
       recipient as `0x${string}`, // onBehalfOf
       0, // referralCode
+    ],
+  })
+
+  return calldata
+}
+
+export function encodeGaunletDepositCalldata() {
+  const calldata = encodeFunctionData({
+    abi: [
+      {
+        type: "function",
+        name: "requestDeposit",
+        stateMutability: "nonpayable",
+        inputs: [
+          { name: "token", type: "address" },
+          { name: "tokensIn", type: "uint256" },
+          { name: "minUnitsOut", type: "uint256" },
+          { name: "solverTip", type: "uint256" },
+          { name: "deadline", type: "uint256" },
+          { name: "maxPriceAge", type: "uint256" },
+          { name: "isFixedPrice", type: "bool" },
+        ],
+        outputs: [],
+      },
+    ],
+    functionName: "requestDeposit",
+    args: [
+      "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
+      parseUnits("1", 6), // 1 USDC (6 decimals)
+      1n, // minUnitsOut set to 0 for now
+      0n, // solverTip
+      BigInt(Math.floor(Date.now() / 1000) + 259200), // deadline: current timestamp + 3 days
+      3600n, // maxPriceAge: 1 hour in seconds
+      false, // isFixedPrice
     ],
   })
 

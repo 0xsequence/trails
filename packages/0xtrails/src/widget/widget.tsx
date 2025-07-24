@@ -1164,6 +1164,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onComplete={() => setCurrentScreen("pending")}
               theme={theme}
               amount={originTokenInfo?.amount ?? undefined}
+              amountUsd={originTokenInfo?.amountUsd ?? undefined}
               recipient={intentAddress ?? ""}
               tokenSymbol={selectedToken?.symbol}
               retryEnabled={showWalletConfirmRetry}

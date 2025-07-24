@@ -10,6 +10,7 @@ interface WalletConfirmationProps {
   onComplete: () => void
   theme?: ActiveTheme
   amount?: string
+  amountUsd?: string
   recipient?: string
   tokenSymbol?: string
   retryEnabled?: boolean
@@ -22,6 +23,7 @@ interface WalletConfirmationProps {
 export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   theme = "light",
   amount,
+  amountUsd,
   recipient,
   tokenSymbol,
   retryEnabled = false,
@@ -115,9 +117,16 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
                     Amount:
                   </span>
                   <span
-                    className={`font-medium text-xs ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                    className={`font-medium text-xs px-2 py-1 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
                   >
                     {amount} {tokenSymbol}
+                    {amountUsd && (
+                      <div
+                        className={`text-right text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                      >
+                        ≈ {amountUsd}
+                      </div>
+                    )}
                   </span>
                 </div>
               )}
