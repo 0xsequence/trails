@@ -100,6 +100,7 @@ export function SdkSandbox() {
     ).toString(),
     tradeType: quoteTradeType,
     toRecipient: quoteToRecipient,
+    slippageTolerance: "0.03", // 0.03 = 3%
     onStatusUpdate,
   })
 

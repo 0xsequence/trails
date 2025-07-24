@@ -1579,6 +1579,7 @@ export interface GetIntentCallsPayloadsArgs {
   addressOverrides?: AddressOverrides
   destinationSalt?: string
   takerFee?: TakerFee
+  slippageTolerance?: number
 }
 
 export interface GetIntentCallsPayloadsReturn {

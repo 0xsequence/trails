@@ -219,6 +219,7 @@ function getIntentArgs(
   recipient: string,
   destinationCalldata: string | undefined,
   destinationSalt: string = Date.now().toString(),
+  slippageTolerance: string, // 0.03 = 3%
 ): GetIntentCallsPayloadsArgs {
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
   const _destinationCalldata = hasCustomCalldata
@@ -253,6 +254,7 @@ function getIntentArgs(
     destinationCallData: _destinationCalldata,
     destinationCallValue: _destinationCallValue,
     destinationSalt,
+    slippageTolerance: Number(slippageTolerance),
   }
 
   return intentArgs
@@ -288,7 +290,7 @@ export async function prepareSend(
     gasless = false,
     relayerConfig,
     sequenceProjectAccessKey,
-    slippageTolerance,
+    slippageTolerance = "0.03", // 0.03 = 3%
   } = options
 
   const destinationTokenAmount = swapAmount
@@ -439,6 +441,7 @@ export async function prepareSend(
     dryMode,
     onTransactionStateChange,
     transactionStates,
+    slippageTolerance,
   })
 }
 
@@ -472,6 +475,7 @@ async function sendHandlerForDifferentChainDifferentToken({
   dryMode,
   onTransactionStateChange,
   transactionStates,
+  slippageTolerance,
 }: {
   mainSignerAddress: string
   originChainId: number
@@ -502,6 +506,7 @@ async function sendHandlerForDifferentChainDifferentToken({
   dryMode: boolean
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   transactionStates: TransactionState[]
+  slippageTolerance: string
 }): Promise<PrepareSendReturn> {
   const testnet = isTestnetDebugMode()
   const useCctp = getUseCctp(
@@ -704,6 +709,7 @@ async function sendHandlerForDifferentChainDifferentToken({
     recipient,
     destinationCalldata,
     destinationSalt,
+    slippageTolerance,
   )
   console.log("[trails-sdk] Creating intent with args:", intentArgs)
 
@@ -2060,7 +2066,7 @@ export function useQuote({
   swapAmount,
   tradeType,
   toRecipient,
-  slippageTolerance = "0.3",
+  slippageTolerance,
   onStatusUpdate,
 }: Partial<UseQuoteProps> = {}): UseQuoteReturn {
   const apiClient = useAPIClient()
