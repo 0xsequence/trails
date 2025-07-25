@@ -83,6 +83,7 @@ import {
   executeSimpleRelayTransaction,
   getRelaySDKQuote,
   getTxHashFromRelayResult,
+  waitForRelayDestinationTx,
   type RelayTradeType,
   type RelayQuote,
 } from "./relaySdk.js"
@@ -223,19 +224,9 @@ function getIntentArgs(
   tradeType: TradeType,
 ): GetIntentCallsPayloadsArgs {
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
-  const _destinationCalldata = hasCustomCalldata
-    ? destinationCalldata
-    : destinationTokenAddress === zeroAddress
-      ? "0x"
-      : getERC20TransferData({
-          recipient,
-          amount: BigInt(destinationTokenAmount),
-        })
-  const _destinationToAddress = destinationCalldata
-    ? recipient
-    : destinationTokenAddress === zeroAddress
-      ? recipient
-      : destinationTokenAddress
+  const _destinationCalldata = hasCustomCalldata ? destinationCalldata : "0x"
+
+  const _destinationToAddress = recipient
   const _destinationCallValue =
     destinationTokenAddress === zeroAddress ? destinationTokenAmount : "0"
 
@@ -341,6 +332,7 @@ export async function prepareSend(
     transport: http(),
   })
 
+  const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
   const mainSignerAddress = account.address
   const transactionStates: TransactionState[] = []
 
@@ -374,7 +366,7 @@ export async function prepareSend(
       explorerUrl: "",
       chainId: destinationChainId,
       state: "pending",
-      label: "Execute",
+      label: hasCustomCalldata ? "Execute" : "Receive",
     })
   }
 
@@ -756,8 +748,6 @@ async function sendHandlerForDifferentChainDifferentToken({
     destinationChainId,
   )
 
-  const lastPreconditionMin = lastPrecondition?.data?.min?.toString()
-
   const hasEnoughBalance = await checkAccountBalance({
     account,
     tokenAddress: originTokenAddress,
@@ -769,13 +759,13 @@ async function sendHandlerForDifferentChainDifferentToken({
     throw new Error("Account does not have enough balance for deposit")
   }
 
+  const quoteFromAmountMin = intent.quote.fromAmountMin
+  const quoteToAmountMin = intent.quote.toAmountMin
+
   return {
     intentAddress,
-    originSendAmount: depositAmount,
-    destinationTokenAmount:
-      tradeType === TradeType.EXACT_INPUT
-        ? lastPreconditionMin
-        : destinationTokenAmount,
+    originSendAmount: quoteFromAmountMin,
+    destinationTokenAmount: quoteToAmountMin,
     fees: getFeesFromIntent(intent),
     slippageTolerance: getSlippageToleranceFromIntent(intent),
     priceImpact: getPriceImpactFromIntent(intent),
@@ -811,26 +801,6 @@ async function sendHandlerForDifferentChainDifferentToken({
         "[trails-sdk] destinationTokenDecimals",
         destinationTokenDecimals,
       )
-
-      // const originCallParams = {
-      //   to:
-      //     originTokenAddress === zeroAddress
-      //       ? firstPreconditionAddress
-      //       : originTokenAddress,
-      //   data:
-      //     originTokenAddress === zeroAddress
-      //       ? "0x"
-      //       : getERC20TransferData({
-      //           recipient: firstPreconditionAddress,
-      //           amount: BigInt(firstPreconditionMin) + BigInt(fee),
-      //         }),
-      //   value:
-      //     originTokenAddress === zeroAddress
-      //       ? BigInt(firstPreconditionMin) + BigInt(fee)
-      //       : "0",
-      //   chainId: originChainId,
-      //   chain,
-      // }
 
       let originUserTxReceipt: TransactionReceipt | null = null
       let originMetaTxnReceipt: MetaTxnReceipt | null = null
@@ -913,9 +883,41 @@ async function sendHandlerForDifferentChainDifferentToken({
             transactionStates[2] = getTransactionStateFromReceipt(
               destinationMetaTxnReceipt,
               destinationChainId,
-              "Execute",
+              transactionStates?.[2]?.label,
             )
             onTransactionStateChange(transactionStates)
+          }
+        }
+        if (
+          intent.quote.quoteProvider === "relay" &&
+          intent.quote.quoteProviderRequestId
+        ) {
+          try {
+            const txHash = await waitForRelayDestinationTx(
+              intent.quote.quoteProviderRequestId,
+            )
+            if (txHash) {
+              const destinationPublicClient = createPublicClient({
+                chain: getChainInfo(destinationChainId)!,
+                transport: http(),
+              })
+              const destinationTxnReceipt =
+                await destinationPublicClient.getTransactionReceipt({
+                  hash: txHash as `0x${string}`,
+                })
+              transactionStates[2] = getTransactionStateFromReceipt(
+                destinationTxnReceipt,
+                destinationChainId,
+                transactionStates[2]?.label,
+              )
+              onTransactionStateChange(transactionStates)
+            }
+          } catch (error: unknown) {
+            console.error("Error waiting for relay destination tx", error)
+            if (transactionStates?.[2]) {
+              transactionStates[2].state = "failed"
+              onTransactionStateChange(transactionStates)
+            }
           }
         }
       }
@@ -1855,7 +1857,7 @@ export function getDoGasless(
 function getTransactionStateFromReceipt(
   receipt: TransactionReceipt | MetaTxnReceipt,
   chainId: number,
-  label: string,
+  label: string = "Transaction",
 ): TransactionState {
   let txHash: string = ""
   let state: TransactionStateStatus = "pending"
@@ -2254,6 +2256,24 @@ export function useQuote({
         swap,
       }
     },
+    // Prevent unnecessary refetching
+    enabled: Boolean(
+      walletClient &&
+        apiClient &&
+        fromTokenAddress &&
+        toTokenAddress &&
+        swapAmount &&
+        toRecipient &&
+        fromChainId &&
+        toChainId &&
+        originTokenBalance?.balance,
+    ),
+    staleTime: 30 * 1000, // Consider data fresh for 30 seconds
+    refetchOnWindowFocus: false, // Don't refetch when window regains focus
+    refetchOnMount: false, // Don't refetch on component remount if data exists
+    refetchInterval: false, // Disable automatic polling
+    retry: 2, // Limit retry attempts
+    refetchOnReconnect: true, // Refetch when network reconnects
   })
 
   return {
@@ -2277,15 +2297,15 @@ export function getFeesFromIntent(intent: GetIntentCallsPayloadsReturn): {
 }
 
 export function getSlippageToleranceFromIntent(
-  _intent: GetIntentCallsPayloadsReturn,
+  intent: GetIntentCallsPayloadsReturn,
 ): string {
-  return "0.3" // 0.3%, TODO: implement in API side
+  return intent.quote?.maxSlippage?.toString() ?? "0"
 }
 
 export function getPriceImpactFromIntent(
-  _intent: GetIntentCallsPayloadsReturn,
+  intent: GetIntentCallsPayloadsReturn,
 ): string {
-  return "-0.07" // -0.07%, TODO: implement in API side
+  return intent?.quote?.priceImpact?.toString() ?? "0"
 }
 
 export function getFeesFromRelaySdkQuote(quote: RelayQuote): PrepareSendFees {
