@@ -303,9 +303,12 @@ export function getTokenBalanceUsd(
 }
 
 export function formatValue(value: string | number): string {
+  if (!value) {
+    value = 0
+  }
   try {
     return Number(value).toLocaleString(undefined, {
-      maximumFractionDigits: 5,
+      maximumFractionDigits: 7,
       minimumFractionDigits: 2,
     })
   } catch (err) {
@@ -316,6 +319,9 @@ export function formatValue(value: string | number): string {
 }
 
 export function formatUsdValue(value: number | string = 0): string {
+  if (!value) {
+    value = 0
+  }
   return Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",

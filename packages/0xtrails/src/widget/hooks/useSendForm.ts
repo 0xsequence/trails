@@ -16,7 +16,11 @@ import { useEnsAddress } from "wagmi"
 import { useAPIClient } from "../../apiClient.js"
 import { getChainInfo, useSupportedChains } from "../../chains.js"
 import { getFullErrorMessage } from "../../error.js"
-import { prepareSend, TradeType } from "../../prepareSend.js"
+import {
+  prepareSend,
+  TradeType,
+  type PrepareSendFees,
+} from "../../prepareSend.js"
 import type { TransactionState } from "../../transactions.js"
 import { useTokenPrices } from "../../prices.js"
 import { useQueryParams } from "../../queryParams.js"
@@ -94,6 +98,23 @@ export type OnCompleteProps = {
   destinationMetaTxnReceipt: MetaTxnReceipt | null
 }
 
+export type SendFormQuote = {
+  intentAddress?: string
+  amount: string
+  amountUsd: string
+  tokenSymbol: string
+  tokenName: string
+  chainId: number
+  imageUrl: string
+  fees?: PrepareSendFees
+  slippageTolerance?: string
+  priceImpact?: string
+  destinationTokenSymbol?: string
+  destinationTokenAmount?: string
+  destinationTokenAmountUsd?: string
+  destinationChainId?: number
+}
+
 export type UseSendProps = {
   account: Account
   sequenceProjectAccessKey: string
@@ -109,17 +130,7 @@ export type UseSendProps = {
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   useSourceTokenForButtonText: boolean
   onError: (error: Error | string | null) => void
-  onWaitingForWalletConfirm: (
-    intentAddress: string,
-    details: {
-      amount: string
-      amountUsd: string
-      tokenSymbol: string
-      tokenName: string
-      chainId: number
-      imageUrl: string
-    },
-  ) => void
+  onWaitingForWalletConfirm: (quote: SendFormQuote) => void
   paymasterUrls?: PaymasterUrl[]
   gasless?: boolean
   onSend: (amount: string, recipient: string) => void
@@ -500,8 +511,14 @@ export function useSendForm({
 
       console.log("[trails-sdk] options", options)
 
-      const { intentAddress, originSendAmount, send } =
-        await prepareSend(options)
+      const {
+        intentAddress,
+        originSendAmount,
+        fees,
+        slippageTolerance,
+        priceImpact,
+        send,
+      } = await prepareSend(options)
       console.log("[trails-sdk] Intent address:", intentAddress?.toString())
 
       function onOriginSend() {
@@ -521,14 +538,31 @@ export function useSendForm({
       const originSendAmountUsdFormatted =
         originSendAmountFormatted * (sourceTokenPriceUsd ?? 0)
 
+      const destinationTokenAmountFormatted = Number(
+        formatUnits(BigInt(parsedAmount), selectedDestToken.decimals ?? 18),
+      )
+
+      const destinationTokenAmountUsdFormatted =
+        destinationTokenAmountFormatted * (destinationTokenPriceUsd ?? 0)
+
       setIsWaitingForWalletConfirm(true)
-      onWaitingForWalletConfirm(intentAddress?.toString() ?? "", {
+      onWaitingForWalletConfirm({
+        intentAddress: intentAddress?.toString() ?? "",
         amount: formatValue(originSendAmountFormatted),
         amountUsd: formatUsdValue(originSendAmountUsdFormatted),
         tokenSymbol: selectedToken.symbol,
         tokenName: selectedToken.name,
         chainId: selectedToken.chainId,
         imageUrl: selectedToken.imageUrl,
+        fees,
+        slippageTolerance,
+        priceImpact,
+        destinationTokenSymbol: selectedDestToken.symbol,
+        destinationTokenAmount: formatValue(destinationTokenAmountFormatted),
+        destinationTokenAmountUsd: formatUsdValue(
+          destinationTokenAmountUsdFormatted,
+        ),
+        destinationChainId: selectedDestinationChain.id,
       })
 
       async function handleSend() {

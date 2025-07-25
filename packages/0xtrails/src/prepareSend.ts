@@ -22,9 +22,9 @@ import {
   erc20Abi,
   formatUnits,
   http,
+  maxUint256,
   parseUnits,
   zeroAddress,
-  maxUint256,
 } from "viem"
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts"
 import * as chains from "viem/chains"
@@ -39,16 +39,16 @@ import {
 } from "./analytics.js"
 import { useAPIClient } from "./apiClient.js"
 import {
+  approveERC20,
+  Attestation,
   cctpTransfer,
+  cctpTransferWithCustomCall,
+  getCCTPRelayerCallData,
   getIsUsdcAddress,
   getMessageTransmitter,
   getMintUSDCData,
-  getCCTPRelayerCallData,
-  cctpTransferWithCustomCall,
   getNeedsApproval,
-  approveERC20,
   getUSDCTokenAddress,
-  Attestation,
 } from "./cctp.js"
 import { getChainInfo, getTestnetChainInfo } from "./chains.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
@@ -83,15 +83,15 @@ import {
   executeSimpleRelayTransaction,
   getRelaySDKQuote,
   getTxHashFromRelayResult,
-  type RelayTradeType,
   type RelayQuote,
+  type RelayTradeType,
 } from "./relaySdk.js"
 import {
   getFeeOptions,
   sequenceSendTransaction,
   simpleCreateSequenceWallet,
 } from "./sequenceWallet.js"
-import { useAccountTokenBalance } from "./tokenBalances.js"
+import { formatUsdValue, useAccountTokenBalance } from "./tokenBalances.js"
 import { useSupportedTokens } from "./tokens.js"
 import type {
   TransactionState,
@@ -139,6 +139,7 @@ export type PrepareSendFees = {
   feeTokenAddress: string | null
   totalFeeAmount: string | null
   totalFeeAmountUsd: string | null
+  totalFeeAmountUsdFormatted: string | null
 }
 
 export type PrepareSendReturn = {
@@ -769,14 +770,37 @@ async function sendHandlerForDifferentChainDifferentToken({
     throw new Error("Account does not have enough balance for deposit")
   }
 
+  const originSendAmountFormatted = Number(
+    formatUnits(BigInt(depositAmount), sourceTokenDecimals),
+  )
+
+  const depositAmountUsd =
+    originSendAmountFormatted * (sourceTokenPriceUsd ?? 0)
+
+  const effectiveDestinationTokenAmount =
+    tradeType === TradeType.EXACT_INPUT
+      ? lastPreconditionMin
+      : destinationTokenAmount
+
+  const effectiveDestinationTokenAmountFormatted = Number(
+    formatUnits(
+      BigInt(effectiveDestinationTokenAmount),
+      destinationTokenDecimals,
+    ),
+  )
+
+  const effectiveDestinationTokenAmountUsd =
+    effectiveDestinationTokenAmountFormatted * (destinationTokenPriceUsd ?? 0)
+
   return {
     intentAddress,
     originSendAmount: depositAmount,
-    destinationTokenAmount:
-      tradeType === TradeType.EXACT_INPUT
-        ? lastPreconditionMin
-        : destinationTokenAmount,
-    fees: getFeesFromIntent(intent),
+    destinationTokenAmount: effectiveDestinationTokenAmount,
+    fees: getFeesFromIntent(intent, {
+      tradeType,
+      fromAmountUsd: depositAmountUsd,
+      toAmountUsd: effectiveDestinationTokenAmountUsd,
+    }),
     slippageTolerance: getSlippageToleranceFromIntent(intent),
     priceImpact: getPriceImpactFromIntent(intent),
     completionEstimateSeconds: getCompletionEstimateSeconds({
@@ -2264,35 +2288,57 @@ export function useQuote({
   }
 }
 
-export function getFeesFromIntent(intent: GetIntentCallsPayloadsReturn): {
-  feeTokenAddress: string | null
-  totalFeeAmount: string | null
-  totalFeeAmountUsd: string | null
-} {
+export function getFeesFromIntent(
+  intent: GetIntentCallsPayloadsReturn,
+  {
+    tradeType,
+    fromAmountUsd,
+    toAmountUsd,
+  }: { tradeType: TradeType; fromAmountUsd: number; toAmountUsd: number },
+): PrepareSendFees {
+  let totalFeeAmountUsd = intent.trailsFee?.totalFeeUSD ?? "0"
+
+  if (
+    fromAmountUsd &&
+    toAmountUsd &&
+    totalFeeAmountUsd &&
+    tradeType === TradeType.EXACT_OUTPUT
+  ) {
+    const diff = fromAmountUsd - toAmountUsd
+    if (diff > 0) {
+      totalFeeAmountUsd = diff.toString()
+    }
+  }
+
+  const totalFeeAmountUsdFormatted = formatUsdValue(totalFeeAmountUsd)
   return {
     feeTokenAddress: intent.trailsFee?.feeToken ?? zeroAddress,
     totalFeeAmount: intent.trailsFee?.totalFeeAmount ?? "0",
-    totalFeeAmountUsd: intent.trailsFee?.totalFeeUSD ?? "0",
+    totalFeeAmountUsd,
+    totalFeeAmountUsdFormatted,
   }
 }
 
 export function getSlippageToleranceFromIntent(
   _intent: GetIntentCallsPayloadsReturn,
 ): string {
-  return "0.3" // 0.3%, TODO: implement in API side
+  return "0"
 }
 
 export function getPriceImpactFromIntent(
   _intent: GetIntentCallsPayloadsReturn,
 ): string {
-  return "-0.07" // -0.07%, TODO: implement in API side
+  return "0"
 }
 
 export function getFeesFromRelaySdkQuote(quote: RelayQuote): PrepareSendFees {
+  const totalFeeAmountUsd = quote?.fees?.relayer?.amount ?? "0"
+  const totalFeeAmountUsdFormatted = formatUsdValue(totalFeeAmountUsd)
   return {
     feeTokenAddress: quote?.fees?.relayer?.currency?.address ?? zeroAddress,
     totalFeeAmount: quote?.fees?.relayer?.amount ?? "0",
-    totalFeeAmountUsd: quote?.fees?.relayer?.amountUsd ?? "0",
+    totalFeeAmountUsd,
+    totalFeeAmountUsdFormatted,
   }
 }
 
@@ -2313,6 +2359,7 @@ export function getZeroFees(): PrepareSendFees {
     feeTokenAddress: zeroAddress,
     totalFeeAmount: "0",
     totalFeeAmountUsd: "0",
+    totalFeeAmountUsdFormatted: "$0.00",
   }
 }
 

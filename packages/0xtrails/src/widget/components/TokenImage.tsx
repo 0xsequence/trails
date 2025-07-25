@@ -1,5 +1,6 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { ChainImage } from "./ChainImage.js"
+import { useTokenImageUrl } from "../../tokens.js"
 
 interface TokenImageProps {
   imageUrl?: string
@@ -15,14 +16,32 @@ export const TokenImage: React.FC<TokenImageProps> = ({
   size = 24,
 }) => {
   const [imageError, setImageError] = React.useState(false)
-  imageUrl = imageUrl?.replace("/small/", "/large/")
+  const [effectiveImageUrl, setEffectiveImageUrl] = React.useState(() => {
+    if (imageUrl) {
+      return imageUrl.replace("/small/", "/large/")
+    }
+    return null
+  })
+
+  const { imageUrl: fetchedImageUrl } = useTokenImageUrl({
+    chainId,
+    contractAddress: symbol,
+    symbol,
+  })
+
+  useEffect(() => {
+    if (fetchedImageUrl) {
+      setEffectiveImageUrl(fetchedImageUrl)
+    }
+  }, [fetchedImageUrl])
+
   const displaySymbol = symbol?.[0]?.toUpperCase() || "?"
 
   const handleImageError = () => {
     setImageError(true)
   }
 
-  const shouldShowText = !imageUrl || imageError
+  const shouldShowText = !effectiveImageUrl || imageError
 
   return (
     <div
@@ -37,7 +56,7 @@ export const TokenImage: React.FC<TokenImageProps> = ({
         </div>
       ) : (
         <img
-          src={imageUrl}
+          src={effectiveImageUrl}
           alt={symbol || "Token"}
           className="absolute w-full h-full rounded-full object-contain"
           onError={handleImageError}

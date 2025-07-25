@@ -56,6 +56,7 @@ import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
 import { useAmountUsd } from "./hooks/useAmountUsd.js"
 import css from "./index.css?inline"
 import { trackWalletConnected, trackWidgetScreen } from "../analytics.js"
+import { type SendFormQuote } from "./hooks/useSendForm.js"
 
 type Screen =
   | "connect"
@@ -287,15 +288,9 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     )
     const [selectedToken, setSelectedToken] = useState<Token | null>(null)
     const [error, setError] = useState<string | null>(null)
-    const [intentAddress, setIntentAddress] = useState<string | null>(null)
-    const [originTokenInfo, setOriginTokenInfo] = useState<{
-      amount: string
-      amountUsd: string
-      tokenSymbol: string
-      tokenName: string
-      chainId: number
-      imageUrl: string
-    } | null>(null)
+    const [sendFormQuote, setSendFormQuote] = useState<SendFormQuote | null>(
+      null,
+    )
     const [showWalletConfirmRetry, setShowWalletConfirmRetry] = useState(false)
     const [walletConfirmRetryHandler, setWalletConfirmRetryHandler] = useState<
       (() => Promise<void>) | null
@@ -504,8 +499,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       setDestinationTxHash("")
       setDestinationChainId(null)
       setTransactionStates([])
-      setIntentAddress(null)
-      setOriginTokenInfo(null)
+      setSendFormQuote(null)
     }, [
       setDestinationTxHash,
       setDestinationChainId,
@@ -660,8 +654,8 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           })
 
           setCurrentScreen("wallet-confirmation")
-          setIntentAddress("0x5A0fb747531bC369367CB031472b89ea4D5c6Df7")
-          setOriginTokenInfo({
+          setSendFormQuote({
+            intentAddress: "0x5A0fb747531bC369367CB031472b89ea4D5c6Df7",
             amount: "1",
             amountUsd: "$0.01",
             tokenSymbol: "USDC",
@@ -685,7 +679,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Swap",
             },
           ])
-          setOriginTokenInfo({
+          setSendFormQuote({
             amount: "10000",
             amountUsd: "$0.01",
             tokenSymbol: "USDC",
@@ -709,7 +703,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Swap",
             },
           ])
-          setOriginTokenInfo({
+          setSendFormQuote({
             amount: "10000",
             amountUsd: "$0.01",
             tokenSymbol: "USDC",
@@ -742,7 +736,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Swap",
             },
           ])
-          setOriginTokenInfo({
+          setSendFormQuote({
             amount: "10000",
             amountUsd: "$0.01",
             tokenSymbol: "USDC",
@@ -775,7 +769,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Swap",
             },
           ])
-          setOriginTokenInfo({
+          setSendFormQuote({
             amount: "10000",
             amountUsd: "$0.01",
             tokenSymbol: "USDC",
@@ -808,7 +802,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Swap",
             },
           ])
-          setOriginTokenInfo({
+          setSendFormQuote({
             amount: "10000",
             amountUsd: "$0.01",
             tokenSymbol: "USDC",
@@ -850,7 +844,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Execute",
             },
           ])
-          setOriginTokenInfo({
+          setSendFormQuote({
             amount: "10000",
             amountUsd: "$0.01",
             tokenSymbol: "USDC",
@@ -892,7 +886,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Execute",
             },
           ])
-          setOriginTokenInfo({
+          setSendFormQuote({
             amount: "10000",
             amountUsd: "$0.01",
             tokenSymbol: "USDC",
@@ -934,7 +928,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Execute",
             },
           ])
-          setOriginTokenInfo({
+          setSendFormQuote({
             amount: "10000",
             amountUsd: "$0.01",
             tokenSymbol: "USDC",
@@ -976,7 +970,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Execute",
             },
           ])
-          setOriginTokenInfo({
+          setSendFormQuote({
             amount: "10000",
             amountUsd: "$0.01",
             tokenSymbol: "USDC",
@@ -1054,21 +1048,10 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       setError(error instanceof Error ? error.message : error)
     }
 
-    const handleWaitingForWalletConfirm = (
-      intentAddress?: string,
-      details?: {
-        amount: string
-        amountUsd: string
-        tokenSymbol: string
-        tokenName: string
-        chainId: number
-        imageUrl: string
-      },
-    ) => {
+    const handleWaitingForWalletConfirm = (quote: SendFormQuote) => {
       setShowWalletConfirmRetry(false)
       setCurrentScreen("wallet-confirmation")
-      setIntentAddress(intentAddress ?? null)
-      setOriginTokenInfo(details ?? null)
+      setSendFormQuote(quote ?? null)
     }
 
     async function handleWalletConfirmRetry() {
@@ -1163,15 +1146,24 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onBack={handleBack}
               onComplete={() => setCurrentScreen("pending")}
               theme={theme}
-              amount={originTokenInfo?.amount ?? undefined}
-              amountUsd={originTokenInfo?.amountUsd ?? undefined}
-              recipient={intentAddress ?? ""}
+              amount={sendFormQuote?.amount ?? undefined}
+              amountUsd={sendFormQuote?.amountUsd ?? undefined}
+              recipient={sendFormQuote?.intentAddress ?? ""}
               tokenSymbol={selectedToken?.symbol}
               retryEnabled={showWalletConfirmRetry}
               onRetry={handleWalletConfirmRetry}
-              fromTokenSymbol={originTokenInfo?.tokenSymbol || ""}
-              fromChainId={originTokenInfo?.chainId || 0}
-              fromTokenImageUrl={originTokenInfo?.imageUrl || ""}
+              fromTokenSymbol={sendFormQuote?.tokenSymbol || ""}
+              fromChainId={sendFormQuote?.chainId || 0}
+              fromTokenImageUrl={sendFormQuote?.imageUrl || ""}
+              fees={sendFormQuote?.fees}
+              slippageTolerance={sendFormQuote?.slippageTolerance}
+              priceImpact={sendFormQuote?.priceImpact}
+              destinationTokenSymbol={sendFormQuote?.destinationTokenSymbol}
+              destinationTokenAmount={sendFormQuote?.destinationTokenAmount}
+              destinationTokenAmountUsd={
+                sendFormQuote?.destinationTokenAmountUsd
+              }
+              destinationChainId={sendFormQuote?.destinationChainId}
             />
           )
         case "pending":
@@ -1180,12 +1172,12 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onComplete={handleTransferComplete}
               theme={theme}
               transactionStates={transactionStates}
-              fromAmount={originTokenInfo?.amount || ""}
-              fromAmountUsd={originTokenInfo?.amountUsd || ""}
-              fromTokenSymbol={originTokenInfo?.tokenSymbol || ""}
-              fromTokenName={originTokenInfo?.tokenName || ""}
-              fromChainId={originTokenInfo?.chainId || 0}
-              fromTokenImageUrl={originTokenInfo?.imageUrl || ""}
+              fromAmount={sendFormQuote?.amount || ""}
+              fromAmountUsd={sendFormQuote?.amountUsd || ""}
+              fromTokenSymbol={sendFormQuote?.tokenSymbol || ""}
+              fromTokenName={sendFormQuote?.tokenName || ""}
+              fromChainId={sendFormQuote?.chainId || 0}
+              fromTokenImageUrl={sendFormQuote?.imageUrl || ""}
             />
           )
         case "receipt":

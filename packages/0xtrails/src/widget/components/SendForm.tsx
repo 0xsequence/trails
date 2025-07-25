@@ -6,7 +6,12 @@ import { isAddress } from "viem"
 import type { TransactionState } from "../../transactions.js"
 import type { RelayerEnv } from "../../relayer.js"
 import type { ActiveTheme } from "../../theme.js"
-import type { OnCompleteProps, Token, TokenInfo } from "../hooks/useSendForm.js"
+import type {
+  OnCompleteProps,
+  SendFormQuote,
+  Token,
+  TokenInfo,
+} from "../hooks/useSendForm.js"
 import { useSendForm } from "../hooks/useSendForm.js"
 import { ChainImage } from "./ChainImage.js"
 import { FeeOptions } from "./FeeOptions.js"
@@ -32,17 +37,7 @@ interface SendFormProps {
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   useSourceTokenForButtonText?: boolean
   onError: (error: Error | string | null) => void
-  onWaitingForWalletConfirm: (
-    intentAddress?: string,
-    originTokenInfo?: {
-      amount: string
-      amountUsd: string
-      tokenSymbol: string
-      tokenName: string
-      chainId: number
-      imageUrl: string
-    },
-  ) => void
+  onWaitingForWalletConfirm: (props: SendFormQuote) => void
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
   setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
