@@ -25,15 +25,14 @@ export const TokenImage: React.FC<TokenImageProps> = ({
 
   const { imageUrl: fetchedImageUrl } = useTokenImageUrl({
     chainId,
-    contractAddress: symbol,
     symbol,
   })
 
   useEffect(() => {
-    if (fetchedImageUrl) {
+    if (fetchedImageUrl && !imageUrl) {
       setEffectiveImageUrl(fetchedImageUrl)
     }
-  }, [fetchedImageUrl])
+  }, [fetchedImageUrl, imageUrl])
 
   const displaySymbol = symbol?.[0]?.toUpperCase() || "?"
 

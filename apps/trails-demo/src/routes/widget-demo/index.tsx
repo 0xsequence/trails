@@ -1,10 +1,10 @@
-import { Providers } from "./Providers"
+import { ConnectProvider } from "./ConnectKitProvider"
 import { WidgetDemo as _WidgetDemo } from "./WidgetDemo"
 
 export function WidgetDemo() {
   return (
-    <Providers>
+    <ConnectProvider>
       <_WidgetDemo />
-    </Providers>
+    </ConnectProvider>
   )
 }

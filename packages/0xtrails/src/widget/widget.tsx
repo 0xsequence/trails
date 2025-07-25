@@ -56,7 +56,7 @@ import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
 import { useAmountUsd } from "./hooks/useAmountUsd.js"
 import css from "./index.css?inline"
 import { trackWalletConnected, trackWidgetScreen } from "../analytics.js"
-import { type SendFormQuote } from "./hooks/useSendForm.js"
+import type { SendFormQuote } from "./hooks/useSendForm.js"
 
 type Screen =
   | "connect"

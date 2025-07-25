@@ -35,6 +35,7 @@
     "@wagmi/core": "^2.18.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "connectkit": "^1.9.1",
     "copy-to-clipboard": "^3.3.3",
     "jotai": "^2.12.5",
     "lucide-react": "^0.493.0",

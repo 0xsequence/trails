@@ -1,10 +1,10 @@
-import { Providers } from "@/routes/widget-demo/Providers"
+import { ConnectProvider } from "@/routes/widget-demo/ConnectKitProvider"
 import { SdkSandbox as _SdkSandbox } from "./SdkSandbox"
 
 export function SdkSandbox() {
   return (
-    <Providers>
+    <ConnectProvider>
       <_SdkSandbox />
-    </Providers>
+    </ConnectProvider>
   )
 }

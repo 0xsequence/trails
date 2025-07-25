@@ -40,7 +40,6 @@ import {
 import { useAPIClient } from "./apiClient.js"
 import {
   approveERC20,
-  Attestation,
   cctpTransfer,
   cctpTransferWithCustomCall,
   getCCTPRelayerCallData,
@@ -50,6 +49,7 @@ import {
   getNeedsApproval,
   getUSDCTokenAddress,
 } from "./cctp.js"
+import type { Attestation } from "./cctp.js"
 import { getChainInfo, getTestnetChainInfo } from "./chains.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
 import { DEFAULT_USE_V3_RELAYERS, intentEntrypoints } from "./constants.js"
@@ -989,14 +989,11 @@ async function sendHandlerForSameChainSameToken({
   destinationTokenAmount,
   destinationCalldata,
   recipient,
-  originChainId,
   walletClient,
-  publicClient,
   onTransactionStateChange,
   dryMode,
   account,
   chain,
-  transactionStates,
 }: {
   originTokenAddress: string
   destinationTokenAmount: string

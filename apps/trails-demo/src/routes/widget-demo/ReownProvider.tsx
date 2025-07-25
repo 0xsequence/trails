@@ -48,7 +48,7 @@ export const appKit = createAppKit({
 })
 
 // Export AppKit Provider component
-export function Providers({ children }: { children: React.ReactNode }) {
+export function ReownProvider({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme()
 
   useEffect(() => {
