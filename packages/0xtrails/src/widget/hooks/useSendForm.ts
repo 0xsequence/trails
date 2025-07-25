@@ -113,6 +113,7 @@ export type SendFormQuote = {
   destinationTokenAmount?: string
   destinationTokenAmountUsd?: string
   destinationChainId?: number
+  destinationTokenImageUrl?: string
 }
 
 export type UseSendProps = {
@@ -563,6 +564,7 @@ export function useSendForm({
           destinationTokenAmountUsdFormatted,
         ),
         destinationChainId: selectedDestinationChain.id,
+        destinationTokenImageUrl: selectedDestToken.imageUrl,
       })
 
       async function handleSend() {

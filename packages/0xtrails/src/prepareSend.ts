@@ -91,7 +91,11 @@ import {
   sequenceSendTransaction,
   simpleCreateSequenceWallet,
 } from "./sequenceWallet.js"
-import { formatUsdValue, useAccountTokenBalance } from "./tokenBalances.js"
+import {
+  formatUsdValue,
+  useAccountTokenBalance,
+  formatValue,
+} from "./tokenBalances.js"
 import { useSupportedTokens } from "./tokens.js"
 import type {
   TransactionState,
@@ -99,6 +103,7 @@ import type {
 } from "./transactions.js"
 import { getTxTimeDiff } from "./transactions.js"
 import { requestWithTimeout } from "./utils.js"
+import { InsufficientBalanceError } from "./error.js"
 
 export enum TradeType {
   EXACT_INPUT = "EXACT_INPUT",
@@ -759,17 +764,6 @@ async function sendHandlerForDifferentChainDifferentToken({
 
   const lastPreconditionMin = lastPrecondition?.data?.min?.toString()
 
-  const hasEnoughBalance = await checkAccountBalance({
-    account,
-    tokenAddress: originTokenAddress,
-    depositAmount,
-    publicClient,
-  })
-
-  if (!hasEnoughBalance) {
-    throw new Error("Account does not have enough balance for deposit")
-  }
-
   const originSendAmountFormatted = Number(
     formatUnits(BigInt(depositAmount), sourceTokenDecimals),
   )
@@ -808,6 +802,17 @@ async function sendHandlerForDifferentChainDifferentToken({
       destinationChainId,
     }),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
+      const { hasEnoughBalance, balanceError } = await checkAccountBalance({
+        account,
+        tokenAddress: originTokenAddress,
+        depositAmount,
+        publicClient,
+      })
+
+      if (!hasEnoughBalance) {
+        throw balanceError
+      }
+
       console.log("[trails-sdk] sending origin transaction")
       const usingLIfi = false
       let needsNativeFee = false
@@ -1020,17 +1025,6 @@ async function sendHandlerForSameChainSameToken({
     transport: http(),
   })
 
-  const hasEnoughBalance = await checkAccountBalance({
-    account,
-    tokenAddress: effectiveOriginTokenAddress,
-    depositAmount: destinationTokenAmount,
-    publicClient: effectivePublicClient,
-  })
-
-  if (!hasEnoughBalance) {
-    throw new Error("Account does not have enough balance for deposit")
-  }
-
   return {
     originSendAmount: destinationTokenAmount,
     destinationTokenAmount: destinationTokenAmount,
@@ -1039,6 +1033,17 @@ async function sendHandlerForSameChainSameToken({
     priceImpact: "0",
     completionEstimateSeconds: 0,
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
+      const { hasEnoughBalance, balanceError } = await checkAccountBalance({
+        account,
+        tokenAddress: effectiveOriginTokenAddress,
+        depositAmount: destinationTokenAmount,
+        publicClient: effectivePublicClient,
+      })
+
+      if (!hasEnoughBalance) {
+        throw balanceError
+      }
+
       const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
       const originCallParams = {
         to: hasCustomCalldata
@@ -1252,17 +1257,6 @@ async function sendHandlerForSameChainDifferentToken({
     }
   }
 
-  const hasEnoughBalance = await checkAccountBalance({
-    account,
-    tokenAddress: originTokenAddress,
-    depositAmount,
-    publicClient,
-  })
-
-  if (!hasEnoughBalance) {
-    throw new Error("Account does not have enough balance for deposit")
-  }
-
   return {
     originSendAmount: depositAmount,
     destinationTokenAmount,
@@ -1271,6 +1265,17 @@ async function sendHandlerForSameChainDifferentToken({
     priceImpact: getPriceImpactFromRelaySdkQuote(quote),
     completionEstimateSeconds: 0,
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
+      const { hasEnoughBalance, balanceError } = await checkAccountBalance({
+        account,
+        tokenAddress: originTokenAddress,
+        depositAmount,
+        publicClient,
+      })
+
+      if (!hasEnoughBalance) {
+        throw balanceError
+      }
+
       await attemptSwitchChain({
         walletClient,
         desiredChainId: originChainId,
@@ -1972,7 +1977,14 @@ async function checkAccountBalance({
   tokenAddress: string
   depositAmount: string
   publicClient: PublicClient
-}): Promise<boolean> {
+}): Promise<{
+  hasEnoughBalance: boolean
+  balance: bigint
+  requiredAmount: bigint
+  balanceFormatted: string
+  requiredAmountFormatted: string
+  balanceError: Error | null
+}> {
   try {
     let balance: bigint
 
@@ -1993,10 +2005,50 @@ async function checkAccountBalance({
 
     console.log("[trails-sdk] balance", balance)
     console.log("[trails-sdk] requiredAmount", requiredAmount)
-    return balance >= requiredAmount
+    const hasEnoughBalance = balance >= requiredAmount
+    console.log("[trails-sdk] hasEnoughBalance", hasEnoughBalance)
+
+    let balanceFormatted = ""
+    let requiredAmountFormatted = ""
+    if (tokenAddress === zeroAddress) {
+      balanceFormatted = formatUnits(balance, 18)
+      requiredAmountFormatted = formatUnits(requiredAmount, 18)
+    } else {
+      // ERC20 token balance
+      const decimals = await publicClient.readContract({
+        address: tokenAddress as `0x${string}`,
+        abi: erc20Abi,
+        functionName: "decimals",
+      })
+      balanceFormatted = formatUnits(balance, decimals)
+      requiredAmountFormatted = formatUnits(requiredAmount, decimals)
+    }
+
+    let balanceError = null
+    if (!hasEnoughBalance) {
+      balanceError = new InsufficientBalanceError(
+        `Insufficient balance: Need ${formatValue(requiredAmountFormatted)} but only have ${formatValue(balanceFormatted)}`,
+      )
+    }
+
+    return {
+      hasEnoughBalance,
+      balance,
+      balanceFormatted,
+      requiredAmount,
+      requiredAmountFormatted,
+      balanceError,
+    }
   } catch (error) {
     console.error("[trails-sdk] Error checking account balance:", error)
-    return false
+    return {
+      hasEnoughBalance: false,
+      balance: BigInt(0),
+      balanceFormatted: "0",
+      requiredAmount: BigInt(0),
+      requiredAmountFormatted: "0",
+      balanceError: error instanceof Error ? error : null,
+    }
   }
 }
 

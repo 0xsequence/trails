@@ -57,6 +57,11 @@ import { useAmountUsd } from "./hooks/useAmountUsd.js"
 import css from "./index.css?inline"
 import { trackWalletConnected, trackWidgetScreen } from "../analytics.js"
 import type { SendFormQuote } from "./hooks/useSendForm.js"
+import {
+  getErrorString,
+  getIsWalletRejectedError,
+  getIsBalanceTooLowError,
+} from "../error.js"
 
 type Screen =
   | "connect"
@@ -1022,13 +1027,14 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       if (error) {
         console.error("[trails-sdk] Error sending transaction", error)
       }
-      const errorMessage = error instanceof Error ? error.message : error
-      const isRejected = /rejected|denied/gi.test(
-        errorMessage?.toLowerCase() ?? "",
-      )
+      const errorMessage = getErrorString(error)
+      const isRejected = getIsWalletRejectedError(error)
+      const isBalanceTooLow = getIsBalanceTooLowError(error)
       if (isRejected) {
-        console.log("[trails-sdk] currentScreen", currentScreen)
         setShowWalletConfirmRetry(true)
+      } else if (isBalanceTooLow) {
+        setShowWalletConfirmRetry(true)
+        setError(errorMessage)
       } else {
         setError(errorMessage)
       }
@@ -1060,6 +1066,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       }
 
       try {
+        setError(null)
         setShowWalletConfirmRetry(false)
         await walletConfirmRetryHandler()
       } catch (error) {
@@ -1164,6 +1171,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
                 sendFormQuote?.destinationTokenAmountUsd
               }
               destinationChainId={sendFormQuote?.destinationChainId}
+              destinationTokenImageUrl={sendFormQuote?.destinationTokenImageUrl}
             />
           )
         case "pending":

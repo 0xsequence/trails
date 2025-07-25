@@ -1,6 +1,6 @@
-import React, { useEffect } from "react"
+import React, { useMemo } from "react"
 import { ChainImage } from "./ChainImage.js"
-import { useTokenImageUrl } from "../../tokens.js"
+import { getCommonTokenImageUrl } from "../../tokens.js"
 
 interface TokenImageProps {
   imageUrl?: string
@@ -16,23 +16,14 @@ export const TokenImage: React.FC<TokenImageProps> = ({
   size = 24,
 }) => {
   const [imageError, setImageError] = React.useState(false)
-  const [effectiveImageUrl, setEffectiveImageUrl] = React.useState(() => {
+  const effectiveImageUrl = useMemo(() => {
     if (imageUrl) {
       return imageUrl.replace("/small/", "/large/")
+    } else if (symbol) {
+      return getCommonTokenImageUrl(symbol)
     }
     return null
-  })
-
-  const { imageUrl: fetchedImageUrl } = useTokenImageUrl({
-    chainId,
-    symbol,
-  })
-
-  useEffect(() => {
-    if (fetchedImageUrl && !imageUrl) {
-      setEffectiveImageUrl(fetchedImageUrl)
-    }
-  }, [fetchedImageUrl, imageUrl])
+  }, [imageUrl, symbol])
 
   const displaySymbol = symbol?.[0]?.toUpperCase() || "?"
 

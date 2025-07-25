@@ -148,7 +148,7 @@ export async function getTokenImageUrlOrFallback({
   contractAddress?: string
   symbol?: string
 }): Promise<string> {
-  const cacheKey = `${chainId}:${contractAddress}`
+  const cacheKey = `${chainId}:${contractAddress}:${symbol}`
   const imageUrl = getTokenImageUrl({ chainId, contractAddress, symbol })
 
   // Check localStorage cache first
@@ -387,6 +387,14 @@ export function useTokenAddress({
   return tokenAddress || null
 }
 
+export function getCommonTokenImageUrl(symbol: string) {
+  const symbolKey = tokenImageSymbolMap[symbol] ?? symbol
+  if (commonTokenImages[symbolKey]) {
+    return commonTokenImages[symbolKey]
+  }
+  return ""
+}
+
 export function getTokenImageUrl({
   chainId,
   contractAddress,
@@ -401,9 +409,9 @@ export function getTokenImageUrl({
   }
 
   if (symbol) {
-    const symbolKey = tokenImageSymbolMap[symbol] ?? symbol
-    if (commonTokenImages[symbolKey]) {
-      return commonTokenImages[symbolKey]
+    const commonImageUrl = getCommonTokenImageUrl(symbol)
+    if (commonImageUrl) {
+      return commonImageUrl
     }
   }
 

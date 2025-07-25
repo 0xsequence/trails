@@ -26,6 +26,7 @@ interface WalletConfirmationProps {
   destinationTokenAmount?: string
   destinationTokenAmountUsd?: string
   destinationChainId?: number
+  destinationTokenImageUrl?: string
 }
 
 export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
@@ -47,6 +48,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   destinationTokenAmount,
   destinationTokenAmountUsd,
   destinationChainId,
+  destinationTokenImageUrl,
 }) => {
   const [showContent, setShowContent] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
@@ -167,6 +169,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
                         className={`font-medium text-xs ${theme === "dark" ? "text-white" : "text-gray-900"} flex items-center gap-1 justify-end`}
                       >
                         <TokenImage
+                          imageUrl={fromTokenImageUrl}
                           symbol={fromTokenSymbol}
                           chainId={fromChainId}
                           size={16}
@@ -199,6 +202,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
                           className={`font-medium text-xs ${theme === "dark" ? "text-white" : "text-gray-900"} flex items-center gap-1 justify-end`}
                         >
                           <TokenImage
+                            imageUrl={destinationTokenImageUrl}
                             symbol={destinationTokenSymbol}
                             chainId={destinationChainId}
                             size={16}
