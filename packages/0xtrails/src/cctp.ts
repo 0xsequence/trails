@@ -10,6 +10,12 @@ import {
 import * as chains from "viem/chains"
 import { attemptSwitchChain } from "./chainSwitch.js"
 import { getIsTestnetChainId } from "./chains.js"
+import { useMutation } from "@tanstack/react-query"
+import { useAPIClient } from "./apiClient.js"
+import type {
+  QueueCCTPTransferArgs,
+  SequenceAPIClient,
+} from "@0xsequence/trails-api"
 
 const domains: Record<number, number> = {
   [chains.mainnet.id]: 0,
@@ -597,4 +603,21 @@ export async function waitForAttestation({
 
 export function getIsUsdcAddress(address: string, chainId: number): boolean {
   return address?.toLowerCase() === tokenAddresses[chainId]?.toLowerCase()
+}
+
+export const queueCCTPTransfer = async (
+  apiClient: SequenceAPIClient,
+  args: QueueCCTPTransferArgs,
+) => {
+  return apiClient.queueCCTPTransfer(args)
+}
+
+export const useQueueCCTPTransfer = () => {
+  const apiClient = useAPIClient()
+
+  return useMutation({
+    mutationFn: (args: QueueCCTPTransferArgs) => {
+      return queueCCTPTransfer(apiClient, args)
+    },
+  })
 }
