@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import type { Chain } from "viem"
 import * as chains from "viem/chains"
 import { getRelaySupportedChains } from "./relaySdk.js"
-import { DEFAULT_RPC_SEQUENCE_PROJECT_ACCESS_KEY } from "./constants.js"
+import { getRpcSequenceProjectAccessKey } from "./config.js"
 
 export const sequenceRpcUrls: Record<number, string> = {
   [chains.arbitrum.id]: "https://nodes.sequence.app/arbitrum",
@@ -23,7 +23,7 @@ export const sequenceRpcUrls: Record<number, string> = {
 
 export const getRpcUrl = (
   chainId: number,
-  sequenceProjectAccessKey: string = DEFAULT_RPC_SEQUENCE_PROJECT_ACCESS_KEY,
+  sequenceProjectAccessKey: string = getRpcSequenceProjectAccessKey(),
 ): string | null => {
   if (!sequenceRpcUrls[chainId]) {
     return null

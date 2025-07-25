@@ -2,6 +2,7 @@ import { useConfig } from "@0xsequence/hooks"
 import { SequenceAPIClient } from "@0xsequence/trails-api"
 import { useMemo } from "react"
 import { DEFAULT_API_URL } from "./constants.js"
+import { getSequenceProjectAccessKey } from "./config.js"
 
 export type APIClientConfig = {
   apiUrl?: string
@@ -11,7 +12,7 @@ export type APIClientConfig = {
 
 export function getAPIClient({
   apiUrl = DEFAULT_API_URL,
-  projectAccessKey,
+  projectAccessKey = getSequenceProjectAccessKey(),
   jwt,
 }: APIClientConfig): SequenceAPIClient {
   return new SequenceAPIClient(apiUrl as string, projectAccessKey, jwt)

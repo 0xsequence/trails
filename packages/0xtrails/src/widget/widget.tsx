@@ -62,6 +62,7 @@ import {
   getIsWalletRejectedError,
   getIsBalanceTooLowError,
 } from "../error.js"
+import { setSequenceProjectAccessKey } from "../config.js"
 
 type Screen =
   | "connect"
@@ -1312,6 +1313,12 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
   (props, ref) => {
     const wagmiContext = useContext(WagmiContext)
     const sequenceHooksContext = useContext(SequenceHooksContext)
+
+    useEffect(() => {
+      if (props.appId) {
+        setSequenceProjectAccessKey(props.appId)
+      }
+    }, [props.appId])
 
     // Check if privy is in walletOptions
     // const walletOptions = props.walletOptions || defaultWalletOptions
