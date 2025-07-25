@@ -1,0 +1,35 @@
+import { useQuery } from "@tanstack/react-query";
+import { useTokenPrice } from "../../prices.js";
+import { formatUsdValue } from "../../tokenBalances.js";
+import { useTokenAddress } from "../../tokens.js";
+export function useAmountUsd({ amount, token, chainId, apiClient, }) {
+    const isTokenAddress = token?.startsWith("0x");
+    const resolvedTokenAddress = useTokenAddress({
+        chainId,
+        tokenSymbol: isTokenAddress ? undefined : token,
+    });
+    const tokenAddress = isTokenAddress ? token : resolvedTokenAddress;
+    const { tokenPrice } = useTokenPrice(token && tokenAddress && chainId
+        ? {
+            tokenId: token,
+            contractAddress: tokenAddress,
+            chainId: Number(chainId),
+        }
+        : null, apiClient);
+    const { data: amountUsd } = useQuery({
+        queryKey: ["amountUsd", amount, tokenPrice?.price?.value],
+        queryFn: () => {
+            if (!amount || !tokenPrice?.price?.value) {
+                return null;
+            }
+            const tokenPriceValue = tokenPrice.price.value;
+            const value = Number(amount) * tokenPriceValue;
+            return value;
+        },
+        enabled: !!amount && !!tokenPrice?.price?.value,
+    });
+    return {
+        amountUsd: amountUsd || null,
+        amountUsdFormatted: formatUsdValue(amountUsd || 0),
+    };
+}
