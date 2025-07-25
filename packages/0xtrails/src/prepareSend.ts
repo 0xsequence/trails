@@ -156,6 +156,7 @@ export type PrepareSendReturn = {
   priceImpact?: string
   completionEstimateSeconds?: number
   send: (onOriginSend?: () => void) => Promise<SendReturn>
+  transactionStates?: TransactionState[]
 }
 
 export type SendReturn = {
@@ -542,6 +543,7 @@ async function sendHandlerForDifferentChainDifferentToken({
       slippageTolerance: "0",
       priceImpact: "0",
       completionEstimateSeconds: 0,
+      transactionStates,
       send: async (onOriginSend?: () => void): Promise<SendReturn> => {
         const originChain = testnet ? getTestnetChainInfo(chain)! : chain
         const destinationChain = testnet
@@ -801,6 +803,7 @@ async function sendHandlerForDifferentChainDifferentToken({
       originChainId,
       destinationChainId,
     }),
+    transactionStates,
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
         account,
@@ -999,6 +1002,7 @@ async function sendHandlerForSameChainSameToken({
   dryMode,
   account,
   chain,
+  transactionStates,
 }: {
   originTokenAddress: string
   destinationTokenAmount: string
@@ -1032,6 +1036,7 @@ async function sendHandlerForSameChainSameToken({
     slippageTolerance: "0",
     priceImpact: "0",
     completionEstimateSeconds: 0,
+    transactionStates,
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
         account,
@@ -1264,6 +1269,7 @@ async function sendHandlerForSameChainDifferentToken({
     slippageTolerance: getSlippageToleranceFromRelaySdkQuote(quote),
     priceImpact: getPriceImpactFromRelaySdkQuote(quote),
     completionEstimateSeconds: 0,
+    transactionStates,
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
         account,
@@ -2143,6 +2149,7 @@ export type UseQuoteReturn = {
     slippageTolerance?: string | null
     priceImpact?: string | null
     completionEstimateSeconds?: number
+    transactionStates?: TransactionState[]
   } | null
   swap: (() => Promise<SwapReturn | null>) | null
   isLoadingQuote: boolean
@@ -2282,6 +2289,7 @@ export function useQuote({
         fees,
         priceImpact,
         completionEstimateSeconds,
+        transactionStates,
       } = await prepareSend(options)
       console.log("[trails-sdk] Intent address:", intentAddress?.toString())
 
@@ -2292,6 +2300,7 @@ export function useQuote({
         priceImpact,
         completionEstimateSeconds,
         slippageTolerance: slippageTolerance?.toString(),
+        transactionStates,
       }
 
       const swap = async (): Promise<SwapReturn> => {
