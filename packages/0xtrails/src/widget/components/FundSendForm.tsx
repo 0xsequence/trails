@@ -1,4 +1,4 @@
-import { ChevronLeft, Loader2 } from "lucide-react"
+import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
 import type React from "react"
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import type { Account, WalletClient } from "viem"
@@ -10,6 +10,7 @@ import type {
   OnCompleteProps,
   SendFormQuote,
   Token,
+  TokenInfo,
 } from "../hooks/useSendForm.js"
 import { useSendForm } from "../hooks/useSendForm.js"
 import { ChainImage } from "./ChainImage.js"
@@ -31,6 +32,7 @@ interface FundSendFormProps {
   toAmount?: string
   toChainId?: number
   toToken?: string
+  toCalldata?: string
   walletClient: WalletClient
   theme?: ActiveTheme
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
@@ -55,6 +57,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
   toRecipient,
   toChainId,
   toToken,
+  toCalldata,
   walletClient,
   theme = "light",
   onTransactionStateChange,
@@ -68,6 +71,8 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
   const [isInputTypeUsd, setIsInputTypeUsd] = useState(false)
   const [showMoreDetails, setShowMoreDetails] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const chainDropdownRef = useRef<HTMLDivElement>(null)
+  const tokenDropdownRef = useRef<HTMLDivElement>(null)
 
   // Auto-focus input field on component mount
   useEffect(() => {
@@ -94,6 +99,14 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     destTokenPrices,
     isValidRecipient,
     recipient,
+    isChainDropdownOpen,
+    isTokenDropdownOpen,
+    setIsChainDropdownOpen,
+    setIsTokenDropdownOpen,
+    supportedChains,
+    supportedTokens,
+    setSelectedDestinationChain,
+    setSelectedDestToken,
   } = useSendForm({
     account,
     sequenceProjectAccessKey,
@@ -103,6 +116,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     toRecipient: toRecipient || account.address,
     toChainId,
     toToken,
+    toCalldata,
     walletClient,
     theme,
     onTransactionStateChange,
@@ -124,6 +138,34 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
 
   // Get destination token price for receive USD value
   const destTokenPrice = destTokenPrices?.[0]?.price?.value ?? 0
+
+  // Handle click outside for dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        chainDropdownRef.current &&
+        !chainDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsChainDropdownOpen(false)
+      }
+      if (
+        tokenDropdownRef.current &&
+        !tokenDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsTokenDropdownOpen(false)
+      }
+    }
+
+    if (isChainDropdownOpen || isTokenDropdownOpen) {
+      document.addEventListener("click", handleClickOutside)
+      return () => document.removeEventListener("click", handleClickOutside)
+    }
+  }, [
+    setIsChainDropdownOpen,
+    setIsTokenDropdownOpen,
+    isChainDropdownOpen,
+    isTokenDropdownOpen,
+  ])
 
   // Handle input amount changes with USD conversion
   const handleAmountChange = useCallback(
@@ -398,6 +440,174 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
           </div>
         </div>
 
+        {/* Chain Selection */}
+        {!toChainId && (
+          <div className="mb-4">
+            <label
+              htmlFor="destination-chain"
+              className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+            >
+              Destination Chain
+            </label>
+            <div className="relative" ref={chainDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
+                className={`w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  theme === "dark"
+                    ? "bg-gray-800 border-gray-700 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
+              >
+                <ChainImage chainId={selectedDestinationChain.id} size={24} />
+                <span className="ml-2 flex-1 text-left">
+                  {selectedDestinationChain.name}
+                </span>
+                <ChevronDown
+                  className={`h-5 w-5 ${theme === "dark" ? "text-gray-400" : "text-gray-400"} transition-transform ${
+                    isChainDropdownOpen ? "transform rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {isChainDropdownOpen && (
+                <div
+                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto ${
+                    theme === "dark"
+                      ? "bg-gray-800 border-gray-700"
+                      : "bg-white border-gray-200"
+                  }`}
+                >
+                  {supportedChains.map((chain) => (
+                    <button
+                      key={chain.id}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setSelectedDestinationChain(chain)
+                        setIsChainDropdownOpen(false)
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                      }}
+                      className={`w-full flex items-center px-4 py-3 ${
+                        theme === "dark"
+                          ? selectedDestinationChain.id === chain.id
+                            ? "bg-gray-700 text-white"
+                            : "text-white hover:bg-gray-700"
+                          : selectedDestinationChain.id === chain.id
+                            ? "bg-gray-100 text-gray-900"
+                            : "text-gray-900 hover:bg-gray-50"
+                      }`}
+                    >
+                      <ChainImage chainId={chain.id} size={24} />
+                      <span className="ml-2">{chain.name}</span>
+                      {selectedDestinationChain.id === chain.id && (
+                        <span
+                          className={`ml-auto ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                        >
+                          •
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Token Selection */}
+        {!toToken && (
+          <div className="mb-4">
+            <label
+              htmlFor="token"
+              className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+            >
+              Receive Token
+            </label>
+            <div className="relative" ref={tokenDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsTokenDropdownOpen(!isTokenDropdownOpen)}
+                className={`w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  theme === "dark"
+                    ? "bg-gray-800 border-gray-700 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
+              >
+                <div
+                  className={`w-5 h-5 rounded-full flex items-center justify-center text-sm ${
+                    theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+                  }`}
+                >
+                  <TokenImage
+                    symbol={selectedDestToken?.symbol}
+                    imageUrl={selectedDestToken?.imageUrl}
+                    size={24}
+                  />
+                </div>
+                <span className="ml-2 flex-1 text-left">
+                  {selectedDestToken?.name} ({selectedDestToken?.symbol})
+                </span>
+                <ChevronDown
+                  className={`h-5 w-5 ${theme === "dark" ? "text-gray-400" : "text-gray-400"} transition-transform ${
+                    isTokenDropdownOpen ? "transform rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {isTokenDropdownOpen && (
+                <div
+                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto ${
+                    theme === "dark"
+                      ? "bg-gray-800 border-gray-700"
+                      : "bg-white border-gray-200"
+                  }`}
+                >
+                  {supportedTokens.map((token) => (
+                    <button
+                      key={`${token.contractAddress}-${token.chainId}`}
+                      type="button"
+                      onClick={() => {
+                        setSelectedDestToken(token as TokenInfo)
+                        setIsTokenDropdownOpen(false)
+                      }}
+                      className={`w-full flex items-center px-4 py-3 cursor-pointer ${
+                        theme === "dark"
+                          ? selectedDestToken?.symbol === token.symbol
+                            ? "bg-gray-700 text-white"
+                            : "text-white hover:bg-gray-700"
+                          : selectedDestToken?.symbol === token.symbol
+                            ? "bg-gray-100 text-gray-900"
+                            : "text-gray-900 hover:bg-gray-50"
+                      }`}
+                    >
+                      <TokenImage
+                        symbol={token.symbol}
+                        imageUrl={token.imageUrl}
+                        size={24}
+                      />
+                      <span className="ml-2">
+                        {token.name} ({token.symbol})
+                      </span>
+                      {selectedDestToken?.symbol === token.symbol && (
+                        <span
+                          className={`ml-auto ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                        >
+                          •
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Receive Section */}
         <div className="space-y-1">
           <div
@@ -444,11 +654,23 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                     theme === "dark" ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
-                  Recipient: {recipient}
+                  Recipient: {recipient.slice(0, 6)}...{recipient.slice(-4)}
                 </div>
               </div>
             )}
         </div>
+
+        {/* Custom Calldata */}
+        {toCalldata && (
+          <div className="px-2 py-1">
+            <p
+              className={`text-xs ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
+            >
+              This transaction includes custom calldata for contract interaction
+              at the destination address
+            </p>
+          </div>
+        )}
 
         {/* More Details */}
         <div className="space-y-3" style={{ display: "none" }}>

@@ -346,6 +346,19 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       }
     }, [isConnected, currentScreen])
 
+    // Auto-detect mode changes and switch screens accordingly
+    useEffect(() => {
+      if (
+        selectedToken &&
+        (currentScreen === "send-form" || currentScreen === "fund-form")
+      ) {
+        const targetScreen = mode === "fund" ? "fund-form" : "send-form"
+        if (currentScreen !== targetScreen) {
+          setCurrentScreen(targetScreen)
+        }
+      }
+    }, [mode, currentScreen, selectedToken])
+
     useEffect(() => {
       trackWidgetScreen({
         screen: currentScreen,
@@ -1205,6 +1218,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               paymasterUrls={paymasterUrls}
               gasless={gasless}
               setWalletConfirmRetryHandler={setWalletConfirmRetryHandler}
+              toCalldata={toCalldata || undefined}
             />
           ) : (
             <div

@@ -475,7 +475,8 @@ export function useSendForm({
       !destinationTokenAddress ||
       !isValidRecipient ||
       !selectedDestToken ||
-      !selectedDestinationChain
+      !selectedDestinationChain ||
+      amount === "0"
     ) {
       setPrepareSendResult(null)
       return
@@ -574,9 +575,13 @@ export function useSendForm({
     selectedDestToken?.decimals,
     recipient,
     destinationTokenAddress,
-    selectedDestToken,
-    selectedDestinationChain,
-    selectedToken,
+    selectedDestToken?.symbol,
+    selectedDestinationChain?.id,
+    selectedToken?.contractAddress,
+    selectedToken?.chainId,
+    selectedToken?.balance,
+    selectedToken?.tokenPriceUsd,
+    selectedToken?.contractInfo?.decimals,
     toCalldata,
     paymasterUrls,
     gasless,
@@ -584,17 +589,20 @@ export function useSendForm({
     isValidRecipient,
     destTokenPrices?.[0]?.price?.value,
     amount,
+    selectedDestToken,
+    selectedDestinationChain,
   ])
 
   // Auto-fetch quotes when inputs change (debounced)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: getQuote is intentionally excluded to prevent infinite loop
   useEffect(() => {
     // Only trigger if we have the essential inputs
     if (
       !amount ||
       !destinationTokenAddress ||
       !isValidRecipient ||
-      !selectedDestToken ||
-      !selectedDestinationChain
+      !selectedDestToken?.symbol ||
+      !selectedDestinationChain?.id
     ) {
       setPrepareSendResult(null)
       return
@@ -611,9 +619,6 @@ export function useSendForm({
     isValidRecipient,
     selectedDestToken?.symbol,
     selectedDestinationChain?.id,
-    selectedDestToken,
-    selectedDestinationChain,
-    getQuote,
   ])
 
   // Calculate destination amount from quote if available
