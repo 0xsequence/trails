@@ -17,7 +17,7 @@ import { ChainImage } from "./ChainImage.js"
 import { FeeOptions } from "./FeeOptions.js"
 import { TokenImage } from "./TokenImage.js"
 
-interface SendFormProps {
+interface PaymentSendFormProps {
   selectedToken: Token
   onSend: (amount: string, recipient: string) => void
   onBack: () => void
@@ -43,7 +43,7 @@ interface SendFormProps {
   setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
 }
 
-export const SendForm: React.FC<SendFormProps> = ({
+export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
   selectedToken,
   onSend,
   onBack,
@@ -680,5 +680,3 @@ if (typeof document !== "undefined") {
   styleTag.textContent = styles
   document.head.appendChild(styleTag)
 }
-
-export default SendForm

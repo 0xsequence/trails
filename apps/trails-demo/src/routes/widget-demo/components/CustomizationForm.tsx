@@ -1,5 +1,5 @@
 import { InfoIcon, Tooltip } from "@0xsequence/design-system"
-import { useSupportedChains, useSupportedTokens } from "0xtrails"
+import { useSupportedChains, useSupportedTokens, type Mode } from "0xtrails"
 import { defaultWalletOptions } from "0xtrails/widget"
 import { ChevronDown, X } from "lucide-react"
 import { useCallback, useEffect, useMemo, useState } from "react"
@@ -25,6 +25,8 @@ const Checkmark: React.FC<{ className?: string }> = ({
 interface CustomizationFormProps {
   appId: string
   setAppId: (value: string) => void
+  mode: Mode
+  setMode: (value: Mode) => void
   toAddress: string
   setToAddress: (value: string) => void
   toAmount: string
@@ -54,6 +56,7 @@ interface CustomizationFormProps {
 // Local storage keys
 export const STORAGE_KEYS = {
   APP_ID: "trails_demo_app_id",
+  MODE: "trails_demo_mode",
   TO_ADDRESS: "trails_demo_to_address",
   TO_AMOUNT: "trails_demo_to_amount",
   TO_CHAIN_ID: "trails_demo_to_chain_id",
@@ -127,6 +130,8 @@ const UseAccountButton: React.FC<UseAccountButtonProps> = ({
 export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   appId,
   setAppId,
+  mode,
+  setMode,
   toAddress,
   setToAddress,
   toAmount,
@@ -339,6 +344,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   // Load saved values from localStorage on mount
   useEffect(() => {
     const savedAppId = localStorage.getItem(STORAGE_KEYS.APP_ID)
+    const savedMode = localStorage.getItem(STORAGE_KEYS.MODE)
     const savedToAddress = localStorage.getItem(STORAGE_KEYS.TO_ADDRESS)
     const savedToAmount = localStorage.getItem(STORAGE_KEYS.TO_AMOUNT)
     const savedToChainId = localStorage.getItem(STORAGE_KEYS.TO_CHAIN_ID)
@@ -359,6 +365,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
     // Only set values if they exist in localStorage
     if (savedAppId !== null) setAppId(savedAppId)
+    if (savedMode !== null) setMode(savedMode as Mode)
     if (savedToAddress !== null) setToAddress(savedToAddress)
     if (savedToAmount !== null) setToAmount(savedToAmount)
     if (savedToChainId !== null) setToChainId(Number(savedToChainId))
@@ -398,6 +405,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
   }, [
     setAppId,
+    setMode,
     setToAddress,
     setToAmount,
     setToChainId,
@@ -420,6 +428,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       localStorage.removeItem(STORAGE_KEYS.APP_ID)
     }
   }, [appId])
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.MODE, mode)
+  }, [mode])
 
   useEffect(() => {
     if (toAddress) {
@@ -551,6 +563,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   const handleReset = () => {
     // Clear form state
     setAppId("")
+    setMode("pay") // Reset to default "pay"
     setToAddress("")
     setToAmount("")
     setToChainId(undefined)
@@ -627,6 +640,42 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   return (
     <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 sm:p-6 min-h-[775px]">
       <div className="space-y-4">
+        <div>
+          <label
+            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
+            htmlFor="mode"
+          >
+            Mode
+          </label>
+          <div className="flex space-x-4">
+            {(["pay", "fund"] as const).map((modeOption) => (
+              <div key={modeOption} className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setMode(modeOption)}
+                  className={`w-7 h-7 rounded-full border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
+                    mode === modeOption
+                      ? "bg-blue-500 border-blue-500 text-white"
+                      : "bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600"
+                  }`}
+                >
+                  {mode === modeOption && <Checkmark />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode(modeOption)}
+                  className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+                >
+                  {modeOption.charAt(0).toUpperCase() + modeOption.slice(1)}
+                </button>
+              </div>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+            Choose between payment and funding widget modes
+          </p>
+        </div>
+
         <div>
           <label
             className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"

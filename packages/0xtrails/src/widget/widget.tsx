@@ -48,7 +48,7 @@ import { ConnectWallet } from "./components/ConnectWallet.js"
 import Footer from "./components/Footer.js"
 import Modal from "./components/Modal.js"
 import Receipt from "./components/Receipt.js"
-import SendForm from "./components/SendForm.js"
+import { PaymentSendForm } from "./components/PaymentSendForm.js"
 import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPendingVertical.js"
 import WalletConfirmation from "./components/WalletConfirmation.js"
@@ -63,16 +63,20 @@ import {
   getIsBalanceTooLowError,
 } from "../error.js"
 import { setSequenceProjectAccessKey } from "../config.js"
+import { FundSendForm } from "./components/FundSendForm.js"
 
 type Screen =
   | "connect"
   | "tokens"
-  | "send"
+  | "send-form"
+  | "fund-form"
   | "wallet-confirmation"
   | "pending"
   | "receipt"
 
 export const defaultWalletOptions = ["injected", "privy"]
+
+export type Mode = "pay" | "fund"
 
 interface Token {
   id: number
@@ -102,6 +106,7 @@ export type TrailsWidgetProps = {
   children?: React.ReactNode
   renderInline?: boolean
   theme?: Theme
+  mode?: Mode
   walletOptions?: string[]
   onOriginConfirmation?: (txHash: string, chainId: number) => void
   onDestinationConfirmation?: (txHash: string, chainId: number) => void
@@ -275,6 +280,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       children,
       renderInline = true,
       theme: initialTheme = "auto",
+      mode = "pay",
       walletOptions,
       onOriginConfirmation,
       onDestinationConfirmation,
@@ -480,7 +486,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       try {
         setError(null)
         setSelectedToken(token)
-        setCurrentScreen("send")
+        setCurrentScreen(mode === "fund" ? "fund-form" : "send-form")
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "An unknown error occurred",
@@ -541,12 +547,16 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         case "tokens":
           setCurrentScreen("connect")
           break
-        case "send":
+        case "send-form":
+          setCurrentScreen("tokens")
+          setSelectedToken(null)
+          break
+        case "fund-form":
           setCurrentScreen("tokens")
           setSelectedToken(null)
           break
         case "wallet-confirmation":
-          setCurrentScreen("send")
+          setCurrentScreen(mode === "fund" ? "fund-form" : "send-form")
           break
         case "receipt":
           setCurrentScreen("tokens")
@@ -606,7 +616,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       // Reset necessary state based on the target screen
       setError(null)
 
-      switch (screen.toLowerCase()) {
+      switch (screen) {
         case "connect":
           setCurrentScreen("connect")
           setSelectedToken(null)
@@ -619,7 +629,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             setTransactionStates([])
           }
           break
-        case "send":
+        case "send-form":
           // Set dummy USDC token for debug mode
           setSelectedToken({
             id: 1,
@@ -637,7 +647,29 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             },
           })
 
-          setCurrentScreen("send")
+          setCurrentScreen("send-form")
+          setTransactionStates([])
+
+          break
+        case "fund-form":
+          // Set dummy USDC token for debug mode
+          setSelectedToken({
+            id: 1,
+            name: "USD Coin",
+            symbol: "USDC",
+            balance: "1000000000",
+            imageUrl:
+              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+            chainId: 1,
+            contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+            contractInfo: {
+              decimals: 6,
+              symbol: "USDC",
+              name: "USD Coin",
+            },
+          })
+
+          setCurrentScreen("fund-form")
           setTransactionStates([])
 
           break
@@ -1110,9 +1142,9 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onError={handleTokenListError}
             />
           )
-        case "send":
+        case "send-form":
           return selectedToken && walletClient?.account ? (
-            <SendForm
+            <PaymentSendForm
               onSend={handleOnSend}
               onBack={handleBack}
               onWaitingForWalletConfirm={handleWaitingForWalletConfirm}
@@ -1132,6 +1164,42 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               theme={theme}
               onTransactionStateChange={handleTransactionStateChange}
               useSourceTokenForButtonText={useSourceTokenForButtonText}
+              onError={handleSendError}
+              paymasterUrls={paymasterUrls}
+              gasless={gasless}
+              setWalletConfirmRetryHandler={setWalletConfirmRetryHandler}
+            />
+          ) : (
+            <div
+              className={`text-center p-4 rounded-lg ${
+                theme === "dark"
+                  ? "text-gray-300 bg-gray-800"
+                  : "text-gray-600 bg-gray-50"
+              }`}
+            >
+              Please connect wallet
+            </div>
+          )
+        case "fund-form":
+          return selectedToken && walletClient?.account ? (
+            <FundSendForm
+              onSend={handleOnSend}
+              onBack={handleBack}
+              onWaitingForWalletConfirm={handleWaitingForWalletConfirm}
+              onConfirm={() => setCurrentScreen("pending")}
+              onComplete={handleTransferComplete}
+              selectedToken={selectedToken}
+              account={walletClient.account}
+              sequenceProjectAccessKey={sequenceProjectAccessKey}
+              apiUrl={sequenceApiUrl || undefined}
+              env={sequenceEnv}
+              toAmount={toAmount || undefined}
+              toRecipient={toAddress || undefined}
+              toChainId={toChainId ? Number(toChainId) : undefined}
+              toToken={toToken || undefined}
+              walletClient={walletClient}
+              theme={theme}
+              onTransactionStateChange={handleTransactionStateChange}
               onError={handleSendError}
               paymasterUrls={paymasterUrls}
               gasless={gasless}
@@ -1280,7 +1348,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
                 : "bg-blue-500 hover:bg-blue-600"
             } text-white cursor-pointer font-semibold py-3 px-6 rounded-[24px] shadow-sm transition-colors`}
           >
-            {buttonText || "Pay"}
+            {buttonText || (mode === "fund" ? "Fund" : "Pay")}
           </motion.button>
         ) : (
           <motion.div

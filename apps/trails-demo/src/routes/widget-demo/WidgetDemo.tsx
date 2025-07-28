@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { type Mode } from "0xtrails"
 import { DemoTabs } from "@/components/DemoTabs"
 import { ConnectButton } from "./components/ConnectButton"
 import { CustomizationForm, STORAGE_KEYS } from "./components/CustomizationForm"
@@ -28,6 +29,7 @@ export const WidgetDemo = () => {
   >([])
   const [gasless, setGasless] = useState<boolean | null>(null)
   const [customTokenAddress, setCustomTokenAddress] = useState("")
+  const [mode, setMode] = useState<Mode>("pay")
 
   useEffect(() => {
     if (!localStorage.getItem(STORAGE_KEYS.RENDER_INLINE)) {
@@ -74,6 +76,8 @@ export const WidgetDemo = () => {
           {/* Left Column - Config Form */}
           <div className="w-full lg:w-1/2">
             <CustomizationForm
+              mode={mode}
+              setMode={setMode}
               appId={sequenceProjectAccessKey}
               setAppId={setSequenceProjectAccessKey}
               toAddress={toAddress}
@@ -106,6 +110,7 @@ export const WidgetDemo = () => {
           {/* Right Column - Output Screen */}
           <div className="w-full lg:w-1/2">
             <OutputScreen
+              mode={mode}
               appId={sequenceProjectAccessKey}
               toAddress={toAddress}
               toAmount={toAmount}

@@ -1,4 +1,5 @@
 import { TrailsWidget } from "0xtrails/widget"
+import { type Mode } from "0xtrails"
 import { forwardRef, useEffect, useRef, useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router"
 import { GIT_COMMIT_SHA } from "@/config"
@@ -29,6 +30,7 @@ declare global {
 }
 
 interface OutputScreenProps {
+  mode: Mode
   appId: string
   toAddress: string
   toAmount: string
@@ -52,6 +54,7 @@ interface OutputScreenProps {
 
 export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
   ({
+    mode,
     appId,
     toAddress,
     toAmount,
@@ -154,6 +157,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
           {activeTab === "modal" && (
             <div className="w-full">
               <TrailsWidget
+                mode={mode}
                 appId={appId || defaultSequenceProjectAccessKey}
                 sequenceApiUrl={apiUrl}
                 sequenceIndexerUrl={indexerUrl}
@@ -181,6 +185,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
             <div className="flex flex-col items-center space-y-4">
               <TrailsWidget
                 ref={buttonWidgetRef}
+                mode={mode}
                 appId={appId || defaultSequenceProjectAccessKey}
                 sequenceApiUrl={apiUrl}
                 sequenceIndexerUrl={indexerUrl}
@@ -215,6 +220,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
 
           {activeTab === "code" && (
             <CodeSnippet
+              mode={mode}
               appId={appId}
               toAddress={toAddress}
               toAmount={toAmount}

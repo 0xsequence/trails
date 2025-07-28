@@ -12,7 +12,8 @@ interface DebugScreensDropdownProps {
 const SCREENS = [
   "Connect",
   "Tokens",
-  "Send",
+  "Send Form",
+  "Fund Form",
   "Wallet Confirmation",
   "Pending 1-item-0-confirmed",
   "Pending 1-item-1-confirmed",
@@ -67,7 +68,7 @@ export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
               key={screen}
               type="button"
               onClick={() => {
-                onScreenSelect(screen)
+                onScreenSelect(screen?.toLowerCase().replace(" ", "-"))
                 setIsOpen(false)
               }}
               className={`w-full text-left px-3 py-2 text-sm ${
