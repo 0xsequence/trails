@@ -177,13 +177,11 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
       }
 
       if (isInputTypeUsd && sourceTokenPrice > 0) {
-        if (value.endsWith(".")) {
-          return
-        }
+        const endsWithDot = value.endsWith(".")
         // Convert USD to token amount
         const usdAmount = parseFloat(value) || 0
         const tokenAmount = usdAmount / sourceTokenPrice
-        setAmount(tokenAmount.toString())
+        setAmount(`${tokenAmount.toString()}${endsWithDot ? "." : ""}`)
       } else {
         // Direct token amount
         setAmount(value)
@@ -195,12 +193,13 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
   // Get display values based on input type
   const displayAmount = useMemo(() => {
     if (isInputTypeUsd && sourceTokenPrice > 0) {
+      const endsWithDot = amount.endsWith(".")
       // Show USD amount when in USD mode
       const tokenAmount = parseFloat(amount) || 0
       const usdAmount = tokenAmount * sourceTokenPrice
       // Cap USD decimals to 2 places
       const cappedUsdAmount = parseFloat(usdAmount.toFixed(2))
-      return cappedUsdAmount.toString()
+      return `${cappedUsdAmount.toString()}${endsWithDot ? "." : ""}`
     }
     return amount
   }, [amount, isInputTypeUsd, sourceTokenPrice])
@@ -274,7 +273,10 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
       fontSize = "text-5xl"
     }
 
-    return { fontSize }
+    return {
+      fontSize,
+      transition: "all 0.1s ease-in-out",
+    }
   }, [displayAmount.length])
 
   console.log("[trails-sdk] FundForm", {
@@ -399,8 +401,10 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                   theme === "dark" ? "text-gray-500" : "text-gray-400"
                 }`}
                 style={{
-                  marginLeft: "0",
+                  marginLeft:
+                    displayAmount && displayAmount !== "0" ? "0.2em" : "0.1em",
                   padding: "0",
+                  transition: "all 0.2s ease-in-out",
                 }}
               >
                 {isInputTypeUsd ? "USD" : selectedToken.symbol.slice(0, 4)}
@@ -636,17 +640,30 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                 size={32}
               />
               <div>
-                <div
-                  className={`text-lg font-semibold ${
-                    theme === "dark" ? "text-white" : "text-gray-900"
-                  }`}
-                >
-                  {toAmountFormatted || "0.00"} {selectedDestToken?.symbol}
+                <div className="flex items-center space-x-2">
+                  <div
+                    className={`text-lg font-semibold ${
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    } ${isLoadingQuote ? "animate-pulse" : ""}`}
+                  >
+                    {toAmountFormatted || "0.00"} {selectedDestToken?.symbol}
+                  </div>
+                  {isLoadingQuote && (
+                    <div
+                      className={`animate-spin rounded-full h-4 w-4 border-b-2 ${
+                        theme === "dark" ? "border-blue-400" : "border-blue-500"
+                      }`}
+                      style={{
+                        borderTopWidth: "2px",
+                        borderBottomWidth: "2px",
+                      }}
+                    />
+                  )}
                 </div>
                 <div
                   className={`text-xs ${
                     theme === "dark" ? "text-gray-400" : "text-gray-500"
-                  }`}
+                  } ${isLoadingQuote ? "animate-pulse" : ""}`}
                 >
                   ≈ {receiveUsdValue}
                 </div>
@@ -809,6 +826,8 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
               />
               <span>{buttonText}</span>
             </div>
+          ) : !amount || parseFloat(amount) <= 0 ? (
+            "Enter an amount"
           ) : (
             buttonText
           )}
