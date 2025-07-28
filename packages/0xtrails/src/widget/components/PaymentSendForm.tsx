@@ -16,6 +16,7 @@ import { useSendForm } from "../hooks/useSendForm.js"
 import { ChainImage } from "./ChainImage.js"
 import { FeeOptions } from "./FeeOptions.js"
 import { TokenImage } from "./TokenImage.js"
+import { TradeType } from "../../prepareSend.js"
 
 interface PaymentSendFormProps {
   selectedToken: Token
@@ -124,6 +125,7 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
     onSend,
     selectedToken,
     setWalletConfirmRetryHandler,
+    tradeType: TradeType.EXACT_OUTPUT,
   })
 
   console.log("[trails-sdk] SendForm", {

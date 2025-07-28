@@ -1,5 +1,5 @@
 import { TrailsWidget } from "0xtrails/widget"
-import { type Mode } from "0xtrails"
+import type { Mode } from "0xtrails"
 import { forwardRef, useEffect, useRef, useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router"
 import { GIT_COMMIT_SHA } from "@/config"
@@ -30,7 +30,7 @@ declare global {
 }
 
 interface OutputScreenProps {
-  mode: Mode
+  mode: Mode | null
   appId: string
   toAddress: string
   toAmount: string

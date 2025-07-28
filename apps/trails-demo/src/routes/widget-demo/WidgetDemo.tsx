@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { type Mode } from "0xtrails"
+import type { Mode } from "0xtrails"
 import { DemoTabs } from "@/components/DemoTabs"
 import { ConnectButton } from "./components/ConnectButton"
 import { CustomizationForm, STORAGE_KEYS } from "./components/CustomizationForm"
@@ -29,7 +29,7 @@ export const WidgetDemo = () => {
   >([])
   const [gasless, setGasless] = useState<boolean | null>(null)
   const [customTokenAddress, setCustomTokenAddress] = useState("")
-  const [mode, setMode] = useState<Mode>("pay")
+  const [mode, setMode] = useState<Mode | null>(null)
 
   useEffect(() => {
     if (!localStorage.getItem(STORAGE_KEYS.RENDER_INLINE)) {

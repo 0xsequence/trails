@@ -25,7 +25,7 @@ const Checkmark: React.FC<{ className?: string }> = ({
 interface CustomizationFormProps {
   appId: string
   setAppId: (value: string) => void
-  mode: Mode
+  mode: Mode | null
   setMode: (value: Mode) => void
   toAddress: string
   setToAddress: (value: string) => void
@@ -422,16 +422,20 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   // Save values to localStorage whenever they change
   useEffect(() => {
+    if (mode) {
+      localStorage.setItem(STORAGE_KEYS.MODE, mode)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.MODE)
+    }
+  }, [mode])
+
+  useEffect(() => {
     if (appId) {
       localStorage.setItem(STORAGE_KEYS.APP_ID, appId)
     } else {
       localStorage.removeItem(STORAGE_KEYS.APP_ID)
     }
   }, [appId])
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.MODE, mode)
-  }, [mode])
 
   useEffect(() => {
     if (toAddress) {

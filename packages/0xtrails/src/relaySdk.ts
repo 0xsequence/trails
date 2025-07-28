@@ -490,3 +490,102 @@ export async function getIsRouteSupported({
     return false
   }
 }
+
+interface RelayStatusResponse {
+  status: string
+  inTxHashes: string[]
+  txHashes: string[]
+  time: number
+  originChainId: number
+  destinationChainId: number
+}
+
+/**
+ * Fetch the status of a relay request by request ID
+ */
+export async function fetchRelayRequestStatus(
+  requestId: string,
+): Promise<RelayStatusResponse> {
+  try {
+    const response = await fetch(
+      `https://api.relay.link/intents/status/v2?requestId=${requestId}`,
+    )
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch relay status: ${response.status} ${response.statusText}`,
+      )
+    }
+
+    const data = await response.json()
+    return data as RelayStatusResponse
+  } catch (error) {
+    console.error("[trails-sdk] Error fetching relay request status:", error)
+    throw error
+  }
+}
+
+/**
+ * Wait for relay destination transaction to complete and return the last transaction hash
+ */
+export async function waitForRelayDestinationTx(
+  quoteProviderRequestId: string,
+): Promise<string> {
+  const maxWaitTime = 5 * 60 * 1000 // 5 minutes
+  const pollInterval = 5000 // 5 seconds
+  const startTime = Date.now()
+
+  const sleep = (ms: number): Promise<void> =>
+    new Promise((resolve) => setTimeout(resolve, ms))
+
+  while (Date.now() - startTime < maxWaitTime) {
+    try {
+      const status = await fetchRelayRequestStatus(quoteProviderRequestId)
+
+      console.log("[trails-sdk] Relay status check:", {
+        requestId: quoteProviderRequestId,
+        status: status.status,
+        txHashesCount: status.txHashes?.length || 0,
+      })
+
+      // Check if we have transaction hashes
+      if (status.txHashes && status.txHashes.length > 0) {
+        // Return the last transaction hash in the array
+        const lastTxHash = status.txHashes[status.txHashes.length - 1]
+        if (lastTxHash) {
+          console.log("[trails-sdk] Relay transaction completed:", lastTxHash)
+          return lastTxHash
+        }
+      }
+
+      // If status is failed or error, throw an error
+      if (status.status === "failed" || status.status === "error") {
+        throw new Error(
+          `Relay transaction failed with status: ${status.status}`,
+        )
+      }
+
+      // Wait before next poll
+      await sleep(pollInterval)
+    } catch (error) {
+      // If it's a fetch error (like 404), continue polling as the request might not be indexed yet
+      if (
+        error instanceof Error &&
+        error.message.includes("Failed to fetch relay status")
+      ) {
+        console.warn(
+          "[trails-sdk] Relay status not yet available, continuing to poll...",
+        )
+        await sleep(pollInterval)
+        continue
+      }
+
+      // For other errors, rethrow
+      throw error
+    }
+  }
+
+  throw new Error(
+    `Timeout waiting for relay transaction after ${maxWaitTime / 1000} seconds`,
+  )
+}

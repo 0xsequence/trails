@@ -6,12 +6,11 @@ import {
   oneLight as lightSyntaxStyle,
 } from "react-syntax-highlighter/dist/esm/styles/prism"
 import { useTheme } from "@/contexts/ThemeContext"
-
-import { type Mode } from "0xtrails"
+import type { Mode } from "0xtrails"
 
 interface CodeSnippetProps {
   children?: React.ReactNode
-  mode: Mode
+  mode: Mode | null
   appId: string
   toAddress: string
   toAmount: string
@@ -64,7 +63,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
 
   const getReactCode = () => {
     const props = [
-      mode !== "pay" && `mode="${mode}"`,
+      mode && `mode="${mode}"`,
       appId && `appId="${appId}"`,
       toAddress && `toAddress="${toAddress}"`,
       toAmount && `toAmount="${toAmount}"`,
@@ -107,7 +106,7 @@ export const App = () => {
 
   const getScriptCode = () => {
     const props = [
-      mode !== "pay" && `mode: '${mode}'`,
+      mode && `mode: '${mode}'`,
       appId && `appId: '${appId}'`,
       toAddress && `toAddress: '${toAddress}'`,
       toAmount && `toAmount: '${toAmount}'`,

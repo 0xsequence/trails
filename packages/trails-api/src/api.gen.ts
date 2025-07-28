@@ -833,6 +833,17 @@ export interface TrailsFee {
   quoteProvider?: string
 }
 
+export interface IntentQuote {
+  fromAmount: string
+  fromAmountMin: string
+  toAmount: string
+  toAmountMin: string
+  priceImpact: number
+  quoteProvider: string
+  quoteProviderRequestId: string
+  maxSlippage: number
+}
+
 export interface API {
   /**
    * 
@@ -1590,6 +1601,7 @@ export interface GetIntentCallsPayloadsReturn {
   trailsFee: TrailsFee
   originIntentAddress: string
   destinationIntentAddress: string  
+  quote: IntentQuote
 }
 export interface CommitIntentConfigArgs {
   originIntentAddress: string
@@ -2761,6 +2773,7 @@ export class API implements API {
           trailsFee: <TrailsFee>(_data.trailsFee),
           originIntentAddress: <string>(_data.originIntentAddress),
           destinationIntentAddress: <string>(_data.destinationIntentAddress),
+          quote: <IntentQuote>(_data.quote),
         }
       })
     }, (error) => {
