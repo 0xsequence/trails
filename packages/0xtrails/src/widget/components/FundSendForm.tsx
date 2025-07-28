@@ -93,6 +93,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     sourceTokenPrices,
     destTokenPrices,
     isValidRecipient,
+    recipient,
   } = useSendForm({
     account,
     sequenceProjectAccessKey,
@@ -433,6 +434,20 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Show recipient address if different from sender */}
+          {recipient &&
+            recipient.toLowerCase() !== account.address.toLowerCase() && (
+              <div className="px-2 pb-2">
+                <div
+                  className={`text-xs ${
+                    theme === "dark" ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  Recipient: {recipient}
+                </div>
+              </div>
+            )}
         </div>
 
         {/* More Details */}

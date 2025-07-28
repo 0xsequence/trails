@@ -5,6 +5,7 @@ import type { ActiveTheme } from "../../theme.js"
 import type { Token, TokenFormatted } from "../hooks/useTokenList.js"
 import { useTokenList } from "../hooks/useTokenList.js"
 import { TokenImage } from "./TokenImage.js"
+import type { Mode } from "../widget.js"
 
 interface TokenListProps {
   onContinue: (selectedToken: Token) => void
@@ -14,6 +15,7 @@ interface TokenListProps {
   targetAmountUsd?: number | null
   targetAmountUsdFormatted?: string | null
   onError: (error: Error | string | null) => void
+  mode?: Mode
 }
 
 export const TokenList: React.FC<TokenListProps> = ({
@@ -24,6 +26,7 @@ export const TokenList: React.FC<TokenListProps> = ({
   targetAmountUsd,
   targetAmountUsdFormatted,
   onError,
+  mode,
 }) => {
   const {
     searchQuery,
@@ -65,11 +68,13 @@ export const TokenList: React.FC<TokenListProps> = ({
           )}
 
           <h2
-            className={`text-lg font-semibold ${targetAmountUsd ? "text-left" : "text-center"} ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+            className={`text-lg font-semibold ${targetAmountUsd || mode === "fund" ? "text-left" : "text-center"} ${theme === "dark" ? "text-white" : "text-gray-900"}`}
           >
-            {targetAmountUsd
-              ? `Pay ${targetAmountUsdFormatted} with:`
-              : "Select Token"}
+            {mode === "fund"
+              ? "Fund with:"
+              : targetAmountUsd
+                ? `Pay ${targetAmountUsdFormatted} with:`
+                : "Select Token"}
           </h2>
         </div>
 

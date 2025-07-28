@@ -1140,6 +1140,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               targetAmountUsd={targetAmountUsd}
               targetAmountUsdFormatted={targetAmountUsdFormatted}
               onError={handleTokenListError}
+              mode={mode}
             />
           )
         case "send-form":

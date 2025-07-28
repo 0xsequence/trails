@@ -422,11 +422,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   // Save values to localStorage whenever they change
   useEffect(() => {
-    if (mode) {
-      localStorage.setItem(STORAGE_KEYS.MODE, mode)
-    } else {
-      localStorage.removeItem(STORAGE_KEYS.MODE)
-    }
+    localStorage.setItem(STORAGE_KEYS.MODE, mode || "pay")
   }, [mode])
 
   useEffect(() => {
