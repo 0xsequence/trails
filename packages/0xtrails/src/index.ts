@@ -55,4 +55,3 @@ export {
 export { getTxTimeDiff } from "./transactions.js"
 export { useTrails } from "./trails.js"
 export type { WagmiAccount } from "./trails.js"
-export type { Mode } from "./widget/index.tsx"

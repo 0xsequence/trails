@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
 import type React from "react"
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import type { Account, WalletClient } from "viem"
 import { isAddress } from "viem"
 import type { TransactionState } from "../../transactions.js"
@@ -138,6 +138,19 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
     selectedDestinationChain,
     supportedChains: supportedChains.length,
   })
+
+  // Handle amount input changes with decimal validation
+  const handleAmountChange = useCallback(
+    (value: string) => {
+      // Validate decimal places (max 8 decimals)
+      const decimalMatch = value.match(/^\d*\.?\d{0,8}$/)
+      if (!decimalMatch && value !== "") {
+        return // Don't update if more than 8 decimals
+      }
+      setAmount(value)
+    },
+    [setAmount],
+  )
 
   const chainDropdownRef = useRef<HTMLDivElement>(null)
   const tokenDropdownRef = useRef<HTMLDivElement>(null)
@@ -475,7 +488,7 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
                   id="amount"
                   type="text"
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  onChange={(e) => handleAmountChange(e.target.value)}
                   placeholder="0.00"
                   className={`block w-full pl-4 pr-12 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg ${
                     theme === "dark"

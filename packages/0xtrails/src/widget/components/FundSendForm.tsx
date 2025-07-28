@@ -167,10 +167,19 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     isTokenDropdownOpen,
   ])
 
-  // Handle input amount changes with USD conversion
+  // Handle input amount changes with 8 decimal limit
   const handleAmountChange = useCallback(
     (value: string) => {
+      // Validate decimal places (max 8 decimals)
+      const decimalMatch = value.match(/^\d*\.?\d{0,8}$/)
+      if (!decimalMatch && value !== "") {
+        return // Don't update if more than 8 decimals
+      }
+
       if (isInputTypeUsd && sourceTokenPrice > 0) {
+        if (value.endsWith(".")) {
+          return
+        }
         // Convert USD to token amount
         const usdAmount = parseFloat(value) || 0
         const tokenAmount = usdAmount / sourceTokenPrice

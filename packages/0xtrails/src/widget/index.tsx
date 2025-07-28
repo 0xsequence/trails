@@ -1,6 +1,6 @@
 // Be explicit about what we export
 
-export type { TrailsWidgetProps, TrailsWidgetRef, Mode } from "./widget.js"
+export type { TrailsWidgetProps, TrailsWidgetRef } from "./widget.js"
 export {
   createModalController,
   defaultWalletOptions,
