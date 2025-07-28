@@ -2,6 +2,7 @@ import { Databeat, type Event as DatabeatEvent } from "@databeat/tracker"
 import { Bytes, Hash } from "ox"
 import { DATABEAT_KEY, DATABEAT_SERVER } from "./constants.js"
 import { getQueryParam } from "./queryParams.js"
+import { getSequenceProjectAccessKey } from "./config.js"
 
 // Pseudonymize sensitive data like transaction hashes and addresses
 export function pseudonymize(value: string): string {
@@ -60,6 +61,7 @@ abstract class BaseAnalytics {
       ...this.getNavigatorProps(),
       ...this.getDocumentProps(),
       ...this.getWindowProps(),
+      sequenceProjectAccessKey: getSequenceProjectAccessKey(),
     }
   }
 
@@ -158,6 +160,9 @@ abstract class BaseAnalytics {
         ...(data.intentAddress && {
           intentAddress: pseudonymize(data.intentAddress),
         }),
+        destinationChainId: data.destinationChainId?.toString(),
+        originChainId: data.originChainId?.toString(),
+        destinationTokenAmount: data.destinationTokenAmount?.toString(),
       },
     })
   }
@@ -216,6 +221,7 @@ abstract class BaseAnalytics {
         ...this.getCommonProps(),
         ...data,
         address: pseudonymize(data.address),
+        chainId: data.chainId?.toString(),
       },
     })
   }
@@ -243,8 +249,8 @@ abstract class BaseAnalytics {
       event: EventType.INTENT_QUOTE_REQUESTED,
       props: {
         ...this.getCommonProps(),
-        originChainId: data.originChainId,
-        destinationChainId: data.destinationChainId,
+        originChainId: data.originChainId?.toString(),
+        destinationChainId: data.destinationChainId?.toString(),
         originTokenAddress: data.originTokenAddress,
         destinationTokenAddress: data.destinationTokenAddress,
         ...(data.userAddress && {
@@ -276,15 +282,17 @@ abstract class BaseAnalytics {
       props: {
         ...this.getCommonProps(),
         quoteId: pseudonymize(data.quoteId),
-        totalFeeUSD: data.totalFeeUSD,
-        trailsFixedFeeUSD: data.trailsFixedFeeUSD,
-        crossChainFeeTotalUSD: data.crossChainFeeTotalUSD,
-        takerFeeUSD: data.takerFeeUSD,
-        providerFeeUSD: data.providerFeeUSD,
-        trailsSwapFeeUSD: data.trailsSwapFeeUSD,
-        gasFeesPerChainUSD: data.gasFeesPerChainUSD,
-        originTokenTotalAmount: data.originTokenTotalAmount,
-        destinationTokenAmount: data.destinationTokenAmount,
+        totalFeeUSD: data.totalFeeUSD?.toString(),
+        trailsFixedFeeUSD: data.trailsFixedFeeUSD?.toString(),
+        crossChainFeeTotalUSD: data.crossChainFeeTotalUSD?.toString(),
+        takerFeeUSD: data.takerFeeUSD?.toString(),
+        providerFeeUSD: data.providerFeeUSD?.toString(),
+        trailsSwapFeeUSD: data.trailsSwapFeeUSD?.toString(),
+        gasFeesPerChainUSD: data.gasFeesPerChainUSD?.map((fee) =>
+          fee?.toString(),
+        ),
+        originTokenTotalAmount: data.originTokenTotalAmount?.toString(),
+        destinationTokenAmount: data.destinationTokenAmount?.toString(),
         provider: data.provider,
         feeToken: data.feeToken,
         ...(data.userAddress && {
@@ -314,6 +322,8 @@ abstract class BaseAnalytics {
         ...(data.userAddress && {
           userAddress: pseudonymize(data.userAddress),
         }),
+        originChainId: data.originChainId?.toString(),
+        destinationChainId: data.destinationChainId?.toString(),
       },
     })
   }
@@ -373,6 +383,8 @@ abstract class BaseAnalytics {
         ...(data.intentAddress && {
           intentAddress: pseudonymize(data.intentAddress),
         }),
+        originChainId: data.originChainId?.toString(),
+        destinationChainId: data.destinationChainId?.toString(),
       },
     })
   }
@@ -396,6 +408,7 @@ abstract class BaseAnalytics {
         ...(data.intentAddress && {
           intentAddress: pseudonymize(data.intentAddress),
         }),
+        chainId: data.chainId?.toString(),
       },
     })
   }
@@ -441,6 +454,7 @@ abstract class BaseAnalytics {
         ...(data.intentAddress && {
           intentAddress: pseudonymize(data.intentAddress),
         }),
+        chainId: data.chainId?.toString(),
       },
     })
   }
@@ -464,6 +478,7 @@ abstract class BaseAnalytics {
         ...(data.intentAddress && {
           intentAddress: pseudonymize(data.intentAddress),
         }),
+        blockNumber: data.blockNumber?.toString(),
       },
     })
   }
@@ -509,6 +524,7 @@ abstract class BaseAnalytics {
         ...(data.contractAddress && {
           contractAddress: pseudonymize(data.contractAddress),
         }),
+        chainId: data.chainId?.toString(),
       },
     })
   }
@@ -530,6 +546,7 @@ abstract class BaseAnalytics {
         ...(data.contractAddress && {
           contractAddress: pseudonymize(data.contractAddress),
         }),
+        chainId: data.chainId?.toString(),
       },
     })
   }
@@ -552,6 +569,7 @@ abstract class BaseAnalytics {
         ...(data.contractAddress && {
           contractAddress: pseudonymize(data.contractAddress),
         }),
+        chainId: data.chainId?.toString(),
       },
     })
   }
