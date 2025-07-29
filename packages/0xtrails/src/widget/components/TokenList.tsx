@@ -71,7 +71,7 @@ export const TokenList: React.FC<TokenListProps> = ({
             className={`text-lg font-semibold ${targetAmountUsd || mode === "fund" ? "text-left" : "text-center"} ${theme === "dark" ? "text-white" : "text-gray-900"}`}
           >
             {mode === "fund"
-              ? "Fund with any token from your wallet"
+              ? "Fund with any token in your wallet"
               : targetAmountUsd
                 ? `Pay ${targetAmountUsdFormatted} with:`
                 : "Select Token"}
