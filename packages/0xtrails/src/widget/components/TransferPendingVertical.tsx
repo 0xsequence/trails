@@ -6,7 +6,7 @@ import type { ActiveTheme } from "../../theme.js"
 import { TokenImage } from "./TokenImage.js"
 
 interface TransferPendingProps {
-  onComplete: () => void
+  onElapsedTime: (totalCompletionSeconds?: number) => void
   theme?: ActiveTheme
   transactionStates: TransactionState[]
   fromAmount: string
@@ -19,7 +19,7 @@ interface TransferPendingProps {
 }
 
 export const TransferPending: React.FC<TransferPendingProps> = ({
-  onComplete,
+  onElapsedTime,
   theme = "light",
   transactionStates,
   fromAmount,
@@ -35,14 +35,6 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
   const [showDots, setShowDots] = useState(false)
   const [showLine, setShowLine] = useState(false)
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onComplete()
-    }, 5000)
-
-    return () => clearTimeout(timer)
-  }, [onComplete])
 
   useEffect(() => {
     const timeoutTimer = setTimeout(() => {
@@ -147,6 +139,10 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
     }, 1000)
     return () => clearInterval(interval)
   }, [elapsedSeconds])
+
+  useEffect(() => {
+    onElapsedTime(elapsedSeconds)
+  }, [onElapsedTime, elapsedSeconds])
 
   // Format timer as 'Xs…', '1m1s…', etc.
   function formatElapsed(seconds: number) {

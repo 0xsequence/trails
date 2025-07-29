@@ -178,10 +178,13 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
 
       if (isInputTypeUsd && sourceTokenPrice > 0) {
         const endsWithDot = value.endsWith(".")
+        const endsWithZero = value.endsWith("0") && Number(value) !== 0
         // Convert USD to token amount
         const usdAmount = parseFloat(value) || 0
         const tokenAmount = usdAmount / sourceTokenPrice
-        setAmount(`${tokenAmount.toString()}${endsWithDot ? "." : ""}`)
+        setAmount(
+          `${tokenAmount.toString()}${endsWithDot ? "." : ""}${endsWithZero ? "0" : ""}`,
+        )
       } else {
         // Direct token amount
         setAmount(value)
@@ -194,12 +197,13 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
   const displayAmount = useMemo(() => {
     if (isInputTypeUsd && sourceTokenPrice > 0) {
       const endsWithDot = amount.endsWith(".")
+      const endsWithZero = amount.endsWith("0") && Number(amount) !== 0
       // Show USD amount when in USD mode
       const tokenAmount = parseFloat(amount) || 0
       const usdAmount = tokenAmount * sourceTokenPrice
       // Cap USD decimals to 2 places
       const cappedUsdAmount = parseFloat(usdAmount.toFixed(2))
-      return `${cappedUsdAmount.toString()}${endsWithDot ? "." : ""}`
+      return `${cappedUsdAmount.toString()}${endsWithDot ? "." : ""}${endsWithZero ? "0" : ""}`
     }
     return amount
   }, [amount, isInputTypeUsd, sourceTokenPrice])

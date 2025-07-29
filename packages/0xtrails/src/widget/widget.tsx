@@ -306,6 +306,10 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const [walletConfirmRetryHandler, setWalletConfirmRetryHandler] = useState<
       (() => Promise<void>) | null
     >(null)
+    const [totalCompletionSeconds, setTotalCompletionSeconds] = useState<
+      number | null
+    >(null)
+
     const { connect } = useConnect()
 
     const {
@@ -524,6 +528,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       setDestinationChainId(null)
       setTransactionStates([])
       setSendFormQuote(null)
+      setTotalCompletionSeconds(null)
     }, [
       setDestinationTxHash,
       setDestinationChainId,
@@ -581,6 +586,14 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         default:
           break
       }
+    }
+
+    function handleWalletConfirmComplete() {
+      setCurrentScreen("pending")
+    }
+
+    function handleElapsedTime(totalCompletionSeconds: number = 0) {
+      setTotalCompletionSeconds(totalCompletionSeconds)
     }
 
     function handleTransferComplete(data?: {
@@ -1266,7 +1279,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           return (
             <WalletConfirmation
               onBack={handleBack}
-              onComplete={() => setCurrentScreen("pending")}
+              onComplete={handleWalletConfirmComplete}
               theme={theme}
               amount={sendFormQuote?.amount ?? undefined}
               amountUsd={sendFormQuote?.amountUsd ?? undefined}
@@ -1292,7 +1305,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         case "pending":
           return (
             <TransferPending
-              onComplete={handleTransferComplete}
+              onElapsedTime={handleElapsedTime}
               theme={theme}
               transactionStates={transactionStates}
               fromAmount={sendFormQuote?.amount || ""}
@@ -1311,6 +1324,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               theme={theme}
               renderInline={renderInline}
               transactionStates={transactionStates}
+              totalCompletionSeconds={totalCompletionSeconds ?? undefined}
             />
           )
         default:

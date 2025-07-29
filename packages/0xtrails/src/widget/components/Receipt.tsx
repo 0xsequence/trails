@@ -12,6 +12,7 @@ interface ReceiptProps {
   theme?: ActiveTheme
   renderInline?: boolean
   transactionStates?: TransactionState[]
+  totalCompletionSeconds?: number
 }
 
 // Hook to fetch the time difference in seconds between two transactions on possibly different chains
@@ -71,6 +72,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
   theme = "light",
   renderInline = false,
   transactionStates = [],
+  totalCompletionSeconds,
 }) => {
   const [showDetails, setShowDetails] = useState(false)
   const [showContent, setShowContent] = useState(false)
@@ -83,8 +85,12 @@ export const Receipt: React.FC<ReceiptProps> = ({
     return () => clearTimeout(timer)
   }, [])
 
-  const { finalExplorerUrl, completionTimeSeconds } =
+  const { finalExplorerUrl, completionTimeSeconds: calculatedCompletionTime } =
     useReceipt(transactionStates)
+
+  // Use provided totalCompletionSeconds if available, otherwise use calculated time
+  const completionTimeSeconds =
+    totalCompletionSeconds ?? calculatedCompletionTime
 
   if (!finalExplorerUrl) {
     return (
@@ -160,7 +166,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
           >
             Transaction Confirmed
           </h2>
-          {completionTimeSeconds > 0 && completionTimeSeconds < 15 && (
+          {completionTimeSeconds > 0 && (
             <div
               className={`mt-1 text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"} flex items-center gap-1 justify-center animate-fade-in-up`}
               style={{
@@ -171,22 +177,24 @@ export const Receipt: React.FC<ReceiptProps> = ({
               <span className="inline-block animate-fade-in-up">
                 Completed in <strong>{completionTimeSeconds}s</strong>
               </span>
-              <svg
-                className="w-4 h-4 ml-1 text-yellow-400 inline"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <title>Lightning Fast</title>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                  fill="currentColor"
-                />
-              </svg>
+              {totalCompletionSeconds && totalCompletionSeconds < 15 && (
+                <svg
+                  className="w-4 h-4 ml-1 text-yellow-400 inline"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <title>Lightning Fast</title>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                    fill="currentColor"
+                  />
+                </svg>
+              )}
               <style>{`
                 @keyframes fadeInUp {
                   0% { opacity: 0; transform: translateY(16px); }

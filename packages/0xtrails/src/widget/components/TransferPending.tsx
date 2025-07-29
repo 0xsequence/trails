@@ -9,10 +9,6 @@ interface TransferPendingProps {
   transactionStates: TransactionState[]
 }
 
-const _truncateHash = (hash: string) => {
-  return `${hash.slice(0, 6)}...${hash.slice(-4)}`
-}
-
 export const TransferPending: React.FC<TransferPendingProps> = ({
   onComplete,
   theme = "light",

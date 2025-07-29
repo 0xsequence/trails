@@ -27,6 +27,7 @@ interface WalletConfirmationProps {
   destinationTokenAmountUsd?: string
   destinationChainId?: number
   destinationTokenImageUrl?: string
+  totalCompletionSeconds?: number
 }
 
 export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
@@ -49,6 +50,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   destinationTokenAmountUsd,
   destinationChainId,
   destinationTokenImageUrl,
+  totalCompletionSeconds,
 }) => {
   const [showContent, setShowContent] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
