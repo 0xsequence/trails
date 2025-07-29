@@ -87,7 +87,62 @@ export const Receipt: React.FC<ReceiptProps> = ({
     useReceipt(transactionStates)
 
   if (!finalExplorerUrl) {
-    return null
+    return (
+      <div className="flex flex-col justify-center min-h-full space-y-6 pt-8">
+        <div className="text-center">
+          <div className={`mx-auto flex items-center justify-center mb-4`}>
+            <div
+              className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                theme === "dark" ? "bg-red-900/20" : "bg-red-100"
+              }`}
+            >
+              <svg
+                className={`w-8 h-8 ${theme === "dark" ? "text-red-400" : "text-red-500"}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <title>Error</title>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+            </div>
+          </div>
+
+          <h2
+            className={`text-xl font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+          >
+            Transaction Failed
+          </h2>
+          <p
+            className={`mt-2 text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
+          >
+            No final transaction hash found. This is likely due to a failed
+            transaction or failed relay. Please reach out to support.
+          </p>
+        </div>
+
+        {!renderInline && (
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={onClose}
+              className={`w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${
+                theme === "dark"
+                  ? "bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white"
+                  : "bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Close
+            </button>
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (

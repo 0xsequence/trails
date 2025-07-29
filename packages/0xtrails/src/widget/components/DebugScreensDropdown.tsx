@@ -25,6 +25,7 @@ const SCREENS = [
   "Pending 3-item-2-confirmed",
   "Pending 3-item-3-confirmed",
   "Receipt",
+  "Receipt Failed",
 ] as const
 
 export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({

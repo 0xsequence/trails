@@ -890,7 +890,7 @@ async function sendHandlerForDifferentChainDifferentToken({
             precondition: intent.preconditions[0] as IntentPrecondition,
           })
 
-          if (originMetaTxnReceipt) {
+          if (originMetaTxnReceipt && transactionStates[1]) {
             transactionStates[1] = getTransactionStateFromReceipt(
               originMetaTxnReceipt,
               originChainId,
@@ -902,30 +902,16 @@ async function sendHandlerForDifferentChainDifferentToken({
       }
 
       const destinationMetaTxnPromise = async () => {
-        if (intent.metaTxns[1] && intent.preconditions[1]) {
-          destinationMetaTxnReceipt = await sendMetaTxAndWaitForReceipt({
-            metaTx: intent.metaTxns[1] as MetaTxn,
-            relayer: destinationRelayer,
-            precondition: intent.preconditions[1] as IntentPrecondition,
-          })
-
-          if (destinationMetaTxnReceipt) {
-            transactionStates[2] = getTransactionStateFromReceipt(
-              destinationMetaTxnReceipt,
-              destinationChainId,
-              transactionStates?.[2]?.label,
-            )
-            onTransactionStateChange(transactionStates)
-          }
-        }
         if (
           intent.quote.quoteProvider === "relay" &&
           intent.quote.quoteProviderRequestId
         ) {
+          console.log("[trails-sdk] waitForRelayDestinationTx")
           try {
             const txHash = await waitForRelayDestinationTx(
               intent.quote.quoteProviderRequestId,
             )
+            console.log("[trails-sdk] waitForRelayDestinationTx txHash", txHash)
             if (txHash) {
               const destinationPublicClient = createPublicClient({
                 chain: getChainInfo(destinationChainId)!,
@@ -935,6 +921,10 @@ async function sendHandlerForDifferentChainDifferentToken({
                 await destinationPublicClient.getTransactionReceipt({
                   hash: txHash as `0x${string}`,
                 })
+              console.log(
+                "[trails-sdk] relay destinationTxnReceipt",
+                destinationTxnReceipt,
+              )
               transactionStates[2] = getTransactionStateFromReceipt(
                 destinationTxnReceipt,
                 destinationChainId,
@@ -946,6 +936,23 @@ async function sendHandlerForDifferentChainDifferentToken({
             console.error("Error waiting for relay destination tx", error)
             if (transactionStates?.[2]) {
               transactionStates[2].state = "failed"
+              onTransactionStateChange(transactionStates)
+            }
+          }
+        } else {
+          if (intent.metaTxns[1] && intent.preconditions[1]) {
+            destinationMetaTxnReceipt = await sendMetaTxAndWaitForReceipt({
+              metaTx: intent.metaTxns[1] as MetaTxn,
+              relayer: destinationRelayer,
+              precondition: intent.preconditions[1] as IntentPrecondition,
+            })
+
+            if (destinationMetaTxnReceipt && transactionStates[2]) {
+              transactionStates[2] = getTransactionStateFromReceipt(
+                destinationMetaTxnReceipt,
+                destinationChainId,
+                transactionStates?.[2]?.label,
+              )
               onTransactionStateChange(transactionStates)
             }
           }

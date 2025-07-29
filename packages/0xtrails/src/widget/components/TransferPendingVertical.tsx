@@ -34,6 +34,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
   const [activePendingIndex, setActivePendingIndex] = useState(-1)
   const [showDots, setShowDots] = useState(false)
   const [showLine, setShowLine] = useState(false)
+  const [showTimeoutWarning, setShowTimeoutWarning] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -42,6 +43,14 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
 
     return () => clearTimeout(timer)
   }, [onComplete])
+
+  useEffect(() => {
+    const timeoutTimer = setTimeout(() => {
+      setShowTimeoutWarning(true)
+    }, 60000) // 1 minute
+
+    return () => clearTimeout(timeoutTimer)
+  }, [])
 
   useEffect(() => {
     // Animate content in
@@ -401,6 +410,55 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Timeout Warning */}
+      {showTimeoutWarning && (
+        <div
+          className={`w-full max-w-sm transition-all duration-500 ease-out delay-150 ${
+            showContent
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-4"
+          }`}
+        >
+          <div
+            className={`p-4 rounded-lg text-sm ${
+              theme === "dark"
+                ? "bg-yellow-900/20 border border-yellow-700/50"
+                : "bg-yellow-50 border border-yellow-200"
+            }`}
+          >
+            <div className="flex items-start space-x-3">
+              <svg
+                className={`w-5 h-5 mt-0.5 flex-shrink-0 ${theme === "dark" ? "text-yellow-400" : "text-yellow-600"}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <title>Warning</title>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+              <div>
+                <p
+                  className={`font-medium ${theme === "dark" ? "text-yellow-300" : "text-yellow-800"}`}
+                >
+                  Transaction taking longer than expected
+                </p>
+                <p
+                  className={`mt-1 text-xs ${theme === "dark" ? "text-yellow-400" : "text-yellow-700"}`}
+                >
+                  This transaction is taking longer than expected. Please reach
+                  out to support for help if the issue persists.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Vertical Stepper */}
       <div className="w-full mx-auto" style={{ width: "auto" }}>

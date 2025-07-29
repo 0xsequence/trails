@@ -554,8 +554,12 @@ export async function waitForRelayDestinationTx(
   while (Date.now() - startTime < maxWaitTime) {
     try {
       const status = await fetchRelayRequestStatus(quoteProviderRequestId)
+      if (!status) {
+        throw new Error("No status found")
+      }
 
       if (
+        status.inTxHashes &&
         status.inTxHashes.length > 0 &&
         status.originChainId === status.destinationChainId
       ) {
@@ -591,7 +595,8 @@ export async function waitForRelayDestinationTx(
       // If it's a fetch error (like 404), continue polling as the request might not be indexed yet
       if (
         error instanceof Error &&
-        error.message.includes("Failed to fetch relay status")
+        (error.message.includes("Failed to fetch relay status") ||
+          error.message.includes("No status found"))
       ) {
         console.warn(
           "[trails-sdk] Relay status not yet available, continuing to poll...",

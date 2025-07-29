@@ -709,7 +709,14 @@ export function useSendForm({
         originSendAmountFormatted * (sourceTokenPriceUsd ?? 0)
 
       const destinationTokenAmountFormatted = Number(
-        formatUnits(BigInt(parsedAmount), selectedDestToken.decimals ?? 18),
+        formatUnits(
+          BigInt(
+            tradeType === TradeType.EXACT_INPUT
+              ? prepareSendResult.destinationTokenAmount || "0"
+              : parsedAmount,
+          ),
+          selectedDestToken.decimals ?? 18,
+        ),
       )
 
       const destinationTokenAmountUsdFormatted =

@@ -1065,6 +1065,38 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
 
           setCurrentScreen("receipt")
           break
+        case "receipt-failed":
+          // Set dummy transaction states data for debug mode
+          setTransactionStates([
+            {
+              transactionHash:
+                "0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+              explorerUrl:
+                "https://polygonscan.com/tx/0x45bb2259631e73f32841a6058b0a4008c75bca296942bec6326d188978d5353d",
+              chainId: 137,
+              state: "confirmed",
+              label: "Transfer",
+            },
+            {
+              transactionHash:
+                "0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+              explorerUrl:
+                "https://polygonscan.com/tx/0x6ff30196ca0d4998cc6928bca2ec282766eb3c3997535e0a61e0d69c9c9b16b8",
+              chainId: 137,
+              state: "confirmed",
+              label: "Swap & Bridge",
+            },
+            {
+              transactionHash: "",
+              explorerUrl: "",
+              chainId: 42161,
+              state: "failed",
+              label: "Execute",
+            },
+          ])
+
+          setCurrentScreen("receipt")
+          break
       }
     }
 
