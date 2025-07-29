@@ -15,6 +15,7 @@ import type {
 import { useSendForm } from "../hooks/useSendForm.js"
 import { ChainImage } from "./ChainImage.js"
 import { TokenImage } from "./TokenImage.js"
+import { QuoteDetails } from "./QuoteDetails.js"
 import { TradeType } from "../../prepareSend.js"
 import { formatValue, formatUsdValue } from "../../tokenBalances.js"
 
@@ -107,6 +108,10 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     supportedTokens,
     setSelectedDestinationChain,
     setSelectedDestToken,
+    fees,
+    slippageTolerance,
+    priceImpact,
+    prepareSendResult,
   } = useSendForm({
     account,
     sequenceProjectAccessKey,
@@ -678,7 +683,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
           {/* Show recipient address if different from sender */}
           {recipient &&
             recipient.toLowerCase() !== account.address.toLowerCase() && (
-              <div className="px-2 pb-2">
+              <div className="px-2 pb-1">
                 <div
                   className={`text-xs ${
                     theme === "dark" ? "text-gray-400" : "text-gray-500"
@@ -692,7 +697,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
 
         {/* Custom Calldata */}
         {toCalldata && (
-          <div className="px-2 py-1">
+          <div className="px-2 pb-1">
             <p
               className={`text-xs ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
             >
@@ -701,107 +706,6 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
             </p>
           </div>
         )}
-
-        {/* More Details */}
-        <div className="space-y-3" style={{ display: "none" }}>
-          <button
-            type="button"
-            onClick={() => setShowMoreDetails(!showMoreDetails)}
-            className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-[24px] transition-colors cursor-pointer text-sm ${
-              theme === "dark"
-                ? "text-gray-400 hover:text-gray-300"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <span>More Details</span>
-            <svg
-              className={`w-4 h-4 transition-transform ${showMoreDetails ? "rotate-180" : ""}`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <title>Expand</title>
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-
-          {showMoreDetails && (
-            <div
-              className={`p-4 rounded-lg text-sm space-y-4 ${
-                theme === "dark" ? "bg-gray-800" : "bg-gray-50"
-              }`}
-            >
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span
-                    className={`text-xs ${
-                      theme === "dark" ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
-                    Origin Chain:
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <ChainImage chainId={selectedToken.chainId} size={16} />
-                    <span
-                      className={`text-xs font-medium ${
-                        theme === "dark" ? "text-white" : "text-gray-900"
-                      }`}
-                    >
-                      Chain {selectedToken.chainId}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span
-                    className={`text-xs ${
-                      theme === "dark" ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
-                    Origin Token:
-                  </span>
-                  <div className="flex items-center space-x-2">
-                    <TokenImage
-                      symbol={selectedToken.symbol}
-                      imageUrl={selectedToken.imageUrl}
-                      chainId={selectedToken.chainId}
-                      size={16}
-                    />
-                    <span
-                      className={`text-xs font-medium ${
-                        theme === "dark" ? "text-white" : "text-gray-900"
-                      }`}
-                    >
-                      {selectedToken.name}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span
-                    className={`text-xs ${
-                      theme === "dark" ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
-                    Estimated Time:
-                  </span>
-                  <span
-                    className={`text-xs font-medium ${
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    }`}
-                  >
-                    2-5 minutes
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Continue Button */}
         <button
@@ -836,6 +740,59 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
             buttonText
           )}
         </button>
+
+        {/* Quote Details */}
+        {prepareSendResult && (
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => setShowMoreDetails(!showMoreDetails)}
+              className={`w-full flex items-center justify-center gap-2 py-1 px-4 rounded-[24px] transition-colors cursor-pointer text-xs ${
+                theme === "dark"
+                  ? "text-gray-400 hover:text-gray-300"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <span>More Details</span>
+              <svg
+                className={`w-3 h-3 transition-transform ${showMoreDetails ? "rotate-180" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <title>Expand</title>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {showMoreDetails && (
+              <QuoteDetails
+                theme={theme}
+                amount={amount}
+                amountUsd={amountUsdFormatted}
+                recipient={recipient}
+                tokenSymbol={selectedToken.symbol}
+                fromTokenSymbol={selectedToken.symbol}
+                fromChainId={selectedToken.chainId}
+                fromTokenImageUrl={selectedToken.imageUrl}
+                fees={fees}
+                slippageTolerance={slippageTolerance}
+                priceImpact={priceImpact}
+                destinationTokenSymbol={selectedDestToken?.symbol}
+                destinationTokenAmount={toAmountFormatted}
+                destinationTokenAmountUsd={receiveUsdValue}
+                destinationChainId={selectedDestinationChain?.id}
+                destinationTokenImageUrl={selectedDestToken?.imageUrl}
+                showContent={showMoreDetails}
+              />
+            )}
+          </div>
+        )}
       </form>
     </div>
   )

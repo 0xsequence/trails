@@ -698,7 +698,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           setTransactionStates([])
 
           break
-        case "wallet confirmation":
+        case "wallet-confirmation":
           // Set dummy USDC token for debug mode
           setSelectedToken({
             id: 1,
@@ -729,7 +729,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           })
           setTransactionStates([])
           break
-        case "pending 1-item-0-confirmed":
+        case "pending-1-item-0-confirmed":
           // Set dummy transaction states for debug mode - showing all steps
           setTransactionStates([
             {
@@ -753,7 +753,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           })
           setCurrentScreen("pending")
           break
-        case "pending 1-item-1-confirmed":
+        case "pending-1-item-1-confirmed":
           // Set dummy transaction states for debug mode - showing all steps
           setTransactionStates([
             {
@@ -777,7 +777,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           })
           setCurrentScreen("pending")
           break
-        case "pending 2-item-0-confirmed":
+        case "pending-2-item-0-confirmed":
           // Set dummy transaction states for debug mode - showing all steps
           setTransactionStates([
             {
@@ -810,7 +810,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           })
           setCurrentScreen("pending")
           break
-        case "pending 2-item-1-confirmed":
+        case "pending-2-item-1-confirmed":
           // Set dummy transaction states for debug mode - showing all steps
           setTransactionStates([
             {
@@ -843,7 +843,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           })
           setCurrentScreen("pending")
           break
-        case "pending 2-item-2-confirmed":
+        case "pending-2-item-2-confirmed":
           // Set dummy transaction states for debug mode - showing all steps
           setTransactionStates([
             {
@@ -876,7 +876,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           })
           setCurrentScreen("pending")
           break
-        case "pending 3-item-0-confirmed":
+        case "pending-3-item-0-confirmed":
           // Set dummy transaction states for debug mode - showing all steps
           setTransactionStates([
             {
@@ -918,7 +918,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           })
           setCurrentScreen("pending")
           break
-        case "pending 3-item-1-confirmed":
+        case "pending-3-item-1-confirmed":
           // Set dummy transaction states for debug mode - showing all steps
           setTransactionStates([
             {
@@ -960,7 +960,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           })
           setCurrentScreen("pending")
           break
-        case "pending 3-item-2-confirmed":
+        case "pending-3-item-2-confirmed":
           // Set dummy transaction states for debug mode - showing all steps
           setTransactionStates([
             {
@@ -1002,7 +1002,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           })
           setCurrentScreen("pending")
           break
-        case "pending 3-item-3-confirmed":
+        case "pending-3-item-3-confirmed":
           // Set dummy transaction states for debug mode - showing all steps
           setTransactionStates([
             {

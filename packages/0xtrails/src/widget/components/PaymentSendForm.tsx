@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
 import type React from "react"
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import type { Account, WalletClient } from "viem"
 import { isAddress } from "viem"
 import type { TransactionState } from "../../transactions.js"
@@ -16,6 +16,7 @@ import { useSendForm } from "../hooks/useSendForm.js"
 import { ChainImage } from "./ChainImage.js"
 import { FeeOptions } from "./FeeOptions.js"
 import { TokenImage } from "./TokenImage.js"
+import { QuoteDetails } from "./QuoteDetails.js"
 import { TradeType } from "../../prepareSend.js"
 
 interface PaymentSendFormProps {
@@ -69,6 +70,8 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
   gasless,
   setWalletConfirmRetryHandler,
 }) => {
+  // Local state for showing more details
+  const [showMoreDetails, setShowMoreDetails] = useState(false)
   const {
     amount,
     amountUsdFormatted,
@@ -103,6 +106,10 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
     destinationTokenAddress,
     supportedChains,
     isValidCustomToken,
+    prepareSendResult,
+    fees,
+    slippageTolerance,
+    priceImpact,
   } = useSendForm({
     account,
     sequenceProjectAccessKey,
@@ -622,7 +629,8 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
               isSubmitting ||
               !destinationTokenAddress ||
               !isValidCustomToken ||
-              isLoadingQuote
+              isLoadingQuote ||
+              !prepareSendResult
             }
             className={`w-full font-semibold py-3 px-4 rounded-[24px] transition-colors relative ${
               theme === "dark"
@@ -642,6 +650,59 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
             )}
           </button>
         </div>
+
+        {/* Quote Details */}
+        {prepareSendResult && (
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => setShowMoreDetails(!showMoreDetails)}
+              className={`w-full flex items-center justify-center gap-2 py-1 px-4 rounded-[24px] transition-colors cursor-pointer text-xs ${
+                theme === "dark"
+                  ? "text-gray-400 hover:text-gray-300"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <span>More Details</span>
+              <svg
+                className={`w-3 h-3 transition-transform ${showMoreDetails ? "rotate-180" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <title>Expand</title>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {showMoreDetails && (
+              <QuoteDetails
+                theme={theme}
+                amount={amount}
+                amountUsd={amountUsdFormatted}
+                recipient={recipient}
+                tokenSymbol={selectedToken.symbol}
+                fromTokenSymbol={selectedToken.symbol}
+                fromChainId={selectedToken.chainId}
+                fromTokenImageUrl={selectedToken.imageUrl}
+                fees={fees}
+                slippageTolerance={slippageTolerance}
+                priceImpact={priceImpact}
+                destinationTokenSymbol={selectedDestToken?.symbol}
+                destinationTokenAmount={toAmountFormatted}
+                destinationTokenAmountUsd={amountUsdFormatted}
+                destinationChainId={selectedDestinationChain?.id}
+                destinationTokenImageUrl={selectedDestToken?.imageUrl}
+                showContent={showMoreDetails}
+              />
+            )}
+          </div>
+        )}
       </form>
     </div>
   )

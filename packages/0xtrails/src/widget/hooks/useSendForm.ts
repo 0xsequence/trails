@@ -183,6 +183,10 @@ export type UseSendReturn = {
   toAmountFormatted: string
   destinationTokenAddress: string | null
   isValidCustomToken: boolean
+  prepareSendResult: any | null
+  fees?: PrepareSendFees
+  slippageTolerance?: string
+  priceImpact?: string
 }
 
 export function useSendForm({
@@ -935,5 +939,9 @@ export function useSendForm({
     toAmountFormatted: quotedDestinationAmount,
     destinationTokenAddress,
     isValidCustomToken,
+    prepareSendResult,
+    fees: prepareSendResult?.fees,
+    slippageTolerance: prepareSendResult?.slippageTolerance,
+    priceImpact: prepareSendResult?.priceImpact,
   }
 }
