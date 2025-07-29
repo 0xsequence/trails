@@ -79,6 +79,7 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
     handleSubmit,
     isChainDropdownOpen,
     isSubmitting,
+    isLoadingQuote,
     isTokenDropdownOpen,
     recipient,
     recipientInput,
@@ -620,7 +621,8 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
               !isValidRecipient ||
               isSubmitting ||
               !destinationTokenAddress ||
-              !isValidCustomToken
+              !isValidCustomToken ||
+              isLoadingQuote
             }
             className={`w-full font-semibold py-3 px-4 rounded-[24px] transition-colors relative ${
               theme === "dark"

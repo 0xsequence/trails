@@ -256,7 +256,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
                   </div>
                 )}
 
-                {priceImpact && Number(priceImpact) > 0 && (
+                {priceImpact != null && (
                   <div className="flex justify-between items-center">
                     <span
                       className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}

@@ -5,7 +5,7 @@ import type { ActiveTheme } from "../../theme.js"
 import type { Token, TokenFormatted } from "../hooks/useTokenList.js"
 import { useTokenList } from "../hooks/useTokenList.js"
 import { TokenImage } from "./TokenImage.js"
-import type { Mode } from "../widget.js"
+import type { Mode } from "../../mode.js"
 
 interface TokenListProps {
   onContinue: (selectedToken: Token) => void
@@ -53,7 +53,7 @@ export const TokenList: React.FC<TokenListProps> = ({
     <div className="space-y-6">
       <div className="flex items-center justify-between relative">
         <div className="flex items-center">
-          {!targetAmountUsd && (
+          {!targetAmountUsd && mode !== "fund" && (
             <button
               type="button"
               onClick={onBack}
@@ -71,14 +71,14 @@ export const TokenList: React.FC<TokenListProps> = ({
             className={`text-lg font-semibold ${targetAmountUsd || mode === "fund" ? "text-left" : "text-center"} ${theme === "dark" ? "text-white" : "text-gray-900"}`}
           >
             {mode === "fund"
-              ? "Fund with:"
+              ? "Fund with any token from your wallet"
               : targetAmountUsd
                 ? `Pay ${targetAmountUsdFormatted} with:`
                 : "Select Token"}
           </h2>
         </div>
 
-        {totalBalanceUsd > 0 && (
+        {totalBalanceUsd > 0 && mode !== "fund" && (
           <p
             className={`text-xs mr-8 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
           >

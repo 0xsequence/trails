@@ -64,6 +64,7 @@ import {
 } from "../error.js"
 import { setSequenceProjectAccessKey } from "../config.js"
 import { FundSendForm } from "./components/FundSendForm.js"
+import type { Mode } from "../mode.js"
 
 type Screen =
   | "connect"
@@ -75,8 +76,6 @@ type Screen =
   | "receipt"
 
 export const defaultWalletOptions = ["injected", "privy"]
-
-export type Mode = "pay" | "fund"
 
 interface Token {
   id: number

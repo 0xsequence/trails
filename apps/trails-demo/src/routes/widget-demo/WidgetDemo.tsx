@@ -32,6 +32,9 @@ export const WidgetDemo = () => {
   const [mode, setMode] = useState<Mode | null>(null)
 
   useEffect(() => {
+    if (!localStorage.getItem(STORAGE_KEYS.MODE)) {
+      setMode("pay")
+    }
     if (!localStorage.getItem(STORAGE_KEYS.RENDER_INLINE)) {
       setRenderInline(true)
     }

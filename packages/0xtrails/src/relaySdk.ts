@@ -162,8 +162,21 @@ export async function executeSimpleRelayTransaction(
 }
 
 export function getTxHashFromRelayResult(result: RelayExecuteResult): string {
-  return result?.data?.steps?.[result?.data?.steps!.length - 1]?.items?.[0]
-    ?.txHashes?.[0]?.txHash
+  let txHash =
+    result?.data?.steps?.[result?.data?.steps!.length - 1]?.items?.[0]
+      ?.txHashes?.[0]?.txHash
+
+  if (!txHash) {
+    txHash =
+      result?.data?.steps?.[result?.data?.steps!.length - 1]?.items?.[0]
+        ?.internalTxHashes?.[0]?.txHash
+  }
+
+  if (!txHash) {
+    throw new Error("No transaction hash found in relay result")
+  }
+
+  return txHash
 }
 
 // Source: https://docs.relay.link/resources/supported-chains
@@ -541,6 +554,13 @@ export async function waitForRelayDestinationTx(
   while (Date.now() - startTime < maxWaitTime) {
     try {
       const status = await fetchRelayRequestStatus(quoteProviderRequestId)
+
+      if (
+        status.inTxHashes.length > 0 &&
+        status.originChainId === status.destinationChainId
+      ) {
+        return status.inTxHashes[status.inTxHashes.length - 1]!
+      }
 
       console.log("[trails-sdk] Relay status check:", {
         requestId: quoteProviderRequestId,

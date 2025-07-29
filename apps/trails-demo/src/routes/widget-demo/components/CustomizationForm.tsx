@@ -1,6 +1,7 @@
 import { InfoIcon, Tooltip } from "@0xsequence/design-system"
-import { useSupportedChains, useSupportedTokens, type Mode } from "0xtrails"
+import { useSupportedChains, useSupportedTokens } from "0xtrails"
 import { defaultWalletOptions } from "0xtrails/widget"
+import type { Mode } from "0xtrails"
 import { ChevronDown, X } from "lucide-react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { encodeFunctionData, parseUnits, zeroAddress } from "viem"
@@ -161,6 +162,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   const [isScenarioDropdownOpen, setIsScenarioDropdownOpen] = useState(false)
   const [selectedScenario, setSelectedScenario] = useState<string>("")
   const [showCustomTokenInput, setShowCustomTokenInput] = useState(false)
+  const [initialStateLoaded, setInitialStateLoaded] = useState(false)
 
   // Scenario keys
   const SCENARIO_KEYS = {
@@ -403,6 +405,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       setCustomTokenAddress(savedCustomTokenAddress)
       setShowCustomTokenInput(true) // Show custom input if custom token address exists
     }
+
+    setInitialStateLoaded(true)
   }, [
     setAppId,
     setMode,
@@ -422,8 +426,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   // Save values to localStorage whenever they change
   useEffect(() => {
+    if (!initialStateLoaded) return
     localStorage.setItem(STORAGE_KEYS.MODE, mode || "pay")
-  }, [mode])
+  }, [mode, initialStateLoaded])
 
   useEffect(() => {
     if (appId) {
