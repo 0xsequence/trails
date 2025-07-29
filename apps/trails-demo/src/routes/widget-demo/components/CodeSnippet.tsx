@@ -25,6 +25,7 @@ interface CodeSnippetProps {
   gasless: boolean | null
   onOriginConfirmation: string | null
   onDestinationConfirmation: string | null
+  buttonText: string
 }
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = ({
@@ -44,6 +45,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   gasless,
   onOriginConfirmation,
   onDestinationConfirmation,
+  buttonText,
 }) => {
   const { theme: globalTheme } = useTheme()
   const [isCopied, setIsCopied] = useState(false)
@@ -66,7 +68,8 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
       mode && `mode="${mode}"`,
       appId && `appId="${appId}"`,
       toAddress && `toAddress="${toAddress}"`,
-      toAmount && `toAmount="${toAmount}"`,
+      // Only include toAmount if mode is not "fund"
+      mode !== "fund" && toAmount && `toAmount="${toAmount}"`,
       toChainId && `toChainId={${toChainId}}`,
       toToken && `toToken="${toToken}"`,
       toCalldata && `toCalldata="${toCalldata}"`,
@@ -77,6 +80,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
       theme && `theme="${theme}"`,
       walletOptions && `walletOptions={${JSON.stringify(walletOptions)}}`,
       gasless && `gasless={true}`,
+      buttonText && `buttonText="${buttonText}"`,
       onOriginConfirmation && `onOriginConfirmation={${onOriginConfirmation}}`,
       onDestinationConfirmation &&
         `onDestinationConfirmation={${onDestinationConfirmation}}`,
@@ -109,7 +113,8 @@ export const App = () => {
       mode && `mode: '${mode}'`,
       appId && `appId: '${appId}'`,
       toAddress && `toAddress: '${toAddress}'`,
-      toAmount && `toAmount: '${toAmount}'`,
+      // Only include toAmount if mode is not "fund"
+      mode !== "fund" && toAmount && `toAmount: '${toAmount}'`,
       toChainId && `toChainId: ${toChainId}`,
       toToken && `toToken: '${toToken}'`,
       toCalldata && `toCalldata: '${toCalldata}'`,
@@ -120,6 +125,7 @@ export const App = () => {
       theme && `theme: '${theme}'`,
       walletOptions && `walletOptions: ${JSON.stringify(walletOptions)}`,
       gasless && `gasless: true`,
+      buttonText && `buttonText: '${buttonText}'`,
       onOriginConfirmation && `onOriginConfirmation: ${onOriginConfirmation}`,
       onDestinationConfirmation &&
         `onDestinationConfirmation: ${onDestinationConfirmation}`,

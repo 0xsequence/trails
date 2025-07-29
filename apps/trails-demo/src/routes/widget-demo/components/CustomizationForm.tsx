@@ -52,6 +52,8 @@ interface CustomizationFormProps {
   setGasless: (value: boolean | null) => void
   customTokenAddress: string
   setCustomTokenAddress: (value: string) => void
+  buttonText: string
+  setButtonText: (value: string) => void
 }
 
 // Local storage keys
@@ -71,6 +73,7 @@ export const STORAGE_KEYS = {
   PAYMASTER_URLS: "trails_demo_paymaster_urls",
   GASLESS: "trails_demo_gasless",
   CUSTOM_TOKEN_ADDRESS: "trails_demo_custom_token_address",
+  BUTTON_TEXT: "trails_demo_button_text",
 } as const
 
 interface UseAccountButtonProps {
@@ -157,6 +160,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   setGasless,
   customTokenAddress,
   setCustomTokenAddress,
+  buttonText,
+  setButtonText,
 }) => {
   const { address, isConnected } = useAccount()
   const [isScenarioDropdownOpen, setIsScenarioDropdownOpen] = useState(false)
@@ -364,6 +369,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     const savedCustomTokenAddress = localStorage.getItem(
       STORAGE_KEYS.CUSTOM_TOKEN_ADDRESS,
     )
+    const savedButtonText = localStorage.getItem(STORAGE_KEYS.BUTTON_TEXT)
 
     // Only set values if they exist in localStorage
     if (savedAppId !== null) setAppId(savedAppId)
@@ -405,6 +411,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       setCustomTokenAddress(savedCustomTokenAddress)
       setShowCustomTokenInput(true) // Show custom input if custom token address exists
     }
+    if (savedButtonText !== null) setButtonText(savedButtonText)
 
     setInitialStateLoaded(true)
   }, [
@@ -422,6 +429,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setPaymasterUrls,
     setGasless,
     setCustomTokenAddress,
+    setButtonText,
   ])
 
   // Save values to localStorage whenever they change
@@ -548,6 +556,15 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
   }, [customTokenAddress])
 
+  // Save buttonText to localStorage
+  useEffect(() => {
+    if (buttonText) {
+      localStorage.setItem(STORAGE_KEYS.BUTTON_TEXT, buttonText)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.BUTTON_TEXT)
+    }
+  }, [buttonText])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Close scenario dropdown when clicking outside
@@ -582,6 +599,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setGasless(false) // Reset gasless to default false
     setCustomTokenAddress("") // Reset customTokenAddress
     setShowCustomTokenInput(false) // Reset custom token input visibility
+    setButtonText("") // Reset buttonText
     // Clear localStorage
     Object.values(STORAGE_KEYS).forEach((key) => {
       localStorage.removeItem(key)
@@ -647,10 +665,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       <div className="space-y-4">
         <div>
           <label
-            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2 flex items-center gap-2"
             htmlFor="mode"
           >
             Mode
+            <Tooltip message="Choose between payment and funding widget modes">
+              <InfoIcon
+                size="sm"
+                className="text-gray-500 dark:text-gray-400 cursor-pointer"
+              />
+            </Tooltip>
           </label>
           <div className="flex space-x-4">
             {(["pay", "fund"] as const).map((modeOption) => (
@@ -676,17 +700,20 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
               </div>
             ))}
           </div>
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
-            Choose between payment and funding widget modes
-          </p>
         </div>
 
         <div>
           <label
-            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2 flex items-center gap-2"
             htmlFor="scenario"
           >
             Scenario
+            <Tooltip message="Preset values for the widget to demonstrate different use cases">
+              <InfoIcon
+                size="sm"
+                className="text-gray-500 dark:text-gray-400 cursor-pointer"
+              />
+            </Tooltip>
           </label>
           <div className="relative" data-scenario-dropdown>
             <button
@@ -800,10 +827,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
         <div>
           <label
-            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2 flex items-center gap-2"
             htmlFor="toAddress"
           >
             To Address
+            <Tooltip message="The target address for the transaction (e.g. the recipient address or contract address if using calldata)">
+              <InfoIcon
+                size="sm"
+                className="text-gray-500 dark:text-gray-400 cursor-pointer"
+              />
+            </Tooltip>
           </label>
           <input
             type="text"
@@ -821,10 +854,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
         <div className="space-y-2">
           <label
-            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2 flex items-center gap-2"
             htmlFor="toChainId"
           >
             To Chain ID
+            <Tooltip message="The chain where the transaction will be executed">
+              <InfoIcon
+                size="sm"
+                className="text-gray-500 dark:text-gray-400 cursor-pointer"
+              />
+            </Tooltip>
           </label>
           <ChainSelector
             selectedChainId={toChainId}
@@ -837,10 +876,18 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <label
-              className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2 flex items-center gap-2"
               htmlFor="toAmount"
             >
               To Amount
+              <Tooltip
+                message={`The exact amount of tokens to receive when widget mode="pay". This has no effect when widget mode="fund"`}
+              >
+                <InfoIcon
+                  size="sm"
+                  className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                />
+              </Tooltip>
             </label>
             <input
               type="text"
@@ -858,10 +905,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
           <div className="flex-1 space-y-2">
             <label
-              className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
+              className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2 flex items-center gap-2"
               htmlFor="toToken"
             >
               To Token
+              <Tooltip message="The target token to receive">
+                <InfoIcon
+                  size="sm"
+                  className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                />
+              </Tooltip>
             </label>
             {showCustomTokenInput ? (
               <div className="relative">
@@ -926,10 +979,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
         <div>
           <label
-            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
+            className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2 flex items-center gap-2"
             htmlFor="toCalldata"
           >
             To Calldata
+            <Tooltip message="The encoded function call data for complex transactions (e.g., contract interactions)">
+              <InfoIcon
+                size="sm"
+                className="text-gray-500 dark:text-gray-400 cursor-pointer"
+              />
+            </Tooltip>
           </label>
           <textarea
             value={toCalldata}
@@ -1102,10 +1161,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-2 gap-2">
                 <label
-                  className="block text-sm font-medium text-gray-900 dark:text-gray-200"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200 flex items-center gap-2"
                   htmlFor="walletOptions"
                 >
                   Wallet Options
+                  <Tooltip message="Wallet options like 'injected' (Metamask) and Privy are supported">
+                    <InfoIcon
+                      size="sm"
+                      className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                    />
+                  </Tooltip>
                 </label>
                 <div className="flex flex-wrap gap-3">
                   {defaultWalletOptions.map((wallet: string) => {
@@ -1138,10 +1203,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
               <div>
                 <label
-                  className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2 flex items-center gap-2"
                   htmlFor="appId"
                 >
                   Custom App ID
+                  <Tooltip message="Your Sequence project access key for gasless transactions">
+                    <InfoIcon
+                      size="sm"
+                      className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                    />
+                  </Tooltip>
                 </label>
                 <input
                   type="text"
@@ -1150,9 +1221,6 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   placeholder="Enter your app ID"
                   className="w-full px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 />
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
-                  Your Sequence project access key for gasless transactions
-                </p>
               </div>
             </div>
           </details>
@@ -1208,10 +1276,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
               <div className="flex items-center justify-between py-2">
                 <label
-                  className="block text-sm font-medium text-gray-900 dark:text-gray-200"
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200 flex items-center gap-2"
                   htmlFor="useCustomButton"
                 >
                   Custom Button
+                  <Tooltip message="Shows in the code snippet an example of how to use a custom button">
+                    <InfoIcon
+                      size="sm"
+                      className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                    />
+                  </Tooltip>
                 </label>
                 <div className="flex items-center space-x-2">
                   <button
@@ -1233,6 +1307,28 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     Enable
                   </button>
                 </div>
+              </div>
+
+              <div>
+                <label
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2 flex items-center gap-2"
+                  htmlFor="buttonText"
+                >
+                  Button Text
+                  <Tooltip message="Custom text for the widget button (leave empty for default)">
+                    <InfoIcon
+                      size="sm"
+                      className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                    />
+                  </Tooltip>
+                </label>
+                <input
+                  type="text"
+                  value={buttonText}
+                  onChange={(e) => setButtonText(e.target.value)}
+                  placeholder="Custom button text (optional)"
+                  className="w-full px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                />
               </div>
             </div>
           </details>

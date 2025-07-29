@@ -904,7 +904,9 @@ async function sendHandlerForDifferentChainDifferentToken({
       const destinationMetaTxnPromise = async () => {
         if (
           intent.quote.quoteProvider === "relay" &&
-          intent.quote.quoteProviderRequestId
+          intent.quote.quoteProviderRequestId &&
+          !intent.preconditions[1] &&
+          !intent.metaTxns[1]
         ) {
           console.log("[trails-sdk] waitForRelayDestinationTx")
           try {

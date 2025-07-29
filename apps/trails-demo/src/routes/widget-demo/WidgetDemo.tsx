@@ -29,6 +29,7 @@ export const WidgetDemo = () => {
   >([])
   const [gasless, setGasless] = useState<boolean | null>(null)
   const [customTokenAddress, setCustomTokenAddress] = useState("")
+  const [buttonText, setButtonText] = useState("")
   const [mode, setMode] = useState<Mode | null>(null)
 
   useEffect(() => {
@@ -107,6 +108,8 @@ export const WidgetDemo = () => {
               setGasless={setGasless}
               customTokenAddress={customTokenAddress}
               setCustomTokenAddress={setCustomTokenAddress}
+              buttonText={buttonText}
+              setButtonText={setButtonText}
             />
           </div>
 
@@ -126,6 +129,7 @@ export const WidgetDemo = () => {
               walletOptions={walletOptions}
               paymasterUrls={paymasterUrls}
               gasless={gasless}
+              buttonText={buttonText}
               apiUrl={apiUrl}
               indexerUrl={indexerUrl}
               env={env}
