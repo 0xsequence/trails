@@ -1,8 +1,9 @@
 import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
 import type React from "react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, useMemo } from "react"
 import type { Account, WalletClient } from "viem"
-import { isAddress } from "viem"
+import { isAddress, formatUnits } from "viem"
+import { formatValue } from "../../tokenBalances.js"
 import type { TransactionState } from "../../transactions.js"
 import type { RelayerEnv } from "../../relayer.js"
 import type { ActiveTheme } from "../../theme.js"
@@ -110,6 +111,7 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
     fees,
     slippageTolerance,
     priceImpact,
+    originSendAmount,
   } = useSendForm({
     account,
     sequenceProjectAccessKey,
@@ -136,8 +138,29 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
     tradeType: TradeType.EXACT_OUTPUT,
   })
 
+  // Format the origin send amount (includes fees) for display
+  const originSendAmountFormatted = useMemo(() => {
+    if (!originSendAmount || !selectedToken.contractInfo?.decimals) {
+      return amount
+    }
+    try {
+      const formatted = Number(
+        formatUnits(
+          BigInt(originSendAmount),
+          selectedToken.contractInfo.decimals,
+        ),
+      )
+      return formatValue(formatted)
+    } catch (error) {
+      console.warn("[trails-sdk] Error formatting origin send amount:", error)
+      return amount
+    }
+  }, [originSendAmount, selectedToken.contractInfo?.decimals, amount])
+
   console.log("[trails-sdk] SendForm", {
     amount,
+    originSendAmount,
+    originSendAmountFormatted,
     isValidRecipient,
     isSubmitting,
     destinationTokenAddress,
@@ -683,7 +706,7 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
             {showMoreDetails && (
               <QuoteDetails
                 theme={theme}
-                amount={amount}
+                amount={originSendAmountFormatted}
                 amountUsd={amountUsdFormatted}
                 recipient={recipient}
                 tokenSymbol={selectedToken.symbol}

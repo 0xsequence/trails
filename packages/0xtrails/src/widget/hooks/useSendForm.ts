@@ -187,6 +187,7 @@ export type UseSendReturn = {
   fees?: PrepareSendFees
   slippageTolerance?: string
   priceImpact?: string
+  originSendAmount?: string
 }
 
 export function useSendForm({
@@ -943,5 +944,6 @@ export function useSendForm({
     fees: prepareSendResult?.fees,
     slippageTolerance: prepareSendResult?.slippageTolerance,
     priceImpact: prepareSendResult?.priceImpact,
+    originSendAmount: prepareSendResult?.originSendAmount,
   }
 }

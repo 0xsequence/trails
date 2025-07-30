@@ -172,10 +172,12 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   // Scenario keys
   const SCENARIO_KEYS = {
     PAY_USDC_BASE: "pay_usdc_base",
-    MINT_NFT_ARBITRUM: "mint_nft_arbitrum",
+    MINT_NFT_BASE_USDC: "mint_nft_base_usdc",
+    MINT_NFT_ARBITRUM_ETH: "mint_nft_arbitrum_eth",
+    MINT_NFT_ARBITRUM_USDC: "mint_nft_arbitrum_usdc",
     MINT_NFT_ARBITRUM_CCTP_TESTNET: "mint_nft_arbitrum_cctp_testnet",
-    MINT_NFT_POLYGON: "mint_nft_polygon",
-    DEPOSIT_AAVE_BASE: "deposit_aave_base",
+    MINT_NFT_POLYGON_BAT: "mint_nft_polygon_bat",
+    DEPOSIT_AAVE_BASE_ETH: "deposit_aave_base_eth",
     DEPOSIT_GAUNLET_VAULT_BASE: "deposit_gaunlet_vault_base",
   } as const
 
@@ -186,15 +188,23 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       label: "Pay USDC on Base to a recipient",
     },
     {
-      key: SCENARIO_KEYS.MINT_NFT_ARBITRUM,
+      key: SCENARIO_KEYS.MINT_NFT_BASE_USDC,
+      label: "Mint an NFT on Base with USDC",
+    },
+    {
+      key: SCENARIO_KEYS.MINT_NFT_ARBITRUM_ETH,
       label: "Mint an NFT on Arbitrum with ETH",
     },
     {
-      key: SCENARIO_KEYS.MINT_NFT_POLYGON,
+      key: SCENARIO_KEYS.MINT_NFT_ARBITRUM_USDC,
+      label: "Mint an NFT on Arbitrum with USDC",
+    },
+    {
+      key: SCENARIO_KEYS.MINT_NFT_POLYGON_BAT,
       label: "Mint an NFT on Polygon with BAT",
     },
     {
-      key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE,
+      key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH,
       label: "Deposit ETH to Aave lending pool on Base",
     },
     {
@@ -242,10 +252,26 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           }
           break
         }
-        case SCENARIO_KEYS.MINT_NFT_ARBITRUM: {
-          setToAddress("0xAA3df3c86EdB6aA4D03b75092b4dd0b99515EC83")
-          setToAmount("0.00002")
+        case SCENARIO_KEYS.MINT_NFT_BASE_USDC: {
+          setToAddress("0xF69F076c7225651b30d17B1a9C454319A4CfE77c")
+          setToAmount("0.01")
+          setToToken("USDC")
+          setToChainId(8453)
+          setToCalldata(encodeNftMintCalldata(toRecipient || zeroAddress))
+          break
+        }
+        case SCENARIO_KEYS.MINT_NFT_ARBITRUM_ETH: {
+          setToAddress("0x384A39B36B278e6F53404eecc784855e9C1f75f8")
+          setToAmount("0.00001")
           setToToken("ETH")
+          setToChainId(42161)
+          setToCalldata(encodeNftMintCalldata(toRecipient || zeroAddress))
+          break
+        }
+        case SCENARIO_KEYS.MINT_NFT_ARBITRUM_USDC: {
+          setToAddress("0xF69F076c7225651b30d17B1a9C454319A4CfE77c")
+          setToAmount("0.01")
+          setToToken("USDC")
           setToChainId(42161)
           setToCalldata(encodeNftMintCalldata(toRecipient || zeroAddress))
           break
@@ -258,15 +284,15 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToCalldata(encodeNftMintCalldata(toRecipient || zeroAddress))
           break
         }
-        case SCENARIO_KEYS.MINT_NFT_POLYGON: {
-          setToAddress("0x15e68e3Cdf84ea8bB2CeF2c3b49976903543F708")
-          setToAmount("1")
+        case SCENARIO_KEYS.MINT_NFT_POLYGON_BAT: {
+          setToAddress("0x92Dc1cCE6767F82494BCBC54235A08B4FD457c26")
+          setToAmount("0.1")
           setToToken("BAT")
           setToChainId(137)
           setToCalldata(encodeNftMintCalldata(toRecipient || zeroAddress))
           break
         }
-        case SCENARIO_KEYS.DEPOSIT_AAVE_BASE: {
+        case SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH: {
           setToAddress("0xa0d9C1E9E48Ca30c8d8C3B5D69FF5dc1f6DFfC24")
           setToAmount("0.00004")
           setToToken("ETH")
@@ -311,17 +337,27 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     if (!effectiveRecipient) return
 
     switch (selectedScenario) {
-      case SCENARIO_KEYS.MINT_NFT_ARBITRUM: {
+      case SCENARIO_KEYS.MINT_NFT_BASE_USDC: {
+        const baseCalldata = encodeNftMintCalldata(effectiveRecipient)
+        setToCalldata(baseCalldata)
+        break
+      }
+      case SCENARIO_KEYS.MINT_NFT_ARBITRUM_ETH: {
         const arbitrumCalldata = encodeNftMintCalldata(effectiveRecipient)
         setToCalldata(arbitrumCalldata)
         break
       }
-      case SCENARIO_KEYS.MINT_NFT_POLYGON: {
+      case SCENARIO_KEYS.MINT_NFT_ARBITRUM_USDC: {
+        const arbitrumCalldata = encodeNftMintCalldata(effectiveRecipient)
+        setToCalldata(arbitrumCalldata)
+        break
+      }
+      case SCENARIO_KEYS.MINT_NFT_POLYGON_BAT: {
         const polygonCalldata = encodeNftMintCalldata(effectiveRecipient)
         setToCalldata(polygonCalldata)
         break
       }
-      case SCENARIO_KEYS.DEPOSIT_AAVE_BASE: {
+      case SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH: {
         const aaveCalldata = encodeAaveEthDepositCalldata(effectiveRecipient)
         setToCalldata(aaveCalldata)
         break

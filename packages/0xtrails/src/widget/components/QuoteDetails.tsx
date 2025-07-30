@@ -59,7 +59,7 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
               <span
                 className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
               >
-                Transfer Amount (incl. fees):
+                Transfer Amount:
               </span>
               <div className="text-right">
                 <div
