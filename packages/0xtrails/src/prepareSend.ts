@@ -120,7 +120,7 @@ export type SendOptions = {
   account: Account
   originTokenAddress: string
   originChainId: number
-  originTokenAmount: string
+  originTokenBalance: string
   destinationChainId: number
   recipient: string
   destinationTokenAddress: string
@@ -268,10 +268,7 @@ function getIntentArgs(
     userAddress: mainSignerAddress,
     originChainId,
     originTokenAddress,
-    originTokenAmount:
-      originTokenAddress === destinationTokenAddress
-        ? destinationTokenAmount
-        : originTokenAmount, // max amount
+    originTokenAmount: originTokenAmount, // max amount for exact_output
     destinationChainId,
     destinationToAddress: _destinationToAddress,
     destinationTokenAddress: destinationTokenAddress,
@@ -294,7 +291,7 @@ export async function prepareSend(
     account,
     originTokenAddress,
     originChainId,
-    originTokenAmount, // account balance
+    originTokenBalance, // account balance
     destinationChainId,
     recipient,
     destinationTokenAddress,
@@ -320,8 +317,6 @@ export async function prepareSend(
     slippageTolerance = "0.03", // 0.03 = 3%
   } = options
 
-  const destinationTokenAmount = swapAmount
-
   // Track payment start
   trackPaymentStarted({
     userAddress: account.address,
@@ -329,10 +324,10 @@ export async function prepareSend(
     destinationChainId,
     originTokenAddress,
     destinationTokenAddress,
-    destinationTokenAmount,
+    destinationTokenAmount: swapAmount,
   })
 
-  if (originTokenAmount === "0") {
+  if (originTokenBalance === "0") {
     throw new Error("Origin token amount must be greater than 0")
   }
 
@@ -427,7 +422,7 @@ export async function prepareSend(
   if (isToSameToken && isToSameChain) {
     return await sendHandlerForSameChainSameToken({
       originTokenAddress,
-      destinationTokenAmount,
+      destinationTokenAmount: swapAmount,
       destinationCalldata,
       recipient,
       originChainId,
@@ -447,10 +442,10 @@ export async function prepareSend(
     mainSignerAddress,
     originChainId,
     originTokenAddress,
-    originTokenAmount,
+    originTokenBalance,
     destinationChainId,
     destinationTokenAddress,
-    destinationTokenAmount,
+    swapAmount,
     destinationTokenSymbol,
     recipient,
     destinationCalldata,
@@ -482,10 +477,10 @@ async function sendHandlerForDifferentChainDifferentToken({
   mainSignerAddress,
   originChainId,
   originTokenAddress,
-  originTokenAmount,
+  originTokenBalance,
   destinationChainId,
   destinationTokenAddress,
-  destinationTokenAmount,
+  swapAmount,
   destinationTokenSymbol,
   recipient,
   destinationCalldata,
@@ -514,10 +509,10 @@ async function sendHandlerForDifferentChainDifferentToken({
   mainSignerAddress: string
   originChainId: number
   originTokenAddress: string
-  originTokenAmount: string
+  originTokenBalance: string
   destinationChainId: number
   destinationTokenAddress: string
-  destinationTokenAmount: string
+  swapAmount: string
   destinationTokenSymbol: string
   recipient: string
   destinationCalldata?: string
@@ -556,15 +551,13 @@ async function sendHandlerForDifferentChainDifferentToken({
 
   if (useCctp && cctpFlag) {
     console.log("[trails-sdk] using cctp")
-    const amount = destinationTokenAmount
-
     return {
       quote: await getNormalizedQuoteObject({
         destinationAddress: recipient,
         destinationCalldata,
-        originAmount: amount,
+        originAmount: swapAmount,
         originTokenPriceUsd: sourceTokenPriceUsd?.toString() || null,
-        destinationAmount: amount,
+        destinationAmount: swapAmount,
         destinationTokenPriceUsd: destinationTokenPriceUsd?.toString() || null,
         originTokenAddress: originTokenAddress,
         destinationTokenAddress: destinationTokenAddress,
@@ -606,7 +599,7 @@ async function sendHandlerForDifferentChainDifferentToken({
             walletClient,
             originChain,
             destinationChain,
-            amount: BigInt(destinationTokenAmount),
+            amount: BigInt(swapAmount),
           })
 
           txHash = result.txHash
@@ -616,7 +609,7 @@ async function sendHandlerForDifferentChainDifferentToken({
             walletClient,
             originChain,
             destinationChain,
-            amount: BigInt(destinationTokenAmount),
+            amount: BigInt(swapAmount),
           })
 
           txHash = result.txHash
@@ -742,12 +735,10 @@ async function sendHandlerForDifferentChainDifferentToken({
     mainSignerAddress,
     originChainId,
     originTokenAddress,
-    tradeType === TradeType.EXACT_INPUT
-      ? destinationTokenAmount
-      : originTokenAmount, // originTokenAmount
+    tradeType === TradeType.EXACT_OUTPUT ? originTokenBalance : swapAmount, // originTokenAmount
     destinationChainId,
     destinationTokenAddress,
-    tradeType === TradeType.EXACT_INPUT ? "0" : destinationTokenAmount, // destinationTokenAmount
+    tradeType === TradeType.EXACT_OUTPUT ? swapAmount : "0", // destinationTokenAmount
     destinationTokenSymbol,
     recipient,
     destinationCalldata,
@@ -868,7 +859,7 @@ async function sendHandlerForDifferentChainDifferentToken({
       if (usingLIfi) {
         needsNativeFee = getNeedsLifiNativeFee({
           originTokenAddress,
-          destinationTokenAmount,
+          destinationTokenAmount: swapAmount,
           destinationTokenDecimals,
           sourceTokenDecimals,
           sourceTokenPriceUsd: sourceTokenPriceUsd ?? null,
@@ -922,7 +913,7 @@ async function sendHandlerForDifferentChainDifferentToken({
           dryMode,
           sourceTokenPriceUsd: sourceTokenPriceUsd ?? null,
           destinationTokenPriceUsd: destinationTokenPriceUsd ?? null,
-          destinationTokenAmount,
+          swapAmount,
           onTransactionStateChange,
           transactionStates,
         })
@@ -1632,7 +1623,7 @@ export async function attemptNonGaslessUserDeposit({
   dryMode,
   sourceTokenPriceUsd,
   destinationTokenPriceUsd,
-  destinationTokenAmount,
+  swapAmount,
   destinationTokenDecimals,
   sourceTokenDecimals,
   intentAddress,
@@ -1651,7 +1642,7 @@ export async function attemptNonGaslessUserDeposit({
   dryMode: boolean
   sourceTokenPriceUsd?: number | null
   destinationTokenPriceUsd?: number | null
-  destinationTokenAmount: string
+  swapAmount: string
   destinationTokenDecimals: number
   sourceTokenDecimals: number
   intentAddress: string
@@ -1665,7 +1656,7 @@ export async function attemptNonGaslessUserDeposit({
   if (usingLIfi) {
     needsNativeFee = await getNeedsLifiNativeFee({
       originTokenAddress,
-      destinationTokenAmount,
+      destinationTokenAmount: swapAmount,
       destinationTokenDecimals,
       sourceTokenDecimals,
       sourceTokenPriceUsd: sourceTokenPriceUsd ?? null,
@@ -1892,7 +1883,7 @@ async function attemptUserDepositTx({
   dryMode,
   sourceTokenPriceUsd,
   destinationTokenPriceUsd,
-  destinationTokenAmount,
+  swapAmount,
   onTransactionStateChange,
   transactionStates,
 }: {
@@ -1911,7 +1902,7 @@ async function attemptUserDepositTx({
   walletClient: WalletClient
   destinationTokenDecimals: number
   sourceTokenDecimals: number
-  destinationTokenAmount: string
+  swapAmount: string
   dryMode: boolean
   sourceTokenPriceUsd: number | null
   destinationTokenPriceUsd: number | null
@@ -1959,7 +1950,7 @@ async function attemptUserDepositTx({
       dryMode,
       sourceTokenPriceUsd,
       destinationTokenPriceUsd,
-      destinationTokenAmount,
+      swapAmount,
       destinationTokenDecimals,
       sourceTokenDecimals,
       onTransactionStateChange,
@@ -2334,14 +2325,14 @@ export function useQuote({
         return null
       }
 
-      const originTokenAmount = originTokenBalance?.balance ?? "0"
+      const originTokenBalanceAmount = originTokenBalance?.balance ?? "0"
       const sequenceProjectAccessKey = ""
       const destinationRelayer = getRelayer(toChainId)
       const originRelayer = getRelayer(fromChainId)
       const sourceTokenPriceUsd = originTokenBalance?.price?.value ?? 0
       const destinationTokenPriceUsd = destinationTokenPrice?.price?.value ?? 0
 
-      if (originTokenAmount === "0") {
+      if (originTokenBalanceAmount === "0") {
         return null
       }
 
@@ -2364,7 +2355,7 @@ export function useQuote({
         account: walletClient.account!,
         originTokenAddress: fromTokenAddress,
         originChainId: fromChainId,
-        originTokenAmount: originTokenAmount,
+        originTokenBalance: originTokenBalanceAmount,
         destinationChainId: toChainId,
         recipient: toRecipient,
         destinationTokenAddress: toTokenAddress,

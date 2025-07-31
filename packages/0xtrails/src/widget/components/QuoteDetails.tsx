@@ -300,24 +300,23 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
             </div>
           )}
 
-          {quote?.fees?.totalFeeAmountUsd &&
-            Number(quote?.fees.totalFeeAmountUsd) > 0 && (
-              <div className="flex justify-between items-center">
-                <span
-                  className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"} flex items-center gap-1`}
-                >
-                  Total Fees:
-                  <Tooltip message="The total fees charged for this transaction, including gas fees, bridge fees, and any platform fees. These fees are deducted from your transaction.">
-                    <InfoIcon className="w-3 h-3 text-gray-500 dark:text-gray-400 cursor-pointer" />
-                  </Tooltip>
-                </span>
-                <span
-                  className={`font-medium text-xs ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-                >
-                  {quote.fees.totalFeeAmountUsdDisplay}
-                </span>
-              </div>
-            )}
+          {quote?.fees?.totalFeeAmountUsd != null && (
+            <div className="flex justify-between items-center">
+              <span
+                className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"} flex items-center gap-1`}
+              >
+                Total Fees:
+                <Tooltip message="The total fees charged for this transaction, including gas fees, bridge fees, and any platform fees. These fees are deducted from your transaction.">
+                  <InfoIcon className="w-3 h-3 text-gray-500 dark:text-gray-400 cursor-pointer" />
+                </Tooltip>
+              </span>
+              <span
+                className={`font-medium text-xs ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+              >
+                {quote.fees.totalFeeAmountUsdDisplay}
+              </span>
+            </div>
+          )}
 
           {quote?.destinationCalldata && (
             <div className="space-y-2">

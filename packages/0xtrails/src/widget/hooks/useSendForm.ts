@@ -538,7 +538,7 @@ export function useSendForm({
         account,
         originTokenAddress: selectedToken.contractAddress,
         originChainId: selectedToken.chainId,
-        originTokenAmount: selectedToken.balance,
+        originTokenBalance: selectedToken.balance,
         destinationChainId: selectedDestinationChain.id,
         recipient,
         destinationTokenAddress,
