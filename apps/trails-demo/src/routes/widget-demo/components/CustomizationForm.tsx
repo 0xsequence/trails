@@ -182,42 +182,59 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   } as const
 
   // Scenario options based on example subtitles
-  const scenarioOptions = [
-    {
-      key: SCENARIO_KEYS.PAY_USDC_BASE,
-      label: "Pay USDC on Base to a recipient",
-    },
-    {
-      key: SCENARIO_KEYS.MINT_NFT_BASE_USDC,
-      label: "Mint an NFT on Base with USDC",
-    },
-    {
-      key: SCENARIO_KEYS.MINT_NFT_ARBITRUM_ETH,
-      label: "Mint an NFT on Arbitrum with ETH",
-    },
-    {
-      key: SCENARIO_KEYS.MINT_NFT_ARBITRUM_USDC,
-      label: "Mint an NFT on Arbitrum with USDC",
-    },
-    {
-      key: SCENARIO_KEYS.MINT_NFT_POLYGON_BAT,
-      label: "Mint an NFT on Polygon with BAT",
-    },
-    {
-      key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH,
-      label: "Deposit ETH to Aave lending pool on Base",
-    },
-    {
-      key: SCENARIO_KEYS.MINT_NFT_ARBITRUM_CCTP_TESTNET,
-      label: "Mint an NFT on Arbitrum Sepolia with USDC using CCTP",
-      disabled: true,
-    },
-    {
-      key: SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE,
-      label: "Deposit USDC to Gaunlet vault on Base",
-      disabled: true,
-    },
-  ]
+  const scenarioOptions = useMemo(() => {
+    const payScenarios = [
+      {
+        key: SCENARIO_KEYS.PAY_USDC_BASE,
+        label: "Pay USDC on Base to a recipient",
+      },
+      {
+        key: SCENARIO_KEYS.MINT_NFT_BASE_USDC,
+        label: "Mint an NFT on Base with USDC",
+      },
+      {
+        key: SCENARIO_KEYS.MINT_NFT_ARBITRUM_ETH,
+        label: "Mint an NFT on Arbitrum with ETH",
+      },
+      {
+        key: SCENARIO_KEYS.MINT_NFT_ARBITRUM_USDC,
+        label: "Mint an NFT on Arbitrum with USDC",
+      },
+      {
+        key: SCENARIO_KEYS.MINT_NFT_POLYGON_BAT,
+        label: "Mint an NFT on Polygon with BAT",
+      },
+      {
+        key: SCENARIO_KEYS.MINT_NFT_ARBITRUM_CCTP_TESTNET,
+        label: "Mint an NFT on Arbitrum Sepolia with USDC using CCTP",
+        disabled: true,
+      },
+    ]
+
+    const fundScenarios = [
+      {
+        key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH,
+        label: "Deposit ETH to Aave lending pool on Base",
+      },
+      {
+        key: SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE,
+        label: "Deposit USDC to Gaunlet vault on Base",
+        disabled: true,
+      },
+    ]
+
+    return mode === "fund" ? fundScenarios : payScenarios
+  }, [
+    mode,
+    SCENARIO_KEYS.PAY_USDC_BASE,
+    SCENARIO_KEYS.MINT_NFT_BASE_USDC,
+    SCENARIO_KEYS.MINT_NFT_ARBITRUM_ETH,
+    SCENARIO_KEYS.MINT_NFT_ARBITRUM_USDC,
+    SCENARIO_KEYS.MINT_NFT_POLYGON_BAT,
+    SCENARIO_KEYS.MINT_NFT_ARBITRUM_CCTP_TESTNET,
+    SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH,
+    SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE,
+  ])
 
   // Scenario recipient
   const [toRecipient, setToRecipient] = useState("")

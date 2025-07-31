@@ -112,7 +112,6 @@ export type TrailsWidgetProps = {
   onDestinationConfirmation?: (txHash: string, chainId: number) => void
   privyAppId?: string
   privyClientId?: string
-  useSourceTokenForButtonText?: boolean
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
   buttonText?: string
@@ -284,7 +283,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       walletOptions,
       onOriginConfirmation,
       onDestinationConfirmation,
-      useSourceTokenForButtonText,
       paymasterUrls,
       gasless,
       buttonText,
@@ -1121,7 +1119,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               walletClient={walletClient}
               theme={theme}
               onTransactionStateChange={handleTransactionStateChange}
-              useSourceTokenForButtonText={useSourceTokenForButtonText}
               onError={handleSendError}
               paymasterUrls={paymasterUrls}
               gasless={gasless}

@@ -7,6 +7,7 @@ import { GreenCheckAnimation } from "./GreenCheckAnimation.js"
 import { getTxTimeDiff } from "../../transactions.js"
 import { QuoteDetails } from "./QuoteDetails.js"
 import type { PrepareSendQuote } from "../../prepareSend.js"
+import { truncateAddress } from "../../address.js"
 
 interface ReceiptProps {
   onSendAnother: () => void
@@ -363,10 +364,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
                               : "text-blue-600 hover:text-blue-700"
                           }`}
                         >
-                          <span>
-                            {state.transactionHash.slice(0, 6)}...
-                            {state.transactionHash.slice(-4)}
-                          </span>
+                          <span>{truncateAddress(state.transactionHash)}</span>
                           <svg
                             className="w-3 h-3"
                             fill="none"

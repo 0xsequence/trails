@@ -37,9 +37,13 @@ export const TokenImage: React.FC<TokenImageProps> = ({
     <div
       className={`rounded-full flex items-center justify-center text-sm relative bg-gray-900`}
       style={{ width: size, height: size }}
+      title={`${symbol}${chainId ? `on chain ${chainId}` : ""}`}
     >
       {shouldShowText ? (
-        <div className="absolute w-full h-full rounded-full flex items-center justify-center">
+        <div
+          className="absolute w-full h-full rounded-full flex items-center justify-center"
+          title={`Token: ${symbol}`}
+        >
           <span className="text-white font-medium text-xs">
             {displaySymbol}
           </span>
@@ -50,6 +54,7 @@ export const TokenImage: React.FC<TokenImageProps> = ({
           alt={symbol || "Token"}
           className="absolute w-full h-full rounded-full object-contain"
           onError={handleImageError}
+          title={`Token: ${symbol}`}
         />
       )}
       {chainId && (

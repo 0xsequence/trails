@@ -14,6 +14,7 @@ export const ChainImage: React.FC<TokenImageProps> = ({
     <div
       className={`rounded-full flex items-center justify-center text-sm relative bg-black-100 bg-opacity-90`}
       style={{ width: size, height: size }}
+      title={`Chain ID: ${chainId}`}
     >
       <NetworkImage
         chainId={chainId ?? 0}

@@ -150,7 +150,7 @@ export type PrepareSendFees = {
   feeTokenAddress: string | null
   totalFeeAmount: string | null
   totalFeeAmountUsd: string | null
-  totalFeeAmountUsdFormatted: string | null
+  totalFeeAmountUsdDisplay: string | null
 }
 
 export type PrepareSendQuote = {
@@ -161,8 +161,12 @@ export type PrepareSendQuote = {
   destinationChain: Chain
   originAmount: string
   originAmountMin: string
+  originAmountMinUsdFormatted: string
+  originAmountMinUsdDisplay: string
   destinationAmount: string
   destinationAmountMin: string
+  destinationAmountMinUsdFormatted: string
+  destinationAmountMinUsdDisplay: string
   originAmountFormatted: string
   originAmountUsdFormatted: string
   originAmountUsdDisplay: string
@@ -783,41 +787,52 @@ async function sendHandlerForDifferentChainDifferentToken({
   const firstPreconditionMin = firstPrecondition?.data?.min?.toString()
   const depositAmount = firstPreconditionMin
 
-  const quoteFromAmount = intent.quote.fromAmount
-  const quoteFromAmountMin = intent.quote.fromAmountMin
   const quoteToAmount = intent.quote.toAmount
   const quoteToAmountMin = intent.quote.toAmountMin
 
-  const originSendAmountFormatted = Number(
-    formatUnits(BigInt(depositAmount), sourceTokenDecimals),
+  const originSendAmountFormatted = formatRawAmount(
+    depositAmount,
+    sourceTokenDecimals,
   )
 
-  const depositAmountUsd =
-    originSendAmountFormatted * (sourceTokenPriceUsd ?? 0)
+  const depositAmountUsd = calcAmountUsdPrice({
+    amount: originSendAmountFormatted,
+    usdPrice: sourceTokenPriceUsd,
+  })
 
-  const effectiveDestinationTokenAmount =
-    tradeType === TradeType.EXACT_INPUT
-      ? quoteFromAmountMin
-      : destinationTokenAmount
+  console.log("[trails-sdk] depositAmountUsd", depositAmountUsd, {
+    amount: originSendAmountFormatted,
+    usdPrice: sourceTokenPriceUsd,
+  })
 
-  const effectiveDestinationTokenAmountFormatted = Number(
-    formatUnits(
-      BigInt(effectiveDestinationTokenAmount),
-      destinationTokenDecimals,
-    ),
+  const effectiveDestinationTokenAmount = quoteToAmount
+  const effectiveDestinationTokenAmountFormatted = formatRawAmount(
+    effectiveDestinationTokenAmount,
+    destinationTokenDecimals,
   )
 
-  const effectiveDestinationTokenAmountUsd =
-    effectiveDestinationTokenAmountFormatted * (destinationTokenPriceUsd ?? 0)
+  const effectiveDestinationTokenAmountUsd = calcAmountUsdPrice({
+    amount: effectiveDestinationTokenAmountFormatted,
+    usdPrice: destinationTokenPriceUsd,
+  })
+
+  console.log(
+    "[trails-sdk] effectiveDestinationTokenAmountUsd",
+    effectiveDestinationTokenAmountUsd,
+    {
+      amount: effectiveDestinationTokenAmountFormatted,
+      usdPrice: destinationTokenPriceUsd,
+    },
+  )
 
   return {
     quote: await getNormalizedQuoteObject({
       originAddress: intentAddress,
       destinationAddress: recipient,
       destinationCalldata,
-      originAmount: quoteFromAmount,
+      originAmount: depositAmount,
       destinationAmount: quoteToAmount,
-      originAmountMin: quoteFromAmountMin,
+      originAmountMin: depositAmount,
       destinationAmountMin: quoteToAmountMin,
       originTokenAddress: originTokenAddress,
       destinationTokenAddress: destinationTokenAddress,
@@ -2176,8 +2191,14 @@ function getNeedsLifiNativeFee({
     )
     console.log("[trails-sdk] destinationAmount", destinationAmount)
     console.log("[trails-sdk] depositAmountFormatted", depositAmountFormatted)
-    const destinationAmountUsd = destinationAmount * destinationTokenPriceUsd
-    const depositAmountUsd = depositAmountFormatted * sourceTokenPriceUsd
+    const destinationAmountUsd = calcAmountUsdPrice({
+      amount: destinationAmount,
+      usdPrice: destinationTokenPriceUsd,
+    })
+    const depositAmountUsd = calcAmountUsdPrice({
+      amount: depositAmountFormatted,
+      usdPrice: sourceTokenPriceUsd,
+    })
     const diff = depositAmountUsd - destinationAmountUsd
     console.log(
       "[trails-sdk] destinationAmountUsd",
@@ -2455,26 +2476,23 @@ export function getFeesFromIntent(
     toAmountUsd,
   }: { tradeType: TradeType; fromAmountUsd: number; toAmountUsd: number },
 ): PrepareSendFees {
-  let totalFeeAmountUsd = intent.trailsFee?.totalFeeUSD ?? "0"
+  const totalFeeAmountUsd = Math.max(fromAmountUsd - toAmountUsd, 0)
 
-  if (
-    fromAmountUsd &&
-    toAmountUsd &&
-    totalFeeAmountUsd &&
-    tradeType === TradeType.EXACT_OUTPUT
-  ) {
-    const diff = fromAmountUsd - toAmountUsd
-    if (diff > 0) {
-      totalFeeAmountUsd = diff.toString()
-    }
-  }
+  const totalFeeAmountUsdDisplay = formatUsdAmountDisplay(totalFeeAmountUsd)
 
-  const totalFeeAmountUsdFormatted = formatUsdAmountDisplay(totalFeeAmountUsd)
+  console.log("[trails-sdk] getFeesFromIntent", {
+    tradeType,
+    fromAmountUsd,
+    toAmountUsd,
+    totalFeeAmountUsd,
+    totalFeeAmountUsdDisplay,
+  })
+
   return {
     feeTokenAddress: intent.trailsFee?.feeToken ?? zeroAddress,
     totalFeeAmount: intent.trailsFee?.totalFeeAmount ?? "0",
-    totalFeeAmountUsd,
-    totalFeeAmountUsdFormatted,
+    totalFeeAmountUsd: totalFeeAmountUsd.toString(),
+    totalFeeAmountUsdDisplay,
   }
 }
 
@@ -2491,13 +2509,13 @@ export function getPriceImpactFromIntent(
 }
 
 export function getFeesFromRelaySdkQuote(quote: RelayQuote): PrepareSendFees {
-  const totalFeeAmountUsd = quote?.fees?.relayer?.amount ?? "0"
-  const totalFeeAmountUsdFormatted = formatUsdAmountDisplay(totalFeeAmountUsd)
+  const totalFeeAmountUsd = quote?.fees?.relayer?.amount ?? 0
+  const totalFeeAmountUsdDisplay = formatUsdAmountDisplay(totalFeeAmountUsd)
   return {
     feeTokenAddress: quote?.fees?.relayer?.currency?.address ?? zeroAddress,
     totalFeeAmount: quote?.fees?.relayer?.amount ?? "0",
-    totalFeeAmountUsd,
-    totalFeeAmountUsdFormatted,
+    totalFeeAmountUsd: totalFeeAmountUsd.toString(),
+    totalFeeAmountUsdDisplay,
   }
 }
 
@@ -2518,7 +2536,7 @@ export function getZeroFees(): PrepareSendFees {
     feeTokenAddress: zeroAddress,
     totalFeeAmount: "0",
     totalFeeAmountUsd: "0",
-    totalFeeAmountUsdFormatted: "$0.00",
+    totalFeeAmountUsdDisplay: formatUsdAmountDisplay(0),
   }
 }
 
@@ -2623,6 +2641,34 @@ export async function getNormalizedQuoteObject({
     throw new Error("Token or chain not found")
   }
 
+  const originAmountMinFormatted = formatRawAmount(
+    originAmountMin || "0",
+    originToken.decimals,
+  )
+  const originAmountMinUsdFormatted = formatAmount(
+    calcAmountUsdPrice({
+      amount: originAmountMinFormatted,
+      usdPrice: originTokenPriceUsd,
+    }),
+  )
+  const originAmountMinUsdDisplay = formatUsdAmountDisplay(
+    originAmountMinUsdFormatted,
+  )
+
+  const destinationAmountMinFormatted = formatRawAmount(
+    destinationAmountMin || "0",
+    destinationToken.decimals,
+  )
+  const destinationAmountMinUsdFormatted = formatAmount(
+    calcAmountUsdPrice({
+      amount: destinationAmountMinFormatted,
+      usdPrice: destinationTokenPriceUsd,
+    }),
+  )
+  const destinationAmountMinUsdDisplay = formatUsdAmountDisplay(
+    destinationAmountMinUsdFormatted,
+  )
+
   const originAmountFormatted = formatRawAmount(
     originAmount,
     originToken.decimals,
@@ -2659,8 +2705,12 @@ export async function getNormalizedQuoteObject({
     destinationCalldata: hasCustomCalldata ? destinationCalldata || "" : "",
     originAmount: originAmount || "0",
     originAmountMin: originAmountMin || originAmount || "0",
+    originAmountMinUsdFormatted: originAmountMinUsdFormatted || "0",
+    originAmountMinUsdDisplay: originAmountMinUsdDisplay || "0",
     destinationAmount: destinationAmount || "0",
     destinationAmountMin: destinationAmountMin || destinationAmount || "0",
+    destinationAmountMinUsdFormatted: destinationAmountMinUsdFormatted || "0",
+    destinationAmountMinUsdDisplay: destinationAmountMinUsdDisplay || "0",
     originAmountFormatted,
     originAmountUsdFormatted,
     originAmountUsdDisplay,

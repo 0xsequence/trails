@@ -12,6 +12,7 @@ import { ChainImage } from "./ChainImage.js"
 import { FeeOptions } from "./FeeOptions.js"
 import { TokenImage } from "./TokenImage.js"
 import { QuoteDetails } from "./QuoteDetails.js"
+import { TruncatedAddress } from "./TruncatedAddress.js"
 import { type PrepareSendQuote, TradeType } from "../../prepareSend.js"
 
 interface PaymentSendFormProps {
@@ -32,7 +33,6 @@ interface PaymentSendFormProps {
   walletClient: WalletClient
   theme?: ActiveTheme
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
-  useSourceTokenForButtonText?: boolean
   onError: (error: Error | string | null) => void
   onWaitingForWalletConfirm: (props: PrepareSendQuote) => void
   paymasterUrls?: Array<{ chainId: number; url: string }>
@@ -58,7 +58,6 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
   walletClient,
   theme = "light",
   onTransactionStateChange,
-  useSourceTokenForButtonText = false,
   onError,
   onWaitingForWalletConfirm,
   paymasterUrls,
@@ -115,7 +114,6 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
     walletClient,
     theme,
     onTransactionStateChange,
-    useSourceTokenForButtonText,
     onError,
     onWaitingForWalletConfirm,
     paymasterUrls,
@@ -259,23 +257,14 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
 
       <form onSubmit={handleSubmit} className="space-y-2">
         {/* Chain Selection - More Compact */}
-        <div className={!toChainId ? "mb-4" : undefined}>
-          <label
-            htmlFor="destination-chain"
-            className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
-          >
-            Destination Chain
-          </label>
-          {toChainId ? (
-            <div className="flex items-center px-2 py-1">
-              <ChainImage chainId={selectedDestinationChain.id} size={24} />
-              <span
-                className={`ml-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-              >
-                {selectedDestinationChain.name}
-              </span>
-            </div>
-          ) : (
+        {!toChainId && (
+          <div className="mb-4">
+            <label
+              htmlFor="destination-chain"
+              className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+            >
+              Destination Chain
+            </label>
             <div className="relative" ref={chainDropdownRef}>
               <button
                 type="button"
@@ -343,32 +332,18 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Token Selection - More Compact */}
-        <div className={!toToken ? "mb-4" : undefined}>
-          <label
-            htmlFor="token"
-            className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
-          >
-            Receive Token
-          </label>
-          {toToken ? (
-            <div className="flex items-center px-2 py-1">
-              <TokenImage
-                symbol={selectedDestToken?.symbol}
-                imageUrl={selectedDestToken?.imageUrl}
-                size={24}
-              />
-              <span
-                className={`ml-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-              >
-                {selectedDestToken?.name ?? "Unknown Token"} (
-                {selectedDestToken?.symbol ?? "Unknown Symbol"})
-              </span>
-            </div>
-          ) : (
+        {!toToken && (
+          <div className="mb-4">
+            <label
+              htmlFor="token"
+              className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+            >
+              Receive Token
+            </label>
             <div className="relative" ref={tokenDropdownRef}>
               <button
                 type="button"
@@ -446,140 +421,192 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Amount Input - More Compact */}
-        <div className={!toAmount ? "mb-2" : undefined}>
-          <label
-            htmlFor="amount"
-            className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
-          >
-            Amount to Receive
-          </label>
-          {toAmount ? (
-            <div className="flex items-center justify-between px-2 py-1">
-              <span
-                className={`${theme === "dark" ? "text-white" : "text-gray-900"}`}
-              >
-                {toAmountFormatted} {selectedDestToken?.symbol}
-              </span>
-              <span
-                className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
-              >
-                ≈ {amountUsdDisplay}
-              </span>
-            </div>
-          ) : (
-            <>
-              <div className="relative rounded-lg">
-                <input
-                  id="amount"
-                  type="text"
-                  value={amount}
-                  onChange={(e) => handleAmountChange(e.target.value)}
-                  placeholder="0.00"
-                  className={`block w-full pl-4 pr-12 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg ${
-                    theme === "dark"
-                      ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
-                      : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
-                  }`}
-                />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-4">
-                  <span
-                    className={
-                      theme === "dark" ? "text-gray-400" : "text-gray-500"
-                    }
-                  >
-                    {selectedDestToken?.symbol}
-                  </span>
-                </div>
-              </div>
-              <div className="h-6 mt-1">
-                {amount && selectedDestToken?.symbol && (
-                  <div
-                    className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
-                  >
-                    ≈ {amountUsdDisplay}
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Recipient Input - More Compact */}
-        <div className={!toRecipient ? "mb-4" : undefined}>
-          <div className="flex justify-between items-center mb-1">
-            <div>
-              <label
-                htmlFor="recipient"
-                className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
-              >
-                {toCalldata ? "Destination Address" : "Recipient Address"}
-              </label>
-              {recipient &&
-                isAddress(recipient) &&
-                recipient.toLowerCase() === account.address.toLowerCase() && (
-                  <div
-                    className={`text-xs mt-0.5 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
-                  >
-                    Same as sender
-                  </div>
-                )}
-            </div>
-            <div className="h-7 flex items-center">
-              {!toRecipient && recipient !== account.address ? (
-                <button
-                  type="button"
-                  onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                    event.preventDefault()
-                    setRecipientInput(account.address)
-                    setRecipient(account.address)
-                  }}
-                  className={`px-2 py-1 text-xs cursor-pointer rounded-[24px] transition-colors bg-blue-500 hover:bg-blue-600 text-white`}
-                >
-                  Use Account
-                </button>
-              ) : null}
-            </div>
-          </div>
-          {toRecipient ? (
-            <div className="px-2 py-1 font-mono text-sm">
-              <span
-                className={`break-all ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-              >
-                {recipient}
-              </span>
-            </div>
-          ) : (
-            <>
+        {!toAmount && (
+          <div className="mb-2">
+            <label
+              htmlFor="amount"
+              className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+            >
+              Amount to Receive
+            </label>
+            <div className="relative rounded-lg">
               <input
-                id="recipient"
+                id="amount"
                 type="text"
-                value={recipientInput}
-                onChange={handleRecipientInputChange}
-                placeholder="0x... or name.eth"
-                className={`block w-full px-4 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm ${
+                value={amount}
+                onChange={(e) => handleAmountChange(e.target.value)}
+                placeholder="0.00"
+                className={`block w-full pl-4 pr-12 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg ${
                   theme === "dark"
                     ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
                 }`}
               />
-              {ensAddress && (
-                <p
+              <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                <span
                   className={
-                    theme === "dark"
-                      ? "text-sm text-gray-400"
-                      : "text-sm text-gray-500"
+                    theme === "dark" ? "text-gray-400" : "text-gray-500"
                   }
                 >
-                  {recipient}
-                </p>
+                  {selectedDestToken?.symbol}
+                </span>
+              </div>
+            </div>
+            <div className="h-6 mt-1">
+              {amount && selectedDestToken?.symbol && (
+                <div
+                  className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  ≈ {amountUsdDisplay}
+                </div>
               )}
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
+
+        {/* Receive Section - Similar to FundSendForm */}
+        {(toAmount || toChainId || toToken) && (
+          <div className="space-y-1">
+            <div
+              className={`text-lg font-semibold ${
+                theme === "dark" ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Receive
+            </div>
+
+            <div className="p-2">
+              <div className="flex items-center space-x-3">
+                <TokenImage
+                  symbol={selectedDestToken?.symbol}
+                  imageUrl={selectedDestToken?.imageUrl}
+                  chainId={selectedDestinationChain.id}
+                  size={32}
+                />
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <div
+                      className={`text-lg font-semibold ${
+                        theme === "dark" ? "text-white" : "text-gray-900"
+                      } ${isLoadingQuote ? "animate-pulse" : ""}`}
+                    >
+                      {toAmountFormatted || "0.00"} {selectedDestToken?.symbol}
+                    </div>
+                    {isLoadingQuote && (
+                      <div
+                        className={`animate-spin rounded-full h-4 w-4 border-b-2 ${
+                          theme === "dark"
+                            ? "border-blue-400"
+                            : "border-blue-500"
+                        }`}
+                        style={{
+                          borderTopWidth: "2px",
+                          borderBottomWidth: "2px",
+                        }}
+                      />
+                    )}
+                  </div>
+                  <div
+                    className={`text-xs ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-500"
+                    } ${isLoadingQuote ? "animate-pulse" : ""}`}
+                  >
+                    ≈ {amountUsdDisplay}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Show recipient address if different from sender */}
+            {recipient &&
+              recipient.toLowerCase() !== account.address.toLowerCase() && (
+                <div className="px-2 pb-1">
+                  <div
+                    className={`text-xs ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    Recipient:{" "}
+                    <TruncatedAddress
+                      address={recipient}
+                      chainId={selectedDestinationChain.id}
+                      theme={theme}
+                      className={`${
+                        theme === "dark" ? "text-gray-300" : "text-gray-700"
+                      }`}
+                    />
+                  </div>
+                </div>
+              )}
+          </div>
+        )}
+
+        {/* Recipient Input - More Compact */}
+        {!toRecipient && (
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-1">
+              <div>
+                <label
+                  htmlFor="recipient"
+                  className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+                >
+                  {toCalldata ? "Destination Address" : "Recipient Address"}
+                </label>
+                {recipient &&
+                  isAddress(recipient) &&
+                  recipient.toLowerCase() === account.address.toLowerCase() && (
+                    <div
+                      className={`text-xs mt-0.5 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                    >
+                      Same as sender
+                    </div>
+                  )}
+              </div>
+              <div className="h-7 flex items-center">
+                {recipient !== account.address ? (
+                  <button
+                    type="button"
+                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                      event.preventDefault()
+                      setRecipientInput(account.address)
+                      setRecipient(account.address)
+                    }}
+                    className={`px-2 py-1 text-xs cursor-pointer rounded-[24px] transition-colors bg-blue-500 hover:bg-blue-600 text-white`}
+                  >
+                    Use Account
+                  </button>
+                ) : null}
+              </div>
+            </div>
+            <input
+              id="recipient"
+              type="text"
+              value={recipientInput}
+              onChange={handleRecipientInputChange}
+              placeholder="0x... or name.eth"
+              className={`block w-full px-4 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm ${
+                theme === "dark"
+                  ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+              }`}
+            />
+            {ensAddress && (
+              <p
+                className={
+                  theme === "dark"
+                    ? "text-sm text-gray-400"
+                    : "text-sm text-gray-500"
+                }
+              >
+                {recipient}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Custom Calldata - More Compact */}
         {toCalldata && (

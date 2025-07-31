@@ -22,7 +22,7 @@ import {
   type PrepareSendQuote,
 } from "../../prepareSend.js"
 import type { TransactionState } from "../../transactions.js"
-import { useTokenPrices } from "../../prices.js"
+import { getTokenPrice, useTokenPrices } from "../../prices.js"
 import { useQueryParams } from "../../queryParams.js"
 import { getRelayer, type RelayerEnv } from "../../relayer.js"
 import type { Theme } from "../../theme.js"
@@ -111,7 +111,6 @@ export type UseSendProps = {
   walletClient: WalletClient
   theme: Theme
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
-  useSourceTokenForButtonText: boolean
   onError: (error: Error | string | null) => void
   onWaitingForWalletConfirm: (quote: PrepareSendQuote) => void
   paymasterUrls?: PaymasterUrl[]
@@ -155,7 +154,6 @@ export type UseSendReturn = {
   isWaitingForWalletConfirm: boolean
   buttonText: string
   isValidRecipient: boolean
-  useSourceTokenForButtonText: boolean
   destTokenPrices: TokenPrice[] | null
   sourceTokenPrices: TokenPrice[] | null
   selectedToken: Token
@@ -180,7 +178,6 @@ export function useSendForm({
   toCalldata, // Custom specified destination calldata
   walletClient,
   onTransactionStateChange,
-  useSourceTokenForButtonText,
   onError,
   onWaitingForWalletConfirm,
   paymasterUrls,
@@ -502,9 +499,40 @@ export function useSendForm({
         return
       }
 
-      const sourceTokenPriceUsd = selectedToken.tokenPriceUsd ?? null
-      const destinationTokenPriceUsd =
-        destTokenPrices?.[0]?.price?.value ?? null
+      let sourceTokenPriceUsd = selectedToken.tokenPriceUsd ?? null
+      let destinationTokenPriceUsd = destTokenPrices?.[0]?.price?.value ?? null
+
+      if (!sourceTokenPriceUsd) {
+        try {
+          const price = await getTokenPrice(apiClient, selectedToken)
+          sourceTokenPriceUsd = price?.price?.value ?? null
+        } catch (error) {
+          console.error("[trails-sdk] Error getting source token price:", error)
+        }
+      }
+
+      if (!destinationTokenPriceUsd) {
+        try {
+          const price = await getTokenPrice(apiClient, {
+            tokenId: selectedDestToken.symbol,
+            contractAddress: destinationTokenAddress ?? "",
+            chainId: selectedDestinationChain.id,
+          })
+          destinationTokenPriceUsd = price?.price?.value ?? null
+        } catch (error) {
+          console.error(
+            "[trails-sdk] Error getting destination token price:",
+            error,
+          )
+        }
+      }
+
+      if (!sourceTokenPriceUsd || !destinationTokenPriceUsd) {
+        console.warn("[trails-sdk] Missing token prices for quote", {
+          sourceTokenPriceUsd,
+          destinationTokenPriceUsd,
+        })
+      }
 
       const options = {
         account,
@@ -568,7 +596,6 @@ export function useSendForm({
     selectedToken?.chainId,
     selectedToken?.balance,
     selectedToken?.tokenPriceUsd,
-    selectedToken?.contractInfo?.decimals,
     toCalldata,
     paymasterUrls,
     gasless,
@@ -578,6 +605,7 @@ export function useSendForm({
     amount,
     selectedDestToken,
     selectedDestinationChain,
+    selectedToken,
   ])
 
   // Auto-fetch quotes when inputs change (debounced)
@@ -733,44 +761,29 @@ export function useSendForm({
     if (isLoadingQuote) return "Getting quote..."
     if (!prepareSendResult) return "No quote available"
 
-    const amountFormatted = formatAmount(amount)
-
-    // For EXACT_INPUT (Fund mode), use source token since user enters source amount
-    // For EXACT_OUTPUT (Payment mode), use dest token since user enters dest amount
-    const tokenSymbol =
-      tradeType === TradeType.EXACT_INPUT
-        ? selectedToken.symbol
-        : (selectedDestToken?.symbol ?? "Token")
+    const amountFormatted =
+      prepareSendResult?.quote?.originAmountFormatted ?? formatAmount(amount)
+    const destinationAmountFormatted =
+      prepareSendResult?.quote?.destinationAmountFormatted ??
+      formatAmount(amount)
+    const tokenSymbol = selectedToken.symbol
+    const destinationTokenSymbol = selectedDestToken?.symbol
 
     try {
       const checksummedRecipient = getAddress(recipient)
       const checksummedAccount = getAddress(account.address)
 
       if (checksummedRecipient === checksummedAccount) {
-        if (tradeType === TradeType.EXACT_INPUT) {
-          return `Fund with ${amountFormatted} ${tokenSymbol}`
-        }
-        return `Receive ${amountFormatted} ${tokenSymbol}`
+        return `Receive ${destinationAmountFormatted} ${destinationTokenSymbol}`
       }
-      if (toCalldata) {
-        if (useSourceTokenForButtonText) {
-          const destPrice = destTokenPrices?.[0]?.price?.value ?? 0
-          const sourcePrice = selectedToken.tokenPriceUsd ?? 0
-          if (destPrice > 0 && sourcePrice > 0) {
-            const destAmountUsd = Number(amount) * destPrice
-            const sourceAmount = destAmountUsd / sourcePrice
-            const formattedSourceAmount = formatAmount(sourceAmount)
-            return `Spend ~${formattedSourceAmount} ${selectedToken.symbol}`
-          }
-        }
-        return `Spend ${amountFormatted} ${tokenSymbol}`
-      }
+
       if (tradeType === TradeType.EXACT_INPUT) {
         return `Fund with ${amountFormatted} ${tokenSymbol}`
       }
-      return `Pay ${amountFormatted} ${tokenSymbol}`
+
+      return `Pay with ${amountFormatted} ${tokenSymbol}`
     } catch {
-      return `Send ${amountFormatted} ${tokenSymbol}`
+      return `Pay with ${amountFormatted} ${tokenSymbol}`
     }
   }, [
     amount,
@@ -778,15 +791,13 @@ export function useSendForm({
     recipient,
     account.address,
     selectedDestToken?.symbol,
-    toCalldata,
     isWaitingForWalletConfirm,
     isSubmitting,
     isLoadingQuote,
     prepareSendResult,
-    useSourceTokenForButtonText,
-    destTokenPrices,
     selectedToken,
     tradeType,
+    prepareSendResult?.quote?.originAmountFormatted,
   ])
 
   return {
@@ -820,7 +831,6 @@ export function useSendForm({
     isWaitingForWalletConfirm,
     buttonText,
     isValidRecipient,
-    useSourceTokenForButtonText,
     destTokenPrices: destTokenPrices ?? null,
     sourceTokenPrices: sourceTokenPrices ?? null,
     selectedToken,

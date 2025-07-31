@@ -11,6 +11,7 @@ import { useSendForm } from "../hooks/useSendForm.js"
 import { ChainImage } from "./ChainImage.js"
 import { TokenImage } from "./TokenImage.js"
 import { QuoteDetails } from "./QuoteDetails.js"
+import { TruncatedAddress } from "./TruncatedAddress.js"
 import { TradeType } from "../../prepareSend.js"
 import type { PrepareSendQuote } from "../../prepareSend.js"
 import { formatAmount, formatUsdAmountDisplay } from "../../tokenBalances.js"
@@ -118,7 +119,6 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     walletClient,
     theme,
     onTransactionStateChange,
-    useSourceTokenForButtonText: false,
     onError,
     onWaitingForWalletConfirm,
     paymasterUrls,
@@ -415,25 +415,19 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
           </div>
 
           {/* USD Value centered below input */}
-          <div className="flex items-center justify-center space-x-2">
+          <div className="flex items-center justify-center">
             <button
               type="button"
               onClick={() => setIsInputTypeUsd(!isInputTypeUsd)}
-              className={`flex items-center justify-center w-[21px] h-[26px] p-0.5 rounded-md transition-colors cursor-pointer ${
+              className={`flex items-center justify-center gap-2 px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
                 theme === "dark"
-                  ? "border-gray-600 text-gray-300 hover:bg-gray-700"
-                  : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                  ? "text-gray-300 hover:bg-gray-700 hover:text-gray-200"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-700"
               }`}
             >
               <span className="text-xs font-medium tracking-[-2px]">↑↓</span>
+              <div className="text-sm font-normal">{displayUsdValue}</div>
             </button>
-            <div
-              className={`text-sm font-normal ${
-                theme === "dark" ? "text-gray-400" : "text-gray-500"
-              }`}
-            >
-              {displayUsdValue}
-            </div>
           </div>
 
           {/* Percentage Buttons */}
@@ -682,7 +676,15 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                     theme === "dark" ? "text-gray-400" : "text-gray-500"
                   }`}
                 >
-                  Recipient: {recipient.slice(0, 6)}...{recipient.slice(-4)}
+                  Recipient:{" "}
+                  <TruncatedAddress
+                    address={recipient}
+                    chainId={selectedDestinationChain.id}
+                    theme={theme}
+                    className={`${
+                      theme === "dark" ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  />
                 </div>
               </div>
             )}
