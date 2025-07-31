@@ -65,6 +65,7 @@
     "motion": "^12.23.12",
     "ox": "^0.7.2",
     "vite-plugin-dts": "^4.5.4",
+    "viem": "^2.33.1",
     "wagmi": "^2.16.0"
   },
   "peerDependencies": {
@@ -76,7 +77,8 @@
     "@0xsequence/wagmi-connector": "^4.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "wagmi": "^2.15.5"
+    "viem": "^2.33.1",
+    "wagmi": "^2.16.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.11",
@@ -92,7 +94,6 @@
     "tailwindcss": "^4.1.11",
     "turbo": "^2.5.5",
     "typescript": "^5.8.3",
-    "viem": "^2.33.1",
     "vite": "^5.4.19",
     "vite-plugin-css-injected-by-js": "^3.5.2",
     "vitest": "^3.2.4"
