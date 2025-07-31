@@ -1,10 +1,12 @@
+import { Link } from "react-router"
 import { TrailsWidget } from "0xtrails/widget"
 import type { Mode } from "0xtrails"
 import { forwardRef, useEffect, useRef, useState } from "react"
-import { Link, useLocation, useNavigate } from "react-router"
+import { useLocation, useNavigate } from "react-router"
 import { GIT_COMMIT_SHA } from "@/config"
 import { CodeSnippet } from "../CodeSnippet"
 import { WidgetTabs } from "./WidgetTabs"
+import { ConnectButton } from "../ConnectButton"
 
 // Define the interface for the exposed methods
 export interface OutputScreenRef {
@@ -138,53 +140,50 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
     }
 
     return (
-      <div className="w-full bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 relative min-h-[775px]">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-          <div className="w-fit">
+      <div className="w-full bg-gray-50 dark:bg-gray-800 rounded-2xl p-3 sm:p-6 relative h-full">
+        <div className="sm:absolute sm:top-4 sm:right-4 z-10 flex flex-col sm:flex-row sm:items-center gap-8 mb-4 sm:mb-0 justify-center sm:justify-start w-full sm:w-auto">
+          <ConnectButton />
+          <div className="w-full sm:w-fit">
             <WidgetTabs
               tabs={tabs}
               activeTab={activeTab}
               onTabChange={handleTabChange}
             />
           </div>
-          <Link
-            to="/sdk-sandbox"
-            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200 w-fit flex items-center"
-          >
-            SDK Sandbox →
-          </Link>
         </div>
 
-        <div className="mt-4 py-4">
+        <div className="flex-1 flex flex-col sm:pt-16 w-full h-full">
           {activeTab === "modal" && (
-            <div className="w-full">
-              <TrailsWidget
-                mode={mode}
-                appId={appId || defaultSequenceProjectAccessKey}
-                sequenceApiUrl={apiUrl}
-                sequenceIndexerUrl={indexerUrl}
-                sequenceEnv={env}
-                toAddress={toAddress}
-                toAmount={toAmount}
-                toChainId={toChainId}
-                toToken={toToken}
-                toCalldata={toCalldata}
-                renderInline={true}
-                theme={theme}
-                walletOptions={walletOptions}
-                privyAppId={privyAppId}
-                privyClientId={privyClientId}
-                paymasterUrls={paymasterUrls}
-                gasless={gasless}
-                onOriginConfirmation={onOriginConfirmation}
-                onDestinationConfirmation={onDestinationConfirmation}
-                buttonText={buttonText}
-              />
+            <div className="flex-1 flex items-center justify-center h-full">
+              <div className="w-full max-w-md h-full flex items-center">
+                <TrailsWidget
+                  mode={mode}
+                  appId={appId || defaultSequenceProjectAccessKey}
+                  sequenceApiUrl={apiUrl}
+                  sequenceIndexerUrl={indexerUrl}
+                  sequenceEnv={env}
+                  toAddress={toAddress}
+                  toAmount={toAmount}
+                  toChainId={toChainId}
+                  toToken={toToken}
+                  toCalldata={toCalldata}
+                  renderInline={true}
+                  theme={theme}
+                  walletOptions={walletOptions}
+                  privyAppId={privyAppId}
+                  privyClientId={privyClientId}
+                  paymasterUrls={paymasterUrls}
+                  gasless={gasless}
+                  onOriginConfirmation={onOriginConfirmation}
+                  onDestinationConfirmation={onDestinationConfirmation}
+                  buttonText={buttonText}
+                />
+              </div>
             </div>
           )}
 
           {activeTab === "button" && (
-            <div className="flex flex-col items-center space-y-4">
+            <div className="flex-1 flex flex-col items-center justify-center space-y-4 h-full">
               <TrailsWidget
                 ref={buttonWidgetRef}
                 mode={mode}
@@ -221,24 +220,26 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
           )}
 
           {activeTab === "code" && (
-            <CodeSnippet
-              mode={mode}
-              appId={appId}
-              toAddress={toAddress}
-              toAmount={toAmount}
-              toChainId={toChainId}
-              toToken={toToken}
-              toCalldata={toCalldata}
-              useCustomButton={useCustomButton}
-              renderInline={renderInline}
-              theme={theme}
-              walletOptions={walletOptions}
-              paymasterUrls={paymasterUrls}
-              gasless={gasless}
-              buttonText={buttonText}
-              onOriginConfirmation={onOriginConfirmation?.toString()}
-              onDestinationConfirmation={onDestinationConfirmation?.toString()}
-            />
+            <div className="flex-1 overflow-y-auto h-full">
+              <CodeSnippet
+                mode={mode}
+                appId={appId}
+                toAddress={toAddress}
+                toAmount={toAmount}
+                toChainId={toChainId}
+                toToken={toToken}
+                toCalldata={toCalldata}
+                useCustomButton={useCustomButton}
+                renderInline={renderInline}
+                theme={theme}
+                walletOptions={walletOptions}
+                paymasterUrls={paymasterUrls}
+                gasless={gasless}
+                buttonText={buttonText}
+                onOriginConfirmation={onOriginConfirmation?.toString()}
+                onDestinationConfirmation={onDestinationConfirmation?.toString()}
+              />
+            </div>
           )}
         </div>
         <button

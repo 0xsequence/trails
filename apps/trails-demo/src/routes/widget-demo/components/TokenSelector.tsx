@@ -256,7 +256,7 @@ export const TokenSelector: React.FC<TokenSelectorProps> = ({
       </button>
 
       {isDropdownOpen && !disabled && (
-        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-80 overflow-y-auto">
+        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-80 overflow-y-auto custom-scrollbar">
           {/* Search Input */}
           <div className="sticky top-0 p-3 border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 z-1">
             <div className="relative">

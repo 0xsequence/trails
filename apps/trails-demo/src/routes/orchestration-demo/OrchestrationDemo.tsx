@@ -6,7 +6,7 @@ import { useEffect, useState } from "react"
 import type { Hex } from "viem"
 
 import { useAccount, useConnect, useDisconnect } from "wagmi"
-import { DemoTabs } from "@/components/DemoTabs"
+
 import {
   MOCK_CHAIN_ID,
   MOCK_CONTRACT_ADDRESS,
@@ -520,9 +520,9 @@ export const OrchestrationDemo = () => {
   } = useOrchestrationDemo()
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-6 py-8 px-4 sm:py-12 sm:px-6">
-      <div className="text-center space-y-4 max-w-6xl w-full">
-        <div className="flex flex-col sm:flex-row justify-between items-start space-y-4 sm:space-y-0">
+    <div className="w-full bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 relative h-full flex flex-col items-center">
+      <div className="text-left space-y-4 max-w-6xl w-full h-full">
+        <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0">
           <div className="text-left w-full sm:w-auto">
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-900 dark:text-white mb-3 sm:mb-4">
               Trails Orchestration Demo
@@ -537,9 +537,6 @@ export const OrchestrationDemo = () => {
               Select a token, choose an action, and follow the complete intent
               creation and execution flow.
             </p>
-          </div>
-          <div className="w-full sm:w-auto">
-            <DemoTabs />
           </div>
         </div>
       </div>

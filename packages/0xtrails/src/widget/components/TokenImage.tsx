@@ -42,7 +42,7 @@ export const TokenImage: React.FC<TokenImageProps> = ({
       {shouldShowText ? (
         <div
           className="absolute w-full h-full rounded-full flex items-center justify-center"
-          title={`Token: ${symbol}`}
+          title={symbol?.length && symbol.length > 1 ? `Token: ${symbol}` : ""}
         >
           <span className="text-white font-medium text-xs">
             {displaySymbol}

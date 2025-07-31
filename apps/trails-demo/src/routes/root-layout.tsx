@@ -1,13 +1,19 @@
-import { Outlet } from "react-router"
+import { Outlet, useLocation } from "react-router"
 import { SiteFooter } from "@/components/SiteFooter"
 import { SiteHeader } from "@/components/SiteHeader"
 
 export const RootLayout = () => {
+  const location = useLocation()
+  const isWidgetDemo =
+    location.pathname === "/widget" || location.pathname === "/"
+
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-950">
+    <div
+      className={`flex flex-col bg-white dark:bg-gray-950 ${isWidgetDemo ? "lg:h-screen lg:overflow-hidden min-h-screen" : "min-h-screen"}`}
+    >
       <SiteHeader />
-      <main className="py-10 flex-1">
-        <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+      <main className={`flex-1 ${isWidgetDemo ? "lg:overflow-hidden" : ""}`}>
+        <div className="w-full h-full">
           <Outlet />
         </div>
       </main>

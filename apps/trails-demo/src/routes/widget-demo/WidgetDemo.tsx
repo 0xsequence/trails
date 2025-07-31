@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import type { Mode } from "0xtrails"
-import { DemoTabs } from "@/components/DemoTabs"
 import { ConnectButton } from "./components/ConnectButton"
 import { CustomizationForm, STORAGE_KEYS } from "./components/CustomizationForm"
 import { OutputScreen } from "./components/OutputScreen"
@@ -32,6 +31,74 @@ export const WidgetDemo = () => {
   const [buttonText, setButtonText] = useState("")
   const [mode, setMode] = useState<Mode | null>(null)
 
+  // Resizable sidebar state
+  const [sidebarWidth, setSidebarWidth] = useState(480) // Default width in pixels
+  const [isResizing, setIsResizing] = useState(false)
+  const [isLargeScreen, setIsLargeScreen] = useState(false)
+  const resizeRef = useRef<HTMLButtonElement>(null)
+
+  // Minimum and maximum sidebar widths
+  const MIN_SIDEBAR_WIDTH = 280
+  const MAX_SIDEBAR_WIDTH = 600
+
+  // Check screen size for responsive behavior
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024)
+    }
+
+    checkScreenSize()
+    window.addEventListener("resize", checkScreenSize)
+
+    return () => window.removeEventListener("resize", checkScreenSize)
+  }, [])
+
+  // Handle mouse down on resize handle
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsResizing(true)
+  }, [])
+
+  // Handle mouse move for resizing
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isResizing) return
+
+      const newWidth = e.clientX
+      if (newWidth >= MIN_SIDEBAR_WIDTH && newWidth <= MAX_SIDEBAR_WIDTH) {
+        setSidebarWidth(newWidth)
+      }
+    },
+    [isResizing],
+  )
+
+  // Handle mouse up to stop resizing
+  const handleMouseUp = useCallback(() => {
+    setIsResizing(false)
+  }, [])
+
+  // Add/remove event listeners
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener("mousemove", handleMouseMove)
+      document.addEventListener("mouseup", handleMouseUp)
+      document.body.style.cursor = "col-resize"
+      document.body.style.userSelect = "none"
+    } else {
+      document.removeEventListener("mousemove", handleMouseMove)
+      document.removeEventListener("mouseup", handleMouseUp)
+      document.body.style.cursor = ""
+      document.body.style.userSelect = ""
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove)
+      document.removeEventListener("mouseup", handleMouseUp)
+      document.body.style.cursor = ""
+      document.body.style.userSelect = ""
+    }
+  }, [isResizing, handleMouseMove, handleMouseUp])
+
   useEffect(() => {
     if (!localStorage.getItem(STORAGE_KEYS.MODE)) {
       setMode("pay")
@@ -48,37 +115,22 @@ export const WidgetDemo = () => {
   }, [])
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-6 py-8 px-4 sm:py-12 sm:px-6 bg-white dark:bg-gray-950">
-      <div className="text-center space-y-4 max-w-6xl w-full">
-        <div className="flex flex-col sm:flex-row justify-between items-start space-y-4 sm:space-y-0">
-          <div className="text-left w-full sm:w-auto">
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-900 dark:text-white mb-3 sm:mb-4">
-              Trails Widget Demo
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl font-light mb-2">
-              This demo showcases the{" "}
-              <span className="font-medium">Trails SDK</span> widget. Connect
-              your wallet and try the payment flow.
-            </p>
-            <p className="text-gray-500 dark:text-gray-400 text-xs">
-              Configure payment parameters, customize the widget appearance, and
-              test the complete payment flow.
-            </p>
-          </div>
-          <div className="w-full sm:w-auto">
-            <DemoTabs />
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-center mt-6 sm:mt-8">
-        <ConnectButton />
-      </div>
-
-      <div className="w-full max-w-6xl">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Left Column - Config Form */}
-          <div className="w-full lg:w-1/2">
+    <div
+      className={`bg-white dark:bg-gray-950 flex flex-col ${isLargeScreen ? "h-full" : "min-h-screen"}`}
+    >
+      {/* Main Content */}
+      <div
+        className={`flex flex-col lg:flex-row ${isLargeScreen ? "flex-1 overflow-hidden" : ""}`}
+      >
+        {/* Left Sidebar - Configuration Form (Resizable) */}
+        <div
+          className={`bg-gray-100 dark:bg-gray-900 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-800 custom-scrollbar w-full lg:w-auto ${isLargeScreen ? "overflow-y-auto flex-shrink-0" : ""}`}
+          style={{ width: isLargeScreen ? `${sidebarWidth}px` : "100%" }}
+        >
+          <div className="p-6">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+              Configuration
+            </h2>
             <CustomizationForm
               mode={mode}
               setMode={setMode}
@@ -112,33 +164,61 @@ export const WidgetDemo = () => {
               setButtonText={setButtonText}
             />
           </div>
+        </div>
 
-          {/* Right Column - Output Screen */}
-          <div className="w-full lg:w-1/2">
-            <OutputScreen
-              mode={mode}
-              appId={sequenceProjectAccessKey}
-              toAddress={toAddress}
-              toAmount={toAmount}
-              toChainId={toChainId}
-              toToken={customTokenAddress || toToken}
-              toCalldata={toCalldata}
-              useCustomButton={useCustomButton}
-              renderInline={renderInline}
-              theme={theme}
-              walletOptions={walletOptions}
-              paymasterUrls={paymasterUrls}
-              gasless={gasless}
-              buttonText={buttonText}
-              apiUrl={apiUrl}
-              indexerUrl={indexerUrl}
-              env={env}
-              privyAppId={privyAppId}
-              privyClientId={privyClientId}
-              defaultSequenceProjectAccessKey={defaultSequenceProjectAccessKey}
-            >
-              <div className="mt-6 w-full max-w-md mx-auto px-4"></div>
-            </OutputScreen>
+        {/* Resize Handle - Hidden on mobile */}
+        <button
+          ref={resizeRef}
+          className="hidden lg:block w-2 bg-transparent hover:bg-gray-200 dark:hover:bg-gray-700 cursor-col-resize transition-all duration-200 relative group border-0 p-0 flex-shrink-0"
+          onMouseDown={handleMouseDown}
+          aria-label="Resize sidebar width"
+          type="button"
+        >
+          {/* Visual indicator for resize handle */}
+          <div className="absolute inset-y-0 left-1/2 transform -translate-x-1/2 w-0.5 bg-gray-300 dark:bg-gray-600 group-hover:bg-blue-500 dark:group-hover:bg-blue-400 transition-colors duration-200" />
+          {/* Hover indicator dots */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <div className="flex flex-col space-y-1">
+              <div className="w-1 h-1 bg-gray-400 dark:bg-gray-500 group-hover:bg-blue-500 dark:group-hover:bg-blue-400 rounded-full transition-colors duration-200"></div>
+              <div className="w-1 h-1 bg-gray-400 dark:bg-gray-500 group-hover:bg-blue-500 dark:group-hover:bg-blue-400 rounded-full transition-colors duration-200"></div>
+              <div className="w-1 h-1 bg-gray-400 dark:bg-gray-500 group-hover:bg-blue-500 dark:group-hover:bg-blue-400 rounded-full transition-colors duration-200"></div>
+            </div>
+          </div>
+        </button>
+
+        {/* Right Main Content Area */}
+        <div
+          className={`bg-gray-50 dark:bg-gray-800 custom-scrollbar ${isLargeScreen ? "flex-1 overflow-y-auto min-h-0" : ""} h-full`}
+        >
+          <div className="p-3 sm:p-6 h-full">
+            <div className="w-full h-full">
+              <OutputScreen
+                mode={mode}
+                appId={sequenceProjectAccessKey}
+                toAddress={toAddress}
+                toAmount={toAmount}
+                toChainId={toChainId}
+                toToken={customTokenAddress || toToken}
+                toCalldata={toCalldata}
+                useCustomButton={useCustomButton}
+                renderInline={renderInline}
+                theme={theme}
+                walletOptions={walletOptions}
+                paymasterUrls={paymasterUrls}
+                gasless={gasless}
+                buttonText={buttonText}
+                apiUrl={apiUrl}
+                indexerUrl={indexerUrl}
+                env={env}
+                privyAppId={privyAppId}
+                privyClientId={privyClientId}
+                defaultSequenceProjectAccessKey={
+                  defaultSequenceProjectAccessKey
+                }
+              >
+                <div className="mt-6 w-full max-w-md mx-auto px-4"></div>
+              </OutputScreen>
+            </div>
           </div>
         </div>
       </div>

@@ -112,22 +112,23 @@ export function SdkSandbox() {
 
   return (
     <div className="max-w-6xl mx-auto p-8 space-y-8 bg-white dark:bg-gray-900">
-      <div className="flex items-center justify-between mb-12">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 sm:mb-12 space-y-4 sm:space-y-0">
         <Link
           to="/widget"
-          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors duration-200 flex items-center"
+          className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white transition-colors duration-200 flex items-center order-1 sm:order-1"
         >
           ← Back to Widget Demo
         </Link>
-        <div className="text-center flex-1">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
+        <div className="text-center flex-1 order-2 sm:order-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3">
             SDK Sandbox
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600 dark:text-gray-400">
             Example usage of Trails SDK functions and hooks
           </p>
         </div>
-        <div className="w-24"></div> {/* Spacer to balance the layout */}
+        <div className="w-24 order-3 sm:order-3 hidden sm:block"></div>{" "}
+        {/* Spacer to balance the layout - hidden on mobile */}
       </div>
 
       {/* Connection Status - Moved to top */}
