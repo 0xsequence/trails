@@ -31,7 +31,12 @@ import {
   http,
   createPublicClient,
 } from "viem"
-import { ATTESATION_SIGNER_ADDRESS } from "./constants.js"
+import {
+  ATTESATION_SIGNER_ADDRESS,
+  TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
+  TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
+  TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS,
+} from "./constants.js"
 import { findPreconditionAddresses } from "./preconditions.js"
 import { getChainInfo } from "./chains.js"
 import {
@@ -295,6 +300,13 @@ export async function commitIntentConfig(
     preconditions: preconditions,
   }
 
+  const addressOverrides = {
+    trailsLiFiSapientSignerAddress: TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
+    trailsRelaySapientSignerAddress: TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS,
+    trailsCCTPV2SapientSignerAddress: TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
+    ...args.addressOverrides,
+  }
+
   try {
     // Track successful intent commit
     trackIntentCommitStarted({
@@ -306,7 +318,10 @@ export async function commitIntentConfig(
         : undefined,
     })
 
-    const result = await apiClient.commitIntentConfig(args)
+    const result = await apiClient.commitIntentConfig({
+      ...args,
+      addressOverrides,
+    })
 
     // Track successful intent commit
     trackIntentCommitCompleted({

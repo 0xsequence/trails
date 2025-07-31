@@ -264,11 +264,6 @@ function getIntentArgs(
   tradeType: TradeType,
 ): GetIntentCallsPayloadsArgs {
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
-  const _destinationCalldata = hasCustomCalldata ? destinationCalldata : "0x"
-
-  const _destinationToAddress = recipient
-  const _destinationCallValue =
-    destinationTokenAddress === zeroAddress ? destinationTokenAmount : "0"
 
   const intentArgs = {
     userAddress: mainSignerAddress,
@@ -276,12 +271,12 @@ function getIntentArgs(
     originTokenAddress,
     originTokenAmount: originTokenAmount, // max amount for exact_output
     destinationChainId,
-    destinationToAddress: _destinationToAddress,
+    destinationToAddress: recipient,
     destinationTokenAddress: destinationTokenAddress,
     destinationTokenAmount: destinationTokenAmount,
     destinationTokenSymbol: destinationTokenSymbol,
-    destinationCallData: _destinationCalldata,
-    destinationCallValue: _destinationCallValue,
+    destinationCallData: hasCustomCalldata ? destinationCalldata : "0x",
+    destinationCallValue: "0",
     destinationSalt,
     slippageTolerance: Number(slippageTolerance),
     tradeType,
