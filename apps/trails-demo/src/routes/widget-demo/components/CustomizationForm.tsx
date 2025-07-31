@@ -180,6 +180,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     MINT_NFT_POLYGON_BAT: "mint_nft_polygon_bat",
     DEPOSIT_AAVE_BASE_ETH: "deposit_aave_base_eth",
     DEPOSIT_AAVE_BASE_USDC: "deposit_aave_base_usdc",
+    DEPOSIT_MORPHO_BASE_USDC: "deposit_morpho_base_usdc",
     DEPOSIT_GAUNLET_VAULT_BASE: "deposit_gaunlet_vault_base",
   } as const
 
@@ -215,21 +216,25 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC,
         label: "Deposit USDC to Aave lending pool on Base",
       },
+      {
+        key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH,
+        label: "Deposit ETH to Aave lending pool on Base",
+      },
+      {
+        key: SCENARIO_KEYS.DEPOSIT_MORPHO_BASE_USDC,
+        label: "Deposit USDC to Morpho vault on Base",
+      },
+      {
+        key: SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE,
+        label: "Deposit USDC to Gaunlet vault on Base",
+        disabled: true,
+      },
     ]
 
     const fundScenarios = [
       {
         key: SCENARIO_KEYS.FUND_USDC_BASE,
         label: "Bridge USDC to Base",
-      },
-      {
-        key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH,
-        label: "Deposit ETH to Aave lending pool on Base",
-      },
-      {
-        key: SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE,
-        label: "Deposit USDC to Gaunlet vault on Base",
-        disabled: true,
       },
     ]
 
@@ -245,6 +250,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     SCENARIO_KEYS.MINT_NFT_ARBITRUM_CCTP_TESTNET,
     SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH,
     SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC,
+    SCENARIO_KEYS.DEPOSIT_MORPHO_BASE_USDC,
     SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE,
   ])
 
@@ -266,6 +272,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       if (!skipRecipientSet && isConnected && address) {
         setToRecipient(address)
       }
+
+      const effectiveRecipient =
+        toRecipient || (isConnected && address ? address : zeroAddress)
 
       switch (scenarioKey) {
         case SCENARIO_KEYS.PAY_USDC_BASE: {
@@ -299,7 +308,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToAmount("0.01")
           setToToken("USDC")
           setToChainId(8453)
-          setToCalldata(encodeNftMintCalldata(toRecipient || zeroAddress))
+          setToCalldata(encodeNftMintCalldata(effectiveRecipient))
           break
         }
         case SCENARIO_KEYS.MINT_NFT_ARBITRUM_ETH: {
@@ -307,7 +316,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToAmount("0.00001")
           setToToken("ETH")
           setToChainId(42161)
-          setToCalldata(encodeNftMintCalldata(toRecipient || zeroAddress))
+          setToCalldata(encodeNftMintCalldata(effectiveRecipient))
           break
         }
         case SCENARIO_KEYS.MINT_NFT_ARBITRUM_USDC: {
@@ -315,7 +324,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToAmount("0.01")
           setToToken("USDC")
           setToChainId(42161)
-          setToCalldata(encodeNftMintCalldata(toRecipient || zeroAddress))
+          setToCalldata(encodeNftMintCalldata(effectiveRecipient))
           break
         }
         case SCENARIO_KEYS.MINT_NFT_ARBITRUM_CCTP_TESTNET: {
@@ -323,7 +332,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToAmount("0.01")
           setToToken("USDC")
           setToChainId(42161)
-          setToCalldata(encodeNftMintCalldata(toRecipient || zeroAddress))
+          setToCalldata(encodeNftMintCalldata(effectiveRecipient))
           break
         }
         case SCENARIO_KEYS.MINT_NFT_POLYGON_BAT: {
@@ -331,17 +340,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToAmount("0.1")
           setToToken("BAT")
           setToChainId(137)
-          setToCalldata(encodeNftMintCalldata(toRecipient || zeroAddress))
+          setToCalldata(encodeNftMintCalldata(effectiveRecipient))
           break
         }
         case SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH: {
           setToAddress("0xa0d9C1E9E48Ca30c8d8C3B5D69FF5dc1f6DFfC24")
-          setToAmount("")
+          const amount = "0.00001"
+          setToAmount(amount)
           setToToken("ETH")
           setToChainId(8453)
-          setToCalldata(
-            encodeAaveEthDepositCalldata(toRecipient || zeroAddress),
-          )
+          setToCalldata(encodeAaveEthDepositCalldata(effectiveRecipient))
           break
         }
         case SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC: {
@@ -351,8 +359,17 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           setToToken("USDC")
           setToChainId(8453)
           setToCalldata(
-            encodeErc20AaveDepositCalldata(toRecipient || zeroAddress, amount),
+            encodeErc20AaveDepositCalldata(effectiveRecipient, amount),
           )
+          break
+        }
+        case SCENARIO_KEYS.DEPOSIT_MORPHO_BASE_USDC: {
+          setToAddress("0xbeeF010f9cb27031ad51e3333f9aF9C6B1228183")
+          const amount = "0.1"
+          setToAmount(amount)
+          setToToken("USDC")
+          setToChainId(8453)
+          setToCalldata(encodeMorphoDepositCalldata(effectiveRecipient, amount))
           break
         }
 
@@ -419,6 +436,11 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         const aaveUsdcCalldata =
           encodeErc20AaveDepositCalldata(effectiveRecipient)
         setToCalldata(aaveUsdcCalldata)
+        break
+      }
+      case SCENARIO_KEYS.DEPOSIT_MORPHO_BASE_USDC: {
+        const morphoCalldata = encodeMorphoDepositCalldata(effectiveRecipient)
+        setToCalldata(morphoCalldata)
         break
       }
     }
@@ -1514,6 +1536,33 @@ export function encodeErc20AaveDepositCalldata(
       parseUnits(amount, 6), // 0.1 USDC (6 decimals)
       recipient as `0x${string}`, // onBehalfOf
       0, // referralCode
+    ],
+  })
+
+  return calldata
+}
+
+export function encodeMorphoDepositCalldata(
+  recipient: string = zeroAddress,
+  amount: string = "0.1",
+) {
+  const calldata = encodeFunctionData({
+    abi: [
+      {
+        type: "function",
+        name: "deposit",
+        stateMutability: "nonpayable",
+        inputs: [
+          { name: "assets", type: "uint256" },
+          { name: "receiver", type: "address" },
+        ],
+        outputs: [{ name: "shares", type: "uint256" }],
+      },
+    ],
+    functionName: "deposit",
+    args: [
+      parseUnits(amount, 6), // amount in USDC (6 decimals)
+      recipient as `0x${string}`, // receiver
     ],
   })
 
