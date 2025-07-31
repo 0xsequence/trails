@@ -5,6 +5,8 @@ import type { TransactionState } from "../../transactions.js"
 import type { ActiveTheme } from "../../theme.js"
 import { GreenCheckAnimation } from "./GreenCheckAnimation.js"
 import { getTxTimeDiff } from "../../transactions.js"
+import { QuoteDetails } from "./QuoteDetails.js"
+import type { PrepareSendQuote } from "../../prepareSend.js"
 
 interface ReceiptProps {
   onSendAnother: () => void
@@ -13,6 +15,7 @@ interface ReceiptProps {
   renderInline?: boolean
   transactionStates?: TransactionState[]
   totalCompletionSeconds?: number
+  quote?: PrepareSendQuote | null
 }
 
 // Hook to fetch the time difference in seconds between two transactions on possibly different chains
@@ -73,6 +76,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
   renderInline = false,
   transactionStates = [],
   totalCompletionSeconds,
+  quote,
 }) => {
   const [showDetails, setShowDetails] = useState(false)
   const [showContent, setShowContent] = useState(false)
@@ -382,6 +386,24 @@ export const Receipt: React.FC<ReceiptProps> = ({
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Quote Details */}
+            {quote && (
+              <div className="mt-6">
+                <div
+                  className={`font-medium mb-2 ${
+                    theme === "dark" ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  Quote Details:
+                </div>
+                <QuoteDetails
+                  theme={theme}
+                  quote={quote}
+                  showContent={showDetails}
+                />
               </div>
             )}
           </div>

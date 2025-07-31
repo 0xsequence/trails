@@ -75,7 +75,7 @@ import {
   sendPaymasterGaslessTransaction,
 } from "./paymasterSend.js"
 import { findFirstPreconditionForChainId } from "./preconditions.js"
-import { useTokenPrice } from "./prices.js"
+import { calcAmountUsdPrice, useTokenPrice } from "./prices.js"
 import { getQueryParam } from "./queryParams.js"
 import type { RelayerEnvConfig } from "./relayer.js"
 import { useRelayers } from "./relayer.js"
@@ -93,11 +93,16 @@ import {
   simpleCreateSequenceWallet,
 } from "./sequenceWallet.js"
 import {
-  formatUsdValue,
+  formatUsdAmountDisplay,
   useAccountTokenBalance,
-  formatValue,
+  formatAmount,
+  formatRawAmount,
 } from "./tokenBalances.js"
-import { useSupportedTokens } from "./tokens.js"
+import {
+  getTokenInfo,
+  type SupportedToken,
+  useSupportedTokens,
+} from "./tokens.js"
 import type {
   TransactionState,
   TransactionStateStatus,
@@ -148,16 +153,34 @@ export type PrepareSendFees = {
   totalFeeAmountUsdFormatted: string | null
 }
 
+export type PrepareSendQuote = {
+  originAddress: string
+  destinationAddress: string
+  destinationCalldata: string
+  originChain: Chain
+  destinationChain: Chain
+  originAmount: string
+  originAmountMin: string
+  destinationAmount: string
+  destinationAmountMin: string
+  originAmountFormatted: string
+  originAmountUsdFormatted: string
+  originAmountUsdDisplay: string
+  destinationAmountFormatted: string
+  destinationAmountUsdFormatted: string
+  destinationAmountUsdDisplay: string
+  originToken: SupportedToken
+  destinationToken: SupportedToken
+  fees: PrepareSendFees
+  slippageTolerance: string
+  priceImpact: string
+  completionEstimateSeconds: number
+  transactionStates: TransactionState[]
+}
+
 export type PrepareSendReturn = {
-  intentAddress?: string
-  originSendAmount: string
-  destinationTokenAmount: string
-  fees?: PrepareSendFees
-  slippageTolerance?: string
-  priceImpact?: string
-  completionEstimateSeconds?: number
+  quote: PrepareSendQuote
   send: (onOriginSend?: () => void) => Promise<SendReturn>
-  transactionStates?: TransactionState[]
 }
 
 export type SendReturn = {
@@ -392,6 +415,8 @@ export async function prepareSend(
       slippageTolerance,
       onTransactionStateChange,
       transactionStates,
+      sourceTokenPriceUsd,
+      destinationTokenPriceUsd,
     })
   }
 
@@ -409,6 +434,8 @@ export async function prepareSend(
       account,
       chain,
       transactionStates,
+      sourceTokenPriceUsd,
+      destinationTokenPriceUsd,
     })
   }
 
@@ -528,14 +555,19 @@ async function sendHandlerForDifferentChainDifferentToken({
     const amount = destinationTokenAmount
 
     return {
-      intentAddress: "",
-      originSendAmount: amount,
-      destinationTokenAmount: amount,
-      fees: getZeroFees(),
-      slippageTolerance: "0",
-      priceImpact: "0",
-      completionEstimateSeconds: 0,
-      transactionStates,
+      quote: await getNormalizedQuoteObject({
+        destinationAddress: recipient,
+        destinationCalldata,
+        originAmount: amount,
+        originTokenPriceUsd: sourceTokenPriceUsd?.toString() || null,
+        destinationAmount: amount,
+        destinationTokenPriceUsd: destinationTokenPriceUsd?.toString() || null,
+        originTokenAddress: originTokenAddress,
+        destinationTokenAddress: destinationTokenAddress,
+        originChainId,
+        destinationChainId,
+        transactionStates,
+      }),
       send: async (onOriginSend?: () => void): Promise<SendReturn> => {
         const originChain = testnet ? getTestnetChainInfo(chain)! : chain
         const destinationChain = testnet
@@ -751,7 +783,9 @@ async function sendHandlerForDifferentChainDifferentToken({
   const firstPreconditionMin = firstPrecondition?.data?.min?.toString()
   const depositAmount = firstPreconditionMin
 
+  const quoteFromAmount = intent.quote.fromAmount
   const quoteFromAmountMin = intent.quote.fromAmountMin
+  const quoteToAmount = intent.quote.toAmount
   const quoteToAmountMin = intent.quote.toAmountMin
 
   const originSendAmountFormatted = Number(
@@ -777,21 +811,29 @@ async function sendHandlerForDifferentChainDifferentToken({
     effectiveDestinationTokenAmountFormatted * (destinationTokenPriceUsd ?? 0)
 
   return {
-    intentAddress,
-    originSendAmount: quoteFromAmountMin,
-    destinationTokenAmount: quoteToAmountMin,
-    fees: getFeesFromIntent(intent, {
-      tradeType,
-      fromAmountUsd: depositAmountUsd,
-      toAmountUsd: effectiveDestinationTokenAmountUsd,
-    }),
-    slippageTolerance: getSlippageToleranceFromIntent(intent),
-    priceImpact: getPriceImpactFromIntent(intent),
-    completionEstimateSeconds: getCompletionEstimateSeconds({
+    quote: await getNormalizedQuoteObject({
+      originAddress: intentAddress,
+      destinationAddress: recipient,
+      destinationCalldata,
+      originAmount: quoteFromAmount,
+      destinationAmount: quoteToAmount,
+      originAmountMin: quoteFromAmountMin,
+      destinationAmountMin: quoteToAmountMin,
+      originTokenAddress: originTokenAddress,
+      destinationTokenAddress: destinationTokenAddress,
+      originTokenPriceUsd: sourceTokenPriceUsd?.toString() || null,
+      destinationTokenPriceUsd: destinationTokenPriceUsd?.toString() || null,
+      fees: getFeesFromIntent(intent, {
+        tradeType,
+        fromAmountUsd: depositAmountUsd,
+        toAmountUsd: effectiveDestinationTokenAmountUsd,
+      }),
       originChainId,
       destinationChainId,
+      slippageTolerance: getSlippageToleranceFromIntent(intent),
+      priceImpact: getPriceImpactFromIntent(intent),
+      transactionStates,
     }),
-    transactionStates,
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
         account,
@@ -1012,6 +1054,8 @@ async function sendHandlerForSameChainSameToken({
   account,
   chain,
   transactionStates,
+  sourceTokenPriceUsd,
+  destinationTokenPriceUsd,
 }: {
   originTokenAddress: string
   destinationTokenAmount: string
@@ -1025,6 +1069,8 @@ async function sendHandlerForSameChainSameToken({
   account: Account
   chain: Chain
   transactionStates: TransactionState[]
+  sourceTokenPriceUsd?: number | null
+  destinationTokenPriceUsd?: number | null
 }): Promise<PrepareSendReturn> {
   console.log("[trails-sdk] isToSameToken && isToSameChain")
   const testnet = isTestnetDebugMode()
@@ -1039,13 +1085,20 @@ async function sendHandlerForSameChainSameToken({
   })
 
   return {
-    originSendAmount: destinationTokenAmount,
-    destinationTokenAmount: destinationTokenAmount,
-    fees: getZeroFees(),
-    slippageTolerance: "0",
-    priceImpact: "0",
-    completionEstimateSeconds: 0,
-    transactionStates,
+    quote: await getNormalizedQuoteObject({
+      originAddress: recipient,
+      destinationAddress: recipient,
+      destinationCalldata,
+      originAmount: destinationTokenAmount, // fromAmount is same as toAmount for same chain same token
+      destinationAmount: destinationTokenAmount,
+      originTokenPriceUsd: sourceTokenPriceUsd?.toString() || null,
+      destinationTokenPriceUsd: destinationTokenPriceUsd?.toString() || null,
+      originTokenAddress: effectiveOriginTokenAddress,
+      destinationTokenAddress: effectiveOriginTokenAddress,
+      transactionStates,
+      originChainId: effectiveOriginChainId,
+      destinationChainId: effectiveOriginChainId,
+    }),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
         account,
@@ -1207,6 +1260,8 @@ async function sendHandlerForSameChainDifferentToken({
   slippageTolerance,
   onTransactionStateChange,
   transactionStates,
+  sourceTokenPriceUsd,
+  destinationTokenPriceUsd,
 }: {
   originTokenAddress: string
   swapAmount: string
@@ -1221,6 +1276,8 @@ async function sendHandlerForSameChainDifferentToken({
   slippageTolerance?: string
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   transactionStates: TransactionState[]
+  sourceTokenPriceUsd?: number | null
+  destinationTokenPriceUsd?: number | null
 }): Promise<PrepareSendReturn> {
   const destinationTxs: { to: string; value: string; data: string }[] = []
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
@@ -1271,14 +1328,29 @@ async function sendHandlerForSameChainDifferentToken({
     }
   }
 
+  const depositOriginAddress =
+    quote?.steps?.[quote?.steps?.length - 1]?.items?.[
+      quote?.steps?.[quote?.steps?.length - 1]?.items?.length - 1
+    ]?.data?.to
+
   return {
-    originSendAmount: depositAmount,
-    destinationTokenAmount,
-    fees: getFeesFromRelaySdkQuote(quote),
-    slippageTolerance: getSlippageToleranceFromRelaySdkQuote(quote),
-    priceImpact: getPriceImpactFromRelaySdkQuote(quote),
-    completionEstimateSeconds: 0,
-    transactionStates,
+    quote: await getNormalizedQuoteObject({
+      originAddress: depositOriginAddress,
+      destinationAddress: recipient,
+      destinationCalldata,
+      originAmount: depositAmount,
+      destinationAmount: destinationTokenAmount,
+      originTokenAddress: originTokenAddress,
+      destinationTokenAddress: destinationTokenAddress,
+      originTokenPriceUsd: sourceTokenPriceUsd?.toString() || null,
+      destinationTokenPriceUsd: destinationTokenPriceUsd?.toString() || null,
+      fees: getFeesFromRelaySdkQuote(quote),
+      slippageTolerance: getSlippageToleranceFromRelaySdkQuote(quote),
+      priceImpact: getPriceImpactFromRelaySdkQuote(quote),
+      transactionStates,
+      originChainId,
+      destinationChainId: originChainId,
+    }),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
         account,
@@ -2042,7 +2114,7 @@ async function checkAccountBalance({
     let balanceError = null
     if (!hasEnoughBalance) {
       balanceError = new InsufficientBalanceError(
-        `Insufficient balance: Need ${formatValue(requiredAmountFormatted)} but only have ${formatValue(balanceFormatted)}`,
+        `Insufficient balance: Need ${formatAmount(requiredAmountFormatted)} but only have ${formatAmount(balanceFormatted)}`,
       )
     }
 
@@ -2153,11 +2225,17 @@ export type SwapReturn = {
 export type UseQuoteReturn = {
   quote: {
     fromAmount: string
+    fromAmountMin: string
     toAmount: string
-    fees?: PrepareSendFees | null
-    slippageTolerance?: string | null
-    priceImpact?: string | null
-    completionEstimateSeconds?: number
+    toAmountMin: string
+    originToken: SupportedToken
+    destinationToken: SupportedToken
+    originChain: Chain
+    destinationChain: Chain
+    fees: PrepareSendFees
+    slippageTolerance: string
+    priceImpact: string
+    completionEstimateSeconds: number
     transactionStates?: TransactionState[]
   } | null
   swap: (() => Promise<SwapReturn | null>) | null
@@ -2290,26 +2368,22 @@ export function useQuote({
 
       console.log("[trails-sdk] options", options)
 
-      const {
-        intentAddress,
-        originSendAmount,
-        destinationTokenAmount,
-        send,
-        fees,
-        priceImpact,
-        completionEstimateSeconds,
-        transactionStates,
-      } = await prepareSend(options)
-      console.log("[trails-sdk] Intent address:", intentAddress?.toString())
+      const { quote: prepareSendQuote, send } = await prepareSend(options)
 
       const quote = {
-        fromAmount: originSendAmount,
-        toAmount: destinationTokenAmount,
-        fees,
-        priceImpact,
-        completionEstimateSeconds,
-        slippageTolerance: slippageTolerance?.toString(),
-        transactionStates,
+        fromAmount: prepareSendQuote.originAmount,
+        toAmount: prepareSendQuote.destinationAmount,
+        fromAmountMin: prepareSendQuote.originAmountMin,
+        toAmountMin: prepareSendQuote.destinationAmountMin,
+        originToken: prepareSendQuote.originToken,
+        destinationToken: prepareSendQuote.destinationToken,
+        originChain: prepareSendQuote.originChain,
+        destinationChain: prepareSendQuote.destinationChain,
+        fees: prepareSendQuote.fees,
+        priceImpact: prepareSendQuote.priceImpact,
+        completionEstimateSeconds: prepareSendQuote.completionEstimateSeconds,
+        slippageTolerance: prepareSendQuote.slippageTolerance,
+        transactionStates: prepareSendQuote.transactionStates,
       }
 
       const swap = async (): Promise<SwapReturn> => {
@@ -2395,7 +2469,7 @@ export function getFeesFromIntent(
     }
   }
 
-  const totalFeeAmountUsdFormatted = formatUsdValue(totalFeeAmountUsd)
+  const totalFeeAmountUsdFormatted = formatUsdAmountDisplay(totalFeeAmountUsd)
   return {
     feeTokenAddress: intent.trailsFee?.feeToken ?? zeroAddress,
     totalFeeAmount: intent.trailsFee?.totalFeeAmount ?? "0",
@@ -2418,7 +2492,7 @@ export function getPriceImpactFromIntent(
 
 export function getFeesFromRelaySdkQuote(quote: RelayQuote): PrepareSendFees {
   const totalFeeAmountUsd = quote?.fees?.relayer?.amount ?? "0"
-  const totalFeeAmountUsdFormatted = formatUsdValue(totalFeeAmountUsd)
+  const totalFeeAmountUsdFormatted = formatUsdAmountDisplay(totalFeeAmountUsd)
   return {
     feeTokenAddress: quote?.fees?.relayer?.currency?.address ?? zeroAddress,
     totalFeeAmount: quote?.fees?.relayer?.amount ?? "0",
@@ -2475,4 +2549,135 @@ export function getCompletionEstimateSeconds({
 
 export function getIsCustomCalldata(calldata: string | undefined): boolean {
   return calldata !== undefined && calldata !== "" && calldata !== "0x"
+}
+
+export async function getNormalizedQuoteObject({
+  originAddress,
+  destinationAddress,
+  destinationCalldata,
+  originChainId,
+  destinationChainId,
+  originAmount,
+  originAmountMin,
+  destinationAmount,
+  destinationAmountMin,
+  originTokenAddress,
+  destinationTokenAddress,
+  originTokenPriceUsd,
+  destinationTokenPriceUsd,
+  transactionStates,
+  fees,
+  slippageTolerance,
+  priceImpact,
+}: {
+  originAddress?: string
+  destinationAddress?: string
+  destinationCalldata?: string
+  originChainId: number
+  destinationChainId?: number
+  originAmount: string
+  originAmountMin?: string
+  destinationAmount: string
+  destinationAmountMin?: string
+  originTokenAddress: string
+  destinationTokenAddress?: string
+  originTokenPriceUsd?: string | null
+  destinationTokenPriceUsd?: string | null
+  transactionStates?: TransactionState[]
+  fees?: PrepareSendFees
+  slippageTolerance?: string
+  priceImpact?: string
+}): Promise<PrepareSendQuote> {
+  if (!destinationChainId) {
+    throw new Error("Destination chain id is required")
+  }
+
+  if (!destinationTokenAddress && originChainId === destinationChainId) {
+    destinationTokenAddress = originTokenAddress
+  }
+
+  if (!destinationTokenAddress && originChainId === destinationChainId) {
+    destinationTokenAddress = originTokenAddress
+  }
+
+  if (!destinationTokenAddress) {
+    throw new Error("Destination token address is required")
+  }
+
+  const originToken = await getTokenInfo(originChainId, originTokenAddress)
+  const destinationToken = await getTokenInfo(
+    destinationChainId,
+    destinationTokenAddress,
+  )
+
+  const originChain = getChainInfo(originChainId)
+  const destinationChain = getChainInfo(destinationChainId)
+
+  if (!originToken || !destinationToken || !originChain || !destinationChain) {
+    console.error("[trails-sdk] Token or chain not found", {
+      originToken,
+      destinationToken,
+      originChain,
+      destinationChain,
+    })
+    throw new Error("Token or chain not found")
+  }
+
+  const originAmountFormatted = formatRawAmount(
+    originAmount,
+    originToken.decimals,
+  )
+  const originAmountUsdFormatted = formatAmount(
+    calcAmountUsdPrice({
+      amount: originAmountFormatted,
+      usdPrice: originTokenPriceUsd,
+    }),
+  )
+  const originAmountUsdDisplay = formatUsdAmountDisplay(
+    originAmountUsdFormatted,
+  )
+
+  const destinationAmountFormatted = formatRawAmount(
+    destinationAmount,
+    destinationToken.decimals,
+  )
+  const destinationAmountUsdFormatted = formatAmount(
+    calcAmountUsdPrice({
+      amount: destinationAmountFormatted,
+      usdPrice: destinationTokenPriceUsd,
+    }),
+  )
+  const destinationAmountUsdDisplay = formatUsdAmountDisplay(
+    destinationAmountUsdFormatted,
+  )
+
+  const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
+
+  return {
+    originAddress: originAddress || "",
+    destinationAddress: destinationAddress || "",
+    destinationCalldata: hasCustomCalldata ? destinationCalldata || "" : "",
+    originAmount: originAmount || "0",
+    originAmountMin: originAmountMin || originAmount || "0",
+    destinationAmount: destinationAmount || "0",
+    destinationAmountMin: destinationAmountMin || destinationAmount || "0",
+    originAmountFormatted,
+    originAmountUsdFormatted,
+    originAmountUsdDisplay,
+    destinationAmountFormatted,
+    destinationAmountUsdFormatted,
+    destinationAmountUsdDisplay,
+    originToken,
+    destinationToken,
+    fees: fees || getZeroFees(),
+    slippageTolerance: slippageTolerance || "0",
+    priceImpact: priceImpact || "0",
+    originChain,
+    destinationChain,
+    completionEstimateSeconds: getCompletionEstimateSeconds({
+      originChainId,
+      destinationChainId,
+    }),
+    transactionStates: transactionStates || [],
+  }
 }

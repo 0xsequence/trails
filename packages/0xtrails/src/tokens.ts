@@ -17,14 +17,113 @@ export type SupportedToken = {
   imageUrl: string
 }
 
+const cacheVersion = "01"
+
 // LocalStorage cache utilities for token images
-const TOKEN_IMAGE_CACHE_KEY = "trails-sdk:token-image-cache:01"
+const TOKEN_IMAGE_CACHE_KEY = `trails-sdk:token-image-cache:${cacheVersion}`
 const TOKEN_IMAGE_CACHE_EXPIRY = 7 * 24 * 60 * 60 * 1000 // 7 days
 
 interface TokenImageCacheEntry {
   imageUrl: string
   timestamp: number
   found: boolean
+}
+
+// Token info cache utilities
+const TOKEN_INFO_CACHE_KEY = `trails-sdk:token-info-cache:${cacheVersion}`
+const TOKEN_INFO_CACHE_EXPIRY = 24 * 60 * 60 * 1000 // 24 hours
+
+interface TokenInfoCacheEntry {
+  id: string
+  symbol: string
+  name: string
+  contractAddress: string
+  decimals: number
+  chainId: number
+  chainName: string
+  imageUrl: string
+  timestamp: number
+}
+
+// In-memory token info cache
+const tokenInfoCache = new Map<string, TokenInfoCacheEntry>()
+
+function getTokenInfoCache(): Record<string, TokenInfoCacheEntry> {
+  if (typeof window === "undefined") return {}
+
+  try {
+    const cached = localStorage.getItem(TOKEN_INFO_CACHE_KEY)
+    if (!cached) return {}
+
+    const parsed = JSON.parse(cached) as Record<string, TokenInfoCacheEntry>
+    const now = Date.now()
+
+    // Clean up expired entries
+    const validEntries = Object.entries(parsed).filter(([_, entry]) => {
+      return now - entry.timestamp < TOKEN_INFO_CACHE_EXPIRY
+    })
+
+    return Object.fromEntries(validEntries) as Record<
+      string,
+      TokenInfoCacheEntry
+    >
+  } catch {
+    return {}
+  }
+}
+
+function setTokenInfoCache(
+  key: string,
+  tokenInfo: {
+    id: string
+    symbol: string
+    name: string
+    contractAddress: string
+    decimals: number
+    chainId: number
+    chainName: string
+    imageUrl: string
+  },
+): void {
+  if (typeof window === "undefined") return
+
+  try {
+    const cache = getTokenInfoCache()
+    cache[key] = {
+      ...tokenInfo,
+      timestamp: Date.now(),
+    }
+    localStorage.setItem(TOKEN_INFO_CACHE_KEY, JSON.stringify(cache))
+
+    // Also update in-memory cache
+    tokenInfoCache.set(key, cache[key])
+  } catch (error) {
+    console.warn("[trails-sdk] Failed to cache token info:", error)
+  }
+}
+
+function getCachedTokenInfo(
+  chainId: number,
+  contractAddress: string,
+): TokenInfoCacheEntry | null {
+  const key = `${chainId}:${contractAddress.toLowerCase()}`
+
+  // Check in-memory cache first
+  const memoryEntry = tokenInfoCache.get(key)
+  if (memoryEntry) {
+    return memoryEntry
+  }
+
+  // Check localStorage cache
+  const cache = getTokenInfoCache()
+  const cachedEntry = cache[key]
+  if (cachedEntry) {
+    // Update in-memory cache
+    tokenInfoCache.set(key, cachedEntry)
+    return cachedEntry
+  }
+
+  return null
 }
 
 function getTokenImageCache(): Record<string, TokenImageCacheEntry> {
@@ -137,6 +236,17 @@ function sortTokens(tokens: SupportedToken[]): SupportedToken[] {
     // 4. If symbols are the same, sort by chainName
     return a.chainName.localeCompare(b.chainName)
   })
+}
+
+export function getCachedTokenImageUrl(
+  chainId: number,
+  contractAddress: string,
+  symbol: string,
+) {
+  const cacheKey = `${chainId}:${contractAddress}:${symbol}`
+  const cache = getTokenImageCache()
+  const cachedEntry = cache[cacheKey]
+  return cachedEntry?.imageUrl || ""
 }
 
 export async function getTokenImageUrlOrFallback({
@@ -345,6 +455,70 @@ export function getFormatttedTokenName(
   return name
 }
 
+export async function getTokenInfo(
+  chainId: number,
+  contractAddress: string,
+): Promise<SupportedToken | null> {
+  const normalizedAddress = contractAddress.toLowerCase()
+
+  // Check cache first
+  const cachedInfo = getCachedTokenInfo(chainId, normalizedAddress)
+  if (cachedInfo) {
+    return {
+      id: cachedInfo.id,
+      symbol: cachedInfo.symbol,
+      name: cachedInfo.name,
+      contractAddress: cachedInfo.contractAddress,
+      decimals: cachedInfo.decimals,
+      chainId: cachedInfo.chainId,
+      chainName: cachedInfo.chainName,
+      imageUrl: cachedInfo.imageUrl,
+    }
+  }
+
+  // Check if it's a native token
+  const chainInfo = getChainInfo(chainId)
+  if (normalizedAddress === zeroAddress.toLowerCase()) {
+    const nativeInfo: SupportedToken = {
+      id: `${chainInfo?.nativeCurrency.symbol || "ETH"}-${chainInfo?.name || "ethereum"}`,
+      symbol: chainInfo?.nativeCurrency.symbol || "ETH",
+      name: chainInfo?.nativeCurrency.name || "Ethereum",
+      contractAddress: zeroAddress,
+      decimals: chainInfo?.nativeCurrency.decimals || 18,
+      chainId,
+      chainName: chainInfo?.name || "Ethereum",
+      imageUrl: getTokenImageUrl({
+        chainId,
+        contractAddress: zeroAddress,
+        symbol: chainInfo?.nativeCurrency.symbol || "ETH",
+      }),
+    }
+
+    // Cache the native token info
+    setTokenInfoCache(`${chainId}:${normalizedAddress}`, nativeInfo)
+
+    return nativeInfo
+  }
+
+  // Look in supported tokens
+  const tokens = await getSupportedTokens()
+  const token = tokens.find(
+    (t) =>
+      t.chainId === chainId &&
+      t.contractAddress.toLowerCase() === normalizedAddress,
+  )
+
+  if (token) {
+    // Cache the token info
+    setTokenInfoCache(`${chainId}:${normalizedAddress}`, token)
+
+    return token
+  }
+
+  // If not found in supported tokens, return null
+  return null
+}
+
 export async function getTokenAddress(chainId: number, tokenSymbol: string) {
   const chainInfo = getChainInfo(chainId)
   if (tokenSymbol === chainInfo?.nativeCurrency.symbol) {
@@ -387,11 +561,39 @@ export function useTokenAddress({
   return tokenAddress || null
 }
 
-export function getCommonTokenImageUrl(symbol: string) {
+export function getCommonTokenImageUrl({
+  symbol,
+  contractAddress,
+  chainId,
+}: {
+  symbol?: string | null
+  contractAddress?: string | null
+  chainId?: number | null
+}) {
+  if (!symbol || !contractAddress || !chainId) {
+    return ""
+  }
+
+  if (!symbol) {
+    const token = commonTokens.find(
+      (t) =>
+        t.chainId === chainId &&
+        t.contractAddress?.toLowerCase() === contractAddress.toLowerCase(),
+    )
+    if (token) {
+      symbol = token.symbol
+    }
+  }
+
+  if (!symbol) {
+    return ""
+  }
+
   const symbolKey = tokenImageSymbolMap[symbol] ?? symbol
   if (commonTokenImages[symbolKey]) {
     return commonTokenImages[symbolKey]
   }
+
   return ""
 }
 
@@ -408,8 +610,21 @@ export function getTokenImageUrl({
     return ""
   }
 
+  const cachedImageUrl = getCachedTokenImageUrl(
+    chainId,
+    contractAddress,
+    symbol,
+  )
+  if (cachedImageUrl) {
+    return cachedImageUrl
+  }
+
   if (symbol) {
-    const commonImageUrl = getCommonTokenImageUrl(symbol)
+    const commonImageUrl = getCommonTokenImageUrl({
+      symbol,
+      contractAddress,
+      chainId,
+    })
     if (commonImageUrl) {
       return commonImageUrl
     }
@@ -481,6 +696,13 @@ export function useTokenInfo({
 } {
   // Always call hooks unconditionally
   const isAddress = address?.startsWith("0x") ?? false
+
+  // Check cache first
+  const cachedInfo = useMemo(() => {
+    if (!isAddress || !chainId) return null
+    return getCachedTokenInfo(chainId, address)
+  }, [isAddress, chainId, address])
+
   const contract = {
     address: address as `0x${string}`,
     abi: erc20Abi,
@@ -488,7 +710,7 @@ export function useTokenInfo({
   } as const
   const result = useReadContracts({
     contracts:
-      !!isAddress && !!chainId
+      !!isAddress && !!chainId && !cachedInfo
         ? [
             { ...contract, functionName: "name" },
             { ...contract, functionName: "symbol" },
@@ -500,21 +722,48 @@ export function useTokenInfo({
     result?.error ?? result?.data?.find((r) => r.error)?.error ?? null
   const [name, symbol, decimals] = result.data ?? []
   const chainInfo = getChainInfo(chainId!)
+
   const tokenInfo = useMemo(() => {
-    if (!symbol?.result || !name?.result || decimals?.result == null) {
-      return null
+    // If we have cached info, use it
+    if (cachedInfo) {
+      return {
+        id: cachedInfo.id,
+        name: cachedInfo.name,
+        symbol: cachedInfo.symbol,
+        decimals: cachedInfo.decimals,
+        chainId: cachedInfo.chainId,
+        contractAddress: cachedInfo.contractAddress,
+        chainName: cachedInfo.chainName,
+        imageUrl: cachedInfo.imageUrl,
+      }
     }
-    return {
-      id: symbol.result,
-      name: name.result,
-      symbol: symbol.result,
-      decimals: decimals.result,
-      chainId,
-      contractAddress: address,
-      chainName: chainInfo?.name ?? "",
-      imageUrl: "",
+
+    // If we have blockchain data, use it and cache it
+    if (symbol?.result && name?.result && decimals?.result != null) {
+      const tokenInfo: SupportedToken = {
+        id: symbol.result,
+        name: name.result,
+        symbol: symbol.result,
+        decimals: decimals.result,
+        chainId: chainId!,
+        contractAddress: address,
+        chainName: chainInfo?.name ?? "",
+        imageUrl: getTokenImageUrl({
+          chainId,
+          contractAddress: address,
+          symbol: symbol.result,
+        }),
+      }
+
+      // Cache the result
+      setTokenInfoCache(`${chainId}:${address.toLowerCase()}`, tokenInfo)
+
+      return tokenInfo
     }
+
+    return null
   }, [
+    cachedInfo,
     address,
     chainId,
     chainInfo?.name,
@@ -522,6 +771,7 @@ export function useTokenInfo({
     symbol?.result,
     decimals?.result,
   ])
+
   // Early return if not a valid address or chainId
   if (!isAddress || !chainId) {
     return {
@@ -530,9 +780,10 @@ export function useTokenInfo({
       error: null,
     }
   }
+
   return {
     tokenInfo,
-    isLoading: result.isLoading,
+    isLoading: !cachedInfo && result.isLoading,
     error: error,
   }
 }

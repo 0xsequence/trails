@@ -3,52 +3,24 @@ import { ChevronLeft } from "lucide-react"
 import type React from "react"
 import { useEffect, useState } from "react"
 import type { ActiveTheme } from "../../theme.js"
-import type { PrepareSendFees } from "../../prepareSend.js"
+import type { PrepareSendQuote } from "../../prepareSend.js"
 import { QuoteDetails } from "./QuoteDetails.js"
 
 interface WalletConfirmationProps {
   onBack: () => void
   onComplete: () => void
   theme?: ActiveTheme
-  amount?: string
-  amountUsd?: string
-  recipient?: string
-  tokenSymbol?: string
   retryEnabled?: boolean
   onRetry?: () => void
-  fromTokenSymbol: string
-  fromChainId: number
-  fromTokenImageUrl: string
-  fees?: PrepareSendFees
-  slippageTolerance?: string
-  priceImpact?: string
-  destinationTokenSymbol?: string
-  destinationTokenAmount?: string
-  destinationTokenAmountUsd?: string
-  destinationChainId?: number
-  destinationTokenImageUrl?: string
+  quote?: PrepareSendQuote | null
 }
 
 export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   theme = "light",
-  amount,
-  amountUsd,
-  recipient,
-  tokenSymbol,
   retryEnabled = false,
   onRetry,
   onBack,
-  fromTokenSymbol,
-  fromChainId,
-  fromTokenImageUrl,
-  fees,
-  slippageTolerance,
-  priceImpact,
-  destinationTokenSymbol,
-  destinationTokenAmount,
-  destinationTokenAmountUsd,
-  destinationChainId,
-  destinationTokenImageUrl,
+  quote,
 }) => {
   const [showContent, setShowContent] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
@@ -60,11 +32,13 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setShowTimeoutWarning(true)
+      if (!retryEnabled) {
+        setShowTimeoutWarning(true)
+      }
     }, 60000) // 1 minute
 
     return () => clearTimeout(timer)
-  }, [])
+  }, [retryEnabled])
 
   return (
     <div className="space-y-6">
@@ -100,9 +74,9 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
 
             <div className="absolute">
               <TokenImage
-                imageUrl={fromTokenImageUrl}
-                symbol={fromTokenSymbol}
-                chainId={fromChainId}
+                imageUrl={quote?.originToken.imageUrl}
+                symbol={quote?.originToken.symbol}
+                chainId={quote?.originChain.id}
                 size={64}
               />
             </div>
@@ -202,25 +176,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
 
         {/* Transaction Details */}
         {showDetails && (
-          <QuoteDetails
-            theme={theme}
-            amount={amount}
-            amountUsd={amountUsd}
-            recipient={recipient}
-            tokenSymbol={tokenSymbol}
-            fromTokenSymbol={fromTokenSymbol}
-            fromChainId={fromChainId}
-            fromTokenImageUrl={fromTokenImageUrl}
-            fees={fees}
-            slippageTolerance={slippageTolerance}
-            priceImpact={priceImpact}
-            destinationTokenSymbol={destinationTokenSymbol}
-            destinationTokenAmount={destinationTokenAmount}
-            destinationTokenAmountUsd={destinationTokenAmountUsd}
-            destinationChainId={destinationChainId}
-            destinationTokenImageUrl={destinationTokenImageUrl}
-            showContent={showContent}
-          />
+          <QuoteDetails theme={theme} quote={quote} showContent={showContent} />
         )}
 
         {/* Retry Button */}

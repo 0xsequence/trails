@@ -184,3 +184,13 @@ export function invalidateTokenPricesCache(token?: Token) {
     })
   }
 }
+
+export function calcAmountUsdPrice({
+  amount,
+  usdPrice,
+}: {
+  amount: number | string
+  usdPrice: string | number | null | undefined
+}) {
+  return Number(amount) * Number(usdPrice || 0)
+}

@@ -279,13 +279,16 @@ export function useTokenBalances(
 }
 
 // Helper to format balance
-export function formatBalance(balance: string, decimals: number = 18) {
+export function formatRawAmount(
+  balance: string | bigint,
+  decimals: number = 18,
+): string {
   try {
     const formatted = formatUnits(BigInt(balance), decimals)
-    return formatValue(formatted)
+    return formatAmount(formatted)
   } catch (e) {
     console.error("[trails-sdk] Error formatting balance:", e)
-    return balance
+    return balance.toString()
   }
 }
 
@@ -294,7 +297,7 @@ export function getTokenBalanceUsd(
   tokenPrice: Price,
 ): number {
   const isNative = isNativeToken(token)
-  const formattedBalance = formatBalance(
+  const formattedBalance = formatRawAmount(
     token.balance,
     isNative ? 18 : token.contractInfo?.decimals,
   )
@@ -302,7 +305,7 @@ export function getTokenBalanceUsd(
   return Number(formattedBalance) * priceUsd
 }
 
-export function formatValue(value: string | number): string {
+export function formatAmount(value: string | number): string {
   if (!value) {
     value = 0
   }
@@ -318,7 +321,7 @@ export function formatValue(value: string | number): string {
   return value.toString()
 }
 
-export function formatUsdValue(value: number | string = 0): string {
+export function formatUsdAmountDisplay(value: number | string = 0): string {
   if (!value) {
     value = 0
   }
@@ -335,7 +338,7 @@ export function getTokenBalanceUsdFormatted(
   tokenPrice: Price,
 ): string {
   const balanceUsd = getTokenBalanceUsd(token, tokenPrice)
-  return formatUsdValue(balanceUsd)
+  return formatUsdAmountDisplay(balanceUsd)
 }
 
 export function useTokenBalanceUsdFormat(
@@ -761,6 +764,6 @@ export function useAccountTotalBalanceUsd(account: string): {
   return {
     totalBalanceUsd: totalBalanceUsd || 0,
     isLoadingTotalBalanceUsd,
-    totalBalanceUsdFormatted: formatUsdValue(totalBalanceUsd || 0),
+    totalBalanceUsdFormatted: formatUsdAmountDisplay(totalBalanceUsd || 0),
   }
 }

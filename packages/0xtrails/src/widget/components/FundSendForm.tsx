@@ -6,18 +6,14 @@ import { formatUnits } from "viem"
 import type { TransactionState } from "../../transactions.js"
 import type { RelayerEnv } from "../../relayer.js"
 import type { ActiveTheme } from "../../theme.js"
-import type {
-  OnCompleteProps,
-  SendFormQuote,
-  Token,
-  TokenInfo,
-} from "../hooks/useSendForm.js"
+import type { OnCompleteProps, Token, TokenInfo } from "../hooks/useSendForm.js"
 import { useSendForm } from "../hooks/useSendForm.js"
 import { ChainImage } from "./ChainImage.js"
 import { TokenImage } from "./TokenImage.js"
 import { QuoteDetails } from "./QuoteDetails.js"
 import { TradeType } from "../../prepareSend.js"
-import { formatValue, formatUsdValue } from "../../tokenBalances.js"
+import type { PrepareSendQuote } from "../../prepareSend.js"
+import { formatAmount, formatUsdAmountDisplay } from "../../tokenBalances.js"
 
 interface FundSendFormProps {
   selectedToken: Token
@@ -38,7 +34,7 @@ interface FundSendFormProps {
   theme?: ActiveTheme
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   onError: (error: Error | string | null) => void
-  onWaitingForWalletConfirm: (props: SendFormQuote) => void
+  onWaitingForWalletConfirm: (props: PrepareSendQuote) => void
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
   setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
@@ -84,9 +80,9 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
 
   const {
     amount,
-    amountUsdFormatted,
+    amountUsdDisplay,
     balanceFormatted,
-    balanceUsdFormatted,
+    balanceUsdDisplay,
     chainInfo,
     isSubmitting,
     isLoadingQuote,
@@ -108,10 +104,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     supportedTokens,
     setSelectedDestinationChain,
     setSelectedDestToken,
-    fees,
-    slippageTolerance,
-    priceImpact,
-    prepareSendResult,
+    prepareSendQuote,
   } = useSendForm({
     account,
     sequenceProjectAccessKey,
@@ -217,15 +210,15 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     if (isInputTypeUsd && sourceTokenPrice > 0) {
       // Show token amount when in USD mode
       const tokenAmount = parseFloat(amount) || 0
-      return `${formatValue(tokenAmount)} ${selectedToken.symbol}`
+      return `${formatAmount(tokenAmount)} ${selectedToken.symbol}`
     }
-    return amountUsdFormatted
+    return amountUsdDisplay
   }, [
     amount,
     isInputTypeUsd,
     sourceTokenPrice,
     selectedToken.symbol,
-    amountUsdFormatted,
+    amountUsdDisplay,
   ])
 
   // Calculate USD value for the receive section based on destination token
@@ -238,11 +231,11 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
         destinationAmount,
         destTokenPrice,
         usdValue,
-        formatted: formatUsdValue(usdValue),
+        formatted: formatUsdAmountDisplay(usdValue),
       })
-      return formatUsdValue(usdValue)
+      return formatUsdAmountDisplay(usdValue)
     }
-    return "$0.00"
+    return formatUsdAmountDisplay(0)
   }, [toAmountFormatted, destTokenPrice])
 
   // Handle percentage clicks for quick amounts
@@ -369,7 +362,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
               >
                 Balance:{" "}
               </span>
-              {balanceUsdFormatted}
+              {balanceUsdDisplay}
             </div>
             <div
               className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
@@ -742,7 +735,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
         </button>
 
         {/* Quote Details */}
-        {prepareSendResult && (
+        {prepareSendQuote && (
           <div className="space-y-2">
             <button
               type="button"
@@ -773,21 +766,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
             {showMoreDetails && (
               <QuoteDetails
                 theme={theme}
-                amount={amount}
-                amountUsd={amountUsdFormatted}
-                recipient={recipient}
-                tokenSymbol={selectedToken.symbol}
-                fromTokenSymbol={selectedToken.symbol}
-                fromChainId={selectedToken.chainId}
-                fromTokenImageUrl={selectedToken.imageUrl}
-                fees={fees}
-                slippageTolerance={slippageTolerance}
-                priceImpact={priceImpact}
-                destinationTokenSymbol={selectedDestToken?.symbol}
-                destinationTokenAmount={toAmountFormatted}
-                destinationTokenAmountUsd={receiveUsdValue}
-                destinationChainId={selectedDestinationChain?.id}
-                destinationTokenImageUrl={selectedDestToken?.imageUrl}
+                quote={prepareSendQuote}
                 showContent={showMoreDetails}
               />
             )}

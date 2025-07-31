@@ -4,7 +4,6 @@ import type React from "react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import {
   type Account,
-  formatUnits,
   getAddress,
   isAddress,
   parseUnits,
@@ -19,7 +18,8 @@ import { getFullErrorMessage } from "../../error.js"
 import {
   prepareSend,
   TradeType,
-  type PrepareSendFees,
+  type PrepareSendReturn,
+  type PrepareSendQuote,
 } from "../../prepareSend.js"
 import type { TransactionState } from "../../transactions.js"
 import { useTokenPrices } from "../../prices.js"
@@ -27,9 +27,9 @@ import { useQueryParams } from "../../queryParams.js"
 import { getRelayer, type RelayerEnv } from "../../relayer.js"
 import type { Theme } from "../../theme.js"
 import {
-  formatBalance,
-  formatUsdValue,
-  formatValue,
+  formatRawAmount,
+  formatUsdAmountDisplay,
+  formatAmount,
 } from "../../tokenBalances.js"
 import type { SupportedToken } from "../../tokens.js"
 import {
@@ -48,7 +48,7 @@ export interface Token {
   chainId: number
   contractAddress: string
   tokenPriceUsd?: number
-  balanceUsdFormatted?: string
+  balanceUsdDisplay?: string
   contractInfo?: {
     decimals: number
     symbol: string
@@ -98,24 +98,6 @@ export type OnCompleteProps = {
   destinationMetaTxnReceipt: MetaTxnReceipt | null
 }
 
-export type SendFormQuote = {
-  intentAddress?: string
-  amount: string
-  amountUsd: string
-  tokenSymbol: string
-  tokenName: string
-  chainId: number
-  imageUrl: string
-  fees?: PrepareSendFees
-  slippageTolerance?: string
-  priceImpact?: string
-  destinationTokenSymbol?: string
-  destinationTokenAmount?: string
-  destinationTokenAmountUsd?: string
-  destinationChainId?: number
-  destinationTokenImageUrl?: string
-}
-
 export type UseSendProps = {
   account: Account
   sequenceProjectAccessKey: string
@@ -131,7 +113,7 @@ export type UseSendProps = {
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   useSourceTokenForButtonText: boolean
   onError: (error: Error | string | null) => void
-  onWaitingForWalletConfirm: (quote: SendFormQuote) => void
+  onWaitingForWalletConfirm: (quote: PrepareSendQuote) => void
   paymasterUrls?: PaymasterUrl[]
   gasless?: boolean
   onSend: (amount: string, recipient: string) => void
@@ -144,8 +126,8 @@ export type UseSendProps = {
 
 export type UseSendReturn = {
   amount: string
-  amountUsdFormatted: string
-  balanceUsdFormatted: string
+  amountUsdDisplay: string
+  balanceUsdDisplay: string
   chainInfo: ChainInfo | null
   error: string | null
   toChainId: number | undefined
@@ -183,11 +165,7 @@ export type UseSendReturn = {
   toAmountFormatted: string
   destinationTokenAddress: string | null
   isValidCustomToken: boolean
-  prepareSendResult: any | null
-  fees?: PrepareSendFees
-  slippageTolerance?: string
-  priceImpact?: string
-  originSendAmount?: string
+  prepareSendQuote: PrepareSendQuote | null
 }
 
 export function useSendForm({
@@ -415,7 +393,7 @@ export function useSendForm({
   }, [toAmount, tradeType])
 
   const toAmountFormatted = useMemo(() => {
-    return formatValue(toAmount || 0)
+    return formatAmount(toAmount || 0)
   }, [toAmount])
 
   // Update recipient when toRecipient prop changes
@@ -429,13 +407,14 @@ export function useSendForm({
   const [isWaitingForWalletConfirm, setIsWaitingForWalletConfirm] =
     useState(false)
   const [isLoadingQuote, setIsLoadingQuote] = useState(false)
-  const [prepareSendResult, setPrepareSendResult] = useState<any>(null)
+  const [prepareSendResult, setPrepareSendResult] =
+    useState<PrepareSendReturn | null>(null)
 
-  const balanceFormatted = formatBalance(
+  const balanceFormatted = formatRawAmount(
     selectedToken.balance,
     selectedToken.contractInfo?.decimals,
   )
-  const balanceUsdFormatted = selectedToken.balanceUsdFormatted ?? ""
+  const balanceUsdDisplay = selectedToken.balanceUsdDisplay ?? ""
   const relayerConfig = useMemo(
     () => ({ env, useV3Relayers: DEFAULT_USE_V3_RELAYERS }),
     [env],
@@ -444,13 +423,13 @@ export function useSendForm({
   const isValidRecipient = Boolean(recipient && isAddress(recipient))
 
   // Calculate USD value based on trade type
-  const amountUsdFormatted = useMemo(() => {
+  const amountUsdDisplay = useMemo(() => {
     const tokenPrice =
       tradeType === TradeType.EXACT_INPUT
         ? (sourceTokenPrices?.[0]?.price?.value ?? 0) // For fund form, use source token price
         : (destTokenPrices?.[0]?.price?.value ?? 0) // For payment form, use dest token price
     const amountUsd = Number(amount) * tokenPrice
-    return formatUsdValue(amountUsd)
+    return formatUsdAmountDisplay(amountUsd)
   }, [amount, destTokenPrices, sourceTokenPrices, tradeType])
 
   const [selectedFeeToken, setSelectedFeeToken] = useState<TokenInfo | null>(
@@ -562,6 +541,9 @@ export function useSendForm({
       }
 
       const result = await prepareSend(options)
+
+      console.log("[trails-sdk] prepareSend quote:", result.quote)
+
       setPrepareSendResult(result)
       setIsLoadingQuote(false)
     } catch (error) {
@@ -630,33 +612,10 @@ export function useSendForm({
   const quotedDestinationAmount = useMemo(() => {
     if (prepareSendResult && tradeType === TradeType.EXACT_INPUT) {
       // For EXACT_INPUT, use the destination amount from the quote
-      const decimals = selectedDestToken?.decimals ?? 18
-      try {
-        const destinationAmount = parseFloat(
-          formatUnits(
-            BigInt(prepareSendResult.destinationTokenAmount || "0"),
-            decimals,
-          ),
-        )
-        console.log("[trails-sdk] Quote destination amount:", {
-          destinationTokenAmount: prepareSendResult.destinationTokenAmount,
-          decimals,
-          formatted: destinationAmount,
-          finalFormatted: formatValue(destinationAmount),
-        })
-        return formatValue(destinationAmount)
-      } catch (error) {
-        console.warn("[trails-sdk] Error formatting destination amount:", error)
-        return "0.00"
-      }
+      return prepareSendResult.quote.destinationAmountFormatted
     }
     return toAmountFormatted
-  }, [
-    prepareSendResult,
-    tradeType,
-    selectedDestToken?.decimals,
-    toAmountFormatted,
-  ])
+  }, [prepareSendResult, tradeType, toAmountFormatted])
 
   const processSend = useCallback(async () => {
     try {
@@ -668,33 +627,9 @@ export function useSendForm({
       setError(null)
       setIsSubmitting(true)
 
-      // Get necessary variables for calculations
-      const sourceTokenPriceUsd = selectedToken.tokenPriceUsd ?? null
-      const destinationTokenPriceUsd =
-        destTokenPrices?.[0]?.price?.value ?? null
+      const { quote, send } = prepareSendResult
 
-      const decimals =
-        tradeType === TradeType.EXACT_INPUT
-          ? selectedToken.contractInfo?.decimals
-          : selectedDestToken?.decimals
-      const parsedAmount = parseUnits(amount, decimals!).toString()
-
-      const {
-        intentAddress,
-        originSendAmount,
-        fees,
-        slippageTolerance,
-        priceImpact,
-        send,
-      } = prepareSendResult
-
-      console.log("[trails-sdk] Using prepared send result:", {
-        intentAddress: intentAddress?.toString(),
-        originSendAmount,
-        fees,
-        slippageTolerance,
-        priceImpact,
-      })
+      console.log("[trails-sdk] Using prepared send result quote:", quote)
 
       function onOriginSend() {
         console.log("[trails-sdk] onOriginSend called")
@@ -703,50 +638,8 @@ export function useSendForm({
         onSend(amount, recipient)
       }
 
-      const originSendAmountFormatted = Number(
-        formatUnits(
-          BigInt(originSendAmount),
-          selectedToken.contractInfo?.decimals ?? 18,
-        ),
-      )
-
-      const originSendAmountUsdFormatted =
-        originSendAmountFormatted * (sourceTokenPriceUsd ?? 0)
-
-      const destinationTokenAmountFormatted = Number(
-        formatUnits(
-          BigInt(
-            tradeType === TradeType.EXACT_INPUT
-              ? prepareSendResult.destinationTokenAmount || "0"
-              : parsedAmount,
-          ),
-          selectedDestToken.decimals ?? 18,
-        ),
-      )
-
-      const destinationTokenAmountUsdFormatted =
-        destinationTokenAmountFormatted * (destinationTokenPriceUsd ?? 0)
-
       setIsWaitingForWalletConfirm(true)
-      onWaitingForWalletConfirm({
-        intentAddress: intentAddress?.toString() ?? "",
-        amount: formatValue(originSendAmountFormatted),
-        amountUsd: formatUsdValue(originSendAmountUsdFormatted),
-        tokenSymbol: selectedToken.symbol,
-        tokenName: selectedToken.name,
-        chainId: selectedToken.chainId,
-        imageUrl: selectedToken.imageUrl,
-        fees,
-        slippageTolerance,
-        priceImpact,
-        destinationTokenSymbol: selectedDestToken.symbol,
-        destinationTokenAmount: formatValue(destinationTokenAmountFormatted),
-        destinationTokenAmountUsd: formatUsdValue(
-          destinationTokenAmountUsdFormatted,
-        ),
-        destinationChainId: selectedDestinationChain.id,
-        destinationTokenImageUrl: selectedDestToken.imageUrl,
-      })
+      onWaitingForWalletConfirm(prepareSendResult.quote)
 
       async function handleSend() {
         console.log("[trails-sdk] handleRetry called, about to call send()")
@@ -811,9 +704,6 @@ export function useSendForm({
     prepareSendResult,
     amount,
     selectedToken,
-    selectedDestToken,
-    destTokenPrices,
-    tradeType,
     onSend,
     onConfirm,
     onComplete,
@@ -843,7 +733,7 @@ export function useSendForm({
     if (isLoadingQuote) return "Getting quote..."
     if (!prepareSendResult) return "No quote available"
 
-    const amountFormatted = formatValue(amount)
+    const amountFormatted = formatAmount(amount)
 
     // For EXACT_INPUT (Fund mode), use source token since user enters source amount
     // For EXACT_OUTPUT (Payment mode), use dest token since user enters dest amount
@@ -869,7 +759,7 @@ export function useSendForm({
           if (destPrice > 0 && sourcePrice > 0) {
             const destAmountUsd = Number(amount) * destPrice
             const sourceAmount = destAmountUsd / sourcePrice
-            const formattedSourceAmount = formatValue(sourceAmount)
+            const formattedSourceAmount = formatAmount(sourceAmount)
             return `Spend ~${formattedSourceAmount} ${selectedToken.symbol}`
           }
         }
@@ -901,8 +791,8 @@ export function useSendForm({
 
   return {
     amount,
-    amountUsdFormatted,
-    balanceUsdFormatted,
+    amountUsdDisplay,
+    balanceUsdDisplay,
     chainInfo,
     toChainId,
     error,
@@ -940,10 +830,6 @@ export function useSendForm({
     toAmountFormatted: quotedDestinationAmount,
     destinationTokenAddress,
     isValidCustomToken,
-    prepareSendResult,
-    fees: prepareSendResult?.fees,
-    slippageTolerance: prepareSendResult?.slippageTolerance,
-    priceImpact: prepareSendResult?.priceImpact,
-    originSendAmount: prepareSendResult?.originSendAmount,
+    prepareSendQuote: prepareSendResult?.quote ?? null,
   }
 }

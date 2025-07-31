@@ -26,7 +26,7 @@ import React, {
 } from "react"
 import { createPortal } from "react-dom"
 import type { Chain, TransactionReceipt, WalletClient } from "viem"
-import { createWalletClient, custom, http } from "viem"
+import { createWalletClient, custom, http, parseUnits } from "viem"
 import { mainnet } from "viem/chains"
 import type { Connector } from "wagmi"
 import {
@@ -56,7 +56,8 @@ import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
 import { useAmountUsd } from "./hooks/useAmountUsd.js"
 import css from "./index.css?inline"
 import { trackWalletConnected, trackWidgetScreen } from "../analytics.js"
-import type { SendFormQuote } from "./hooks/useSendForm.js"
+import type { PrepareSendQuote } from "../prepareSend.js"
+import { getNormalizedQuoteObject } from "../prepareSend.js"
 import {
   getErrorString,
   getIsWalletRejectedError,
@@ -299,9 +300,8 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     )
     const [selectedToken, setSelectedToken] = useState<Token | null>(null)
     const [error, setError] = useState<string | null>(null)
-    const [sendFormQuote, setSendFormQuote] = useState<SendFormQuote | null>(
-      null,
-    )
+    const [prepareSendQuote, setPrepareSendQuote] =
+      useState<PrepareSendQuote | null>(null)
     const [showWalletConfirmRetry, setShowWalletConfirmRetry] = useState(false)
     const [walletConfirmRetryHandler, setWalletConfirmRetryHandler] = useState<
       (() => Promise<void>) | null
@@ -527,7 +527,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       setDestinationTxHash("")
       setDestinationChainId(null)
       setTransactionStates([])
-      setSendFormQuote(null)
+      setPrepareSendQuote(null)
       setTotalCompletionSeconds(null)
     }, [
       setDestinationTxHash,
@@ -637,97 +637,69 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       setTransactionStates([..._transactionStates])
     }
 
-    const handleDebugScreenSelect = (screen: string) => {
+    const handleDebugScreenSelect = async (screen: string) => {
       // Reset necessary state based on the target screen
       setError(null)
 
+      const dummySelectedToken = {
+        id: 1,
+        name: "USD Coin",
+        symbol: "USDC",
+        balance: parseUnits("1.99", 6)?.toString(),
+        imageUrl:
+          "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        chainId: 1,
+        contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        contractInfo: {
+          decimals: 6,
+          symbol: "USDC",
+          name: "USD Coin",
+        },
+      }
+
+      const dummyQuote = await getNormalizedQuoteObject({
+        originAddress: "0x5A0fb747531bC369367CB031472b89ea4D5c6Df7",
+        originAmount: parseUnits("1", 6)?.toString(),
+        originTokenAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        originChainId: 1,
+        originTokenPriceUsd: "1",
+        destinationChainId: 137,
+        destinationTokenAddress: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+        destinationAmount: parseUnits("0.97", 6)?.toString(),
+        destinationTokenPriceUsd: "1",
+      })
+
       switch (screen) {
         case "connect":
-          setCurrentScreen("connect")
           setSelectedToken(null)
           setTransactionStates([])
+          setCurrentScreen("connect")
           break
         case "tokens":
           if (isConnected) {
-            setCurrentScreen("tokens")
             setSelectedToken(null)
             setTransactionStates([])
+            setCurrentScreen("tokens")
           }
           break
         case "send-form":
           // Set dummy USDC token for debug mode
-          setSelectedToken({
-            id: 1,
-            name: "USD Coin",
-            symbol: "USDC",
-            balance: "1000000000",
-            imageUrl:
-              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-            chainId: 1,
-            contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-            contractInfo: {
-              decimals: 6,
-              symbol: "USDC",
-              name: "USD Coin",
-            },
-          })
-
-          setCurrentScreen("send-form")
+          setSelectedToken(dummySelectedToken)
           setTransactionStates([])
-
+          setCurrentScreen("send-form")
           break
         case "fund-form":
           // Set dummy USDC token for debug mode
-          setSelectedToken({
-            id: 1,
-            name: "USD Coin",
-            symbol: "USDC",
-            balance: "1000000000",
-            imageUrl:
-              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-            chainId: 1,
-            contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-            contractInfo: {
-              decimals: 6,
-              symbol: "USDC",
-              name: "USD Coin",
-            },
-          })
-
-          setCurrentScreen("fund-form")
+          setSelectedToken(dummySelectedToken)
           setTransactionStates([])
-
+          setCurrentScreen("fund-form")
           break
         case "wallet-confirmation":
           // Set dummy USDC token for debug mode
-          setSelectedToken({
-            id: 1,
-            name: "USD Coin",
-            symbol: "USDC",
-            balance: "1000000000",
-            imageUrl:
-              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-            chainId: 1,
-            contractAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-            contractInfo: {
-              decimals: 6,
-              symbol: "USDC",
-              name: "USD Coin",
-            },
-          })
-
-          setCurrentScreen("wallet-confirmation")
-          setSendFormQuote({
-            intentAddress: "0x5A0fb747531bC369367CB031472b89ea4D5c6Df7",
-            amount: "1",
-            amountUsd: "$0.01",
-            tokenSymbol: "USDC",
-            tokenName: "USD Coin",
-            chainId: 137,
-            imageUrl:
-              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-          })
+          setSelectedToken(dummySelectedToken)
+          setPrepareSendQuote(dummyQuote)
           setTransactionStates([])
+          setCurrentScreen("wallet-confirmation")
           break
         case "pending-1-item-0-confirmed":
           // Set dummy transaction states for debug mode - showing all steps
@@ -742,15 +714,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Swap",
             },
           ])
-          setSendFormQuote({
-            amount: "10000",
-            amountUsd: "$0.01",
-            tokenSymbol: "USDC",
-            tokenName: "USD Coin",
-            chainId: 137,
-            imageUrl:
-              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-          })
+          setPrepareSendQuote(dummyQuote)
           setCurrentScreen("pending")
           break
         case "pending-1-item-1-confirmed":
@@ -766,15 +730,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Swap",
             },
           ])
-          setSendFormQuote({
-            amount: "10000",
-            amountUsd: "$0.01",
-            tokenSymbol: "USDC",
-            tokenName: "USD Coin",
-            chainId: 137,
-            imageUrl:
-              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-          })
+          setPrepareSendQuote(dummyQuote)
           setCurrentScreen("pending")
           break
         case "pending-2-item-0-confirmed":
@@ -799,15 +755,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Swap",
             },
           ])
-          setSendFormQuote({
-            amount: "10000",
-            amountUsd: "$0.01",
-            tokenSymbol: "USDC",
-            tokenName: "USD Coin",
-            chainId: 137,
-            imageUrl:
-              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-          })
+          setPrepareSendQuote(dummyQuote)
           setCurrentScreen("pending")
           break
         case "pending-2-item-1-confirmed":
@@ -832,15 +780,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Swap",
             },
           ])
-          setSendFormQuote({
-            amount: "10000",
-            amountUsd: "$0.01",
-            tokenSymbol: "USDC",
-            tokenName: "USD Coin",
-            chainId: 137,
-            imageUrl:
-              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-          })
+          setPrepareSendQuote(dummyQuote)
           setCurrentScreen("pending")
           break
         case "pending-2-item-2-confirmed":
@@ -865,15 +805,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Swap",
             },
           ])
-          setSendFormQuote({
-            amount: "10000",
-            amountUsd: "$0.01",
-            tokenSymbol: "USDC",
-            tokenName: "USD Coin",
-            chainId: 137,
-            imageUrl:
-              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-          })
+          setPrepareSendQuote(dummyQuote)
           setCurrentScreen("pending")
           break
         case "pending-3-item-0-confirmed":
@@ -907,15 +839,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Execute",
             },
           ])
-          setSendFormQuote({
-            amount: "10000",
-            amountUsd: "$0.01",
-            tokenSymbol: "USDC",
-            tokenName: "USD Coin",
-            chainId: 137,
-            imageUrl:
-              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-          })
+          setPrepareSendQuote(dummyQuote)
           setCurrentScreen("pending")
           break
         case "pending-3-item-1-confirmed":
@@ -949,15 +873,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Execute",
             },
           ])
-          setSendFormQuote({
-            amount: "10000",
-            amountUsd: "$0.01",
-            tokenSymbol: "USDC",
-            tokenName: "USD Coin",
-            chainId: 137,
-            imageUrl:
-              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-          })
+          setPrepareSendQuote(dummyQuote)
           setCurrentScreen("pending")
           break
         case "pending-3-item-2-confirmed":
@@ -991,15 +907,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Execute",
             },
           ])
-          setSendFormQuote({
-            amount: "10000",
-            amountUsd: "$0.01",
-            tokenSymbol: "USDC",
-            tokenName: "USD Coin",
-            chainId: 137,
-            imageUrl:
-              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-          })
+          setPrepareSendQuote(dummyQuote)
           setCurrentScreen("pending")
           break
         case "pending-3-item-3-confirmed":
@@ -1033,15 +941,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               label: "Execute",
             },
           ])
-          setSendFormQuote({
-            amount: "10000",
-            amountUsd: "$0.01",
-            tokenSymbol: "USDC",
-            tokenName: "USD Coin",
-            chainId: 137,
-            imageUrl:
-              "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-          })
+          setPrepareSendQuote(dummyQuote)
           setCurrentScreen("pending")
           break
         case "receipt":
@@ -1144,10 +1044,10 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       setError(error instanceof Error ? error.message : error)
     }
 
-    const handleWaitingForWalletConfirm = (quote: SendFormQuote) => {
+    const handleWaitingForWalletConfirm = (quote: PrepareSendQuote) => {
       setShowWalletConfirmRetry(false)
       setCurrentScreen("wallet-confirmation")
-      setSendFormQuote(quote ?? null)
+      setPrepareSendQuote(quote ?? null)
     }
 
     async function handleWalletConfirmRetry() {
@@ -1281,25 +1181,9 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onBack={handleBack}
               onComplete={handleWalletConfirmComplete}
               theme={theme}
-              amount={sendFormQuote?.amount ?? undefined}
-              amountUsd={sendFormQuote?.amountUsd ?? undefined}
-              recipient={sendFormQuote?.intentAddress ?? ""}
-              tokenSymbol={selectedToken?.symbol}
               retryEnabled={showWalletConfirmRetry}
               onRetry={handleWalletConfirmRetry}
-              fromTokenSymbol={sendFormQuote?.tokenSymbol || ""}
-              fromChainId={sendFormQuote?.chainId || 0}
-              fromTokenImageUrl={sendFormQuote?.imageUrl || ""}
-              fees={sendFormQuote?.fees}
-              slippageTolerance={sendFormQuote?.slippageTolerance}
-              priceImpact={sendFormQuote?.priceImpact}
-              destinationTokenSymbol={sendFormQuote?.destinationTokenSymbol}
-              destinationTokenAmount={sendFormQuote?.destinationTokenAmount}
-              destinationTokenAmountUsd={
-                sendFormQuote?.destinationTokenAmountUsd
-              }
-              destinationChainId={sendFormQuote?.destinationChainId}
-              destinationTokenImageUrl={sendFormQuote?.destinationTokenImageUrl}
+              quote={prepareSendQuote}
             />
           )
         case "pending":
@@ -1308,12 +1192,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onElapsedTime={handleElapsedTime}
               theme={theme}
               transactionStates={transactionStates}
-              fromAmount={sendFormQuote?.amount || ""}
-              fromAmountUsd={sendFormQuote?.amountUsd || ""}
-              fromTokenSymbol={sendFormQuote?.tokenSymbol || ""}
-              fromTokenName={sendFormQuote?.tokenName || ""}
-              fromChainId={sendFormQuote?.chainId || 0}
-              fromTokenImageUrl={sendFormQuote?.imageUrl || ""}
+              quote={prepareSendQuote}
             />
           )
         case "receipt":
@@ -1325,6 +1204,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               renderInline={renderInline}
               transactionStates={transactionStates}
               totalCompletionSeconds={totalCompletionSeconds ?? undefined}
+              quote={prepareSendQuote}
             />
           )
         default:

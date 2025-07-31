@@ -1,7 +1,7 @@
 import type { SequenceAPIClient } from "@0xsequence/trails-api"
 import { useQuery } from "@tanstack/react-query"
 import { useTokenPrice } from "../../prices.js"
-import { formatUsdValue } from "../../tokenBalances.js"
+import { formatUsdAmountDisplay } from "../../tokenBalances.js"
 import { useTokenAddress } from "../../tokens.js"
 
 type UseAmountUsdProps = {
@@ -54,6 +54,6 @@ export function useAmountUsd({
 
   return {
     amountUsd: amountUsd || null,
-    amountUsdFormatted: formatUsdValue(amountUsd || 0),
+    amountUsdFormatted: formatUsdAmountDisplay(amountUsd || 0),
   }
 }

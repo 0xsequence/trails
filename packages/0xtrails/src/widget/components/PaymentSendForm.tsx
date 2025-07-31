@@ -1,24 +1,18 @@
 import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
 import type React from "react"
-import { useCallback, useEffect, useRef, useState, useMemo } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import type { Account, WalletClient } from "viem"
-import { isAddress, formatUnits } from "viem"
-import { formatValue } from "../../tokenBalances.js"
+import { isAddress } from "viem"
 import type { TransactionState } from "../../transactions.js"
 import type { RelayerEnv } from "../../relayer.js"
 import type { ActiveTheme } from "../../theme.js"
-import type {
-  OnCompleteProps,
-  SendFormQuote,
-  Token,
-  TokenInfo,
-} from "../hooks/useSendForm.js"
+import type { OnCompleteProps, Token, TokenInfo } from "../hooks/useSendForm.js"
 import { useSendForm } from "../hooks/useSendForm.js"
 import { ChainImage } from "./ChainImage.js"
 import { FeeOptions } from "./FeeOptions.js"
 import { TokenImage } from "./TokenImage.js"
 import { QuoteDetails } from "./QuoteDetails.js"
-import { TradeType } from "../../prepareSend.js"
+import { type PrepareSendQuote, TradeType } from "../../prepareSend.js"
 
 interface PaymentSendFormProps {
   selectedToken: Token
@@ -40,7 +34,7 @@ interface PaymentSendFormProps {
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   useSourceTokenForButtonText?: boolean
   onError: (error: Error | string | null) => void
-  onWaitingForWalletConfirm: (props: SendFormQuote) => void
+  onWaitingForWalletConfirm: (props: PrepareSendQuote) => void
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
   setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
@@ -75,8 +69,8 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
   const [showMoreDetails, setShowMoreDetails] = useState(false)
   const {
     amount,
-    amountUsdFormatted,
-    balanceUsdFormatted,
+    amountUsdDisplay,
+    balanceUsdDisplay,
     chainInfo,
     balanceFormatted,
     handleRecipientInputChange,
@@ -107,11 +101,7 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
     destinationTokenAddress,
     supportedChains,
     isValidCustomToken,
-    prepareSendResult,
-    fees,
-    slippageTolerance,
-    priceImpact,
-    originSendAmount,
+    prepareSendQuote,
   } = useSendForm({
     account,
     sequenceProjectAccessKey,
@@ -136,38 +126,6 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
     selectedToken,
     setWalletConfirmRetryHandler,
     tradeType: TradeType.EXACT_OUTPUT,
-  })
-
-  // Format the origin send amount (includes fees) for display
-  const originSendAmountFormatted = useMemo(() => {
-    if (!originSendAmount || !selectedToken.contractInfo?.decimals) {
-      return amount
-    }
-    try {
-      const formatted = Number(
-        formatUnits(
-          BigInt(originSendAmount),
-          selectedToken.contractInfo.decimals,
-        ),
-      )
-      return formatValue(formatted)
-    } catch (error) {
-      console.warn("[trails-sdk] Error formatting origin send amount:", error)
-      return amount
-    }
-  }, [originSendAmount, selectedToken.contractInfo?.decimals, amount])
-
-  console.log("[trails-sdk] SendForm", {
-    amount,
-    originSendAmount,
-    originSendAmountFormatted,
-    isValidRecipient,
-    isSubmitting,
-    destinationTokenAddress,
-    isValidCustomToken,
-    isChainDropdownOpen,
-    selectedDestinationChain,
-    supportedChains: supportedChains.length,
   })
 
   // Handle amount input changes with decimal validation
@@ -288,7 +246,7 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
               >
                 Balance:{" "}
               </span>
-              {balanceUsdFormatted}
+              {balanceUsdDisplay}
             </div>
             <div
               className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
@@ -509,7 +467,7 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
               <span
                 className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
               >
-                ≈ {amountUsdFormatted}
+                ≈ {amountUsdDisplay}
               </span>
             </div>
           ) : (
@@ -542,7 +500,7 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
                   <div
                     className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
                   >
-                    ≈ {amountUsdFormatted}
+                    ≈ {amountUsdDisplay}
                   </div>
                 )}
               </div>
@@ -653,7 +611,7 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
               !destinationTokenAddress ||
               !isValidCustomToken ||
               isLoadingQuote ||
-              !prepareSendResult
+              !prepareSendQuote
             }
             className={`w-full font-semibold py-3 px-4 rounded-[24px] transition-colors relative ${
               theme === "dark"
@@ -675,7 +633,7 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
         </div>
 
         {/* Quote Details */}
-        {prepareSendResult && (
+        {prepareSendQuote && (
           <div className="space-y-2">
             <button
               type="button"
@@ -706,21 +664,7 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
             {showMoreDetails && (
               <QuoteDetails
                 theme={theme}
-                amount={originSendAmountFormatted}
-                amountUsd={amountUsdFormatted}
-                recipient={recipient}
-                tokenSymbol={selectedToken.symbol}
-                fromTokenSymbol={selectedToken.symbol}
-                fromChainId={selectedToken.chainId}
-                fromTokenImageUrl={selectedToken.imageUrl}
-                fees={fees}
-                slippageTolerance={slippageTolerance}
-                priceImpact={priceImpact}
-                destinationTokenSymbol={selectedDestToken?.symbol}
-                destinationTokenAmount={toAmountFormatted}
-                destinationTokenAmountUsd={amountUsdFormatted}
-                destinationChainId={selectedDestinationChain?.id}
-                destinationTokenImageUrl={selectedDestToken?.imageUrl}
+                quote={prepareSendQuote}
                 showContent={showMoreDetails}
               />
             )}

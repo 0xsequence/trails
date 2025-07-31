@@ -10,7 +10,7 @@ import type {
   TokenBalanceWithPrice,
 } from "../../tokenBalances.js"
 import {
-  formatBalance,
+  formatRawAmount,
   useAccountTotalBalanceUsd,
   useHasSufficientBalanceUsd,
   useTokenBalances,
@@ -283,7 +283,7 @@ export function useTokenList({
         tokenSymbol,
         token.chainId,
       )
-      const formattedBalance = formatBalance(
+      const formattedBalance = formatRawAmount(
         token.balance,
         isNative ? 18 : token.contractInfo?.decimals,
       )

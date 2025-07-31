@@ -4,17 +4,14 @@ import { useEffect, useState } from "react"
 import type { TransactionState } from "../../transactions.js"
 import type { ActiveTheme } from "../../theme.js"
 import { TokenImage } from "./TokenImage.js"
+import type { PrepareSendQuote } from "../../prepareSend.js"
+import { QuoteDetails } from "./QuoteDetails.js"
 
 interface TransferPendingProps {
   onElapsedTime: (totalCompletionSeconds?: number) => void
   theme?: ActiveTheme
   transactionStates: TransactionState[]
-  fromAmount: string
-  fromAmountUsd: string
-  fromTokenSymbol: string
-  fromTokenName: string
-  fromChainId: number
-  fromTokenImageUrl?: string
+  quote?: PrepareSendQuote | null
   timestamp?: number
 }
 
@@ -22,12 +19,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
   onElapsedTime,
   theme = "light",
   transactionStates,
-  fromAmount,
-  fromAmountUsd,
-  fromTokenSymbol,
-  fromTokenName,
-  fromChainId,
-  fromTokenImageUrl,
+  quote,
   timestamp,
 }) => {
   const [showContent, setShowContent] = useState(false)
@@ -35,6 +27,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
   const [showDots, setShowDots] = useState(false)
   const [showLine, setShowLine] = useState(false)
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false)
+  const [showDetails, setShowDetails] = useState(false)
 
   useEffect(() => {
     const timeoutTimer = setTimeout(() => {
@@ -365,9 +358,9 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
             <div className="flex items-center space-x-2">
               <div style={{ width: "24px", height: "24px" }}>
                 <TokenImage
-                  imageUrl={fromTokenImageUrl}
-                  symbol={fromTokenSymbol}
-                  chainId={fromChainId}
+                  imageUrl={quote?.originToken.imageUrl}
+                  symbol={quote?.originToken.symbol}
+                  chainId={quote?.originChain.id}
                   size={24}
                 />
               </div>
@@ -375,7 +368,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
                 <span
                   className={`text-xs font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
                 >
-                  {fromTokenName}
+                  {quote?.originToken.name}
                 </span>
                 <span
                   className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"} flex items-center`}
@@ -396,12 +389,12 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
             <div
               className={`text-xs font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
             >
-              {fromAmountUsd}
+              {quote?.originAmountUsdDisplay}
             </div>
             <div
               className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
             >
-              {fromAmount} {fromTokenSymbol}
+              {quote?.originAmountFormatted} {quote?.originToken.symbol}
             </div>
           </div>
         </div>
@@ -494,6 +487,56 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Details Section */}
+      <div
+        className={`w-full max-w-sm transition-all duration-500 ease-out delay-200 ${
+          showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+        }`}
+      >
+        <button
+          type="button"
+          onClick={() => setShowDetails(!showDetails)}
+          className={`w-full flex items-center justify-center gap-2 py-1 px-4 rounded-[24px] transition-colors cursor-pointer text-xs ${
+            theme === "dark"
+              ? "text-gray-400 hover:text-gray-300"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+          aria-label={
+            showDetails
+              ? "Hide transaction details"
+              : "Show transaction details"
+          }
+        >
+          <span>More Details</span>
+          <svg
+            className={`w-3 h-3 transition-transform duration-200 ${
+              showDetails ? "rotate-180" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+
+        {showDetails && (
+          <div className="mt-4">
+            <QuoteDetails
+              theme={theme}
+              quote={quote}
+              showContent={showDetails}
+            />
+          </div>
+        )}
       </div>
     </div>
   )

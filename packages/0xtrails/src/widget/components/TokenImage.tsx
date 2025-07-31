@@ -3,9 +3,9 @@ import { ChainImage } from "./ChainImage.js"
 import { getCommonTokenImageUrl } from "../../tokens.js"
 
 interface TokenImageProps {
-  imageUrl?: string
-  symbol?: string
-  chainId?: number
+  imageUrl?: string | null
+  symbol?: string | null
+  chainId?: number | null
   size?: number
 }
 
@@ -20,10 +20,10 @@ export const TokenImage: React.FC<TokenImageProps> = ({
     if (imageUrl) {
       return imageUrl.replace("/small/", "/large/")
     } else if (symbol) {
-      return getCommonTokenImageUrl(symbol)
+      return getCommonTokenImageUrl({ symbol, chainId })
     }
     return null
-  }, [imageUrl, symbol])
+  }, [imageUrl, symbol, chainId])
 
   const displaySymbol = symbol?.[0]?.toUpperCase() || "?"
 
