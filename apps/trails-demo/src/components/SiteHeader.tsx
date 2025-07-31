@@ -1,8 +1,10 @@
 import { DEMOS_URL, DOCS_URL, LANDING_PAGE_URL } from "@/config"
 import { Link, useLocation } from "react-router"
+import { useTheme } from "@/contexts/ThemeContext"
 
 export const SiteHeader = () => {
   const location = useLocation()
+  const { theme } = useTheme()
 
   const isActive = (path: string) => {
     return location.pathname === path
@@ -10,7 +12,7 @@ export const SiteHeader = () => {
 
   return (
     <>
-      <header className="flex max-sm:flex-col items-center justify-between min-h-[3.75rem] border-b border-slate-300 bg-white/90 backdrop-blur-lg z-50 isolate">
+      <header className="flex max-sm:flex-col items-center justify-between min-h-[3.75rem] border-b border-slate-300 dark:border-slate-600 bg-white dark:bg-gray-900 backdrop-blur-lg z-50 isolate">
         <div className="flex items-center gap-12 mx-auto max-w-screen-xl w-full px-5 py-3">
           <a href={LANDING_PAGE_URL} data-discover="true">
             <svg
@@ -20,7 +22,7 @@ export const SiteHeader = () => {
               role="img"
               width="88"
               height="36"
-              className="text-black"
+              className="text-black dark:text-white"
               aria-label="Trails"
             >
               <path
@@ -51,7 +53,7 @@ export const SiteHeader = () => {
               rel="noopener noreferrer"
               href={DOCS_URL}
               target="_blank"
-              className="text-black hover:text-gray-600 transition-colors"
+              className="text-black dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
               Docs
             </a>
@@ -64,7 +66,7 @@ export const SiteHeader = () => {
               data-component="button"
               href={DOCS_URL}
               target="_blank"
-              className="px-4 py-1.5 border border-gray-400 text-black font-medium rounded-full transition-colors text-sm hover:border-gray-500 hover:bg-gray-100"
+              className="px-4 py-1.5 border border-gray-400 dark:border-gray-600 text-black dark:text-white font-medium rounded-full transition-colors text-sm hover:border-gray-500 dark:hover:border-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
               Start building
             </a>
@@ -73,7 +75,7 @@ export const SiteHeader = () => {
 
         <nav
           aria-label="Site"
-          className="flex sm:hidden gap-6 items-center text-sm font-medium w-full py-2 border-t-1 border-slate-300 justify-center"
+          className="flex sm:hidden gap-6 items-center text-sm font-medium w-full py-2 border-t-1 border-slate-300 dark:border-slate-600 justify-center"
         >
           <a
             rel="noopener noreferrer"
@@ -87,7 +89,7 @@ export const SiteHeader = () => {
             rel="noopener noreferrer"
             href={DOCS_URL}
             target="_blank"
-            className="text-black hover:text-gray-600 transition-colors"
+            className="text-black dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
           >
             Docs
           </a>
@@ -95,7 +97,7 @@ export const SiteHeader = () => {
       </header>
 
       {/* Sub Navbar for Demo Links */}
-      <div className="border-b border-slate-300 bg-white/90 backdrop-blur-lg">
+      <div className="border-b border-slate-300 dark:border-slate-600 bg-white dark:bg-gray-900 backdrop-blur-lg">
         <div className="flex justify-center py-3">
           <nav className="flex gap-8 items-center text-sm font-medium">
             <Link
@@ -103,7 +105,7 @@ export const SiteHeader = () => {
               className={`transition-colors ${
                 isActive("/widget") || isActive("/")
                   ? "text-blue-600 font-semibold"
-                  : "text-gray-600 hover:text-gray-900"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
               }`}
             >
               Widget
@@ -113,7 +115,7 @@ export const SiteHeader = () => {
               className={`transition-colors ${
                 isActive("/orchestration")
                   ? "text-blue-600 font-semibold"
-                  : "text-gray-600 hover:text-gray-900"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
               }`}
             >
               Orchestration
@@ -123,7 +125,7 @@ export const SiteHeader = () => {
               className={`transition-colors ${
                 isActive("/sdk-sandbox")
                   ? "text-blue-600 font-semibold"
-                  : "text-gray-600 hover:text-gray-900"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
               }`}
             >
               SDK Sandbox

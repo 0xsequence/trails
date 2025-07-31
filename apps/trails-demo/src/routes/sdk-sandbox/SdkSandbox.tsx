@@ -715,6 +715,11 @@ export function SdkSandbox() {
               value={quoteTradeType}
               onChange={(e) => setQuoteTradeType(e.target.value as TradeType)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              style={{
+                colorScheme: "light dark",
+                backgroundColor: "var(--tw-bg-opacity, 1)",
+                color: "var(--tw-text-opacity, 1)",
+              }}
             >
               <option value={TradeType.EXACT_INPUT}>
                 {TradeType.EXACT_INPUT}

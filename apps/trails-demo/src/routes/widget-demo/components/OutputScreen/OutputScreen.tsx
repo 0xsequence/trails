@@ -140,8 +140,14 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
     }
 
     return (
-      <div className="w-full bg-gray-50 dark:bg-gray-800 rounded-2xl p-3 sm:p-6 relative h-full">
-        <div className="sm:absolute sm:top-4 sm:right-4 z-10 flex flex-col sm:flex-row sm:items-center gap-8 mb-4 sm:mb-0 justify-center sm:justify-start w-full sm:w-auto">
+      <div
+        className="w-full bg-gray-50 dark:bg-gray-800 rounded-2xl p-3 sm:p-6 relative h-full"
+        style={{
+          backgroundImage: `radial-gradient(circle, rgba(107, 114, 128, 0.15) 1px, transparent 1px)`,
+          backgroundSize: "20px 20px",
+        }}
+      >
+        <div className="sm:absolute sm:top-0 sm:right-4 z-10 flex flex-col sm:flex-row sm:items-center gap-8 mb-4 sm:mb-0 justify-center sm:justify-start w-full sm:w-auto">
           <ConnectButton />
           <div className="w-full sm:w-fit">
             <WidgetTabs
@@ -183,7 +189,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
           )}
 
           {activeTab === "button" && (
-            <div className="flex-1 flex flex-col items-center justify-center space-y-4 h-full">
+            <div className="flex-1 flex flex-col items-center justify-center space-y-16 h-full">
               <TrailsWidget
                 ref={buttonWidgetRef}
                 mode={mode}
