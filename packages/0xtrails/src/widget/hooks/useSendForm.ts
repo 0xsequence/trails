@@ -9,6 +9,7 @@ import {
   parseUnits,
   type TransactionReceipt,
   type WalletClient,
+  zeroAddress,
 } from "viem"
 import { mainnet } from "viem/chains"
 import { useEnsAddress } from "wagmi"
@@ -534,6 +535,23 @@ export function useSendForm({
         })
       }
 
+      let nativeTokenPriceUsd = 0
+      if (
+        selectedToken.contractAddress === zeroAddress &&
+        sourceTokenPriceUsd
+      ) {
+        nativeTokenPriceUsd = sourceTokenPriceUsd
+      } else {
+        const originChain = getChainInfo(selectedToken.chainId)
+        const nativeTokenSymbol = originChain?.nativeCurrency?.symbol ?? ""
+        const nativePrice = await getTokenPrice(apiClient, {
+          tokenId: nativeTokenSymbol,
+          contractAddress: zeroAddress,
+          chainId: selectedToken.chainId,
+        })
+        nativeTokenPriceUsd = nativePrice?.price?.value ?? 0
+      }
+
       const options = {
         account,
         originTokenAddress: selectedToken.contractAddress,
@@ -566,6 +584,7 @@ export function useSendForm({
           )?.url ?? undefined,
         gasless,
         relayerConfig,
+        originNativeTokenPriceUsd: nativeTokenPriceUsd,
       }
 
       const result = await prepareSend(options)

@@ -1,4 +1,3 @@
-import { Link } from "react-router"
 import { TrailsWidget } from "0xtrails/widget"
 import type { Mode } from "0xtrails"
 import { forwardRef, useEffect, useRef, useState } from "react"

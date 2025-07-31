@@ -48,7 +48,7 @@ import { ConnectWallet } from "./components/ConnectWallet.js"
 import Footer from "./components/Footer.js"
 import Modal from "./components/Modal.js"
 import Receipt from "./components/Receipt.js"
-import { PaymentSendForm } from "./components/PaymentSendForm.js"
+import { PaySendForm } from "./components/PaySendForm.js"
 import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPendingVertical.js"
 import WalletConfirmation from "./components/WalletConfirmation.js"
@@ -1100,7 +1100,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           )
         case "send-form":
           return selectedToken && walletClient?.account ? (
-            <PaymentSendForm
+            <PaySendForm
               onSend={handleOnSend}
               onBack={handleBack}
               onWaitingForWalletConfirm={handleWaitingForWalletConfirm}

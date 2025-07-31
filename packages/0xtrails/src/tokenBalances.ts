@@ -325,12 +325,18 @@ export function formatUsdAmountDisplay(value: number | string = 0): string {
   if (!value) {
     value = 0
   }
-  return Intl.NumberFormat("en-US", {
+  const displayValue = Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 2,
     minimumFractionDigits: 2,
   }).format(Number(value))
+
+  if (displayValue === "$0.00" && Number(value) > 0 && Number(value) < 0.01) {
+    return `<$0.01`
+  }
+
+  return displayValue
 }
 
 export function getTokenBalanceUsdFormatted(

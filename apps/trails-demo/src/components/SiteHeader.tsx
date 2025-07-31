@@ -1,10 +1,8 @@
 import { DEMOS_URL, DOCS_URL, LANDING_PAGE_URL } from "@/config"
 import { Link, useLocation } from "react-router"
-import { useTheme } from "@/contexts/ThemeContext"
 
 export const SiteHeader = () => {
   const location = useLocation()
-  const { theme } = useTheme()
 
   const isActive = (path: string) => {
     return location.pathname === path

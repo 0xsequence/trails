@@ -697,7 +697,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
         {toCalldata && (
           <div className="px-2 pb-1">
             <p
-              className={`text-xs ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
+              className={`text-[10px] ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
             >
               This transaction includes custom calldata for contract interaction
               at the destination address

@@ -110,6 +110,7 @@ import type {
 import { getTxTimeDiff } from "./transactions.js"
 import { requestWithTimeout } from "./utils.js"
 import { InsufficientBalanceError } from "./error.js"
+import { estimateGasCostUsd } from "./estimate.js"
 
 export enum TradeType {
   EXACT_INPUT = "EXACT_INPUT",
@@ -144,6 +145,7 @@ export type SendOptions = {
   gasless?: boolean
   relayerConfig: RelayerEnvConfig
   slippageTolerance?: string
+  originNativeTokenPriceUsd?: number | null
 }
 
 export type PrepareSendFees = {
@@ -180,6 +182,8 @@ export type PrepareSendQuote = {
   priceImpact: string
   completionEstimateSeconds: number
   transactionStates: TransactionState[]
+  gasCostUsd: number
+  gasCostUsdDisplay: string
 }
 
 export type PrepareSendReturn = {
@@ -315,6 +319,7 @@ export async function prepareSend(
     relayerConfig,
     sequenceProjectAccessKey,
     slippageTolerance = "0.03", // 0.03 = 3%
+    originNativeTokenPriceUsd,
   } = options
 
   // Track payment start
@@ -416,6 +421,7 @@ export async function prepareSend(
       transactionStates,
       sourceTokenPriceUsd,
       destinationTokenPriceUsd,
+      originNativeTokenPriceUsd,
     })
   }
 
@@ -435,6 +441,7 @@ export async function prepareSend(
       transactionStates,
       sourceTokenPriceUsd,
       destinationTokenPriceUsd,
+      originNativeTokenPriceUsd,
     })
   }
 
@@ -470,6 +477,7 @@ export async function prepareSend(
     transactionStates,
     slippageTolerance,
     tradeType,
+    originNativeTokenPriceUsd,
   })
 }
 
@@ -505,6 +513,7 @@ async function sendHandlerForDifferentChainDifferentToken({
   transactionStates,
   slippageTolerance,
   tradeType,
+  originNativeTokenPriceUsd,
 }: {
   mainSignerAddress: string
   originChainId: number
@@ -537,6 +546,7 @@ async function sendHandlerForDifferentChainDifferentToken({
   transactionStates: TransactionState[]
   slippageTolerance: string
   tradeType: TradeType
+  originNativeTokenPriceUsd?: number | null
 }): Promise<PrepareSendReturn> {
   const testnet = isTestnetDebugMode()
   const useCctp = getUseCctp(
@@ -564,6 +574,7 @@ async function sendHandlerForDifferentChainDifferentToken({
         originChainId,
         destinationChainId,
         transactionStates,
+        originNativeTokenPriceUsd,
       }),
       send: async (onOriginSend?: () => void): Promise<SendReturn> => {
         const originChain = testnet ? getTestnetChainInfo(chain)! : chain
@@ -839,6 +850,7 @@ async function sendHandlerForDifferentChainDifferentToken({
       slippageTolerance: getSlippageToleranceFromIntent(intent),
       priceImpact: getPriceImpactFromIntent(intent),
       transactionStates,
+      originNativeTokenPriceUsd,
     }),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
@@ -1062,6 +1074,7 @@ async function sendHandlerForSameChainSameToken({
   transactionStates,
   sourceTokenPriceUsd,
   destinationTokenPriceUsd,
+  originNativeTokenPriceUsd,
 }: {
   originTokenAddress: string
   destinationTokenAmount: string
@@ -1077,6 +1090,7 @@ async function sendHandlerForSameChainSameToken({
   transactionStates: TransactionState[]
   sourceTokenPriceUsd?: number | null
   destinationTokenPriceUsd?: number | null
+  originNativeTokenPriceUsd?: number | null
 }): Promise<PrepareSendReturn> {
   console.log("[trails-sdk] isToSameToken && isToSameChain")
   const testnet = isTestnetDebugMode()
@@ -1104,6 +1118,7 @@ async function sendHandlerForSameChainSameToken({
       transactionStates,
       originChainId: effectiveOriginChainId,
       destinationChainId: effectiveOriginChainId,
+      originNativeTokenPriceUsd,
     }),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
@@ -1268,6 +1283,7 @@ async function sendHandlerForSameChainDifferentToken({
   transactionStates,
   sourceTokenPriceUsd,
   destinationTokenPriceUsd,
+  originNativeTokenPriceUsd,
 }: {
   originTokenAddress: string
   swapAmount: string
@@ -1284,6 +1300,7 @@ async function sendHandlerForSameChainDifferentToken({
   transactionStates: TransactionState[]
   sourceTokenPriceUsd?: number | null
   destinationTokenPriceUsd?: number | null
+  originNativeTokenPriceUsd?: number | null
 }): Promise<PrepareSendReturn> {
   const destinationTxs: { to: string; value: string; data: string }[] = []
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
@@ -1356,6 +1373,7 @@ async function sendHandlerForSameChainDifferentToken({
       transactionStates,
       originChainId,
       destinationChainId: originChainId,
+      originNativeTokenPriceUsd,
     }),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
@@ -2578,6 +2596,7 @@ export async function getNormalizedQuoteObject({
   fees,
   slippageTolerance,
   priceImpact,
+  originNativeTokenPriceUsd,
 }: {
   originAddress?: string
   destinationAddress?: string
@@ -2596,6 +2615,7 @@ export async function getNormalizedQuoteObject({
   fees?: PrepareSendFees
   slippageTolerance?: string
   priceImpact?: string
+  originNativeTokenPriceUsd?: number | null
 }): Promise<PrepareSendQuote> {
   if (!destinationChainId) {
     throw new Error("Destination chain id is required")
@@ -2690,6 +2710,26 @@ export async function getNormalizedQuoteObject({
 
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
 
+  const publicClient = createPublicClient({
+    chain: originChain,
+    transport: http(),
+  })
+
+  let gasCostUsd: number = 0
+  let gasCostUsdDisplay: string = "0"
+  try {
+    if (originNativeTokenPriceUsd) {
+      gasCostUsd = await estimateGasCostUsd(
+        publicClient,
+        originNativeTokenPriceUsd,
+        200_000n,
+      )
+      gasCostUsdDisplay = formatUsdAmountDisplay(gasCostUsd)
+    }
+  } catch (error) {
+    console.error("[trails-sdk] Error estimating gas cost", error)
+  }
+
   return {
     originAddress: originAddress || "",
     destinationAddress: destinationAddress || "",
@@ -2720,5 +2760,7 @@ export async function getNormalizedQuoteObject({
       destinationChainId,
     }),
     transactionStates: transactionStates || [],
+    gasCostUsd,
+    gasCostUsdDisplay,
   }
 }

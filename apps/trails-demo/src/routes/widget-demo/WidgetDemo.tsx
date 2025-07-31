@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react"
 import type { Mode } from "0xtrails"
-import { ConnectButton } from "./components/ConnectButton"
 import { CustomizationForm, STORAGE_KEYS } from "./components/CustomizationForm"
 import { OutputScreen } from "./components/OutputScreen"
 

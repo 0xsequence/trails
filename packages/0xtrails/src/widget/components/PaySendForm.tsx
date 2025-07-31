@@ -15,7 +15,7 @@ import { QuoteDetails } from "./QuoteDetails.js"
 import { TruncatedAddress } from "./TruncatedAddress.js"
 import { type PrepareSendQuote, TradeType } from "../../prepareSend.js"
 
-interface PaymentSendFormProps {
+interface PaySendFormProps {
   selectedToken: Token
   onSend: (amount: string, recipient: string) => void
   onBack: () => void
@@ -40,7 +40,7 @@ interface PaymentSendFormProps {
   setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
 }
 
-export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
+export const PaySendForm: React.FC<PaySendFormProps> = ({
   selectedToken,
   onSend,
   onBack,
@@ -615,7 +615,7 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
         {toCalldata && (
           <div className="px-2 py-1">
             <p
-              className={`text-xs ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
+              className={`text-[10px] ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
             >
               This transaction includes custom calldata for contract interaction
               at the destination address
