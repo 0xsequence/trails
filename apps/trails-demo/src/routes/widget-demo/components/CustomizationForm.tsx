@@ -179,6 +179,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     MINT_NFT_ARBITRUM_CCTP_TESTNET: "mint_nft_arbitrum_cctp_testnet",
     MINT_NFT_POLYGON_BAT: "mint_nft_polygon_bat",
     DEPOSIT_AAVE_BASE_ETH: "deposit_aave_base_eth",
+    DEPOSIT_AAVE_BASE_USDC: "deposit_aave_base_usdc",
     DEPOSIT_GAUNLET_VAULT_BASE: "deposit_gaunlet_vault_base",
   } as const
 
@@ -210,6 +211,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         label: "Mint an NFT on Arbitrum Sepolia with USDC using CCTP",
         disabled: true,
       },
+      {
+        key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC,
+        label: "Deposit USDC to Aave lending pool on Base",
+      },
     ]
 
     const fundScenarios = [
@@ -239,6 +244,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     SCENARIO_KEYS.MINT_NFT_POLYGON_BAT,
     SCENARIO_KEYS.MINT_NFT_ARBITRUM_CCTP_TESTNET,
     SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH,
+    SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC,
     SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE,
   ])
 
@@ -330,11 +336,22 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         }
         case SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH: {
           setToAddress("0xa0d9C1E9E48Ca30c8d8C3B5D69FF5dc1f6DFfC24")
-          setToAmount("0.00004")
+          setToAmount("")
           setToToken("ETH")
           setToChainId(8453)
           setToCalldata(
             encodeAaveEthDepositCalldata(toRecipient || zeroAddress),
+          )
+          break
+        }
+        case SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC: {
+          setToAddress("0xA238Dd80C259a72e81d7e4664a9801593F98d1c5")
+          const amount = "0.1"
+          setToAmount(amount)
+          setToToken("USDC")
+          setToChainId(8453)
+          setToCalldata(
+            encodeErc20AaveDepositCalldata(toRecipient || zeroAddress, amount),
           )
           break
         }
@@ -396,6 +413,12 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       case SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH: {
         const aaveCalldata = encodeAaveEthDepositCalldata(effectiveRecipient)
         setToCalldata(aaveCalldata)
+        break
+      }
+      case SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC: {
+        const aaveUsdcCalldata =
+          encodeErc20AaveDepositCalldata(effectiveRecipient)
+        setToCalldata(aaveUsdcCalldata)
         break
       }
     }
@@ -1468,6 +1491,7 @@ export function encodeAaveEthDepositCalldata(recipient: string = zeroAddress) {
 
 export function encodeErc20AaveDepositCalldata(
   recipient: string = zeroAddress,
+  amount: string = "0.1",
 ) {
   const calldata = encodeFunctionData({
     abi: [
@@ -1487,7 +1511,7 @@ export function encodeErc20AaveDepositCalldata(
     functionName: "supply",
     args: [
       "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
-      parseUnits("0.1", 6), // 0.1 USDC (6 decimals)
+      parseUnits(amount, 6), // 0.1 USDC (6 decimals)
       recipient as `0x${string}`, // onBehalfOf
       0, // referralCode
     ],
