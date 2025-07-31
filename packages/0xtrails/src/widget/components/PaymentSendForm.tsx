@@ -515,7 +515,10 @@ export const PaymentSendForm: React.FC<PaymentSendFormProps> = ({
                       theme === "dark" ? "text-gray-400" : "text-gray-500"
                     } ${isLoadingQuote ? "animate-pulse" : ""}`}
                   >
-                    ≈ {amountUsdDisplay}
+                    ≈ {amountUsdDisplay}{" "}
+                    {selectedDestinationChain
+                      ? `on ${selectedDestinationChain.name}`
+                      : ""}
                   </div>
                 </div>
               </div>

@@ -48,7 +48,7 @@ export interface Token {
   chainId: number
   contractAddress: string
   tokenPriceUsd?: number
-  balanceUsdDisplay?: string
+  balanceUsdFormatted?: string
   contractInfo?: {
     decimals: number
     symbol: string
@@ -411,7 +411,7 @@ export function useSendForm({
     selectedToken.balance,
     selectedToken.contractInfo?.decimals,
   )
-  const balanceUsdDisplay = selectedToken.balanceUsdDisplay ?? ""
+  const balanceUsdDisplay = selectedToken.balanceUsdFormatted ?? ""
   const relayerConfig = useMemo(
     () => ({ env, useV3Relayers: DEFAULT_USE_V3_RELAYERS }),
     [env],

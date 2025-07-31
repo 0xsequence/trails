@@ -661,7 +661,10 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                     theme === "dark" ? "text-gray-400" : "text-gray-500"
                   } ${isLoadingQuote ? "animate-pulse" : ""}`}
                 >
-                  ≈ {receiveUsdValue}
+                  ≈ {receiveUsdValue}{" "}
+                  {selectedDestinationChain
+                    ? `on ${selectedDestinationChain.name}`
+                    : ""}
                 </div>
               </div>
             </div>

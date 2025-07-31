@@ -3,6 +3,7 @@ import fetch from "isomorphic-fetch"
 import { useMemo } from "react"
 import { getChainInfo } from "./chains.js"
 import { DEFAULT_USE_V3_RELAYERS } from "./constants.js"
+import { getSequenceProjectAccessKey } from "./config.js"
 
 export type RelayerOperationStatus = Relayer.OperationStatus
 export type RpcRelayer = Relayer.Standard.Rpc.RpcRelayer
@@ -21,6 +22,20 @@ export type RelayerEnvConfig = {
 }
 
 export type { Relayer }
+
+// Wrapped fetch function that includes access token header
+function wrappedFetch(
+  input: RequestInfo,
+  init?: RequestInit,
+): Promise<Response> {
+  const headers = new Headers(init?.headers)
+  headers.set("x-access-key", getSequenceProjectAccessKey())
+
+  return fetch(input, {
+    ...init,
+    headers,
+  })
+}
 
 export function getBackupRelayer(
   chainId: number,
@@ -219,7 +234,12 @@ export function getRelayer(
 
   const relayerUrl = getRelayerUrl(config, chainId)
 
-  return new Relayer.Standard.Rpc.RpcRelayer(relayerUrl, chainId, rpcUrl, fetch)
+  return new Relayer.Standard.Rpc.RpcRelayer(
+    relayerUrl,
+    chainId,
+    rpcUrl,
+    wrappedFetch,
+  )
 }
 
 export function useRelayers(
