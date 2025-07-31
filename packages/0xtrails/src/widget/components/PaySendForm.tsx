@@ -96,7 +96,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
     supportedTokens,
     setIsChainDropdownOpen,
     setIsTokenDropdownOpen,
-    toAmountFormatted,
+    toAmountDisplay,
     destinationTokenAddress,
     supportedChains,
     isValidCustomToken,
@@ -494,7 +494,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
                         theme === "dark" ? "text-white" : "text-gray-900"
                       } ${isLoadingQuote ? "animate-pulse" : ""}`}
                     >
-                      {toAmountFormatted || "0.00"} {selectedDestToken?.symbol}
+                      {toAmountDisplay} {selectedDestToken?.symbol}
                     </div>
                     {isLoadingQuote && (
                       <div

@@ -109,7 +109,7 @@ abstract class BaseAnalytics {
       screenHeight: window.innerHeight?.toString(),
       screenPixelRatio: window.devicePixelRatio?.toString(),
       screenResolution: `${window.screen?.width}x${window.screen?.height}`,
-      screenOrientation: window.screen?.orientation?.toString(),
+      screenOrientation: window.screen?.orientation?.type?.toString(),
     }
   }
 

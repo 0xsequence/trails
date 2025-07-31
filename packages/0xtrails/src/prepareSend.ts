@@ -97,6 +97,7 @@ import {
   useAccountTokenBalance,
   formatAmount,
   formatRawAmount,
+  formatAmountDisplay,
 } from "./tokenBalances.js"
 import {
   getTokenInfo,
@@ -162,11 +163,15 @@ export type PrepareSendQuote = {
   originChain: Chain
   destinationChain: Chain
   originAmount: string
+  originAmountDisplay: string
   originAmountMin: string
+  originAmountMinDisplay: string
   originAmountMinUsdFormatted: string
   originAmountMinUsdDisplay: string
   destinationAmount: string
+  destinationAmountDisplay: string
   destinationAmountMin: string
+  destinationAmountMinDisplay: string
   destinationAmountMinUsdFormatted: string
   destinationAmountMinUsdDisplay: string
   originAmountFormatted: string
@@ -2782,6 +2787,12 @@ export async function getNormalizedQuoteObject({
     gasCostUsdDisplay,
     originTokenRate: exchangeRates.originTokenRate,
     destinationTokenRate: exchangeRates.destinationTokenRate,
+    originAmountDisplay: formatAmountDisplay(originAmountFormatted),
+    destinationAmountDisplay: formatAmountDisplay(destinationAmountFormatted),
+    originAmountMinDisplay: formatAmountDisplay(originAmountMinFormatted),
+    destinationAmountMinDisplay: formatAmountDisplay(
+      destinationAmountMinFormatted,
+    ),
   }
 }
 
@@ -2802,10 +2813,10 @@ function getTokenExchangeRates(
   const destinationToOrigin = destinationTokenPrice / originTokenPrice
 
   // Format the rates with appropriate precision
-  const originTokenRate = formatAmount(originToDestination, {
+  const originTokenRate = formatAmountDisplay(originToDestination, {
     maxFractionDigits: destinationTokenSymbol === "USDC" ? 2 : 7,
   })
-  const destinationTokenRate = formatAmount(destinationToOrigin, {
+  const destinationTokenRate = formatAmountDisplay(destinationToOrigin, {
     maxFractionDigits: originTokenSymbol === "USDC" ? 2 : 7,
   })
 

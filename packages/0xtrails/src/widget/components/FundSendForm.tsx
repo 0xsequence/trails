@@ -1,3 +1,17 @@
+/**
+ * FundSendForm Component - Requirements:
+ *
+ * - Be able to toggle between token and USD input
+ * - Limit USD input display to 2 decimals
+ * - Token display limit should be 8 decimals
+ * - Input field should be limited to 16 chars
+ * - Input field should limit decimals to 8
+ * - When toggling to USD input, only show 2 decimals max in input, but allow user to enter up to 8 as state previously
+ * - Input amount to useSendForm should always be in terms of the token, not USD
+ * - I should be able to enter decimals into input field, entering periods and 0s should work
+ * - I should be able to backspace chars in input field
+ */
+
 import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
 import type React from "react"
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
@@ -68,6 +82,8 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
   // Local state for fund-specific functionality
   const [isInputTypeUsd, setIsInputTypeUsd] = useState(false)
   const [showMoreDetails, setShowMoreDetails] = useState(false)
+  const [tokenAmountForBackend, setTokenAmountForBackend] = useState("")
+  const [inputDisplayValue, setInputDisplayValue] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
   const chainDropdownRef = useRef<HTMLDivElement>(null)
   const tokenDropdownRef = useRef<HTMLDivElement>(null)
@@ -80,7 +96,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
   }, [])
 
   const {
-    amount,
+    amount: hookAmount,
     amountUsdDisplay,
     balanceFormatted,
     balanceUsdDisplay,
@@ -89,10 +105,11 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     isLoadingQuote,
     selectedDestinationChain,
     selectedDestToken,
-    setAmount,
+    setAmount: setHookAmount,
     handleSubmit,
     buttonText,
     toAmountFormatted,
+    toAmountDisplay,
     sourceTokenPrices,
     destTokenPrices,
     isValidRecipient,
@@ -137,6 +154,25 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
   // Get destination token price for receive USD value
   const destTokenPrice = destTokenPrices?.[0]?.price?.value ?? 0
 
+  // Sync display value with token amount only when mode changes (not during typing)
+  const [lastInputMode, setLastInputMode] = useState(isInputTypeUsd)
+
+  useEffect(() => {
+    // Only sync when mode actually changes, not during normal typing
+    if (lastInputMode !== isInputTypeUsd && tokenAmountForBackend) {
+      const tokenAmount = parseFloat(tokenAmountForBackend) || 0
+      if (isInputTypeUsd && sourceTokenPrice > 0) {
+        // Show USD with max 2 decimals
+        const usdAmount = tokenAmount * sourceTokenPrice
+        setInputDisplayValue(Number(usdAmount.toFixed(2)).toString())
+      } else {
+        // Show token with max 8 decimals
+        setInputDisplayValue(Number(tokenAmount.toFixed(8)).toString())
+      }
+      setLastInputMode(isInputTypeUsd)
+    }
+  }, [isInputTypeUsd, sourceTokenPrice, tokenAmountForBackend, lastInputMode])
+
   // Handle click outside for dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -165,56 +201,59 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     isTokenDropdownOpen,
   ])
 
-  // Handle input amount changes with 8 decimal limit
+  // Handle input amount changes with 8 decimal limit and 16 char total limit
   const handleAmountChange = useCallback(
     (value: string) => {
-      // Validate decimal places (max 8 decimals)
-      const decimalMatch = value.match(/^\d*\.?\d{0,8}$/)
-      if (!decimalMatch && value !== "") {
-        return // Don't update if more than 8 decimals
+      // Allow empty string
+      if (value === "") {
+        setInputDisplayValue("")
+        setTokenAmountForBackend("")
+        setHookAmount("")
+        return
       }
 
+      // Limit total length to 16 characters
+      if (value.length > 16) {
+        return
+      }
+
+      // Validate decimal places (max 8 decimals) and allow single decimal point
+      const decimalMatch = value.match(/^\d*\.?\d{0,8}$/)
+      if (!decimalMatch) {
+        return // Don't update if invalid format
+      }
+
+      // Store the display value
+      setInputDisplayValue(value)
+
+      // Update the token amount for backend and useSendForm
       if (isInputTypeUsd && sourceTokenPrice > 0) {
-        const endsWithDot = value.endsWith(".")
-        const endsWithZero = value.endsWith("0") && Number(value) !== 0
-        // Convert USD to token amount
         const usdAmount = parseFloat(value) || 0
         const tokenAmount = usdAmount / sourceTokenPrice
-        setAmount(
-          `${tokenAmount.toString()}${endsWithDot ? "." : ""}${endsWithZero ? "0" : ""}`,
-        )
+        setTokenAmountForBackend(tokenAmount.toString())
+        setHookAmount(tokenAmount.toString())
       } else {
-        // Direct token amount
-        setAmount(value)
+        setTokenAmountForBackend(value)
+        setHookAmount(value)
       }
     },
-    [isInputTypeUsd, sourceTokenPrice, setAmount],
+    [setHookAmount, isInputTypeUsd, sourceTokenPrice],
   )
 
   // Get display values based on input type
   const displayAmount = useMemo(() => {
-    if (isInputTypeUsd && sourceTokenPrice > 0) {
-      const endsWithDot = amount.endsWith(".")
-      const endsWithZero = amount.endsWith("0") && Number(amount) !== 0
-      // Show USD amount when in USD mode
-      const tokenAmount = parseFloat(amount) || 0
-      const usdAmount = tokenAmount * sourceTokenPrice
-      // Cap USD decimals to 2 places
-      const cappedUsdAmount = parseFloat(usdAmount.toFixed(2))
-      return `${cappedUsdAmount.toString()}${endsWithDot ? "." : ""}${endsWithZero ? "0" : ""}`
-    }
-    return amount
-  }, [amount, isInputTypeUsd, sourceTokenPrice])
+    return inputDisplayValue
+  }, [inputDisplayValue])
 
   const displayUsdValue = useMemo(() => {
     if (isInputTypeUsd && sourceTokenPrice > 0) {
       // Show token amount when in USD mode
-      const tokenAmount = parseFloat(amount) || 0
+      const tokenAmount = parseFloat(tokenAmountForBackend) || 0
       return `${formatAmount(tokenAmount)} ${selectedToken.symbol}`
     }
     return amountUsdDisplay
   }, [
-    amount,
+    tokenAmountForBackend,
     isInputTypeUsd,
     sourceTokenPrice,
     selectedToken.symbol,
@@ -253,12 +292,56 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
       )
 
       const calculatedAmount = (totalBalance * percentage) / 100
-      // Cap decimals to 7 places
-      const cappedAmount = parseFloat(calculatedAmount.toFixed(7))
-      setAmount(cappedAmount.toString())
+      // Cap decimals to 8 places
+      const cappedAmount = parseFloat(calculatedAmount.toFixed(8))
+      const tokenAmountStr = cappedAmount.toString()
+
+      // Update all states consistently
+      setTokenAmountForBackend(tokenAmountStr)
+      setHookAmount(tokenAmountStr)
+
+      // Update display based on current mode
+      if (isInputTypeUsd && sourceTokenPrice > 0) {
+        const usdAmount = cappedAmount * sourceTokenPrice
+        setInputDisplayValue(Number(usdAmount.toFixed(2)).toString())
+      } else {
+        setInputDisplayValue(tokenAmountStr)
+      }
     },
-    [selectedToken, setAmount],
+    [selectedToken, setHookAmount, isInputTypeUsd, sourceTokenPrice],
   )
+
+  // Handle input type toggle (USD ↔ Token)
+  const handleInputTypeToggle = useCallback(() => {
+    // Use tokenAmountForBackend as the source of truth for conversion
+    const currentTokenAmount = parseFloat(tokenAmountForBackend) || 0
+
+    if (isInputTypeUsd && sourceTokenPrice > 0) {
+      // Switching from USD to token mode
+      // Display the token amount (limit to 8 decimals)
+      const tokenAmountStr = Number(currentTokenAmount.toFixed(8)).toString()
+      setInputDisplayValue(tokenAmountStr)
+    } else if (!isInputTypeUsd && sourceTokenPrice > 0) {
+      // Switching from token to USD mode
+      // Display USD amount (limit to 2 decimals)
+      const usdAmount = currentTokenAmount * sourceTokenPrice
+      const usdAmountStr = Number(usdAmount.toFixed(2)).toString()
+      setInputDisplayValue(usdAmountStr)
+    }
+
+    // hookAmount stays as token amount (don't change it)
+    // tokenAmountForBackend stays as token amount (don't change it)
+
+    setIsInputTypeUsd(!isInputTypeUsd)
+    // Focus the input field after toggling
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus()
+        // Select all text for easy replacement
+        inputRef.current.select()
+      }
+    }, 0)
+  }, [tokenAmountForBackend, isInputTypeUsd, sourceTokenPrice])
 
   // Dynamic font size based on input length
   const inputStyles = useMemo(() => {
@@ -282,7 +365,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
   }, [displayAmount.length])
 
   console.log("[trails-sdk] FundForm", {
-    amount, // actual token amount used by backend
+    hookAmount, // actual token amount used by backend
     displayAmount, // what user sees in input
     isInputTypeUsd,
     sourceTokenPrice,
@@ -397,6 +480,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                   padding: "0",
                   margin: "0",
                 }}
+                inputMode="decimal"
               />
               <span
                 className={`${inputStyles.fontSize} font-bold ${
@@ -418,7 +502,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
           <div className="flex items-center justify-center">
             <button
               type="button"
-              onClick={() => setIsInputTypeUsd(!isInputTypeUsd)}
+              onClick={handleInputTypeToggle}
               className={`flex items-center justify-center gap-2 px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
                 theme === "dark"
                   ? "text-gray-300 hover:bg-gray-700 hover:text-gray-200"
@@ -642,7 +726,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                       theme === "dark" ? "text-white" : "text-gray-900"
                     } ${isLoadingQuote ? "animate-pulse" : ""}`}
                   >
-                    {toAmountFormatted || "0.00"} {selectedDestToken?.symbol}
+                    {toAmountDisplay} {selectedDestToken?.symbol}
                   </div>
                   {isLoadingQuote && (
                     <div
@@ -709,8 +793,8 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
         <button
           type="submit"
           disabled={
-            !amount ||
-            parseFloat(amount) <= 0 ||
+            !tokenAmountForBackend ||
+            parseFloat(tokenAmountForBackend) <= 0 ||
             isSubmitting ||
             isLoadingQuote ||
             !isValidRecipient ||
@@ -732,7 +816,8 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
               />
               <span>{buttonText}</span>
             </div>
-          ) : !amount || parseFloat(amount) <= 0 ? (
+          ) : !tokenAmountForBackend ||
+            parseFloat(tokenAmountForBackend) <= 0 ? (
             "Enter an amount"
           ) : (
             buttonText

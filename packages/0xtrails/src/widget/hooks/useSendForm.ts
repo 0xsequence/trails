@@ -31,6 +31,7 @@ import {
   formatRawAmount,
   formatUsdAmountDisplay,
   formatAmount,
+  formatAmountDisplay,
 } from "../../tokenBalances.js"
 import type { SupportedToken } from "../../tokens.js"
 import {
@@ -165,6 +166,7 @@ export type UseSendReturn = {
   destinationTokenAddress: string | null
   isValidCustomToken: boolean
   prepareSendQuote: PrepareSendQuote | null
+  toAmountDisplay: string
 }
 
 export function useSendForm({
@@ -664,6 +666,10 @@ export function useSendForm({
     return toAmountFormatted
   }, [prepareSendResult, tradeType, toAmountFormatted])
 
+  const quotedDestinationAmountDisplay = useMemo(() => {
+    return formatAmountDisplay(quotedDestinationAmount || "0")
+  }, [quotedDestinationAmount])
+
   const processSend = useCallback(async () => {
     try {
       if (!prepareSendResult) {
@@ -788,21 +794,26 @@ export function useSendForm({
     const tokenSymbol = selectedToken.symbol
     const destinationTokenSymbol = selectedDestToken?.symbol
 
+    const amountDisplay = formatAmountDisplay(amountFormatted)
+    const destinationAmountDisplay = formatAmountDisplay(
+      destinationAmountFormatted,
+    )
+
     try {
       const checksummedRecipient = getAddress(recipient)
       const checksummedAccount = getAddress(account.address)
 
       if (checksummedRecipient === checksummedAccount) {
-        return `Receive ${destinationAmountFormatted} ${destinationTokenSymbol}`
+        return `Receive ${destinationAmountDisplay} ${destinationTokenSymbol}`
       }
 
       if (tradeType === TradeType.EXACT_INPUT) {
-        return `Fund with ${amountFormatted} ${tokenSymbol}`
+        return `Fund with ${amountDisplay} ${tokenSymbol}`
       }
 
-      return `Pay with ${amountFormatted} ${tokenSymbol}`
+      return `Pay with ${amountDisplay} ${tokenSymbol}`
     } catch {
-      return `Pay with ${amountFormatted} ${tokenSymbol}`
+      return `Pay with ${amountDisplay} ${tokenSymbol}`
     }
   }, [
     amount,
@@ -857,6 +868,7 @@ export function useSendForm({
     setIsChainDropdownOpen,
     setIsTokenDropdownOpen,
     toAmountFormatted: quotedDestinationAmount,
+    toAmountDisplay: quotedDestinationAmountDisplay,
     destinationTokenAddress,
     isValidCustomToken,
     prepareSendQuote: prepareSendResult?.quote ?? null,

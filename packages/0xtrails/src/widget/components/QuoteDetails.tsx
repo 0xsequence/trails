@@ -169,7 +169,7 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
                           chainId={quote.originChain.id}
                           size={16}
                         />
-                        {quote.originAmountFormatted} {quote.originToken.symbol}
+                        {quote.originAmountDisplay} {quote.originToken.symbol}
                       </div>
                       {quote.originAmountUsdDisplay && (
                         <div
@@ -199,8 +199,7 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
                             chainId={quote.originChain.id}
                             size={16}
                           />
-                          {quote.originAmountFormatted}{" "}
-                          {quote.originToken.symbol}
+                          {quote.originAmountDisplay} {quote.originToken.symbol}
                         </div>
                       </a>
                       {quote.originAmountUsdDisplay && (
@@ -242,7 +241,7 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
                           chainId={quote.destinationChain.id}
                           size={16}
                         />
-                        {quote.destinationAmountFormatted}{" "}
+                        {quote.destinationAmountDisplay}{" "}
                         {quote.destinationToken.symbol}
                       </div>
                       {quote.destinationAmountUsdDisplay && (
@@ -273,7 +272,7 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
                             chainId={quote.destinationChain.id}
                             size={16}
                           />
-                          {quote.destinationAmountFormatted}{" "}
+                          {quote.destinationAmountDisplay}{" "}
                           {quote.destinationToken.symbol}
                         </div>
                       </a>

@@ -504,10 +504,13 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setButtonText,
   ])
 
-  // Save values to localStorage whenever they change
+  // Save values to localStorage whenever they change and clear scenario when mode changes
   useEffect(() => {
     if (!initialStateLoaded) return
     localStorage.setItem(STORAGE_KEYS.MODE, mode || "pay")
+    // Clear scenario selection when mode changes
+    setSelectedScenario("")
+    setToRecipient("")
   }, [mode, initialStateLoaded])
 
   useEffect(() => {
