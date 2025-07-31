@@ -58,7 +58,7 @@ export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
 
       {isOpen && (
         <div
-          className={`absolute bottom-full right-0 mb-1 w-40 border rounded-lg shadow-lg overflow-hidden max-h-[300px] overflow-y-auto ${
+          className={`absolute bottom-full right-0 mb-1 w-40 border rounded-lg shadow-lg overflow-hidden max-h-[300px] overflow-y-auto custom-scrollbar ${
             theme === "dark"
               ? "bg-gray-800 border-gray-700 text-gray-200"
               : "bg-white border-gray-200 text-gray-700"

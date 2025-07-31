@@ -481,7 +481,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
 
               {isChainDropdownOpen && (
                 <div
-                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto ${
+                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar ${
                     theme === "dark"
                       ? "bg-gray-800 border-gray-700"
                       : "bg-white border-gray-200"
@@ -570,7 +570,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
 
               {isTokenDropdownOpen && (
                 <div
-                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto ${
+                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar ${
                     theme === "dark"
                       ? "bg-gray-800 border-gray-700"
                       : "bg-white border-gray-200"

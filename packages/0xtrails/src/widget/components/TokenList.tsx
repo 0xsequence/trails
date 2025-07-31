@@ -140,7 +140,7 @@ export const TokenList: React.FC<TokenListProps> = ({
       <div
         className={`divide-y ${
           theme === "dark" ? "divide-gray-700/50" : "divide-gray-200"
-        } max-h-[35vh] overflow-y-auto rounded-[16px] ${theme === "dark" ? "bg-gray-800/50" : "bg-white"}`}
+        } max-h-[35vh] overflow-y-auto rounded-[16px] custom-scrollbar ${theme === "dark" ? "bg-gray-800/50" : "bg-white"}`}
       >
         {filteredTokensFormatted.map((token: TokenFormatted) => {
           const {
