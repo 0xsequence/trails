@@ -184,6 +184,8 @@ export type PrepareSendQuote = {
   transactionStates: TransactionState[]
   gasCostUsd: number
   gasCostUsdDisplay: string
+  originTokenRate: string
+  destinationTokenRate: string
 }
 
 export type PrepareSendReturn = {
@@ -442,6 +444,7 @@ export async function prepareSend(
       sourceTokenPriceUsd,
       destinationTokenPriceUsd,
       originNativeTokenPriceUsd,
+      slippageTolerance,
     })
   }
 
@@ -575,6 +578,7 @@ async function sendHandlerForDifferentChainDifferentToken({
         destinationChainId,
         transactionStates,
         originNativeTokenPriceUsd,
+        slippageTolerance,
       }),
       send: async (onOriginSend?: () => void): Promise<SendReturn> => {
         const originChain = testnet ? getTestnetChainInfo(chain)! : chain
@@ -847,7 +851,7 @@ async function sendHandlerForDifferentChainDifferentToken({
       }),
       originChainId,
       destinationChainId,
-      slippageTolerance: getSlippageToleranceFromIntent(intent),
+      slippageTolerance: slippageTolerance,
       priceImpact: getPriceImpactFromIntent(intent),
       transactionStates,
       originNativeTokenPriceUsd,
@@ -1075,6 +1079,7 @@ async function sendHandlerForSameChainSameToken({
   sourceTokenPriceUsd,
   destinationTokenPriceUsd,
   originNativeTokenPriceUsd,
+  slippageTolerance,
 }: {
   originTokenAddress: string
   destinationTokenAmount: string
@@ -1091,6 +1096,7 @@ async function sendHandlerForSameChainSameToken({
   sourceTokenPriceUsd?: number | null
   destinationTokenPriceUsd?: number | null
   originNativeTokenPriceUsd?: number | null
+  slippageTolerance?: string
 }): Promise<PrepareSendReturn> {
   console.log("[trails-sdk] isToSameToken && isToSameChain")
   const testnet = isTestnetDebugMode()
@@ -1119,6 +1125,7 @@ async function sendHandlerForSameChainSameToken({
       originChainId: effectiveOriginChainId,
       destinationChainId: effectiveOriginChainId,
       originNativeTokenPriceUsd,
+      slippageTolerance,
     }),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
@@ -2267,6 +2274,8 @@ export type UseQuoteReturn = {
     priceImpact: string
     completionEstimateSeconds: number
     transactionStates?: TransactionState[]
+    originTokenRate?: string
+    destinationTokenRate?: string
   } | null
   swap: (() => Promise<SwapReturn | null>) | null
   isLoadingQuote: boolean
@@ -2414,6 +2423,8 @@ export function useQuote({
         completionEstimateSeconds: prepareSendQuote.completionEstimateSeconds,
         slippageTolerance: prepareSendQuote.slippageTolerance,
         transactionStates: prepareSendQuote.transactionStates,
+        originTokenRate: prepareSendQuote.originTokenRate,
+        destinationTokenRate: prepareSendQuote.destinationTokenRate,
       }
 
       const swap = async (): Promise<SwapReturn> => {
@@ -2568,10 +2579,10 @@ export function getCompletionEstimateSeconds({
     originChainId === chains.mainnet.id ||
     destinationChainId === chains.mainnet.id
   ) {
-    return 30
+    return 45
   }
 
-  return 10
+  return 15
 }
 
 export function getIsCustomCalldata(calldata: string | undefined): boolean {
@@ -2730,6 +2741,18 @@ export async function getNormalizedQuoteObject({
     console.error("[trails-sdk] Error estimating gas cost", error)
   }
 
+  // Calculate exchange rates
+  const originTokenPrice = originTokenPriceUsd ? Number(originTokenPriceUsd) : 0
+  const destinationTokenPrice = destinationTokenPriceUsd
+    ? Number(destinationTokenPriceUsd)
+    : 0
+  const exchangeRates = getTokenExchangeRates(
+    originTokenPrice,
+    destinationTokenPrice,
+    originToken.symbol,
+    destinationToken.symbol,
+  )
+
   return {
     originAddress: originAddress || "",
     destinationAddress: destinationAddress || "",
@@ -2762,5 +2785,37 @@ export async function getNormalizedQuoteObject({
     transactionStates: transactionStates || [],
     gasCostUsd,
     gasCostUsdDisplay,
+    originTokenRate: exchangeRates.originTokenRate,
+    destinationTokenRate: exchangeRates.destinationTokenRate,
+  }
+}
+
+function getTokenExchangeRates(
+  originTokenPrice: number,
+  destinationTokenPrice: number,
+  originTokenSymbol: string,
+  destinationTokenSymbol: string,
+): { originTokenRate: string; destinationTokenRate: string } {
+  if (originTokenPrice === 0 || destinationTokenPrice === 0) {
+    return {
+      originTokenRate: "0",
+      destinationTokenRate: "0",
+    }
+  }
+
+  const originToDestination = originTokenPrice / destinationTokenPrice
+  const destinationToOrigin = destinationTokenPrice / originTokenPrice
+
+  // Format the rates with appropriate precision
+  const originTokenRate = formatAmount(originToDestination, {
+    maxFractionDigits: destinationTokenSymbol === "USDC" ? 2 : 7,
+  })
+  const destinationTokenRate = formatAmount(destinationToOrigin, {
+    maxFractionDigits: originTokenSymbol === "USDC" ? 2 : 7,
+  })
+
+  return {
+    originTokenRate: `1 ${originTokenSymbol} = ${originTokenRate} ${destinationTokenSymbol}`,
+    destinationTokenRate: `1 ${destinationTokenSymbol} = ${destinationTokenRate} ${originTokenSymbol}`,
   }
 }

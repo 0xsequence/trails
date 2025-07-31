@@ -38,7 +38,7 @@ export const WidgetDemo = () => {
 
   // Minimum and maximum sidebar widths
   const MIN_SIDEBAR_WIDTH = 280
-  const MAX_SIDEBAR_WIDTH = 600
+  const MAX_SIDEBAR_WIDTH = 800
 
   // Check screen size for responsive behavior
   useEffect(() => {

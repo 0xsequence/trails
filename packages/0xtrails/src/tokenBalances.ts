@@ -305,14 +305,20 @@ export function getTokenBalanceUsd(
   return Number(formattedBalance) * priceUsd
 }
 
-export function formatAmount(value: string | number): string {
+export function formatAmount(
+  value: string | number,
+  {
+    maxFractionDigits = 7,
+    minFractionDigits = 2,
+  }: { maxFractionDigits?: number; minFractionDigits?: number } = {},
+): string {
   if (!value) {
     value = 0
   }
   try {
     return Number(value).toLocaleString(undefined, {
-      maximumFractionDigits: 7,
-      minimumFractionDigits: 2,
+      maximumFractionDigits: maxFractionDigits,
+      minimumFractionDigits: minFractionDigits,
     })
   } catch (err) {
     console.error("[trails-sdk] Error formatting value:", err)

@@ -13,12 +13,35 @@ interface QuoteDetailsProps {
   showContent?: boolean
 }
 
+// Helper function to format completion time
+const formatCompletionTime = (seconds: number): string => {
+  if (seconds < 60) {
+    return `${seconds}s`
+  } else if (seconds < 3600) {
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    return remainingSeconds > 0
+      ? `${minutes}m${remainingSeconds}s`
+      : `${minutes}m`
+  } else {
+    const hours = Math.floor(seconds / 3600)
+    const remainingMinutes = Math.floor((seconds % 3600) / 60)
+    const remainingSeconds = seconds % 60
+    if (remainingMinutes > 0 || remainingSeconds > 0) {
+      return `${hours}h${remainingMinutes}m${remainingSeconds > 0 ? `${remainingSeconds}s` : ""}`
+    } else {
+      return `${hours}h`
+    }
+  }
+}
+
 export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
   theme = "light",
   quote,
   showContent = true,
 }) => {
   const [showCalldata, setShowCalldata] = useState(false)
+  const [showOriginRate, setShowOriginRate] = useState(true)
 
   return (
     <div
@@ -30,6 +53,97 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
         }`}
       >
         <div className="space-y-3">
+          {quote?.originTokenRate && quote?.destinationTokenRate && (
+            <div className="flex justify-between items-center">
+              <span
+                className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"} flex items-center gap-1`}
+              >
+                Exchange Rate:
+                <Tooltip message="The current exchange rate between the origin and destination tokens">
+                  <InfoIcon className="w-3 h-3 text-gray-500 dark:text-gray-400 cursor-pointer" />
+                </Tooltip>
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowOriginRate(!showOriginRate)}
+                className={`font-medium text-xs hover:underline cursor-pointer ${
+                  theme === "dark"
+                    ? "text-white hover:text-gray-300"
+                    : "text-gray-900 hover:text-gray-700"
+                }`}
+              >
+                {showOriginRate
+                  ? quote.originTokenRate
+                  : quote.destinationTokenRate}
+              </button>
+            </div>
+          )}
+          {quote?.completionEstimateSeconds != null && (
+            <div className="flex justify-between items-center">
+              <span
+                className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"} flex items-center gap-1`}
+              >
+                Estimated Time:
+                <Tooltip message="Estimated time for the transaction to complete across all chains">
+                  <InfoIcon className="w-3 h-3 text-gray-500 dark:text-gray-400 cursor-pointer" />
+                </Tooltip>
+              </span>
+              <span
+                className={`font-medium text-xs ${theme === "dark" ? "text-white" : "text-gray-900"} flex items-center gap-1`}
+              >
+                <svg
+                  className="w-3 h-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                ~{formatCompletionTime(quote.completionEstimateSeconds)}
+              </span>
+            </div>
+          )}
+
+          {quote?.gasCostUsd != null && quote?.gasCostUsd > 0 && (
+            <div className="flex justify-between items-center">
+              <span
+                className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"} flex items-center gap-1`}
+              >
+                Network Cost:
+                <Tooltip message="The estimated gas cost for executing this transaction on the origin chain">
+                  <InfoIcon className="w-3 h-3 text-gray-500 dark:text-gray-400 cursor-pointer" />
+                </Tooltip>
+              </span>
+              <span
+                className={`font-medium text-xs ${theme === "dark" ? "text-white" : "text-gray-900"} flex items-center gap-1`}
+              >
+                <svg
+                  aria-hidden="true"
+                  focusable="false"
+                  data-prefix="fas"
+                  data-icon="gas-pump"
+                  className="svg-inline--fa fa-gas-pump "
+                  role="img"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                  width="12"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M32 64C32 28.7 60.7 0 96 0H256c35.3 0 64 28.7 64 64V256h8c48.6 0 88 39.4 88 88v32c0 13.3 10.7 24 24 24s24-10.7 24-24V222c-27.6-7.1-48-32.2-48-62V96L384 64c-8.8-8.8-8.8-23.2 0-32s23.2-8.8 32 0l77.3 77.3c12 12 18.7 28.3 18.7 45.3V168v24 32V376c0 39.8-32.2 72-72 72s-72-32.2-72-72V344c0-22.1-17.9-40-40-40h-8V448c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32V64zM96 80v96c0 8.8 7.2 16 16 16H240c8.8 0 16-7.2 16-16V80c0-8.8-7.2-16-16-16H112c-8.8 0-16 7.2-16 16z"
+                  ></path>
+                </svg>
+                {quote.gasCostUsdDisplay}
+              </span>
+            </div>
+          )}
+
           {quote?.originAmount &&
             quote?.originToken.symbol &&
             quote?.originChain.id && (
@@ -296,40 +410,6 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
                 }`}
               >
                 {quote.priceImpact}%
-              </span>
-            </div>
-          )}
-
-          {quote?.gasCostUsd != null && quote?.gasCostUsd > 0 && (
-            <div className="flex justify-between items-center">
-              <span
-                className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"} flex items-center gap-1`}
-              >
-                Network Cost:
-                <Tooltip message="The estimated gas cost for executing this transaction on the origin chain">
-                  <InfoIcon className="w-3 h-3 text-gray-500 dark:text-gray-400 cursor-pointer" />
-                </Tooltip>
-              </span>
-              <span
-                className={`font-medium text-xs ${theme === "dark" ? "text-white" : "text-gray-900"} flex items-center gap-1`}
-              >
-                <svg
-                  aria-hidden="true"
-                  focusable="false"
-                  data-prefix="fas"
-                  data-icon="gas-pump"
-                  className="svg-inline--fa fa-gas-pump "
-                  role="img"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 512 512"
-                  width="12"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M32 64C32 28.7 60.7 0 96 0H256c35.3 0 64 28.7 64 64V256h8c48.6 0 88 39.4 88 88v32c0 13.3 10.7 24 24 24s24-10.7 24-24V222c-27.6-7.1-48-32.2-48-62V96L384 64c-8.8-8.8-8.8-23.2 0-32s23.2-8.8 32 0l77.3 77.3c12 12 18.7 28.3 18.7 45.3V168v24 32V376c0 39.8-32.2 72-72 72s-72-32.2-72-72V344c0-22.1-17.9-40-40-40h-8V448c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32V64zM96 80v96c0 8.8 7.2 16 16 16H240c8.8 0 16-7.2 16-16V80c0-8.8-7.2-16-16-16H112c-8.8 0-16 7.2-16 16z"
-                  ></path>
-                </svg>
-                {quote.gasCostUsdDisplay}
               </span>
             </div>
           )}
