@@ -186,7 +186,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
   // Scenario options based on example subtitles
   const scenarioOptions = useMemo(() => {
-    const payScenarios = [
+    const payScenarios: { key: string; label: string; disabled?: boolean }[] = [
       {
         key: SCENARIO_KEYS.PAY_USDC_BASE,
         label: "Pay USDC on Base to a recipient",
@@ -231,12 +231,13 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       },
     ]
 
-    const fundScenarios = [
-      {
-        key: SCENARIO_KEYS.FUND_USDC_BASE,
-        label: "Bridge USDC to Base",
-      },
-    ]
+    const fundScenarios: { key: string; label: string; disabled?: boolean }[] =
+      [
+        {
+          key: SCENARIO_KEYS.FUND_USDC_BASE,
+          label: "Bridge USDC to Base",
+        },
+      ]
 
     return mode === "fund" ? fundScenarios : payScenarios
   }, [
