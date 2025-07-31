@@ -172,6 +172,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   // Scenario keys
   const SCENARIO_KEYS = {
     PAY_USDC_BASE: "pay_usdc_base",
+    FUND_USDC_BASE: "fund_usdc_base",
     MINT_NFT_BASE_USDC: "mint_nft_base_usdc",
     MINT_NFT_ARBITRUM_ETH: "mint_nft_arbitrum_eth",
     MINT_NFT_ARBITRUM_USDC: "mint_nft_arbitrum_usdc",
@@ -213,6 +214,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
     const fundScenarios = [
       {
+        key: SCENARIO_KEYS.FUND_USDC_BASE,
+        label: "Bridge USDC to Base",
+      },
+      {
         key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH,
         label: "Deposit ETH to Aave lending pool on Base",
       },
@@ -227,6 +232,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   }, [
     mode,
     SCENARIO_KEYS.PAY_USDC_BASE,
+    SCENARIO_KEYS.FUND_USDC_BASE,
     SCENARIO_KEYS.MINT_NFT_BASE_USDC,
     SCENARIO_KEYS.MINT_NFT_ARBITRUM_ETH,
     SCENARIO_KEYS.MINT_NFT_ARBITRUM_USDC,
@@ -257,6 +263,19 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
       switch (scenarioKey) {
         case SCENARIO_KEYS.PAY_USDC_BASE: {
+          setToAmount("0.1")
+          setToToken("USDC")
+          setToChainId(8453)
+          setToCalldata("")
+          // For scenarios without calldata, recipient becomes the toAddress
+          if (toRecipient) {
+            setToAddress(toRecipient)
+          } else {
+            setToAddress("")
+          }
+          break
+        }
+        case SCENARIO_KEYS.FUND_USDC_BASE: {
           setToAmount("0.1")
           setToToken("USDC")
           setToChainId(8453)
