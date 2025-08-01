@@ -99,7 +99,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
 
   if (!finalExplorerUrl) {
     return (
-      <div className="flex flex-col justify-center min-h-[400px] space-y-6 pt-8 overflow-x-hidden w-full">
+      <div className="flex flex-col justify-center min-h-full space-y-6 pt-8">
         <div className="text-center">
           <div className={`mx-auto flex items-center justify-center mb-4`}>
             <div
@@ -157,14 +157,14 @@ export const Receipt: React.FC<ReceiptProps> = ({
   }
 
   return (
-    <div className="flex flex-col justify-center min-h-[400px] space-y-6 pt-8 overflow-x-hidden w-full">
+    <div className="flex flex-col justify-center min-h-full space-y-6 pt-8">
       <div className="text-center">
         <div className={`mx-auto flex items-center justify-center`}>
           <GreenCheckAnimation />
         </div>
 
         <div
-          className={`transition-all duration-500 ease-out w-full ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+          className={`transition-all duration-500 ease-out ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
         >
           <h2
             className={`mt-4 text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
@@ -212,7 +212,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
       </div>
 
       <div
-        className={`text-center transition-all duration-500 ease-out delay-100 w-full ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+        className={`text-center transition-all duration-500 ease-out delay-100 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
       >
         <a
           href={finalExplorerUrl}
@@ -245,7 +245,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
       </div>
 
       <div
-        className={`space-y-3 transition-all duration-500 ease-out delay-200 w-full ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+        className={`space-y-3 transition-all duration-500 ease-out delay-200 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
       >
         {!renderInline && (
           <button
