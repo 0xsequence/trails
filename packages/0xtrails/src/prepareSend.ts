@@ -112,6 +112,7 @@ import { getTxTimeDiff } from "./transactions.js"
 import { requestWithTimeout } from "./utils.js"
 import { InsufficientBalanceError } from "./error.js"
 import { estimateGasCostUsd } from "./estimate.js"
+import { wrapCalldataWithProxyCallerIfNeeded } from "./proxyCaller.js"
 
 export enum TradeType {
   EXACT_INPUT = "EXACT_INPUT",
@@ -324,6 +325,35 @@ export async function prepareSend(
     originNativeTokenPriceUsd,
   } = options
 
+  const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
+  const mainSignerAddress = account.address
+  const transactionStates: TransactionState[] = []
+
+  let effectiveDestinationAddress = recipient
+  let effectiveDestinationCalldata = destinationCalldata
+
+  if (
+    hasCustomCalldata &&
+    destinationTokenAddress !== zeroAddress &&
+    tradeType === TradeType.EXACT_INPUT
+  ) {
+    const wrapResult = wrapCalldataWithProxyCallerIfNeeded({
+      token: destinationTokenAddress,
+      target: effectiveDestinationAddress,
+      calldata: effectiveDestinationCalldata as `0x${string}`,
+      amount: swapAmount,
+      originChainId,
+      destinationChainId,
+      originTokenAddress,
+      destinationTokenAddress,
+    })
+
+    if (wrapResult) {
+      effectiveDestinationAddress = wrapResult.proxyCallerAddress
+      effectiveDestinationCalldata = wrapResult.encodedCalldata
+    }
+  }
+
   // Track payment start
   trackPaymentStarted({
     userAddress: account.address,
@@ -368,10 +398,6 @@ export async function prepareSend(
     transport: http(),
   })
 
-  const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
-  const mainSignerAddress = account.address
-  const transactionStates: TransactionState[] = []
-
   // origin tx
   transactionStates.push({
     transactionHash: "",
@@ -412,8 +438,8 @@ export async function prepareSend(
       swapAmount,
       tradeType,
       destinationTokenAddress,
-      destinationCalldata,
-      recipient,
+      destinationCalldata: effectiveDestinationCalldata,
+      recipient: effectiveDestinationAddress,
       originChainId,
       walletClient,
       publicClient,
@@ -430,9 +456,9 @@ export async function prepareSend(
   if (isToSameToken && isToSameChain) {
     return await sendHandlerForSameChainSameToken({
       originTokenAddress,
-      destinationTokenAmount: swapAmount,
-      destinationCalldata,
-      recipient,
+      swapAmount,
+      destinationCalldata: effectiveDestinationCalldata,
+      recipient: effectiveDestinationAddress,
       originChainId,
       walletClient,
       publicClient,
@@ -445,6 +471,7 @@ export async function prepareSend(
       destinationTokenPriceUsd,
       originNativeTokenPriceUsd,
       slippageTolerance,
+      tradeType,
     })
   }
 
@@ -457,8 +484,8 @@ export async function prepareSend(
     destinationTokenAddress,
     swapAmount,
     destinationTokenSymbol,
-    recipient,
-    destinationCalldata,
+    recipient: effectiveDestinationAddress,
+    destinationCalldata: effectiveDestinationCalldata,
     apiClient,
     sourceTokenPriceUsd,
     destinationTokenPriceUsd,
@@ -1067,7 +1094,7 @@ async function sendHandlerForDifferentChainDifferentToken({
 
 async function sendHandlerForSameChainSameToken({
   originTokenAddress,
-  destinationTokenAmount,
+  swapAmount,
   destinationCalldata,
   recipient,
   walletClient,
@@ -1082,7 +1109,7 @@ async function sendHandlerForSameChainSameToken({
   slippageTolerance,
 }: {
   originTokenAddress: string
-  destinationTokenAmount: string
+  swapAmount: string
   destinationCalldata?: string
   recipient: string
   originChainId: number
@@ -1097,6 +1124,7 @@ async function sendHandlerForSameChainSameToken({
   destinationTokenPriceUsd?: number | null
   originNativeTokenPriceUsd?: number | null
   slippageTolerance?: string
+  tradeType: TradeType
 }): Promise<PrepareSendReturn> {
   console.log("[trails-sdk] isToSameToken && isToSameChain")
   const testnet = isTestnetDebugMode()
@@ -1115,8 +1143,8 @@ async function sendHandlerForSameChainSameToken({
       originAddress: recipient,
       destinationAddress: recipient,
       destinationCalldata,
-      originAmount: destinationTokenAmount, // fromAmount is same as toAmount for same chain same token
-      destinationAmount: destinationTokenAmount,
+      originAmount: swapAmount, // fromAmount is same as toAmount for same chain same token
+      destinationAmount: swapAmount,
       originTokenPriceUsd: sourceTokenPriceUsd?.toString() || null,
       destinationTokenPriceUsd: destinationTokenPriceUsd?.toString() || null,
       originTokenAddress: effectiveOriginTokenAddress,
@@ -1131,7 +1159,7 @@ async function sendHandlerForSameChainSameToken({
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
         account,
         tokenAddress: effectiveOriginTokenAddress,
-        depositAmount: destinationTokenAmount,
+        depositAmount: swapAmount,
         publicClient: effectivePublicClient,
       })
 
@@ -1152,11 +1180,11 @@ async function sendHandlerForSameChainSameToken({
             ? "0x"
             : getERC20TransferData({
                 recipient,
-                amount: BigInt(destinationTokenAmount),
+                amount: BigInt(swapAmount),
               }),
         value:
           effectiveOriginTokenAddress === zeroAddress
-            ? BigInt(destinationTokenAmount)
+            ? BigInt(swapAmount)
             : "0",
         chainId: effectiveOriginChainId,
         chain: effectiveOriginChain,
@@ -1190,7 +1218,7 @@ async function sendHandlerForSameChainSameToken({
               token: effectiveOriginTokenAddress,
               account: account.address,
               spender: recipient,
-              amount: BigInt(destinationTokenAmount),
+              amount: BigInt(swapAmount),
             })
 
             if (needsApproval) {
@@ -1317,6 +1345,12 @@ async function sendHandlerForSameChainDifferentToken({
       value: destinationTokenAddress === zeroAddress ? swapAmount : "0",
       data: destinationCalldata as `0x${string}`,
     })
+  } else if (hasCustomCalldata && tradeType === TradeType.EXACT_INPUT) {
+    destinationTxs.push({
+      to: recipient,
+      value: "0",
+      data: destinationCalldata as `0x${string}`,
+    })
   }
 
   const quote = await getRelaySDKQuote({
@@ -1328,6 +1362,7 @@ async function sendHandlerForSameChainDifferentToken({
     txs: destinationTxs,
     tradeType: tradeType as unknown as RelayTradeType,
     slippageTolerance: slippageTolerance,
+    recipient: hasCustomCalldata ? recipient : undefined,
   })
 
   console.log("[trails-sdk] relaysdk quote", quote)

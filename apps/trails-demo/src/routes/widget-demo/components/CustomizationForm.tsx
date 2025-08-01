@@ -182,6 +182,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     DEPOSIT_AAVE_BASE_USDC: "deposit_aave_base_usdc",
     DEPOSIT_MORPHO_BASE_USDC: "deposit_morpho_base_usdc",
     DEPOSIT_GAUNLET_VAULT_BASE: "deposit_gaunlet_vault_base",
+    FUND_DEPOSIT_AAVE_BASE_USDC: "fund_deposit_aave_base_usdc",
   } as const
 
   // Scenario options based on example subtitles
@@ -237,6 +238,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           key: SCENARIO_KEYS.FUND_USDC_BASE,
           label: "Bridge USDC to Base",
         },
+        {
+          key: SCENARIO_KEYS.FUND_DEPOSIT_AAVE_BASE_USDC,
+          label: "Fund USDC Aave lending pool on Base",
+        },
       ]
 
     return mode === "fund" ? fundScenarios : payScenarios
@@ -253,6 +258,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC,
     SCENARIO_KEYS.DEPOSIT_MORPHO_BASE_USDC,
     SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE,
+    SCENARIO_KEYS.FUND_DEPOSIT_AAVE_BASE_USDC,
   ])
 
   // Scenario recipient
@@ -265,6 +271,14 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   useEffect(() => {
     console.log("[trails-demo] paymasterUrls changed:", paymasterUrls)
   }, [paymasterUrls])
+
+  const defaultToAmounts = useMemo<Record<string, string>>(() => {
+    return {
+      USDC: "0.1",
+      ETH: "0.00001",
+      BAT: "0.1",
+    }
+  }, [])
 
   // Function to apply scenario settings
   const applyScenario = useCallback(
@@ -279,7 +293,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
       switch (scenarioKey) {
         case SCENARIO_KEYS.PAY_USDC_BASE: {
-          setToAmount("0.1")
+          setToAmount(defaultToAmounts.USDC)
           setToToken("USDC")
           setToChainId(8453)
           setToCalldata("")
@@ -292,7 +306,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           break
         }
         case SCENARIO_KEYS.FUND_USDC_BASE: {
-          setToAmount("0.1")
+          setToAmount(defaultToAmounts.USDC)
           setToToken("USDC")
           setToChainId(8453)
           setToCalldata("")
@@ -306,7 +320,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         }
         case SCENARIO_KEYS.MINT_NFT_BASE_USDC: {
           setToAddress("0xF69F076c7225651b30d17B1a9C454319A4CfE77c")
-          setToAmount("0.01")
+          setToAmount(defaultToAmounts.USDC)
           setToToken("USDC")
           setToChainId(8453)
           setToCalldata(encodeNftMintCalldata(effectiveRecipient))
@@ -314,7 +328,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         }
         case SCENARIO_KEYS.MINT_NFT_ARBITRUM_ETH: {
           setToAddress("0x384A39B36B278e6F53404eecc784855e9C1f75f8")
-          setToAmount("0.00001")
+          setToAmount(defaultToAmounts.ETH)
           setToToken("ETH")
           setToChainId(42161)
           setToCalldata(encodeNftMintCalldata(effectiveRecipient))
@@ -322,7 +336,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         }
         case SCENARIO_KEYS.MINT_NFT_ARBITRUM_USDC: {
           setToAddress("0xF69F076c7225651b30d17B1a9C454319A4CfE77c")
-          setToAmount("0.01")
+          setToAmount(defaultToAmounts.USDC)
           setToToken("USDC")
           setToChainId(42161)
           setToCalldata(encodeNftMintCalldata(effectiveRecipient))
@@ -330,7 +344,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         }
         case SCENARIO_KEYS.MINT_NFT_ARBITRUM_CCTP_TESTNET: {
           setToAddress("0x8a5dCBf3e5D19cF8Efcc3130BeaCC83B4739D7eD")
-          setToAmount("0.01")
+          setToAmount(defaultToAmounts.USDC)
           setToToken("USDC")
           setToChainId(42161)
           setToCalldata(encodeNftMintCalldata(effectiveRecipient))
@@ -338,7 +352,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         }
         case SCENARIO_KEYS.MINT_NFT_POLYGON_BAT: {
           setToAddress("0x92Dc1cCE6767F82494BCBC54235A08B4FD457c26")
-          setToAmount("0.1")
+          setToAmount(defaultToAmounts.BAT)
           setToToken("BAT")
           setToChainId(137)
           setToCalldata(encodeNftMintCalldata(effectiveRecipient))
@@ -346,8 +360,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         }
         case SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH: {
           setToAddress("0xa0d9C1E9E48Ca30c8d8C3B5D69FF5dc1f6DFfC24")
-          const amount = "0.00001"
-          setToAmount(amount)
+          setToAmount(defaultToAmounts.ETH)
           setToToken("ETH")
           setToChainId(8453)
           setToCalldata(encodeAaveEthDepositCalldata(effectiveRecipient))
@@ -355,32 +368,46 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         }
         case SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC: {
           setToAddress("0xA238Dd80C259a72e81d7e4664a9801593F98d1c5")
-          const amount = "0.1"
-          setToAmount(amount)
+          setToAmount(defaultToAmounts.USDC)
           setToToken("USDC")
           setToChainId(8453)
           setToCalldata(
-            encodeErc20AaveDepositCalldata(effectiveRecipient, amount),
+            encodeErc20AaveDepositCalldata(
+              effectiveRecipient,
+              defaultToAmounts.USDC,
+            ),
           )
+          break
+        }
+        case SCENARIO_KEYS.FUND_DEPOSIT_AAVE_BASE_USDC: {
+          setToAddress("0xA238Dd80C259a72e81d7e4664a9801593F98d1c5")
+          setToAmount("")
+          setToToken("USDC")
+          setToChainId(8453)
+          setToCalldata(encodeErc20AaveDepositCalldata(effectiveRecipient, ""))
           break
         }
         case SCENARIO_KEYS.DEPOSIT_MORPHO_BASE_USDC: {
           setToAddress("0xbeeF010f9cb27031ad51e3333f9aF9C6B1228183")
-          const amount = "0.1"
-          setToAmount(amount)
+          setToAmount(defaultToAmounts.USDC)
           setToToken("USDC")
           setToChainId(8453)
-          setToCalldata(encodeMorphoDepositCalldata(effectiveRecipient, amount))
+          setToCalldata(
+            encodeMorphoDepositCalldata(
+              effectiveRecipient,
+              defaultToAmounts.USDC,
+            ),
+          )
           break
         }
 
         // Currently not working because the requestDeposit function doesn't support onBehalfOf
         case SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE: {
           setToAddress("0x18CF8d963E1a727F9bbF3AEffa0Bd04FB4dBdA07")
-          setToAmount("1")
+          setToAmount(defaultToAmounts.USDC)
           setToToken("USDC")
           setToChainId(8453)
-          setToCalldata(encodeGaunletDepositCalldata())
+          setToCalldata(encodeGaunletDepositCalldata(defaultToAmounts.USDC))
           break
         }
       }
@@ -395,6 +422,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       setToCalldata,
       setToAddress,
       SCENARIO_KEYS,
+      defaultToAmounts,
     ],
   )
 
@@ -434,13 +462,18 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         break
       }
       case SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC: {
-        const aaveUsdcCalldata =
-          encodeErc20AaveDepositCalldata(effectiveRecipient)
+        const aaveUsdcCalldata = encodeErc20AaveDepositCalldata(
+          effectiveRecipient,
+          toAmount,
+        )
         setToCalldata(aaveUsdcCalldata)
         break
       }
       case SCENARIO_KEYS.DEPOSIT_MORPHO_BASE_USDC: {
-        const morphoCalldata = encodeMorphoDepositCalldata(effectiveRecipient)
+        const morphoCalldata = encodeMorphoDepositCalldata(
+          effectiveRecipient,
+          toAmount,
+        )
         setToCalldata(morphoCalldata)
         break
       }
@@ -452,6 +485,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     isConnected,
     address,
     SCENARIO_KEYS,
+    toAmount,
   ])
 
   // Update calldata when toRecipient changes
@@ -1512,10 +1546,20 @@ export function encodeAaveEthDepositCalldata(recipient: string = zeroAddress) {
   return calldata
 }
 
+const PLACEHOLDER_AMOUNT =
+  0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefn // used by proxyCaller.ts in widget sdk
+
 export function encodeErc20AaveDepositCalldata(
   recipient: string = zeroAddress,
   amount: string = "0.1",
 ) {
+  let effectiveAmount = BigInt(0)
+  if (amount === "") {
+    effectiveAmount = PLACEHOLDER_AMOUNT
+  } else {
+    effectiveAmount = parseUnits(amount, 6)
+  }
+
   const calldata = encodeFunctionData({
     abi: [
       {
@@ -1534,7 +1578,7 @@ export function encodeErc20AaveDepositCalldata(
     functionName: "supply",
     args: [
       "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
-      parseUnits(amount, 6), // 0.1 USDC (6 decimals)
+      effectiveAmount,
       recipient as `0x${string}`, // onBehalfOf
       0, // referralCode
     ],
@@ -1570,7 +1614,7 @@ export function encodeMorphoDepositCalldata(
   return calldata
 }
 
-export function encodeGaunletDepositCalldata() {
+export function encodeGaunletDepositCalldata(amount: string = "0.1") {
   const calldata = encodeFunctionData({
     abi: [
       {
@@ -1592,7 +1636,7 @@ export function encodeGaunletDepositCalldata() {
     functionName: "requestDeposit",
     args: [
       "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
-      parseUnits("1", 6), // 1 USDC (6 decimals)
+      parseUnits(amount, 6), // 1 USDC (6 decimals)
       1n, // minUnitsOut set to 0 for now
       0n, // solverTip
       BigInt(Math.floor(Date.now() / 1000) + 259200), // deadline: current timestamp + 3 days

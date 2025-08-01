@@ -4,7 +4,7 @@ import type React from "react"
 import { getExplorerUrlForAddress } from "../../explorer.js"
 import type { ActiveTheme } from "../../theme.js"
 import type { PrepareSendQuote } from "../../prepareSend.js"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { truncateAddress } from "../../address.js"
 
 interface QuoteDetailsProps {
@@ -42,10 +42,45 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
 }) => {
   const [showCalldata, setShowCalldata] = useState(false)
   const [showOriginRate, setShowOriginRate] = useState(true)
+  const [isVisible, setIsVisible] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const calldataRef = useRef<HTMLDivElement>(null)
+
+  // Handle visibility animation and auto-scroll
+  useEffect(() => {
+    if (showContent) {
+      setIsVisible(true)
+      // Small delay to ensure the element is rendered before expanding
+      const timer = setTimeout(() => {
+        setIsExpanded(true)
+        // Auto-scroll to show the expanded content after animation starts
+        setTimeout(() => {
+          if (containerRef.current) {
+            containerRef.current.scrollIntoView({
+              behavior: "smooth",
+              block: "nearest",
+            })
+          }
+        }, 100) // Small delay to let the expansion animation start
+      }, 50)
+      return () => clearTimeout(timer)
+    } else {
+      setIsExpanded(false)
+      // Wait for collapse animation to finish before hiding
+      const timer = setTimeout(() => setIsVisible(false), 300)
+      return () => clearTimeout(timer)
+    }
+  }, [showContent])
+
+  if (!isVisible) return null
 
   return (
     <div
-      className={`transition-all duration-500 ease-out delay-200 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+      ref={containerRef}
+      className={`overflow-hidden transition-all duration-300 ease-out ${
+        isExpanded ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+      }`}
     >
       <div
         className={`p-4 rounded-lg text-sm space-y-4 ${
@@ -435,8 +470,21 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
             <div className="space-y-2">
               <button
                 type="button"
-                onClick={() => setShowCalldata(!showCalldata)}
-                className={`flex items-center gap-1 text-xs hover:underline cursor-pointer ${
+                onClick={() => {
+                  setShowCalldata(!showCalldata)
+                  // Auto-scroll to calldata when expanding
+                  if (!showCalldata) {
+                    setTimeout(() => {
+                      if (calldataRef.current) {
+                        calldataRef.current.scrollIntoView({
+                          behavior: "smooth",
+                          block: "nearest",
+                        })
+                      }
+                    }, 150) // Delay to let the expansion animation start
+                  }
+                }}
+                className={`flex items-center gap-1 text-xs hover:underline cursor-pointer transition-colors duration-200 ${
                   theme === "dark"
                     ? "text-gray-400 hover:text-gray-300"
                     : "text-gray-600 hover:text-gray-700"
@@ -449,7 +497,7 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
                   Includes custom destination calldata
                 </span>
                 <svg
-                  className={`w-3 h-3 transition-transform duration-200 ${
+                  className={`w-3 h-3 transition-transform duration-300 ease-out ${
                     showCalldata ? "rotate-180" : ""
                   }`}
                   fill="none"
@@ -465,12 +513,17 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
                   />
                 </svg>
               </button>
-              {showCalldata && (
+              <div
+                ref={calldataRef}
+                className={`overflow-hidden transition-all duration-300 ease-out ${
+                  showCalldata ? "max-h-32 opacity-100" : "max-h-0 opacity-0"
+                }`}
+              >
                 <div className="mt-2">
                   <textarea
                     value={quote.destinationCalldata}
                     readOnly
-                    className={`w-full p-2 text-xs font-mono rounded border resize-none ${
+                    className={`w-full p-2 text-xs font-mono rounded border resize-none transition-all duration-200 ${
                       theme === "dark"
                         ? "bg-gray-700 border-gray-600 text-gray-200"
                         : "bg-gray-100 border-gray-300 text-gray-800"
@@ -479,7 +532,7 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
                     placeholder="No custom calldata"
                   />
                 </div>
-              )}
+              </div>
             </div>
           )}
         </div>
