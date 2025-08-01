@@ -1,0 +1,757 @@
+import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
+import type React from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import type { Account, WalletClient } from "viem"
+import { isAddress } from "viem"
+import type { TransactionState } from "../../transactions.js"
+import type { RelayerEnv } from "../../relayer.js"
+import type { ActiveTheme } from "../../theme.js"
+import type { OnCompleteProps, Token, TokenInfo } from "../hooks/useSendForm.js"
+import { useSendForm } from "../hooks/useSendForm.js"
+import { ChainImage } from "./ChainImage.js"
+import { FeeOptions } from "./FeeOptions.js"
+import { TokenImage } from "./TokenImage.js"
+import { QuoteDetails } from "./QuoteDetails.js"
+import { TruncatedAddress } from "./TruncatedAddress.js"
+import { type PrepareSendQuote, TradeType } from "../../prepareSend.js"
+
+interface PaySendFormProps {
+  selectedToken: Token
+  onSend: (amount: string, recipient: string) => void
+  onBack: () => void
+  onConfirm: () => void
+  onComplete: (result: OnCompleteProps) => void
+  account: Account
+  sequenceProjectAccessKey: string
+  apiUrl?: string
+  env?: RelayerEnv
+  toRecipient?: string
+  toAmount?: string
+  toChainId?: number
+  toToken?: string
+  toCalldata?: string
+  walletClient: WalletClient
+  theme?: ActiveTheme
+  onTransactionStateChange: (transactionStates: TransactionState[]) => void
+  onError: (error: Error | string | null) => void
+  onWaitingForWalletConfirm: (props: PrepareSendQuote) => void
+  paymasterUrls?: Array<{ chainId: number; url: string }>
+  gasless?: boolean
+  setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
+}
+
+export const PaySendForm: React.FC<PaySendFormProps> = ({
+  selectedToken,
+  onSend,
+  onBack,
+  onConfirm,
+  onComplete,
+  account,
+  sequenceProjectAccessKey,
+  apiUrl,
+  env,
+  toAmount,
+  toRecipient,
+  toChainId,
+  toToken,
+  toCalldata,
+  walletClient,
+  theme = "light",
+  onTransactionStateChange,
+  onError,
+  onWaitingForWalletConfirm,
+  paymasterUrls,
+  gasless,
+  setWalletConfirmRetryHandler,
+}) => {
+  // Local state for showing more details
+  const [showMoreDetails, setShowMoreDetails] = useState(false)
+  const {
+    amount,
+    amountUsdDisplay,
+    balanceUsdDisplay,
+    chainInfo,
+    balanceFormatted,
+    handleRecipientInputChange,
+    handleSubmit,
+    isChainDropdownOpen,
+    isSubmitting,
+    isLoadingQuote,
+    isTokenDropdownOpen,
+    recipient,
+    recipientInput,
+    selectedDestinationChain,
+    selectedDestToken,
+    setAmount,
+    setRecipient,
+    setRecipientInput,
+    setSelectedDestinationChain,
+    setSelectedDestToken,
+    buttonText,
+    isValidRecipient,
+    ensAddress,
+    selectedFeeToken,
+    setSelectedFeeToken,
+    FEE_TOKENS,
+    supportedTokens,
+    setIsChainDropdownOpen,
+    setIsTokenDropdownOpen,
+    toAmountDisplay,
+    destinationTokenAddress,
+    supportedChains,
+    isValidCustomToken,
+    prepareSendQuote,
+  } = useSendForm({
+    account,
+    sequenceProjectAccessKey,
+    apiUrl,
+    env,
+    toAmount,
+    toRecipient,
+    toChainId,
+    toToken,
+    toCalldata,
+    walletClient,
+    theme,
+    onTransactionStateChange,
+    onError,
+    onWaitingForWalletConfirm,
+    paymasterUrls,
+    gasless,
+    onConfirm,
+    onComplete,
+    onSend,
+    selectedToken,
+    setWalletConfirmRetryHandler,
+    tradeType: TradeType.EXACT_OUTPUT,
+  })
+
+  // Handle amount input changes with decimal validation
+  const handleAmountChange = useCallback(
+    (value: string) => {
+      // Validate decimal places (max 8 decimals)
+      const decimalMatch = value.match(/^\d*\.?\d{0,8}$/)
+      if (!decimalMatch && value !== "") {
+        return // Don't update if more than 8 decimals
+      }
+      setAmount(value)
+    },
+    [setAmount],
+  )
+
+  const chainDropdownRef = useRef<HTMLDivElement>(null)
+  const tokenDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      console.log(
+        "[trails-sdk] click outside handler called, isChainDropdownOpen:",
+        isChainDropdownOpen,
+      )
+      if (
+        chainDropdownRef.current &&
+        !chainDropdownRef.current.contains(event.target as Node)
+      ) {
+        console.log("[trails-sdk] closing chain dropdown from outside click")
+        setIsChainDropdownOpen(false)
+      }
+      if (
+        tokenDropdownRef.current &&
+        !tokenDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsTokenDropdownOpen(false)
+      }
+    }
+
+    if (isChainDropdownOpen || isTokenDropdownOpen) {
+      document.addEventListener("click", handleClickOutside)
+      return () => document.removeEventListener("click", handleClickOutside)
+    }
+  }, [
+    setIsChainDropdownOpen,
+    setIsTokenDropdownOpen,
+    isChainDropdownOpen,
+    isTokenDropdownOpen,
+  ])
+
+  if (!selectedDestinationChain) {
+    return null
+  }
+
+  if (!selectedToken) {
+    return null
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center relative">
+        <button
+          type="button"
+          onClick={onBack}
+          className={`absolute -left-2 p-2 rounded-full transition-colors cursor-pointer ${
+            theme === "dark"
+              ? "hover:bg-gray-800 text-gray-400"
+              : "hover:bg-gray-100 text-gray-600"
+          }`}
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
+        <h2
+          className={`text-lg font-semibold w-full text-center ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+        >
+          Send Payment
+        </h2>
+      </div>
+
+      <div
+        className={`flex items-center space-x-4 p-4 rounded-lg ${theme === "dark" ? "bg-gray-800" : "bg-gray-50"}`}
+      >
+        <div className="flex items-start justify-between w-full">
+          {/* Left side - Chain and Token images with token name */}
+          <div className="flex items-start space-x-2">
+            {/* Token Image and Name */}
+            <div className="flex items-center space-x-2">
+              <div style={{ width: "32px", height: "32px" }}>
+                <TokenImage
+                  symbol={selectedToken.symbol}
+                  imageUrl={selectedToken.imageUrl}
+                  chainId={selectedToken.chainId}
+                  size={32}
+                />
+              </div>
+              <div className="flex flex-col">
+                <span
+                  className={`text-sm font-medium max-w-[135px] truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                >
+                  {selectedToken.name}
+                </span>
+                <span
+                  className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  on {chainInfo?.name || "Unknown Chain"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right side - USD value and amount */}
+          <div className="text-right">
+            <div
+              className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+            >
+              <span
+                className={`${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
+              >
+                Balance:{" "}
+              </span>
+              {balanceUsdDisplay}
+            </div>
+            <div
+              className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
+            >
+              {balanceFormatted} {selectedToken.symbol}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-2">
+        {/* Chain Selection - More Compact */}
+        {!toChainId && (
+          <div className="mb-4">
+            <label
+              htmlFor="destination-chain"
+              className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+            >
+              Destination Chain
+            </label>
+            <div className="relative" ref={chainDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
+                className={`w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  theme === "dark"
+                    ? "bg-gray-800 border-gray-700 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
+              >
+                <ChainImage chainId={selectedDestinationChain.id} size={24} />
+                <span className="ml-2 flex-1 text-left">
+                  {selectedDestinationChain.name}
+                </span>
+                <ChevronDown
+                  className={`h-5 w-5 ${theme === "dark" ? "text-gray-400" : "text-gray-400"} transition-transform ${
+                    isChainDropdownOpen ? "transform rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {isChainDropdownOpen && (
+                <div
+                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar ${
+                    theme === "dark"
+                      ? "bg-gray-800 border-gray-700"
+                      : "bg-white border-gray-200"
+                  }`}
+                >
+                  {supportedChains.map((chain) => (
+                    <button
+                      key={chain.id}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setSelectedDestinationChain(chain)
+                        setIsChainDropdownOpen(false)
+                      }}
+                      onMouseDown={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                      }}
+                      className={`w-full flex items-center px-4 py-3 ${
+                        theme === "dark"
+                          ? selectedDestinationChain.id === chain.id
+                            ? "bg-gray-700 text-white"
+                            : "text-white hover:bg-gray-700"
+                          : selectedDestinationChain.id === chain.id
+                            ? "bg-gray-100 text-gray-900"
+                            : "text-gray-900 hover:bg-gray-50"
+                      }`}
+                    >
+                      <ChainImage chainId={chain.id} size={24} />
+                      <span className="ml-2">{chain.name}</span>
+                      {selectedDestinationChain.id === chain.id && (
+                        <span
+                          className={`ml-auto ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                        >
+                          •
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Token Selection - More Compact */}
+        {!toToken && (
+          <div className="mb-4">
+            <label
+              htmlFor="token"
+              className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+            >
+              Receive Token
+            </label>
+            <div className="relative" ref={tokenDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsTokenDropdownOpen(!isTokenDropdownOpen)}
+                className={`w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                  theme === "dark"
+                    ? "bg-gray-800 border-gray-700 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
+              >
+                <div
+                  className={`w-5 h-5 rounded-full flex items-center justify-center text-sm ${
+                    theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+                  }`}
+                >
+                  <TokenImage
+                    symbol={selectedDestToken?.symbol}
+                    imageUrl={selectedDestToken?.imageUrl}
+                    size={24}
+                  />
+                </div>
+                <span className="ml-2 flex-1 text-left">
+                  {selectedDestToken?.name} ({selectedDestToken?.symbol})
+                </span>
+                <ChevronDown
+                  className={`h-5 w-5 ${theme === "dark" ? "text-gray-400" : "text-gray-400"} transition-transform ${
+                    isTokenDropdownOpen ? "transform rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {isTokenDropdownOpen && (
+                <div
+                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar ${
+                    theme === "dark"
+                      ? "bg-gray-800 border-gray-700"
+                      : "bg-white border-gray-200"
+                  }`}
+                >
+                  {supportedTokens.map((token) => (
+                    <button
+                      key={`${token.contractAddress}-${token.chainId}`}
+                      type="button"
+                      onClick={() => {
+                        setSelectedDestToken(token as TokenInfo)
+                        setIsTokenDropdownOpen(false)
+                      }}
+                      className={`w-full flex items-center px-4 py-3 cursor-pointer ${
+                        theme === "dark"
+                          ? selectedDestToken?.symbol === token.symbol
+                            ? "bg-gray-700 text-white"
+                            : "text-white hover:bg-gray-700"
+                          : selectedDestToken?.symbol === token.symbol
+                            ? "bg-gray-100 text-gray-900"
+                            : "text-gray-900 hover:bg-gray-50"
+                      }`}
+                    >
+                      <TokenImage
+                        symbol={token.symbol}
+                        imageUrl={token.imageUrl}
+                        size={24}
+                      />
+                      <span className="ml-2">
+                        {token.name} ({token.symbol})
+                      </span>
+                      {selectedDestToken?.symbol === token.symbol && (
+                        <span
+                          className={`ml-auto ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+                        >
+                          •
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Amount Input - More Compact */}
+        {!toAmount && (
+          <div className="mb-2">
+            <label
+              htmlFor="amount"
+              className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+            >
+              Amount to Receive
+            </label>
+            <div className="relative rounded-lg">
+              <input
+                id="amount"
+                type="text"
+                value={amount}
+                onChange={(e) => handleAmountChange(e.target.value)}
+                placeholder="0.00"
+                className={`block w-full pl-4 pr-12 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg ${
+                  theme === "dark"
+                    ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+                }`}
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+                <span
+                  className={
+                    theme === "dark" ? "text-gray-400" : "text-gray-500"
+                  }
+                >
+                  {selectedDestToken?.symbol}
+                </span>
+              </div>
+            </div>
+            <div className="h-6 mt-1">
+              {amount && selectedDestToken?.symbol && (
+                <div
+                  className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                >
+                  ≈ {amountUsdDisplay}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Receive Section - Similar to FundSendForm */}
+        {(toAmount || toChainId || toToken) && (
+          <div className="space-y-1">
+            <div
+              className={`text-lg font-semibold ${
+                theme === "dark" ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Receive
+            </div>
+
+            <div className="p-2">
+              <div className="flex items-center space-x-3">
+                <TokenImage
+                  symbol={selectedDestToken?.symbol}
+                  imageUrl={selectedDestToken?.imageUrl}
+                  chainId={selectedDestinationChain.id}
+                  size={32}
+                />
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <div
+                      className={`text-lg font-semibold ${
+                        theme === "dark" ? "text-white" : "text-gray-900"
+                      } ${isLoadingQuote ? "animate-pulse" : ""}`}
+                    >
+                      {toAmountDisplay} {selectedDestToken?.symbol}
+                    </div>
+                    {isLoadingQuote && (
+                      <div
+                        className={`animate-spin rounded-full h-4 w-4 border-b-2 ${
+                          theme === "dark"
+                            ? "border-blue-400"
+                            : "border-blue-500"
+                        }`}
+                        style={{
+                          borderTopWidth: "2px",
+                          borderBottomWidth: "2px",
+                        }}
+                      />
+                    )}
+                  </div>
+                  <div
+                    className={`text-xs ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-500"
+                    } ${isLoadingQuote ? "animate-pulse" : ""}`}
+                  >
+                    ≈ {amountUsdDisplay}{" "}
+                    {selectedDestinationChain
+                      ? `on ${selectedDestinationChain.name}`
+                      : ""}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Show recipient address if different from sender */}
+            {recipient &&
+              recipient.toLowerCase() !== account.address.toLowerCase() && (
+                <div className="px-2 pb-1">
+                  <div
+                    className={`text-xs ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    Recipient:{" "}
+                    <TruncatedAddress
+                      address={recipient}
+                      chainId={selectedDestinationChain.id}
+                      theme={theme}
+                      className={`${
+                        theme === "dark" ? "text-gray-300" : "text-gray-700"
+                      }`}
+                    />
+                  </div>
+                </div>
+              )}
+          </div>
+        )}
+
+        {/* Recipient Input - More Compact */}
+        {!toRecipient && (
+          <div className="mb-4">
+            <div className="flex justify-between items-center mb-1">
+              <div>
+                <label
+                  htmlFor="recipient"
+                  className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+                >
+                  {toCalldata ? "Destination Address" : "Recipient Address"}
+                </label>
+                {recipient &&
+                  isAddress(recipient) &&
+                  recipient.toLowerCase() === account.address.toLowerCase() && (
+                    <div
+                      className={`text-xs mt-0.5 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+                    >
+                      Same as sender
+                    </div>
+                  )}
+              </div>
+              <div className="h-7 flex items-center">
+                {recipient !== account.address ? (
+                  <button
+                    type="button"
+                    onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                      event.preventDefault()
+                      setRecipientInput(account.address)
+                      setRecipient(account.address)
+                    }}
+                    className={`px-2 py-1 text-xs cursor-pointer rounded-[24px] transition-colors bg-blue-500 hover:bg-blue-600 text-white`}
+                  >
+                    Use Account
+                  </button>
+                ) : null}
+              </div>
+            </div>
+            <input
+              id="recipient"
+              type="text"
+              value={recipientInput}
+              onChange={handleRecipientInputChange}
+              placeholder="0x... or name.eth"
+              className={`block w-full px-4 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm ${
+                theme === "dark"
+                  ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
+              }`}
+            />
+            {ensAddress && (
+              <p
+                className={
+                  theme === "dark"
+                    ? "text-sm text-gray-400"
+                    : "text-sm text-gray-500"
+                }
+              >
+                {recipient}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Custom Calldata - More Compact */}
+        {toCalldata && (
+          <div className="px-2 py-1">
+            <p
+              className={`text-[10px] ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
+            >
+              This transaction includes custom calldata for contract interaction
+              at the destination address
+            </p>
+          </div>
+        )}
+
+        {/* Fee Options */}
+        <FeeOptions
+          options={FEE_TOKENS}
+          selectedOption={selectedFeeToken ?? undefined}
+          onSelect={setSelectedFeeToken}
+          theme={theme}
+        />
+
+        <div className="flex flex-col space-y-3 pt-2">
+          <button
+            type="submit"
+            disabled={
+              !amount ||
+              !isValidRecipient ||
+              isSubmitting ||
+              !destinationTokenAddress ||
+              !isValidCustomToken ||
+              isLoadingQuote ||
+              !prepareSendQuote
+            }
+            className={`w-full font-semibold py-3 px-4 rounded-[24px] transition-colors relative ${
+              theme === "dark"
+                ? "bg-blue-600 disabled:bg-gray-700 text-white disabled:text-gray-400 enabled:hover:bg-blue-700"
+                : "bg-blue-500 disabled:bg-gray-300 text-white disabled:text-gray-500 enabled:hover:bg-blue-600"
+            } disabled:cursor-not-allowed cursor-pointer`}
+          >
+            {isSubmitting ? (
+              <div className="flex items-center justify-center">
+                <Loader2
+                  className={`w-5 h-5 animate-spin mr-2 ${theme === "dark" ? "text-gray-400" : "text-white"}`}
+                />
+                <span>{buttonText}</span>
+              </div>
+            ) : (
+              buttonText
+            )}
+          </button>
+        </div>
+
+        {/* Quote Details */}
+        {prepareSendQuote && (
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => setShowMoreDetails(!showMoreDetails)}
+              className={`w-full flex items-center justify-center gap-2 py-1 px-4 rounded-[24px] transition-colors cursor-pointer text-xs ${
+                theme === "dark"
+                  ? "text-gray-400 hover:text-gray-300"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <span>More Details</span>
+              <svg
+                className={`w-3 h-3 transition-transform ${showMoreDetails ? "rotate-180" : ""}`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <title>Expand</title>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {showMoreDetails && (
+              <QuoteDetails
+                theme={theme}
+                quote={prepareSendQuote}
+                showContent={showMoreDetails}
+              />
+            )}
+          </div>
+        )}
+      </form>
+    </div>
+  )
+}
+
+const styles = `
+  select {
+    appearance: none;
+    border: 1px solid #e5e7eb;
+    outline: none;
+    font-size: 1rem;
+    width: 100%;
+    background-color: #fff;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    padding-right: 2rem;
+    
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  select:hover {
+    border-color: #d1d5db;
+  }
+
+  select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+
+  select option {
+    padding: 0.75rem 1rem;
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+    padding-left: 2.75rem;
+    position: relative;
+    cursor: pointer;
+  }
+
+  select option:hover {
+    background-color: #f3f4f6;
+  }
+
+  select option:checked {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+  }
+`
+
+if (typeof document !== "undefined") {
+  const styleTag = document.createElement("style")
+  styleTag.textContent = styles
+  document.head.appendChild(styleTag)
+}
