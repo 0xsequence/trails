@@ -46,7 +46,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className={`absolute -left-2 p-2 rounded-full transition-colors cursor-pointer ${
+          className={`absolute left-0 top-0 p-2 rounded-full transition-colors cursor-pointer ${
             theme === "dark"
               ? "hover:bg-gray-800 text-gray-400"
               : "hover:bg-gray-100 text-gray-600"

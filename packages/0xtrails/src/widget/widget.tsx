@@ -1221,7 +1221,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             damping: 30,
             mass: 1,
           }}
-          className={`flex flex-col min-h-[400px] max-h-[700px] rounded-[32px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto custom-scrollbar overflow-y-auto ${
+          className={`flex flex-col min-h-[400px] max-h-[800px] rounded-[32px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto custom-scrollbar overflow-y-auto ${
             theme === "dark"
               ? "bg-gray-900 text-white"
               : "bg-white text-gray-900"
