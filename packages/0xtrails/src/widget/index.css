@@ -8,13 +8,19 @@
 /* Trails Widget Theme Variables - Easy to customize */
 :root {
   /* Font Family - Customizable font for the entire widget */
-  --trails-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+--trails-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
-  /* Primary Colors - These apply to both themes */
-  --trails-primary: rgb(59 130 246); /* blue-500 - Change this to customize */
-  --trails-primary-hover: rgb(37 99 235); /* blue-600 - Change this for hover state */
-  --trails-primary-disabled: rgb(209 213 219); /* gray-300 - Disabled state */
-  --trails-primary-disabled-text: rgb(107 114 128); /* gray-500 - Disabled text */
+/* Border Radius - Customizable border radius for the widget */
+--trails-border-radius-widget: 32px; /* Main widget container border radius */
+--trails-border-radius-button: 24px; /* Primary buttons border radius */
+--trails-border-radius-input: 24px; /* Input fields border radius */
+--trails-border-radius-dropdown: 12px; /* Dropdown border radius */
+
+/* Primary Colors - These apply to both themes */
+--trails-primary: rgb(59 130 246); /* blue-500 - Change this to customize */
+--trails-primary-hover: rgb(37 99 235); /* blue-600 - Change this for hover state */
+--trails-primary-disabled: rgb(209 213 219); /* gray-300 - Disabled state */
+--trails-primary-disabled-text: rgb(107 114 128); /* gray-500 - Disabled text */
 }
 
 /* Utility Classes that use CSS Variables */
@@ -87,11 +93,29 @@
   font-family: var(--trails-font-family);
 }
 
+/* Border Radius Utility Classes */
+.trails-border-radius-widget {
+  border-radius: var(--trails-border-radius-widget);
+}
+
+.trails-border-radius-button {
+  border-radius: var(--trails-border-radius-button);
+}
+
+.trails-border-radius-input {
+  border-radius: var(--trails-border-radius-input);
+}
+
+.trails-border-radius-dropdown {
+  border-radius: var(--trails-border-radius-dropdown);
+}
+
 /* Input Field Utility Classes */
 .trails-input {
   background-color: var(--trails-input-bg);
   border-color: var(--trails-input-border);
   color: var(--trails-input-text);
+  border-radius: var(--trails-border-radius-input);
 }
 
 .trails-input::placeholder {
@@ -108,6 +132,7 @@
   background-color: var(--trails-dropdown-bg);
   border-color: var(--trails-dropdown-border);
   color: var(--trails-dropdown-text);
+  border-radius: var(--trails-border-radius-dropdown);
 }
 
 .trails-dropdown-item {
@@ -350,6 +375,7 @@
   background-color: var(--trails-primary, rgb(59 130 246));
   color: white;
   transition: all 0.2s ease-in-out;
+  border-radius: var(--trails-border-radius-button);
 }
 
 .trails-btn-primary:hover:not(:disabled) {

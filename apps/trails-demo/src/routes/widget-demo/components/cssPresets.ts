@@ -2,6 +2,12 @@
 export const DEFAULT_CSS_VALUES = `/* Font Family - Customizable font for the entire widget */
 --trails-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
+/* Border Radius - Customizable border radius for the widget */
+--trails-border-radius-widget: 32px; /* Main widget container border radius */
+--trails-border-radius-button: 24px; /* Primary buttons border radius */
+--trails-border-radius-input: 24px; /* Input fields border radius */
+--trails-border-radius-dropdown: 12px; /* Dropdown border radius */
+
 /* Primary Colors - These apply to both themes */
 --trails-primary: rgb(59 130 246); /* blue-500 - Change this to customize */
 --trails-primary-hover: rgb(37 99 235); /* blue-600 - Change this for hover state */
@@ -64,6 +70,12 @@ export const DEFAULT_CSS_VALUES = `/* Font Family - Customizable font for the en
 // Green theme preset for light mode
 export const GREEN_THEME_PRESET = `/* Font Family - Modern sans-serif for green theme */
 --trails-font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+/* Border Radius - Customizable border radius for the widget */
+--trails-border-radius-widget: 32px; /* Main widget container border radius */
+--trails-border-radius-button: 24px; /* Primary buttons border radius */
+--trails-border-radius-input: 24px; /* Input fields border radius */
+--trails-border-radius-dropdown: 12px; /* Dropdown border radius */
 
 /* Primary Colors - Green Theme */
 --trails-primary: rgb(16 185 129); /* emerald-500 - more minty */
@@ -128,6 +140,12 @@ export const GREEN_THEME_PRESET = `/* Font Family - Modern sans-serif for green 
 export const BLUE_THEME_PRESET = `/* Font Family - Clean sans-serif for blue theme */
 --trails-font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
+/* Border Radius - Customizable border radius for the widget */
+--trails-border-radius-widget: 32px; /* Main widget container border radius */
+--trails-border-radius-button: 24px; /* Primary buttons border radius */
+--trails-border-radius-input: 24px; /* Input fields border radius */
+--trails-border-radius-dropdown: 12px; /* Dropdown border radius */
+
 /* Primary Colors - Blue Theme */
 --trails-primary: rgb(59 130 246); /* blue-500 */
 --trails-primary-hover: rgb(37 99 235); /* blue-600 */
@@ -190,6 +208,12 @@ export const BLUE_THEME_PRESET = `/* Font Family - Clean sans-serif for blue the
 // Gray theme preset
 export const GRAY_THEME_PRESET = `/* Font Family - Professional sans-serif for gray theme */
 --trails-font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+
+/* Border Radius - Customizable border radius for the widget */
+--trails-border-radius-widget: 32px; /* Main widget container border radius */
+--trails-border-radius-button: 24px; /* Primary buttons border radius */
+--trails-border-radius-input: 24px; /* Input fields border radius */
+--trails-border-radius-dropdown: 12px; /* Dropdown border radius */
 
 /* Primary Colors - Gray Theme */
 --trails-primary: rgb(75 85 99); /* gray-600 - darker gray */
@@ -254,17 +278,23 @@ export const GRAY_THEME_PRESET = `/* Font Family - Professional sans-serif for g
 export const DARK_THEME_PRESET = `/* Font Family - Bold sans-serif for dark theme */
 --trails-font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
+/* Border Radius - Customizable border radius for the widget */
+--trails-border-radius-widget: 32px; /* Main widget container border radius */
+--trails-border-radius-button: 24px; /* Primary buttons border radius */
+--trails-border-radius-input: 24px; /* Input fields border radius */
+--trails-border-radius-dropdown: 12px; /* Dropdown border radius */
+
 /* Primary Colors - Dark Theme */
 --trails-primary: rgb(245 158 11); /* amber-500 - Binance gold */
 --trails-primary-hover: rgb(217 119 6); /* amber-600 - darker gold */
 --trails-primary-disabled: rgb(75 85 99); /* gray-600 */
 --trails-primary-disabled-text: rgb(156 163 175); /* gray-400 */
 
-/* Dark Mode Theme Variables - Black & Gold (Binance) */
+/* Dark Mode Theme Variables - Black and Gold (Binance-inspired) */
 --trails-bg-primary: rgb(0 0 0); /* black */
 --trails-bg-secondary: rgb(15 15 15); /* very dark gray */
 --trails-bg-tertiary: rgb(25 25 25); /* dark gray */
---trails-bg-card: rgb(20 20 20); /* dark gray for token list */
+--trails-bg-card: rgb(20 20 20); /* dark gray for cards/token list */
 --trails-bg-overlay: rgb(0 0 0); /* black */
 
 --trails-text-primary: rgb(255 255 255); /* white */
@@ -277,7 +307,7 @@ export const DARK_THEME_PRESET = `/* Font Family - Bold sans-serif for dark them
 --trails-border-secondary: rgb(75 85 99); /* gray-600 */
 --trails-border-tertiary: rgb(31 41 55); /* gray-800 */
 
---trails-hover-bg: rgb(25 25 25); /* dark gray */
+--trails-hover-bg: rgb(25 25 25); /* dark gray on hover */
 --trails-hover-text: rgb(255 255 255); /* white */
 --trails-focus-ring: rgb(245 158 11); /* amber-500 - Binance gold */
 
@@ -310,12 +340,17 @@ export const DARK_THEME_PRESET = `/* Font Family - Bold sans-serif for dark them
 --trails-dropdown-hover-bg: rgb(25 25 25); /* dark gray on hover */
 --trails-dropdown-selected-bg: rgb(25 25 25); /* dark gray selected background */
 --trails-dropdown-selected-text: rgb(245 158 11); /* amber-500 - Binance gold selected text */
-
 `
 
 // Purple theme preset (Polygon-inspired)
 export const PURPLE_THEME_PRESET = `/* Font Family - Modern geometric sans-serif for purple theme */
 --trails-font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+/* Border Radius - Customizable border radius for the widget */
+--trails-border-radius-widget: 32px; /* Main widget container border radius */
+--trails-border-radius-button: 24px; /* Primary buttons border radius */
+--trails-border-radius-input: 24px; /* Input fields border radius */
+--trails-border-radius-dropdown: 12px; /* Dropdown border radius */
 
 /* Primary Colors - Purple Theme */
 --trails-primary: rgb(147 51 234); /* purple-600 */
@@ -380,6 +415,12 @@ export const PURPLE_THEME_PRESET = `/* Font Family - Modern geometric sans-serif
 export const MONO_THEME_PRESET = `/* Font Family - Monospace for code-like theme */
 --trails-font-family: monospace;
 
+/* Border Radius - Customizable border radius for the widget */
+--trails-border-radius-widget: 32px; /* Main widget container border radius */
+--trails-border-radius-button: 24px; /* Primary buttons border radius */
+--trails-border-radius-input: 24px; /* Input fields border radius */
+--trails-border-radius-dropdown: 12px; /* Dropdown border radius */
+
 /* Primary Colors - These apply to both themes */
 --trails-primary: rgb(0 0 0); /* black - Change this to customize */
 --trails-primary-hover: rgb(55 65 81); /* gray-700 - Change this for hover state */
@@ -436,7 +477,74 @@ export const MONO_THEME_PRESET = `/* Font Family - Monospace for code-like theme
 --trails-dropdown-hover-bg: rgb(249 250 251); /* gray-50 */
 --trails-dropdown-selected-bg: rgb(243 244 246); /* gray-100 */
 --trails-dropdown-selected-text: rgb(17 24 39); /* gray-900 */
+`
 
+// Square theme preset (dark theme with zero border radius)
+export const SQUARE_THEME_PRESET = `/* Font Family - Bold sans-serif for dark theme */
+--trails-font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+/* Border Radius - Customizable border radius for the widget */
+--trails-border-radius-widget: 0px; /* Square widget container */
+--trails-border-radius-button: 0px; /* Square buttons */
+--trails-border-radius-input: 0px; /* Square input fields */
+--trails-border-radius-dropdown: 0px; /* Square dropdowns */
+
+/* Primary Colors - Dark Theme */
+--trails-primary: rgb(59 130 246); /* blue-500 - standard blue */
+--trails-primary-hover: rgb(37 99 235); /* blue-600 - darker blue */
+--trails-primary-disabled: rgb(75 85 99); /* gray-600 */
+--trails-primary-disabled-text: rgb(156 163 175); /* gray-400 */
+
+/* Dark Mode Theme Variables - Standard Dark Theme */
+--trails-bg-primary: rgb(17 24 39); /* gray-900 */
+--trails-bg-secondary: rgb(31 41 55); /* gray-800 */
+--trails-bg-tertiary: rgb(55 65 81); /* gray-700 */
+--trails-bg-card: rgb(31 41 55); /* gray-800 */
+--trails-bg-overlay: rgb(17 24 39); /* gray-900 */
+
+--trails-text-primary: rgb(255 255 255); /* white */
+--trails-text-secondary: rgb(209 213 219); /* gray-300 */
+--trails-text-tertiary: rgb(156 163 175); /* gray-400 */
+--trails-text-muted: rgb(107 114 128); /* gray-500 */
+--trails-text-inverse: rgb(17 24 39); /* gray-900 */
+
+--trails-border-primary: rgb(55 65 81); /* gray-700 */
+--trails-border-secondary: rgb(75 85 99); /* gray-600 */
+--trails-border-tertiary: rgb(31 41 55); /* gray-800 */
+
+--trails-hover-bg: rgb(55 65 81); /* gray-700 */
+--trails-hover-text: rgb(255 255 255); /* white */
+--trails-focus-ring: rgb(59 130 246); /* blue-500 */
+
+--trails-success-bg: rgb(22 163 74 / 0.2); /* green-600 with opacity */
+--trails-success-text: rgb(134 239 172); /* green-400 */
+--trails-success-border: rgb(22 163 74 / 0.3); /* green-600 with opacity */
+
+--trails-warning-bg: rgb(217 119 6 / 0.2); /* amber-600 with opacity */
+--trails-warning-text: rgb(251 191 36); /* amber-400 */
+--trails-warning-border: rgb(217 119 6 / 0.3); /* amber-600 with opacity */
+
+--trails-error-bg: rgb(239 68 68 / 0.2); /* red-500 with opacity */
+--trails-error-text: rgb(252 165 165); /* red-400 */
+--trails-error-border: rgb(239 68 68 / 0.3); /* red-500 with opacity */
+
+--trails-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+
+/* Input Field Colors */
+--trails-input-bg: rgb(31 41 55); /* gray-800 */
+--trails-input-border: rgb(75 85 99); /* gray-600 */
+--trails-input-text: rgb(255 255 255); /* white */
+--trails-input-placeholder: rgb(107 114 128); /* gray-500 */
+--trails-input-focus-border: rgb(59 130 246); /* blue-500 */
+--trails-input-focus-ring: rgb(59 130 246); /* blue-500 */
+
+/* Dropdown Colors */
+--trails-dropdown-bg: rgb(31 41 55); /* gray-800 */
+--trails-dropdown-border: rgb(75 85 99); /* gray-600 */
+--trails-dropdown-text: rgb(255 255 255); /* white */
+--trails-dropdown-hover-bg: rgb(55 65 81); /* gray-700 */
+--trails-dropdown-selected-bg: rgb(55 65 81); /* gray-700 */
+--trails-dropdown-selected-text: rgb(255 255 255); /* white */
 `
 
 // Export all presets as an object for easy access
@@ -448,6 +556,7 @@ export const CSS_PRESETS = {
   dark: DARK_THEME_PRESET,
   purple: PURPLE_THEME_PRESET,
   mono: MONO_THEME_PRESET,
+  square: SQUARE_THEME_PRESET,
 } as const
 
 export type PresetName = keyof typeof CSS_PRESETS

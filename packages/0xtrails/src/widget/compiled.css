@@ -1022,9 +1022,6 @@
   .rounded-\[24px\] {
     border-radius: 24px;
   }
-  .rounded-\[32px\] {
-    border-radius: 32px;
-  }
   .rounded-full {
     border-radius: calc(infinity * 1px);
   }
@@ -2898,6 +2895,10 @@
 }
 :root {
   --trails-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --trails-border-radius-widget: 32px;
+  --trails-border-radius-button: 24px;
+  --trails-border-radius-input: 24px;
+  --trails-border-radius-dropdown: 12px;
   --trails-primary: rgb(59 130 246);
   --trails-primary-hover: rgb(37 99 235);
   --trails-primary-disabled: rgb(209 213 219);
@@ -2954,10 +2955,23 @@
 .trails-font {
   font-family: var(--trails-font-family);
 }
+.trails-border-radius-widget {
+  border-radius: var(--trails-border-radius-widget);
+}
+.trails-border-radius-button {
+  border-radius: var(--trails-border-radius-button);
+}
+.trails-border-radius-input {
+  border-radius: var(--trails-border-radius-input);
+}
+.trails-border-radius-dropdown {
+  border-radius: var(--trails-border-radius-dropdown);
+}
 .trails-input {
   background-color: var(--trails-input-bg);
   border-color: var(--trails-input-border);
   color: var(--trails-input-text);
+  border-radius: var(--trails-border-radius-input);
 }
 .trails-input::placeholder {
   color: var(--trails-input-placeholder);
@@ -2970,6 +2984,7 @@
   background-color: var(--trails-dropdown-bg);
   border-color: var(--trails-dropdown-border);
   color: var(--trails-dropdown-text);
+  border-radius: var(--trails-border-radius-dropdown);
 }
 .trails-dropdown-item {
   color: var(--trails-dropdown-text);
@@ -3128,6 +3143,7 @@
   background-color: var(--trails-primary, rgb(59 130 246));
   color: white;
   transition: all 0.2s ease-in-out;
+  border-radius: var(--trails-border-radius-button);
 }
 .trails-btn-primary:hover:not(:disabled) {
   background-color: var(--trails-primary-hover, rgb(37 99 235));

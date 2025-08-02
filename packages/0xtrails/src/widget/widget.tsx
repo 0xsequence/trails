@@ -1160,7 +1160,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             damping: 30,
             mass: 1,
           }}
-          className="flex flex-col min-h-[400px] rounded-[32px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto custom-scrollbar trails-bg-primary trails-text-primary trails-font"
+          className="flex flex-col min-h-[400px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto custom-scrollbar trails-bg-primary trails-text-primary trails-font trails-border-radius-widget"
           layout
           layoutId="modal-container"
           onClick={(e) => e.stopPropagation()}
@@ -1206,7 +1206,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsModalOpen(true)}
-            className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white cursor-pointer font-semibold py-3 px-6 rounded-[24px] shadow-sm transition-colors"
+            className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white cursor-pointer font-semibold py-3 px-6 shadow-sm transition-colors trails-border-radius-button"
           >
             {buttonText || (mode === "fund" ? "Fund" : "Pay")}
           </motion.button>

@@ -868,7 +868,11 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       localStorage.setItem(STORAGE_KEYS.CUSTOM_CSS, preset)
 
       // Set widget theme based on preset
-      if (presetName === "dark" || presetName === "purple") {
+      if (
+        presetName === "dark" ||
+        presetName === "purple" ||
+        presetName === "square"
+      ) {
         setTheme("dark")
       } else {
         setTheme("light")
@@ -1684,6 +1688,20 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         }
                       >
                         Mono
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("square")}
+                        className="px-2 py-1 text-white text-xs font-medium cursor-pointer"
+                        style={
+                          {
+                            backgroundColor: "rgb(17 24 39)",
+                            "--tw-hover-bg": "rgb(31 41 55)",
+                            borderRadius: "0px",
+                          } as React.CSSProperties
+                        }
+                      >
+                        Square
                       </button>
                     </div>
                   </div>
