@@ -28,7 +28,14 @@ export const WidgetDemo = () => {
   const [gasless, setGasless] = useState<boolean | null>(null)
   const [customTokenAddress, setCustomTokenAddress] = useState("")
   const [buttonText, setButtonText] = useState("")
-  const [customCss, setCustomCss] = useState("")
+  const [customCss, setCustomCss] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.CUSTOM_CSS) || ""
+    } catch (error) {
+      console.error("Error getting custom CSS from localStorage:", error)
+      return ""
+    }
+  })
   const [mode, setMode] = useState<Mode | null>(null)
 
   // Resizable sidebar state
@@ -113,83 +120,7 @@ export const WidgetDemo = () => {
       setWalletOptions([])
     }
     if (!localStorage.getItem(STORAGE_KEYS.CUSTOM_CSS)) {
-      // Set default CSS values
-      const defaultCss = `/* Primary Colors - These apply to both themes */
---trails-primary: rgb(59 130 246); /* blue-500 - Change this to customize */
---trails-primary-hover: rgb(37 99 235); /* blue-600 - Change this for hover state */
---trails-primary-disabled: rgb(209 213 219); /* gray-300 - Disabled state */
---trails-primary-disabled-text: rgb(107 114 128); /* gray-500 - Disabled text */
-
-/* Light Mode Theme Variables */
---trails-bg-primary: rgb(255 255 255); /* white */
---trails-bg-secondary: rgb(249 250 251); /* gray-50 */
---trails-bg-tertiary: rgb(243 244 246); /* gray-100 */
---trails-bg-card: rgb(255 255 255); /* white */
---trails-bg-overlay: rgb(255 255 255); /* white */
-
---trails-text-primary: rgb(17 24 39); /* gray-900 */
---trails-text-secondary: rgb(75 85 99); /* gray-600 */
---trails-text-tertiary: rgb(107 114 128); /* gray-500 */
---trails-text-muted: rgb(156 163 175); /* gray-400 */
---trails-text-inverse: rgb(255 255 255); /* white */
-
---trails-border-primary: rgb(229 231 235); /* gray-200 */
---trails-border-secondary: rgb(209 213 219); /* gray-300 */
---trails-border-tertiary: rgb(243 244 246); /* gray-100 */
-
---trails-hover-bg: rgb(249 250 251); /* gray-50 */
---trails-hover-text: rgb(17 24 39); /* gray-900 */
---trails-focus-ring: rgb(59 130 246); /* blue-500 */
-
---trails-success-bg: rgb(240 253 244); /* green-50 */
---trails-success-text: rgb(22 163 74); /* green-600 */
---trails-success-border: rgb(187 247 208); /* green-200 */
-
---trails-warning-bg: rgb(255 251 235); /* amber-50 */
---trails-warning-text: rgb(217 119 6); /* amber-600 */
---trails-warning-border: rgb(253 230 138); /* amber-200 */
-
---trails-error-bg: rgb(254 242 242); /* red-50 */
---trails-error-text: rgb(220 38 38); /* red-600 */
---trails-error-border: rgb(254 202 202); /* red-200 */
-
---trails-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-
-/* Dark Mode Theme Variables */
---trails-bg-primary: rgb(17 24 39); /* gray-900 */
---trails-bg-secondary: rgb(31 41 55); /* gray-800 */
---trails-bg-tertiary: rgb(55 65 81); /* gray-700 */
---trails-bg-card: rgb(31 41 55); /* gray-800 */
---trails-bg-overlay: rgb(17 24 39); /* gray-900 */
-
---trails-text-primary: rgb(255 255 255); /* white */
---trails-text-secondary: rgb(209 213 219); /* gray-300 */
---trails-text-tertiary: rgb(156 163 175); /* gray-400 */
---trails-text-muted: rgb(107 114 128); /* gray-500 */
---trails-text-inverse: rgb(17 24 39); /* gray-900 */
-
---trails-border-primary: rgb(55 65 81); /* gray-700 */
---trails-border-secondary: rgb(75 85 99); /* gray-600 */
---trails-border-tertiary: rgb(31 41 55); /* gray-800 */
-
---trails-hover-bg: rgb(55 65 81); /* gray-700 */
---trails-hover-text: rgb(255 255 255); /* white */
---trails-focus-ring: rgb(59 130 246); /* blue-500 */
-
---trails-success-bg: rgb(22 163 74 / 0.2); /* green-600 with opacity */
---trails-success-text: rgb(134 239 172); /* green-400 */
---trails-success-border: rgb(22 163 74 / 0.3); /* green-600 with opacity */
-
---trails-warning-bg: rgb(217 119 6 / 0.2); /* amber-600 with opacity */
---trails-warning-text: rgb(251 191 36); /* amber-400 */
---trails-warning-border: rgb(217 119 6 / 0.3); /* amber-600 with opacity */
-
---trails-error-bg: rgb(239 68 68 / 0.2); /* red-500 with opacity */
---trails-error-text: rgb(252 165 165); /* red-400 */
---trails-error-border: rgb(239 68 68 / 0.3); /* red-500 with opacity */
-
---trails-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);`
-      setCustomCss(defaultCss)
+      setCustomCss("")
     }
   }, [])
 

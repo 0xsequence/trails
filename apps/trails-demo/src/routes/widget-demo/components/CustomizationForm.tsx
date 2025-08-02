@@ -169,10 +169,11 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   customCss,
   setCustomCss,
 }) => {
-  // Separate state for textarea content
-  const [textareaCss, setTextareaCss] = useState(
-    customCss || DEFAULT_CSS_VALUES,
-  )
+  // Separate state for textarea content - initialize from localStorage
+  const [textareaCss, setTextareaCss] = useState(() => {
+    const savedCustomCss = localStorage.getItem(STORAGE_KEYS.CUSTOM_CSS)
+    return savedCustomCss || ""
+  })
   const { address, isConnected } = useAccount()
   const [isScenarioDropdownOpen, setIsScenarioDropdownOpen] = useState(false)
   const [selectedScenario, setSelectedScenario] = useState<string>("")
@@ -842,13 +843,16 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   const applyCustomCss = useCallback(() => {
     // Apply the textarea content to the widget
     setCustomCss(textareaCss)
+    // Save custom CSS to localStorage
+    localStorage.setItem(STORAGE_KEYS.CUSTOM_CSS, textareaCss)
   }, [textareaCss, setCustomCss])
 
   const resetCustomCss = useCallback(() => {
-    // Reset textarea to default values but don't apply to widget
-    setTextareaCss(DEFAULT_CSS_VALUES)
-    // Clear the widget's custom CSS by setting it to empty string
+    // Clear textarea and apply empty CSS
+    setTextareaCss("")
     setCustomCss("")
+    // Clear custom CSS from localStorage
+    localStorage.removeItem(STORAGE_KEYS.CUSTOM_CSS)
     setTheme("light")
   }, [setCustomCss, setTheme])
 
@@ -859,6 +863,9 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       setTextareaCss(preset)
       // Automatically apply the CSS to the widget
       setCustomCss(preset)
+
+      // Save CSS content to localStorage
+      localStorage.setItem(STORAGE_KEYS.CUSTOM_CSS, preset)
 
       // Set widget theme based on preset
       if (presetName === "dark" || presetName === "purple") {
@@ -1558,7 +1565,17 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   <textarea
                     id="customCss"
                     value={textareaCss}
-                    onChange={(e) => setTextareaCss(e.target.value)}
+                    onChange={(e) => {
+                      const newValue = e.target.value
+                      setTextareaCss(newValue)
+
+                      // Auto-apply CSS if it's not the default
+                      if (newValue.trim() !== DEFAULT_CSS_VALUES.trim()) {
+                        setCustomCss(newValue)
+                      } else {
+                        setCustomCss("")
+                      }
+                    }}
                     placeholder="Enter custom CSS variables..."
                     rows={8}
                     className="w-full px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-xs"
@@ -1584,6 +1601,13 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       Examples:
                     </span>
                     <div className="flex gap-1 flex-wrap">
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("default")}
+                        className="px-2 py-1 bg-white border border-blue-500 text-blue-500 hover:bg-blue-50 rounded text-xs font-medium cursor-pointer"
+                      >
+                        Default
+                      </button>
                       <button
                         type="button"
                         onClick={() => applyPreset("green")}
