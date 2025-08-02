@@ -1,17 +1,3 @@
-/**
- * FundSendForm Component - Requirements:
- *
- * - Be able to toggle between token and USD input
- * - Limit USD input display to 2 decimals
- * - Token display limit should be 8 decimals
- * - Input field should be limited to 16 chars
- * - Input field should limit decimals to 8
- * - When toggling to USD input, only show 2 decimals max in input, but allow user to enter up to 8 as state previously
- * - Input amount to useSendForm should always be in terms of the token, not USD
- * - I should be able to enter decimals into input field, entering periods and 0s should work
- * - I should be able to backspace chars in input field
- */
-
 import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
 import type React from "react"
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
@@ -19,7 +5,6 @@ import type { Account, WalletClient } from "viem"
 import { formatUnits } from "viem"
 import type { TransactionState } from "../../transactions.js"
 import type { RelayerEnv } from "../../relayer.js"
-import type { ActiveTheme } from "../../theme.js"
 import type { OnCompleteProps, Token, TokenInfo } from "../hooks/useSendForm.js"
 import { useSendForm } from "../hooks/useSendForm.js"
 import { ChainImage } from "./ChainImage.js"
@@ -46,7 +31,6 @@ interface FundSendFormProps {
   toToken?: string
   toCalldata?: string
   walletClient: WalletClient
-  theme?: ActiveTheme
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   onError: (error: Error | string | null) => void
   onWaitingForWalletConfirm: (props: PrepareSendQuote) => void
@@ -71,7 +55,6 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
   toToken,
   toCalldata,
   walletClient,
-  theme = "light",
   onTransactionStateChange,
   onError,
   onWaitingForWalletConfirm,
@@ -134,7 +117,6 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     toToken,
     toCalldata,
     walletClient,
-    theme,
     onTransactionStateChange,
     onError,
     onWaitingForWalletConfirm,
@@ -389,25 +371,17 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className={`absolute -left-2 p-2 rounded-full transition-colors cursor-pointer ${
-            theme === "dark"
-              ? "hover:bg-gray-800 text-gray-400"
-              : "hover:bg-gray-100 text-gray-600"
-          }`}
+          className="absolute -left-2 p-2 rounded-full transition-colors cursor-pointer hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-800 dark:text-gray-400"
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
-        <h2
-          className={`text-lg font-semibold w-full text-center ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-        >
+        <h2 className="text-lg font-semibold w-full text-center text-gray-900 dark:text-white">
           Fund
         </h2>
       </div>
 
       {/* Balance Info Section */}
-      <div
-        className={`flex items-center space-x-4 p-4 rounded-lg ${theme === "dark" ? "bg-gray-800" : "bg-gray-50"}`}
-      >
+      <div className="flex items-center space-x-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
         <div className="flex items-start justify-between w-full">
           {/* Left side - Chain and Token images with token name */}
           <div className="flex items-start space-x-2">
@@ -421,14 +395,10 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                 />
               </div>
               <div className="flex flex-col">
-                <span
-                  className={`text-sm font-medium max-w-[135px] truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-                >
+                <span className="text-sm font-medium max-w-[135px] truncate text-gray-900 dark:text-white">
                   {selectedToken.name}
                 </span>
-                <span
-                  className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
-                >
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   on {chainInfo?.name || "Unknown Chain"}
                 </span>
               </div>
@@ -437,19 +407,13 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
 
           {/* Right side - USD value and amount */}
           <div className="text-right">
-            <div
-              className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-            >
-              <span
-                className={`${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
-              >
+            <div className="text-sm font-medium text-gray-900 dark:text-white">
+              <span className="text-gray-600 dark:text-gray-400">
                 Balance:{" "}
               </span>
               {balanceUsdDisplay}
             </div>
-            <div
-              className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
-            >
+            <div className="text-sm text-gray-600 dark:text-gray-400">
               {balanceFormatted} {selectedToken.symbol}
             </div>
           </div>
@@ -468,11 +432,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                 value={displayAmount}
                 onChange={(e) => handleAmountChange(e.target.value)}
                 placeholder="0"
-                className={`bg-transparent border-none outline-none ${inputStyles.fontSize} font-bold text-right ${
-                  theme === "dark"
-                    ? "text-white placeholder-white"
-                    : "text-gray-900 placeholder-gray-900"
-                }`}
+                className={`bg-transparent border-none outline-none ${inputStyles.fontSize} font-bold text-right text-gray-900 placeholder-gray-900 dark:text-white dark:placeholder-white`}
                 style={{
                   width: `${Math.max((displayAmount || "0").length, 1)}ch`,
                   minWidth: "1ch",
@@ -483,9 +443,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                 inputMode="decimal"
               />
               <span
-                className={`${inputStyles.fontSize} font-bold ${
-                  theme === "dark" ? "text-gray-500" : "text-gray-400"
-                }`}
+                className={`${inputStyles.fontSize} font-bold text-gray-400 dark:text-gray-500`}
                 style={{
                   marginLeft:
                     displayAmount && displayAmount !== "0" ? "0.2em" : "0.1em",
@@ -503,11 +461,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
             <button
               type="button"
               onClick={handleInputTypeToggle}
-              className={`flex items-center justify-center gap-2 px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
-                theme === "dark"
-                  ? "text-gray-300 hover:bg-gray-700 hover:text-gray-200"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-700"
-              }`}
+              className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-md transition-colors cursor-pointer text-gray-600 hover:bg-gray-50 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-200"
             >
               <span className="text-xs font-medium tracking-[-2px]">↑↓</span>
               <div className="text-sm font-normal">{displayUsdValue}</div>
@@ -521,11 +475,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                 key={percentage}
                 type="button"
                 onClick={() => handlePercentageClick(percentage)}
-                className={`py-1 px-2 text-xs font-medium rounded-lg border transition-colors cursor-pointer ${
-                  theme === "dark"
-                    ? "border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-gray-500"
-                    : "border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400"
-                }`}
+                className="py-1 px-2 text-xs font-medium rounded-lg border transition-colors cursor-pointer border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:border-gray-500"
               >
                 {percentage === 100 ? "MAX" : `${percentage}%`}
               </button>
@@ -538,7 +488,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
           <div className="mb-4">
             <label
               htmlFor="destination-chain"
-              className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+              className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300"
             >
               Destination Chain
             </label>
@@ -546,31 +496,21 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
               <button
                 type="button"
                 onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
-                className={`w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  theme === "dark"
-                    ? "bg-gray-800 border-gray-700 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
-                }`}
+                className="w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white border-gray-300 text-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               >
                 <ChainImage chainId={selectedDestinationChain.id} size={24} />
                 <span className="ml-2 flex-1 text-left">
                   {selectedDestinationChain.name}
                 </span>
                 <ChevronDown
-                  className={`h-5 w-5 ${theme === "dark" ? "text-gray-400" : "text-gray-400"} transition-transform ${
+                  className={`h-5 w-5 text-gray-400 transition-transform ${
                     isChainDropdownOpen ? "transform rotate-180" : ""
                   }`}
                 />
               </button>
 
               {isChainDropdownOpen && (
-                <div
-                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar ${
-                    theme === "dark"
-                      ? "bg-gray-800 border-gray-700"
-                      : "bg-white border-gray-200"
-                  }`}
-                >
+                <div className="absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700">
                   {supportedChains.map((chain) => (
                     <button
                       key={chain.id}
@@ -586,21 +526,15 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                         e.stopPropagation()
                       }}
                       className={`w-full flex items-center px-4 py-3 ${
-                        theme === "dark"
-                          ? selectedDestinationChain.id === chain.id
-                            ? "bg-gray-700 text-white"
-                            : "text-white hover:bg-gray-700"
-                          : selectedDestinationChain.id === chain.id
-                            ? "bg-gray-100 text-gray-900"
-                            : "text-gray-900 hover:bg-gray-50"
+                        selectedDestinationChain.id === chain.id
+                          ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white"
+                          : "text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-700"
                       }`}
                     >
                       <ChainImage chainId={chain.id} size={24} />
                       <span className="ml-2">{chain.name}</span>
                       {selectedDestinationChain.id === chain.id && (
-                        <span
-                          className={`ml-auto ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-                        >
+                        <span className="ml-auto text-gray-900 dark:text-white">
                           •
                         </span>
                       )}
@@ -617,7 +551,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
           <div className="mb-4">
             <label
               htmlFor="token"
-              className={`block text-sm font-medium mb-1 ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}
+              className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300"
             >
               Receive Token
             </label>
@@ -625,17 +559,9 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
               <button
                 type="button"
                 onClick={() => setIsTokenDropdownOpen(!isTokenDropdownOpen)}
-                className={`w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                  theme === "dark"
-                    ? "bg-gray-800 border-gray-700 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
-                }`}
+                className="w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white border-gray-300 text-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               >
-                <div
-                  className={`w-5 h-5 rounded-full flex items-center justify-center text-sm ${
-                    theme === "dark" ? "bg-gray-700" : "bg-gray-100"
-                  }`}
-                >
+                <div className="w-5 h-5 rounded-full flex items-center justify-center text-sm bg-gray-100 dark:bg-gray-700">
                   <TokenImage
                     symbol={selectedDestToken?.symbol}
                     imageUrl={selectedDestToken?.imageUrl}
@@ -646,20 +572,14 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                   {selectedDestToken?.name} ({selectedDestToken?.symbol})
                 </span>
                 <ChevronDown
-                  className={`h-5 w-5 ${theme === "dark" ? "text-gray-400" : "text-gray-400"} transition-transform ${
+                  className={`h-5 w-5 text-gray-400 transition-transform ${
                     isTokenDropdownOpen ? "transform rotate-180" : ""
                   }`}
                 />
               </button>
 
               {isTokenDropdownOpen && (
-                <div
-                  className={`absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar ${
-                    theme === "dark"
-                      ? "bg-gray-800 border-gray-700"
-                      : "bg-white border-gray-200"
-                  }`}
-                >
+                <div className="absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700">
                   {supportedTokens.map((token) => (
                     <button
                       key={`${token.contractAddress}-${token.chainId}`}
@@ -669,13 +589,9 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                         setIsTokenDropdownOpen(false)
                       }}
                       className={`w-full flex items-center px-4 py-3 cursor-pointer ${
-                        theme === "dark"
-                          ? selectedDestToken?.symbol === token.symbol
-                            ? "bg-gray-700 text-white"
-                            : "text-white hover:bg-gray-700"
-                          : selectedDestToken?.symbol === token.symbol
-                            ? "bg-gray-100 text-gray-900"
-                            : "text-gray-900 hover:bg-gray-50"
+                        selectedDestToken?.symbol === token.symbol
+                          ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white"
+                          : "text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-700"
                       }`}
                     >
                       <TokenImage
@@ -687,9 +603,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                         {token.name} ({token.symbol})
                       </span>
                       {selectedDestToken?.symbol === token.symbol && (
-                        <span
-                          className={`ml-auto ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-                        >
+                        <span className="ml-auto text-gray-900 dark:text-white">
                           •
                         </span>
                       )}
@@ -704,9 +618,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
         {/* Receive Section */}
         <div className="space-y-1">
           <div
-            className={`text-lg font-semibold ${
-              theme === "dark" ? "text-white" : "text-gray-900"
-            }`}
+            className={`text-lg font-semibold ${"text-gray-900 dark:text-white"}`}
           >
             Receive
           </div>
@@ -722,17 +634,13 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
               <div>
                 <div className="flex items-center space-x-2">
                   <div
-                    className={`text-lg font-semibold ${
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    } ${isLoadingQuote ? "animate-pulse" : ""}`}
+                    className={`text-lg font-semibold ${"text-gray-900 dark:text-white"} ${isLoadingQuote ? "animate-pulse" : ""}`}
                   >
                     {toAmountDisplay} {selectedDestToken?.symbol}
                   </div>
                   {isLoadingQuote && (
                     <div
-                      className={`animate-spin rounded-full h-4 w-4 border-b-2 ${
-                        theme === "dark" ? "border-blue-400" : "border-blue-500"
-                      }`}
+                      className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500 dark:border-blue-400"
                       style={{
                         borderTopWidth: "2px",
                         borderBottomWidth: "2px",
@@ -741,9 +649,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                   )}
                 </div>
                 <div
-                  className={`text-xs ${
-                    theme === "dark" ? "text-gray-400" : "text-gray-500"
-                  } ${isLoadingQuote ? "animate-pulse" : ""}`}
+                  className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${isLoadingQuote ? "animate-pulse" : ""}`}
                 >
                   ≈ {receiveUsdValue}{" "}
                   {selectedDestinationChain
@@ -758,19 +664,11 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
           {recipient &&
             recipient.toLowerCase() !== account.address.toLowerCase() && (
               <div className="px-2 pb-1">
-                <div
-                  className={`text-xs ${
-                    theme === "dark" ? "text-gray-400" : "text-gray-500"
-                  }`}
-                >
+                <div className="text-xs text-gray-500 dark:text-gray-400">
                   Recipient:{" "}
                   <TruncatedAddress
                     address={recipient}
                     chainId={selectedDestinationChain.id}
-                    theme={theme}
-                    className={`${
-                      theme === "dark" ? "text-gray-300" : "text-gray-700"
-                    }`}
                   />
                 </div>
               </div>
@@ -780,9 +678,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
         {/* Custom Calldata */}
         {toCalldata && (
           <div className="px-2 pb-1">
-            <p
-              className={`text-[10px] ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
-            >
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">
               This transaction includes custom calldata for contract interaction
               at the destination address
             </p>
@@ -801,19 +697,11 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
             buttonText === "No quote available" ||
             buttonText === "Getting quote..."
           }
-          className={`w-full font-semibold py-4 px-4 rounded-[24px] transition-colors relative ${
-            theme === "dark"
-              ? "bg-blue-600 disabled:bg-gray-700 text-white disabled:text-gray-400 enabled:hover:bg-blue-700"
-              : "bg-blue-500 disabled:bg-gray-300 text-white disabled:text-gray-500 enabled:hover:bg-blue-600"
-          } disabled:cursor-not-allowed cursor-pointer`}
+          className={`w-full font-semibold py-4 px-4 rounded-[24px] transition-colors bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white disabled:text-gray-500 disabled:cursor-not-allowed cursor-pointer relative`}
         >
           {isSubmitting ? (
             <div className="flex items-center justify-center">
-              <Loader2
-                className={`w-5 h-5 animate-spin mr-2 ${
-                  theme === "dark" ? "text-gray-400" : "text-white"
-                }`}
-              />
+              <Loader2 className="w-5 h-5 animate-spin mr-2 text-white dark:text-gray-400" />
               <span>{buttonText}</span>
             </div>
           ) : !tokenAmountForBackend ||
@@ -830,11 +718,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
             <button
               type="button"
               onClick={() => setShowMoreDetails(!showMoreDetails)}
-              className={`w-full flex items-center justify-center gap-2 py-1 px-4 rounded-[24px] transition-colors cursor-pointer text-xs ${
-                theme === "dark"
-                  ? "text-gray-400 hover:text-gray-300"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
+              className="w-full flex items-center justify-center gap-2 py-1 px-4 rounded-[24px] transition-colors cursor-pointer text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             >
               <span>More Details</span>
               <svg
@@ -854,11 +738,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
             </button>
 
             {showMoreDetails && (
-              <QuoteDetails
-                theme={theme}
-                quote={prepareSendQuote}
-                showContent={showMoreDetails}
-              />
+              <QuoteDetails quote={prepareSendQuote} showContent={true} />
             )}
           </div>
         )}

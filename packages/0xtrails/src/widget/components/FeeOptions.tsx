@@ -3,7 +3,6 @@ import { ChevronDown } from "lucide-react"
 import type React from "react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useQueryParams } from "../../queryParams.js"
-import type { ActiveTheme } from "../../theme.js"
 
 // Simulated fee amounts and prices
 const FEE_AMOUNTS = {
@@ -27,14 +26,12 @@ interface FeeOptionsProps {
   options: FeeToken[]
   selectedOption?: FeeToken
   onSelect: (option: FeeToken) => void
-  theme?: ActiveTheme
 }
 
 export const FeeOptions: React.FC<FeeOptionsProps> = ({
   options,
   selectedOption,
   onSelect,
-  theme = "light",
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -84,22 +81,14 @@ export const FeeOptions: React.FC<FeeOptionsProps> = ({
   return (
     <div className="space-y-1" ref={dropdownRef}>
       <div className="flex items-center justify-between">
-        <label
-          className={`block text-xs font-medium ${
-            theme === "dark" ? "text-gray-300" : "text-gray-700"
-          }`}
-        >
+        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
           Pay fee with
         </label>
         {selectedOption && (
-          <div
-            className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
-          >
+          <div className="text-xs text-gray-500 dark:text-gray-400">
             Fee {FEE_AMOUNTS[selectedOption.symbol as keyof typeof FEE_AMOUNTS]}{" "}
             {selectedOption.symbol}
-            <span
-              className={`ml-1 text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
-            >
+            <span className="ml-1 text-xs text-gray-500 dark:text-gray-400">
               ≈ ${feeUsdValue}
             </span>
           </div>
@@ -109,11 +98,7 @@ export const FeeOptions: React.FC<FeeOptionsProps> = ({
         <button
           type="button"
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className={`w-32 flex items-center px-3 py-2 border rounded-[16px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm ${
-            theme === "dark"
-              ? "bg-gray-800 border-gray-700 text-white"
-              : "bg-white border-gray-300 text-gray-900"
-          }`}
+          className="w-32 flex items-center px-3 py-2 border rounded-[16px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white border-gray-300 text-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
         >
           {selectedOption ? (
             <>
@@ -133,21 +118,13 @@ export const FeeOptions: React.FC<FeeOptionsProps> = ({
           )}
           <ChevronDown
             className={`h-4 w-4 ${
-              theme === "dark" ? "text-gray-400" : "text-gray-400"
-            } transition-transform ${
               isDropdownOpen ? "transform rotate-180" : ""
             }`}
           />
         </button>
 
         {isDropdownOpen && (
-          <div
-            className={`absolute z-10 mt-1 border rounded-[16px] shadow-lg w-32 ${
-              theme === "dark"
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
-            }`}
-          >
+          <div className="absolute z-10 mt-1 border rounded-[16px] shadow-lg w-32 bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700">
             {options.map((option) => (
               <button
                 key={option.symbol}
@@ -157,18 +134,16 @@ export const FeeOptions: React.FC<FeeOptionsProps> = ({
                   setIsDropdownOpen(false)
                 }}
                 className={`w-full flex items-center px-3 py-2 cursor-pointer text-sm ${
-                  theme === "dark"
-                    ? selectedOption?.symbol === option.symbol
-                      ? "bg-gray-700 text-white"
-                      : "text-white hover:bg-gray-700"
-                    : selectedOption?.symbol === option.symbol
-                      ? "bg-gray-100 text-gray-900"
-                      : "text-gray-900 hover:bg-gray-50"
+                  selectedOption?.symbol === option.symbol
+                    ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white"
+                    : "text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-700"
                 }`}
               >
                 <div
                   className={`w-4 h-4 rounded-full flex items-center justify-center ${
-                    theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+                    selectedOption?.symbol === option.symbol
+                      ? "bg-gray-200 dark:bg-gray-700"
+                      : "bg-gray-100 dark:bg-gray-600"
                   }`}
                 >
                   <TokenImage
@@ -179,11 +154,7 @@ export const FeeOptions: React.FC<FeeOptionsProps> = ({
                 </div>
                 <span className="ml-1.5">{option.symbol}</span>
                 {selectedOption?.symbol === option.symbol && (
-                  <span
-                    className={`ml-auto ${
-                      theme === "dark" ? "text-white" : "text-gray-900"
-                    }`}
-                  >
+                  <span className="ml-auto text-gray-900 dark:text-white">
                     •
                   </span>
                 )}

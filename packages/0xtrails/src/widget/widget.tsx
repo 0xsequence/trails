@@ -42,7 +42,7 @@ import { getChainInfo } from "../chains.js"
 import { useIndexerGatewayClient } from "../indexerClient.js"
 import type { TransactionState } from "../transactions.js"
 import type { RelayerEnv } from "../relayer.js"
-import type { ActiveTheme, Theme } from "../theme.js"
+import type { Theme } from "../theme.js"
 import type { WalletOption } from "./components/ConnectWallet.js"
 import { ConnectWallet } from "./components/ConnectWallet.js"
 import Footer from "./components/Footer.js"
@@ -52,9 +52,10 @@ import { PaySendForm } from "./components/PaySendForm.js"
 import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPendingVertical.js"
 import WalletConfirmation from "./components/WalletConfirmation.js"
+import { ThemeProvider } from "./components/ThemeProvider.js"
 import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
 import { useAmountUsd } from "./hooks/useAmountUsd.js"
-import css from "./index.css?inline"
+import css from "./compiled.css?inline"
 import { trackWalletConnected, trackWidgetScreen } from "../analytics.js"
 import type { PrepareSendQuote } from "../prepareSend.js"
 import { getNormalizedQuoteObject } from "../prepareSend.js"
@@ -125,22 +126,6 @@ export interface TrailsWidgetRef {
 
 const queryClient = new QueryClient()
 
-// Function to get system theme preference
-const getSystemTheme = (): ActiveTheme => {
-  if (typeof window === "undefined") return "light"
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light"
-}
-
-// Function to get initial theme based on mode
-const getInitialTheme = (mode: Theme): ActiveTheme => {
-  if (mode === "auto") {
-    return getSystemTheme()
-  }
-  return mode as ActiveTheme
-}
-
 const WALLET_CONFIGS: Record<
   string,
   { id: string; name: string; connector: () => any }
@@ -156,32 +141,6 @@ const WALLET_CONFIGS: Record<
     connector: () => {},
   },
 } as const
-
-// Create a custom hook for theme management
-const useThemeManager = (initialTheme: Theme) => {
-  const [theme, setTheme] = useState<ActiveTheme>(getInitialTheme(initialTheme))
-  const [themeMode, setThemeMode] = useState<Theme>(initialTheme)
-
-  useEffect(() => {
-    if (themeMode !== "auto") return
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
-    const handleChange = (e: MediaQueryListEvent) => {
-      setTheme(e.matches ? "dark" : "light")
-    }
-
-    setTheme(mediaQuery.matches ? "dark" : "light")
-    mediaQuery.addEventListener("change", handleChange)
-    return () => mediaQuery.removeEventListener("change", handleChange)
-  }, [themeMode])
-
-  useEffect(() => {
-    setThemeMode(initialTheme)
-    setTheme(getInitialTheme(initialTheme))
-  }, [initialTheme])
-
-  return { theme, themeMode }
-}
 
 // Create a custom hook for wallet management
 const useWalletManager = (
@@ -277,8 +236,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       toToken,
       toCalldata,
       children,
-      renderInline = true,
-      theme: initialTheme = "auto",
+      renderInline = false,
       mode = "pay",
       walletOptions,
       onOriginConfirmation,
@@ -291,7 +249,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
   ) => {
     const { address, isConnected, chainId, connector } = useAccount()
     const { disconnectAsync } = useDisconnect()
-    const { theme } = useThemeManager(initialTheme)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [currentScreen, setCurrentScreen] = useState<Screen>(
       isConnected ? "tokens" : "connect",
@@ -1080,7 +1037,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onConnect={handleWalletConnect}
               onDisconnect={handleWalletDisconnect}
               onContinue={handleContinue}
-              theme={theme}
               walletOptions={getAvailableWallets()}
               onError={handleConnectError}
             />
@@ -1091,7 +1047,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onContinue={handleTokenSelect}
               onBack={handleBack}
               indexerGatewayClient={indexerGatewayClient}
-              theme={theme}
               targetAmountUsd={targetAmountUsd}
               targetAmountUsdFormatted={targetAmountUsdFormatted}
               onError={handleTokenListError}
@@ -1117,7 +1072,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               toToken={toToken || undefined}
               toCalldata={toCalldata || undefined}
               walletClient={walletClient}
-              theme={theme}
               onTransactionStateChange={handleTransactionStateChange}
               onError={handleSendError}
               paymasterUrls={paymasterUrls}
@@ -1125,13 +1079,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               setWalletConfirmRetryHandler={setWalletConfirmRetryHandler}
             />
           ) : (
-            <div
-              className={`text-center p-4 rounded-lg ${
-                theme === "dark"
-                  ? "text-gray-300 bg-gray-800"
-                  : "text-gray-600 bg-gray-50"
-              }`}
-            >
+            <div className="text-center p-4 rounded-lg text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800">
               Please connect wallet
             </div>
           )
@@ -1153,7 +1101,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               toChainId={toChainId ? Number(toChainId) : undefined}
               toToken={toToken || undefined}
               walletClient={walletClient}
-              theme={theme}
               onTransactionStateChange={handleTransactionStateChange}
               onError={handleSendError}
               paymasterUrls={paymasterUrls}
@@ -1162,13 +1109,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               toCalldata={toCalldata || undefined}
             />
           ) : (
-            <div
-              className={`text-center p-4 rounded-lg ${
-                theme === "dark"
-                  ? "text-gray-300 bg-gray-800"
-                  : "text-gray-600 bg-gray-50"
-              }`}
-            >
+            <div className="text-center p-4 rounded-lg text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800">
               Please connect wallet
             </div>
           )
@@ -1177,7 +1118,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             <WalletConfirmation
               onBack={handleBack}
               onComplete={handleWalletConfirmComplete}
-              theme={theme}
               retryEnabled={showWalletConfirmRetry}
               onRetry={handleWalletConfirmRetry}
               quote={prepareSendQuote}
@@ -1187,7 +1127,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           return (
             <TransferPending
               onElapsedTime={handleElapsedTime}
-              theme={theme}
               transactionStates={transactionStates}
               quote={prepareSendQuote}
             />
@@ -1197,7 +1136,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             <Receipt
               onSendAnother={handleSendAnother}
               onClose={handleCloseModal}
-              theme={theme}
               renderInline={renderInline}
               transactionStates={transactionStates}
               totalCompletionSeconds={totalCompletionSeconds ?? undefined}
@@ -1221,11 +1159,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             damping: 30,
             mass: 1,
           }}
-          className={`flex flex-col min-h-[400px] rounded-[32px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto custom-scrollbar ${
-            theme === "dark"
-              ? "bg-gray-900 text-white"
-              : "bg-white text-gray-900"
-          }`}
+          className="flex flex-col min-h-[400px] rounded-[32px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto custom-scrollbar bg-white text-gray-900 dark:bg-gray-900 dark:text-white"
           layout
           layoutId="modal-container"
           onClick={(e) => e.stopPropagation()}
@@ -1247,23 +1181,15 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             >
               {renderScreenContent()}
               {error && (
-                <div
-                  className={`border rounded-lg p-4 mt-4 ${
-                    theme === "dark"
-                      ? "bg-red-900/20 border-red-800"
-                      : "bg-red-50 border-red-200"
-                  }`}
-                >
-                  <p
-                    className={`text-sm break-words ${theme === "dark" ? "text-red-200" : "text-red-600"}`}
-                  >
+                <div className="border rounded-lg p-4 mt-4 bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800">
+                  <p className="text-sm break-words text-red-600 dark:text-red-200">
                     {error}
                   </p>
                 </div>
               )}
             </motion.div>
           </AnimatePresence>
-          <Footer theme={theme} onDebugScreenSelect={handleDebugScreenSelect} />
+          <Footer onDebugScreenSelect={handleDebugScreenSelect} />
         </motion.div>
       )
     }
@@ -1279,11 +1205,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsModalOpen(true)}
-            className={`${
-              theme === "dark"
-                ? "bg-blue-600 hover:bg-blue-700"
-                : "bg-blue-500 hover:bg-blue-600"
-            } text-white cursor-pointer font-semibold py-3 px-6 rounded-[24px] shadow-sm transition-colors`}
+            className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white cursor-pointer font-semibold py-3 px-6 rounded-[24px] shadow-sm transition-colors"
           >
             {buttonText || (mode === "fund" ? "Fund" : "Pay")}
           </motion.button>
@@ -1300,11 +1222,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
 
         <AnimatePresence>
           {isModalOpen && (
-            <Modal
-              isOpen={isModalOpen}
-              onClose={handleCloseModal}
-              theme={theme}
-            >
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
               {renderScreen()}
             </Modal>
           )}
@@ -1354,7 +1272,11 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
 
     // Create content with only the providers that don't exist in parent
     const content = (() => {
-      const widgetContent = <WidgetInner {...props} ref={ref} />
+      const widgetContent = (
+        <ThemeProvider initialTheme={props.theme}>
+          <WidgetInner {...props} ref={ref} />
+        </ThemeProvider>
+      )
 
       const baseContent = (
         <QueryClientProvider client={queryClient}>

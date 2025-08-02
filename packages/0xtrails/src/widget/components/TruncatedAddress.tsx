@@ -1,12 +1,10 @@
 import type React from "react"
 import { useState } from "react"
 import { getExplorerUrlForAddress } from "../../explorer.js"
-import type { ActiveTheme } from "../../theme.js"
 
 interface TruncatedAddressProps {
   address: string
   chainId: number
-  theme?: ActiveTheme
   className?: string
   expandOnHover?: boolean
 }

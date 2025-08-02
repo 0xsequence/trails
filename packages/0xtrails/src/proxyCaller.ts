@@ -6,6 +6,7 @@ const PLACEHOLDER_AMOUNT =
 
 const proxyCallers: Record<string, string> = {
   [chains.base.id]: "0x4F54Dc2C6bCa2D01e066fa36f4CFdA96B544DD20",
+  [chains.arbitrum.id]: "0x8c070e800D0e0c33A0A4ceef7A91677410ed9444",
 }
 
 export function getProxyCallerAddress(chainId: number) {

@@ -36,7 +36,14 @@ export const TokenImage: React.FC<TokenImageProps> = ({
   return (
     <div
       className={`rounded-full flex items-center justify-center text-sm relative bg-gray-900`}
-      style={{ width: size, height: size }}
+      style={{
+        minWidth: size,
+        minHeight: size,
+        maxWidth: size,
+        maxHeight: size,
+        width: size,
+        height: size,
+      }}
       title={`${symbol}${chainId ? `on chain ${chainId}` : ""}`}
     >
       {shouldShowText ? (
@@ -55,6 +62,10 @@ export const TokenImage: React.FC<TokenImageProps> = ({
           className="absolute w-full h-full rounded-full object-contain"
           onError={handleImageError}
           title={`Token: ${symbol}`}
+          style={{
+            width: size,
+            height: size,
+          }}
         />
       )}
       {chainId && (

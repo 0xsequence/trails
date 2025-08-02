@@ -2,11 +2,9 @@ import { ChevronDown } from "lucide-react"
 import type React from "react"
 import { useRef, useState } from "react"
 import { useQueryParams } from "../../queryParams.js"
-import type { ActiveTheme } from "../../theme.js"
 
 interface DebugScreensDropdownProps {
   onScreenSelect: (screen: string) => void
-  theme?: ActiveTheme
 }
 
 const SCREENS = [
@@ -30,7 +28,6 @@ const SCREENS = [
 
 export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
   onScreenSelect,
-  theme = "light",
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -47,23 +44,13 @@ export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`p-1 rounded-full hover:bg-opacity-10 ${
-          theme === "dark"
-            ? "hover:bg-gray-800 text-gray-200"
-            : "hover:bg-gray-100 text-gray-700"
-        }`}
+        className="p-1 rounded-full hover:bg-opacity-10 hover:bg-gray-50 text-gray-900 dark:hover:bg-gray-800 dark:text-gray-200"
       >
         <ChevronDown className="w-4 h-4" />
       </button>
 
       {isOpen && (
-        <div
-          className={`absolute bottom-full right-0 mb-1 w-40 border rounded-lg shadow-lg overflow-hidden max-h-[300px] overflow-y-auto custom-scrollbar ${
-            theme === "dark"
-              ? "bg-gray-800 border-gray-700 text-gray-200"
-              : "bg-white border-gray-200 text-gray-700"
-          }`}
-        >
+        <div className="absolute bottom-full right-0 mb-1 w-40 border rounded-lg shadow-lg overflow-hidden max-h-[300px] overflow-y-auto custom-scrollbar bg-white border-gray-200 text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200">
           {SCREENS.map((screen) => (
             <button
               key={screen}
@@ -72,11 +59,7 @@ export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
                 onScreenSelect(screen?.toLowerCase().replace(" ", "-"))
                 setIsOpen(false)
               }}
-              className={`w-full text-left px-3 py-2 text-sm ${
-                theme === "dark"
-                  ? "text-gray-200 hover:bg-gray-700"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
+              className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
             >
               {screen}
             </button>

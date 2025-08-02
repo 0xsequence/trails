@@ -2,21 +2,14 @@ import { X } from "lucide-react"
 import { AnimatePresence, motion } from "motion/react"
 import type React from "react"
 import { useEffect, useRef } from "react"
-import type { ActiveTheme } from "../../theme.js"
 
 interface ModalProps {
   isOpen: boolean
   onClose: () => void
   children: React.ReactNode
-  theme?: ActiveTheme
 }
 
-const Modal: React.FC<ModalProps> = ({
-  isOpen,
-  onClose,
-  children,
-  theme = "light",
-}) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   const modalRef = useRef<HTMLDivElement>(null)
 
   // Handle escape key
@@ -59,7 +52,7 @@ const Modal: React.FC<ModalProps> = ({
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
-            className={`fixed inset-0 flex items-center justify-center z-50 p-2 sm:p-4 h-full w-full ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+            className="fixed inset-0 flex items-center justify-center z-50 p-2 sm:p-4 h-full w-full text-gray-900 dark:text-white"
             onClick={handleClickOutside}
           >
             <motion.div
@@ -80,11 +73,7 @@ const Modal: React.FC<ModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className={`absolute right-2 top-2 p-2 rounded-full transition-colors cursor-pointer z-10 ${
-                  theme === "dark"
-                    ? "hover:bg-gray-800 text-gray-400"
-                    : "hover:bg-gray-100 text-gray-600"
-                }`}
+                className="absolute right-2 top-2 p-2 rounded-full transition-colors cursor-pointer z-10 hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-800 dark:text-gray-400"
               >
                 <X className="h-6 w-6" />
               </button>

@@ -26,7 +26,6 @@ import type { TransactionState } from "../../transactions.js"
 import { getTokenPrice, useTokenPrices } from "../../prices.js"
 import { useQueryParams } from "../../queryParams.js"
 import { getRelayer, type RelayerEnv } from "../../relayer.js"
-import type { Theme } from "../../theme.js"
 import {
   formatRawAmount,
   formatUsdAmountDisplay,
@@ -111,7 +110,6 @@ export type UseSendProps = {
   toToken?: string
   toCalldata?: string
   walletClient: WalletClient
-  theme: Theme
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   onError: (error: Error | string | null) => void
   onWaitingForWalletConfirm: (quote: PrepareSendQuote) => void

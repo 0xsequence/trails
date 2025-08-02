@@ -2,21 +2,18 @@ import { TokenImage } from "./TokenImage.js"
 import { ChevronLeft } from "lucide-react"
 import type React from "react"
 import { useEffect, useState } from "react"
-import type { ActiveTheme } from "../../theme.js"
 import type { PrepareSendQuote } from "../../prepareSend.js"
 import { QuoteDetails } from "./QuoteDetails.js"
 
 interface WalletConfirmationProps {
   onBack: () => void
   onComplete: () => void
-  theme?: ActiveTheme
   retryEnabled?: boolean
   onRetry?: () => void
   quote?: PrepareSendQuote | null
 }
 
 export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
-  theme = "light",
   retryEnabled = false,
   onRetry,
   onBack,
@@ -46,11 +43,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className={`absolute left-0 top-0 p-2 rounded-full transition-colors cursor-pointer ${
-            theme === "dark"
-              ? "hover:bg-gray-800 text-gray-400"
-              : "hover:bg-gray-100 text-gray-600"
-          }`}
+          className="absolute left-0 top-0 p-2 rounded-full transition-colors cursor-pointer hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-800 dark:text-gray-400"
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
@@ -65,9 +58,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
               <div className={`h-24 w-24`} />
             ) : (
               <div
-                className={`animate-spin rounded-full h-24 w-24 border-b-2 ${
-                  theme === "dark" ? "border-blue-400" : "border-blue-500"
-                }`}
+                className="animate-spin rounded-full h-24 w-24 border-b-2 border-blue-500 dark:border-blue-400"
                 style={{ borderTopWidth: "2px", borderBottomWidth: "2px" }}
               />
             )}
@@ -85,14 +76,10 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
           <div
             className={`transition-all duration-500 ease-out ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
           >
-            <h2
-              className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-            >
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
               {retryEnabled ? "Try again" : "Waiting for wallet…"}
             </h2>
-            <p
-              className={`mt-2 text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}
-            >
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
               Please approve the request in your wallet
             </p>
           </div>
@@ -105,11 +92,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
           <button
             type="button"
             onClick={() => setShowDetails(!showDetails)}
-            className={`w-full flex items-center justify-center gap-2 py-2 px-4 rounded-[24px] transition-colors cursor-pointer text-sm ${
-              theme === "dark"
-                ? "text-gray-400 hover:text-gray-300"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
+            className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-[24px] transition-colors cursor-pointer text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
           >
             <span>More Details</span>
             <svg
@@ -134,16 +117,10 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
           <div
             className={`transition-all duration-500 ease-out delay-150 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
           >
-            <div
-              className={`p-4 rounded-lg text-sm ${
-                theme === "dark"
-                  ? "bg-yellow-900/20 border border-yellow-700/50"
-                  : "bg-yellow-50 border border-yellow-200"
-              }`}
-            >
+            <div className="p-4 rounded-lg text-sm bg-yellow-50 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700/50">
               <div className="flex items-start space-x-3">
                 <svg
-                  className={`w-5 h-5 mt-0.5 flex-shrink-0 ${theme === "dark" ? "text-yellow-400" : "text-yellow-600"}`}
+                  className="w-5 h-5 mt-0.5 flex-shrink-0 text-yellow-600 dark:text-yellow-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -157,14 +134,10 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
                   />
                 </svg>
                 <div>
-                  <p
-                    className={`font-medium ${theme === "dark" ? "text-yellow-300" : "text-yellow-800"}`}
-                  >
+                  <p className="font-medium text-yellow-800 dark:text-yellow-300">
                     Request is taking longer than expected
                   </p>
-                  <p
-                    className={`mt-1 text-xs ${theme === "dark" ? "text-yellow-400" : "text-yellow-700"}`}
-                  >
+                  <p className="mt-1 text-xs text-yellow-700 dark:text-yellow-400">
                     This transaction request is taking longer than expected.
                     Please reach out to support for help if the issue persists.
                   </p>
@@ -176,7 +149,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
 
         {/* Transaction Details */}
         {showDetails && (
-          <QuoteDetails theme={theme} quote={quote} showContent={showContent} />
+          <QuoteDetails quote={quote} showContent={showContent} />
         )}
 
         {/* Retry Button */}
@@ -187,11 +160,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
             <button
               type="button"
               onClick={onRetry}
-              className={`w-full px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer ${
-                theme === "dark"
-                  ? "bg-blue-600 hover:bg-blue-700 text-white"
-                  : "bg-blue-500 hover:bg-blue-600 text-white"
-              }`}
+              className="w-full px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
             >
               Try Again
             </button>

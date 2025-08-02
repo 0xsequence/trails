@@ -1,4 +1,5 @@
 import react from "@vitejs/plugin-react"
+import tailwindcss from "@tailwindcss/vite"
 import { defineConfig } from "vite"
 import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js"
 
@@ -6,6 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     cssInjectedByJsPlugin(), // inject CSS automatically
+    tailwindcss(),
   ],
   build: {
     lib: {
@@ -36,6 +38,10 @@ export default defineConfig({
     },
     outDir: "dist/widget",
     emptyOutDir: true,
+
+    // Needed for tailwindcss "space-y-" classes to work
+    // See: https://stackoverflow.com/a/79416038/1439168
+    cssMinify: "lightningcss",
   },
   optimizeDeps: {
     force: true,

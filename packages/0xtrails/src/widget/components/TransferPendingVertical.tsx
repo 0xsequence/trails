@@ -2,14 +2,12 @@ import { ExternalLink } from "lucide-react"
 import type React from "react"
 import { useEffect, useState } from "react"
 import type { TransactionState } from "../../transactions.js"
-import type { ActiveTheme } from "../../theme.js"
 import { TokenImage } from "./TokenImage.js"
 import type { PrepareSendQuote } from "../../prepareSend.js"
 import { QuoteDetails } from "./QuoteDetails.js"
 
 interface TransferPendingProps {
   onElapsedTime: (totalCompletionSeconds?: number) => void
-  theme?: ActiveTheme
   transactionStates: TransactionState[]
   quote?: PrepareSendQuote | null
   timestamp?: number
@@ -17,7 +15,6 @@ interface TransferPendingProps {
 
 export const TransferPending: React.FC<TransferPendingProps> = ({
   onElapsedTime,
-  theme = "light",
   transactionStates,
   quote,
   timestamp,
@@ -208,21 +205,13 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
 
       switch (stepState) {
         case "completed":
-          return `${baseStyles} ${
-            theme === "dark" ? "bg-green-500" : "bg-green-600"
-          } scale-100`
+          return `${baseStyles} bg-green-600 dark:bg-green-500 scale-100`
         case "active":
-          return `${baseStyles} ${
-            theme === "dark" ? "bg-blue-500" : "bg-blue-600"
-          } scale-110`
+          return `${baseStyles} bg-blue-600 dark:bg-blue-500 scale-110`
         case "failed":
-          return `${baseStyles} ${
-            theme === "dark" ? "bg-red-500" : "bg-red-600"
-          } scale-100`
+          return `${baseStyles} bg-red-600 dark:bg-red-500 scale-100`
         case "pending":
-          return `${baseStyles} ${
-            theme === "dark" ? "bg-gray-600" : "bg-gray-300"
-          } scale-100`
+          return `${baseStyles} bg-gray-300 dark:bg-gray-600 scale-100`
       }
     }
 
@@ -285,9 +274,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
         "text-sm font-medium transition-all duration-500 ease-out"
 
       // Use regular colors instead of state-based colors
-      return `${baseStyles} ${
-        theme === "dark" ? "text-white" : "text-gray-900"
-      }`
+      return `${baseStyles} text-gray-900 dark:text-white`
     }
 
     const content = (
@@ -336,7 +323,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
       <h2
         className={`text-2xl font-bold transition-all duration-500 ease-out ${
           showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        } ${theme === "dark" ? "text-white" : "text-gray-900"}`}
+        } text-gray-900 dark:text-white`}
       >
         Transaction status
       </h2>
@@ -345,11 +332,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
       <div
         className={`w-full max-w-sm p-3 rounded-lg transition-all duration-500 ease-out delay-100 ${
           showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        } ${
-          theme === "dark"
-            ? "bg-gray-800/50 text-gray-200"
-            : "bg-gray-50 text-gray-700"
-        }`}
+        } bg-gray-50 text-gray-700 dark:bg-gray-800/50 dark:text-gray-200`}
       >
         <div className="flex items-start justify-between">
           {/* Left side - Chain and Token images with token name */}
@@ -365,18 +348,12 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
                 />
               </div>
               <div className="flex flex-col">
-                <span
-                  className={`text-xs font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-                >
+                <span className="text-xs font-medium text-gray-900 dark:text-white">
                   {quote?.originToken.name}
                 </span>
-                <span
-                  className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-500"} flex items-center`}
-                >
+                <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
                   {getTimeAgo()}
-                  <span
-                    className={`ml-1 font-mono animate-pulse ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}
-                  >
+                  <span className="ml-1 font-mono animate-pulse text-gray-500 dark:text-gray-400">
                     {formatElapsed(elapsedSeconds)}
                   </span>
                 </span>
@@ -386,14 +363,10 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
 
           {/* Right side - USD value and amount */}
           <div className="text-right">
-            <div
-              className={`text-xs font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}
-            >
+            <div className="text-xs font-medium text-gray-900 dark:text-white">
               {quote?.originAmountUsdDisplay}
             </div>
-            <div
-              className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}
-            >
+            <div className="text-xs text-gray-600 dark:text-gray-400">
               {quote?.originAmountFormatted} {quote?.originToken.symbol}
             </div>
           </div>
@@ -409,16 +382,10 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
               : "opacity-0 translate-y-4"
           }`}
         >
-          <div
-            className={`p-4 rounded-lg text-sm ${
-              theme === "dark"
-                ? "bg-yellow-900/20 border border-yellow-700/50"
-                : "bg-yellow-50 border border-yellow-200"
-            }`}
-          >
+          <div className="p-4 rounded-lg text-sm bg-yellow-50 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700/50">
             <div className="flex items-start space-x-3">
               <svg
-                className={`w-5 h-5 mt-0.5 flex-shrink-0 ${theme === "dark" ? "text-yellow-400" : "text-yellow-600"}`}
+                className="w-5 h-5 mt-0.5 flex-shrink-0 text-yellow-600 dark:text-yellow-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -432,14 +399,10 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
                 />
               </svg>
               <div>
-                <p
-                  className={`font-medium ${theme === "dark" ? "text-yellow-300" : "text-yellow-800"}`}
-                >
+                <p className="font-medium text-yellow-800 dark:text-yellow-300">
                   Transaction taking longer than expected
                 </p>
-                <p
-                  className={`mt-1 text-xs ${theme === "dark" ? "text-yellow-400" : "text-yellow-700"}`}
-                >
+                <p className="mt-1 text-xs text-yellow-700 dark:text-yellow-400">
                   This transaction is taking longer than expected. Please reach
                   out to support for help if the issue persists.
                 </p>
@@ -454,9 +417,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
         <div className="relative">
           {/* Vertical line connecting all steps */}
           <div
-            className={`absolute left-2.5 top-5 bottom-5 w-0.5 transition-all duration-500 ease-out ${
-              theme === "dark" ? "bg-gray-700" : "bg-gray-300"
-            } ${showLine ? "animate-line-grow" : "h-0"}`}
+            className={`absolute left-2.5 top-5 bottom-5 w-0.5 transition-all duration-500 ease-out bg-gray-300 dark:bg-gray-700 ${showLine ? "animate-line-grow" : "h-0"}`}
           />
 
           {/* Progress line for completed steps */}
@@ -498,11 +459,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
         <button
           type="button"
           onClick={() => setShowDetails(!showDetails)}
-          className={`w-full flex items-center justify-center gap-2 py-1 px-4 rounded-[24px] transition-colors cursor-pointer text-xs ${
-            theme === "dark"
-              ? "text-gray-400 hover:text-gray-300"
-              : "text-gray-500 hover:text-gray-700"
-          }`}
+          className="w-full flex items-center justify-center gap-2 py-1 px-4 rounded-[24px] transition-colors cursor-pointer text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
           aria-label={
             showDetails
               ? "Hide transaction details"
@@ -530,11 +487,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
 
         {showDetails && (
           <div className="mt-4">
-            <QuoteDetails
-              theme={theme}
-              quote={quote}
-              showContent={showDetails}
-            />
+            <QuoteDetails quote={quote} showContent={true} />
           </div>
         )}
       </div>
