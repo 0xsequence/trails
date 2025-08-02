@@ -26,6 +26,7 @@ interface CodeSnippetProps {
   onOriginConfirmation: string | null
   onDestinationConfirmation: string | null
   buttonText: string
+  customCss: string
 }
 
 export const CodeSnippet: React.FC<CodeSnippetProps> = ({
@@ -46,6 +47,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
   onOriginConfirmation,
   onDestinationConfirmation,
   buttonText,
+  customCss,
 }) => {
   const { theme: globalTheme } = useTheme()
   const [isCopied, setIsCopied] = useState(false)
@@ -81,6 +83,7 @@ export const CodeSnippet: React.FC<CodeSnippetProps> = ({
       walletOptions && `walletOptions={${JSON.stringify(walletOptions)}}`,
       gasless && `gasless={true}`,
       buttonText && `buttonText="${buttonText}"`,
+      customCss && `customCss={\`${customCss}\`}`,
       onOriginConfirmation && `onOriginConfirmation={${onOriginConfirmation}}`,
       onDestinationConfirmation &&
         `onDestinationConfirmation={${onDestinationConfirmation}}`,

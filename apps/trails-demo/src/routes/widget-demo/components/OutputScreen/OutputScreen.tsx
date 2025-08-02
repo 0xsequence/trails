@@ -45,6 +45,7 @@ interface OutputScreenProps {
   paymasterUrls: Array<{ chainId: number; url: string }>
   gasless: boolean | null
   buttonText: string
+  customCss: string
   children: React.ReactNode
   apiUrl: string
   indexerUrl: string
@@ -70,6 +71,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
     paymasterUrls,
     gasless,
     buttonText,
+    customCss,
     apiUrl,
     indexerUrl,
     env,
@@ -182,6 +184,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
                   onOriginConfirmation={onOriginConfirmation}
                   onDestinationConfirmation={onDestinationConfirmation}
                   buttonText={buttonText}
+                  customCss={customCss}
                 />
               </div>
             </div>
@@ -211,6 +214,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
                 onOriginConfirmation={onOriginConfirmation}
                 onDestinationConfirmation={onDestinationConfirmation}
                 buttonText={buttonText}
+                customCss={customCss}
               >
                 {useCustomButton ? (
                   <button
@@ -241,6 +245,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
                 paymasterUrls={paymasterUrls}
                 gasless={gasless}
                 buttonText={buttonText}
+                customCss={customCss}
                 onOriginConfirmation={onOriginConfirmation?.toString()}
                 onDestinationConfirmation={onDestinationConfirmation?.toString()}
               />

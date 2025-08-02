@@ -193,7 +193,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
         </h2>
       </div>
 
-      <div className="flex items-center space-x-4 p-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+      <div className="flex items-center space-x-4 p-4 rounded-lg trails-bg-secondary">
         <div className="flex items-start justify-between w-full">
           {/* Left side - Chain and Token images with token name */}
           <div className="flex items-start space-x-2">

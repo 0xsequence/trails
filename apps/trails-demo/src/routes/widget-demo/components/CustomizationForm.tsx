@@ -8,6 +8,7 @@ import { encodeFunctionData, parseUnits, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
 import { ChainSelector } from "./ChainSelector"
 import { TokenSelector } from "./TokenSelector"
+import { CSS_PRESETS, DEFAULT_CSS_VALUES, type PresetName } from "./cssPresets"
 
 // Reusable Checkmark Component
 const Checkmark: React.FC<{ className?: string }> = ({
@@ -54,6 +55,8 @@ interface CustomizationFormProps {
   setCustomTokenAddress: (value: string) => void
   buttonText: string
   setButtonText: (value: string) => void
+  customCss: string
+  setCustomCss: (value: string) => void
 }
 
 // Local storage keys
@@ -74,6 +77,7 @@ export const STORAGE_KEYS = {
   GASLESS: "trails_demo_gasless",
   CUSTOM_TOKEN_ADDRESS: "trails_demo_custom_token_address",
   BUTTON_TEXT: "trails_demo_button_text",
+  CUSTOM_CSS: "trails_demo_custom_css",
 } as const
 
 interface UseAccountButtonProps {
@@ -162,7 +166,13 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   setCustomTokenAddress,
   buttonText,
   setButtonText,
+  customCss,
+  setCustomCss,
 }) => {
+  // Separate state for textarea content
+  const [textareaCss, setTextareaCss] = useState(
+    customCss || DEFAULT_CSS_VALUES,
+  )
   const { address, isConnected } = useAccount()
   const [isScenarioDropdownOpen, setIsScenarioDropdownOpen] = useState(false)
   const [selectedScenario, setSelectedScenario] = useState<string>("")
@@ -522,6 +532,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       STORAGE_KEYS.CUSTOM_TOKEN_ADDRESS,
     )
     const savedButtonText = localStorage.getItem(STORAGE_KEYS.BUTTON_TEXT)
+    const savedCustomCss = localStorage.getItem(STORAGE_KEYS.CUSTOM_CSS)
 
     // Only set values if they exist in localStorage
     if (savedAppId !== null) setAppId(savedAppId)
@@ -564,6 +575,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       setShowCustomTokenInput(true) // Show custom input if custom token address exists
     }
     if (savedButtonText !== null) setButtonText(savedButtonText)
+    if (savedCustomCss !== null) setCustomCss(savedCustomCss)
 
     setInitialStateLoaded(true)
   }, [
@@ -582,6 +594,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setGasless,
     setCustomTokenAddress,
     setButtonText,
+    setCustomCss,
   ])
 
   // Save values to localStorage whenever they change and clear scenario when mode changes
@@ -720,6 +733,15 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
   }, [buttonText])
 
+  // Save customCss to localStorage
+  useEffect(() => {
+    if (customCss) {
+      localStorage.setItem(STORAGE_KEYS.CUSTOM_CSS, customCss)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.CUSTOM_CSS)
+    }
+  }, [customCss])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Close scenario dropdown when clicking outside
@@ -749,12 +771,13 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setToRecipient("") // Clear toRecipient
     setUseCustomButton(false)
     setRenderInline(true) // Reset to default true
-    setTheme("auto") // Reset to default autoj
+    setTheme("auto") // Reset to default auto
     setPaymasterUrls([]) // Reset paymasterUrls
     setGasless(false) // Reset gasless to default false
     setCustomTokenAddress("") // Reset customTokenAddress
     setShowCustomTokenInput(false) // Reset custom token input visibility
     setButtonText("") // Reset buttonText
+    resetCustomCss() // Reset custom CSS
     // Clear localStorage
     Object.values(STORAGE_KEYS).forEach((key) => {
       localStorage.removeItem(key)
@@ -814,6 +837,38 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setCustomTokenAddress("")
     setShowCustomTokenInput(false)
   }
+
+  // CSS Management Functions
+  const applyCustomCss = useCallback(() => {
+    // Apply the textarea content to the widget
+    setCustomCss(textareaCss)
+  }, [textareaCss, setCustomCss])
+
+  const resetCustomCss = useCallback(() => {
+    // Reset textarea to default values but don't apply to widget
+    setTextareaCss(DEFAULT_CSS_VALUES)
+    // Clear the widget's custom CSS by setting it to empty string
+    setCustomCss("")
+    setTheme("light")
+  }, [setCustomCss, setTheme])
+
+  const applyPreset = useCallback(
+    (presetName: PresetName) => {
+      const preset = CSS_PRESETS[presetName]
+      // Set textarea to preset values
+      setTextareaCss(preset)
+      // Automatically apply the CSS to the widget
+      setCustomCss(preset)
+
+      // Set widget theme based on preset
+      if (presetName === "dark" || presetName === "purple") {
+        setTheme("dark")
+      } else {
+        setTheme("light")
+      }
+    },
+    [setCustomCss, setTheme],
+  )
 
   return (
     <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 sm:p-6 min-h-[775px]">
@@ -1481,9 +1536,122 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   type="text"
                   value={buttonText}
                   onChange={(e) => setButtonText(e.target.value)}
-                  placeholder="Custom button text (optional)"
+                  placeholder="Custom button text"
                   className="w-full px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 />
+              </div>
+
+              <div>
+                <label
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2 flex items-center gap-2"
+                  htmlFor="customCss"
+                >
+                  Custom CSS Variables
+                  <Tooltip message="Customize widget appearance by modifying CSS variables. Prefix all variables with '--trails-'">
+                    <InfoIcon
+                      size="sm"
+                      className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                    />
+                  </Tooltip>
+                </label>
+                <div className="space-y-2">
+                  <textarea
+                    id="customCss"
+                    value={textareaCss}
+                    onChange={(e) => setTextareaCss(e.target.value)}
+                    placeholder="Enter custom CSS variables..."
+                    rows={8}
+                    className="w-full px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-xs"
+                  />
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={applyCustomCss}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium cursor-pointer"
+                    >
+                      Apply CSS
+                    </button>
+                    <button
+                      type="button"
+                      onClick={resetCustomCss}
+                      className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors text-sm font-medium cursor-pointer"
+                    >
+                      Reset CSS
+                    </button>
+                  </div>
+                  <div className="mt-2">
+                    <span className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Examples:
+                    </span>
+                    <div className="flex gap-1 flex-wrap">
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("green")}
+                        className="px-2 py-1 text-white rounded text-xs font-medium cursor-pointer"
+                        style={
+                          {
+                            backgroundColor: "rgb(16 185 129)",
+                            "--tw-hover-bg": "rgb(5 150 105)",
+                          } as React.CSSProperties
+                        }
+                      >
+                        Green
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("blue")}
+                        className="px-2 py-1 text-white rounded text-xs font-medium cursor-pointer"
+                        style={
+                          {
+                            backgroundColor: "rgb(59 130 246)",
+                            "--tw-hover-bg": "rgb(37 99 235)",
+                          } as React.CSSProperties
+                        }
+                      >
+                        Blue
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("gray")}
+                        className="px-2 py-1 text-white rounded text-xs font-medium cursor-pointer"
+                        style={
+                          {
+                            backgroundColor: "rgb(107 114 128)",
+                            "--tw-hover-bg": "rgb(75 85 99)",
+                          } as React.CSSProperties
+                        }
+                      >
+                        Gray
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("dark")}
+                        className="px-2 py-1 text-yellow-500 rounded text-xs font-medium cursor-pointer"
+                        style={
+                          {
+                            backgroundColor: "rgb(0 0 0)",
+                            "--tw-hover-bg": "rgb(20 20 20)",
+                          } as React.CSSProperties
+                        }
+                      >
+                        Dark
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("purple")}
+                        className="px-2 py-1 text-white rounded text-xs font-medium cursor-pointer"
+                        style={
+                          {
+                            backgroundColor: "rgb(147 51 234)",
+                            "--tw-hover-bg": "rgb(126 34 206)",
+                          } as React.CSSProperties
+                        }
+                      >
+                        Purple
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </details>

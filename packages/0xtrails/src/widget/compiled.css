@@ -2633,14 +2633,6 @@
       background-color: var(--color-gray-800);
     }
   }
-  .dark\:bg-gray-800\/50 {
-    &:is([data-theme="dark"] *) {
-      background-color: color-mix(in srgb, oklch(27.8% 0.033 256.848) 50%, transparent);
-      @supports (color: color-mix(in lab, red, red)) {
-        background-color: color-mix(in oklab, var(--color-gray-800) 50%, transparent);
-      }
-    }
-  }
   .dark\:bg-gray-900 {
     &:is([data-theme="dark"] *) {
       background-color: var(--color-gray-900);
@@ -2938,6 +2930,54 @@
   --trails-primary-hover: rgb(37 99 235);
   --trails-primary-disabled: rgb(209 213 219);
   --trails-primary-disabled-text: rgb(107 114 128);
+}
+.trails-bg-primary {
+  background-color: var(--trails-bg-primary);
+}
+.trails-bg-secondary {
+  background-color: var(--trails-bg-secondary);
+}
+.trails-bg-tertiary {
+  background-color: var(--trails-bg-tertiary);
+}
+.trails-bg-card {
+  background-color: var(--trails-bg-card);
+}
+.trails-bg-overlay {
+  background-color: var(--trails-bg-overlay);
+}
+.trails-text-primary {
+  color: var(--trails-text-primary);
+}
+.trails-text-secondary {
+  color: var(--trails-text-secondary);
+}
+.trails-text-tertiary {
+  color: var(--trails-text-tertiary);
+}
+.trails-text-muted {
+  color: var(--trails-text-muted);
+}
+.trails-text-inverse {
+  color: var(--trails-text-inverse);
+}
+.trails-border-primary {
+  border-color: var(--trails-border-primary);
+}
+.trails-border-secondary {
+  border-color: var(--trails-border-secondary);
+}
+.trails-border-tertiary {
+  border-color: var(--trails-border-tertiary);
+}
+.trails-hover-bg:hover {
+  background-color: var(--trails-hover-bg);
+}
+.trails-hover-text:hover {
+  color: var(--trails-hover-text);
+}
+.trails-focus-ring:focus {
+  --tw-ring-color: var(--trails-focus-ring);
 }
 [data-theme="light"] {
   --trails-bg-primary: rgb(255 255 255);

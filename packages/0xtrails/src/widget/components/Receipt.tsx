@@ -255,7 +255,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
           </svg>
         </button>
         {showDetails && (
-          <div className="p-4 rounded-lg text-sm space-y-4 bg-gray-50 dark:bg-gray-800">
+          <div className="p-4 rounded-lg text-sm space-y-4 trails-bg-secondary">
             {transactionStates.length > 0 && (
               <div className="space-y-2">
                 <div className="font-medium text-gray-700 dark:text-gray-300">

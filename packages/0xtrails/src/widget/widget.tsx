@@ -116,6 +116,7 @@ export type TrailsWidgetProps = {
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
   buttonText?: string
+  customCss?: string
 }
 
 export interface TrailsWidgetRef {
@@ -1159,7 +1160,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             damping: 30,
             mass: 1,
           }}
-          className="flex flex-col min-h-[400px] rounded-[32px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto custom-scrollbar bg-white text-gray-900 dark:bg-gray-900 dark:text-white"
+          className="flex flex-col min-h-[400px] rounded-[32px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto custom-scrollbar trails-bg-primary trails-text-primary"
           layout
           layoutId="modal-container"
           onClick={(e) => e.stopPropagation()}
@@ -1353,14 +1354,20 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     })()
 
     return (
-      <ShadowPortal>
+      <ShadowPortal customCss={props.customCss}>
         <StrictMode>{content}</StrictMode>
       </ShadowPortal>
     )
   },
 )
 
-export function ShadowPortal({ children }: { children: React.ReactNode }) {
+export function ShadowPortal({
+  children,
+  customCss,
+}: {
+  children: React.ReactNode
+  customCss?: string
+}) {
   const hostRef = useRef<HTMLDivElement>(null)
   const [shadowRoot, setShadowRoot] = useState<ShadowRoot | null>(null)
 
@@ -1375,6 +1382,25 @@ export function ShadowPortal({ children }: { children: React.ReactNode }) {
       shadow.appendChild(styleTag)
     }
   }, [])
+
+  // Update custom CSS when it changes
+  useEffect(() => {
+    if (shadowRoot) {
+      // Remove any existing custom CSS
+      const existingCustomStyles = shadowRoot.querySelectorAll(
+        'style[id="custom-css"]',
+      )
+      existingCustomStyles.forEach((style) => style.remove())
+
+      // Inject new custom CSS if provided
+      if (customCss) {
+        const customStyleTag = document.createElement("style")
+        customStyleTag.id = "custom-css"
+        customStyleTag.textContent = `:root, [data-theme="light"], [data-theme="dark"] { ${customCss} }`
+        shadowRoot.appendChild(customStyleTag)
+      }
+    }
+  }, [customCss, shadowRoot])
 
   return (
     <div ref={hostRef}>

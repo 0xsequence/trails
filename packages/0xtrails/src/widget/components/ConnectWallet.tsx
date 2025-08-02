@@ -88,7 +88,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
 
       {isConnected ? (
         <div className="space-y-4">
-          <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800">
+          <div className="p-4 rounded-2xl trails-bg-secondary">
             <p className="text-gray-500 dark:text-gray-400">
               Connected with {connector?.name || ""}
             </p>
@@ -117,7 +117,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
             <button
               type="button"
               onClick={handleDisconnect}
-              className="w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors border bg-white hover:bg-gray-50 text-gray-900 border-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white dark:border-gray-700"
+              className="w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors border trails-bg-card trails-hover-bg trails-text-primary trails-border-primary"
             >
               Disconnect
             </button>
@@ -166,7 +166,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
             ))
           ) : (
             <div className="space-y-6">
-              <div className="text-center p-4 rounded-lg text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800">
+              <div className="text-center p-4 rounded-lg trails-text-tertiary trails-bg-secondary">
                 Please connect wallet in dapp
               </div>
             </div>

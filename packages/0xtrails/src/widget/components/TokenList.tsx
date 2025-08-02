@@ -104,7 +104,7 @@ export const TokenList: React.FC<TokenListProps> = ({
       {!isLoadingSortedTokens &&
         !balanceError &&
         filteredTokens.length === 0 && (
-          <div className="text-center py-4 rounded-lg bg-gray-50 dark:bg-gray-800">
+          <div className="text-center py-4 rounded-lg trails-bg-secondary">
             <p className="text-gray-500 dark:text-gray-400">
               {searchQuery.trim()
                 ? "No tokens found matching your search."
@@ -114,7 +114,7 @@ export const TokenList: React.FC<TokenListProps> = ({
         )}
 
       {/* Token List */}
-      <div className="divide-y divide-gray-200 dark:divide-gray-700/50 max-h-[35vh] overflow-y-auto rounded-[16px] custom-scrollbar bg-white dark:bg-gray-800/50">
+      <div className="divide-y divide-gray-200 dark:divide-gray-700/50 max-h-[35vh] overflow-y-auto rounded-[16px] custom-scrollbar trails-bg-card">
         {filteredTokensFormatted.map((token: TokenFormatted) => {
           const {
             symbol,

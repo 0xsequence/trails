@@ -332,7 +332,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
       <div
         className={`w-full max-w-sm p-3 rounded-lg transition-all duration-500 ease-out delay-100 ${
           showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-        } bg-gray-50 text-gray-700 dark:bg-gray-800/50 dark:text-gray-200`}
+        } trails-bg-secondary trails-text-secondary`}
       >
         <div className="flex items-start justify-between">
           {/* Left side - Chain and Token images with token name */}

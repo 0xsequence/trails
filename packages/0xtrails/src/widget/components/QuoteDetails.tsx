@@ -79,7 +79,7 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
         isExpanded ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
       }`}
     >
-      <div className="p-4 rounded-lg text-sm space-y-4 bg-gray-50 dark:bg-gray-800">
+      <div className="p-4 rounded-lg text-sm space-y-4 trails-bg-secondary">
         <div className="space-y-3">
           {quote?.originTokenRate && quote?.destinationTokenRate && (
             <div className="flex justify-between items-center">
