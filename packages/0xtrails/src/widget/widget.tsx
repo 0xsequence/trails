@@ -1160,7 +1160,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             damping: 30,
             mass: 1,
           }}
-          className="flex flex-col min-h-[400px] rounded-[32px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto custom-scrollbar trails-bg-primary trails-text-primary"
+          className="flex flex-col min-h-[400px] rounded-[32px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto custom-scrollbar trails-bg-primary trails-text-primary trails-font"
           layout
           layoutId="modal-container"
           onClick={(e) => e.stopPropagation()}

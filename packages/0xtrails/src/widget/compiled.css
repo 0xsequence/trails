@@ -1649,21 +1649,6 @@
   .underline {
     text-decoration-line: underline;
   }
-  .placeholder-gray-400 {
-    &::placeholder {
-      color: var(--color-gray-400);
-    }
-  }
-  .placeholder-gray-500 {
-    &::placeholder {
-      color: var(--color-gray-500);
-    }
-  }
-  .placeholder-gray-900 {
-    &::placeholder {
-      color: var(--color-gray-900);
-    }
-  }
   .placeholder-muted {
     &::placeholder {
       color: var(--seq-color-muted);
@@ -2755,20 +2740,6 @@
       color: var(--color-yellow-400);
     }
   }
-  .dark\:placeholder-gray-500 {
-    &:is([data-theme="dark"] *) {
-      &::placeholder {
-        color: var(--color-gray-500);
-      }
-    }
-  }
-  .dark\:placeholder-white {
-    &:is([data-theme="dark"] *) {
-      &::placeholder {
-        color: var(--color-white);
-      }
-    }
-  }
   .dark\:hover\:border-gray-500 {
     &:is([data-theme="dark"] *) {
       &:hover {
@@ -2926,6 +2897,7 @@
   }
 }
 :root {
+  --trails-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --trails-primary: rgb(59 130 246);
   --trails-primary-hover: rgb(37 99 235);
   --trails-primary-disabled: rgb(209 213 219);
@@ -2979,6 +2951,36 @@
 .trails-focus-ring:focus {
   --tw-ring-color: var(--trails-focus-ring);
 }
+.trails-font {
+  font-family: var(--trails-font-family);
+}
+.trails-input {
+  background-color: var(--trails-input-bg);
+  border-color: var(--trails-input-border);
+  color: var(--trails-input-text);
+}
+.trails-input::placeholder {
+  color: var(--trails-input-placeholder);
+}
+.trails-input:focus {
+  border-color: var(--trails-input-focus-border);
+  --tw-ring-color: var(--trails-input-focus-ring);
+}
+.trails-dropdown {
+  background-color: var(--trails-dropdown-bg);
+  border-color: var(--trails-dropdown-border);
+  color: var(--trails-dropdown-text);
+}
+.trails-dropdown-item {
+  color: var(--trails-dropdown-text);
+}
+.trails-dropdown-item:hover {
+  background-color: var(--trails-dropdown-hover-bg);
+}
+.trails-dropdown-item-selected {
+  background-color: var(--trails-dropdown-selected-bg);
+  color: var(--trails-dropdown-selected-text);
+}
 [data-theme="light"] {
   --trails-bg-primary: rgb(255 255 255);
   --trails-bg-secondary: rgb(249 250 251);
@@ -2996,6 +2998,18 @@
   --trails-hover-bg: rgb(249 250 251);
   --trails-hover-text: rgb(17 24 39);
   --trails-focus-ring: rgb(59 130 246);
+  --trails-input-bg: rgb(255 255 255);
+  --trails-input-border: rgb(209 213 219);
+  --trails-input-text: rgb(17 24 39);
+  --trails-input-placeholder: rgb(156 163 175);
+  --trails-input-focus-border: rgb(59 130 246);
+  --trails-input-focus-ring: rgb(59 130 246);
+  --trails-dropdown-bg: rgb(255 255 255);
+  --trails-dropdown-border: rgb(229 231 235);
+  --trails-dropdown-text: rgb(17 24 39);
+  --trails-dropdown-hover-bg: rgb(249 250 251);
+  --trails-dropdown-selected-bg: rgb(243 244 246);
+  --trails-dropdown-selected-text: rgb(17 24 39);
   --trails-success-bg: rgb(240 253 244);
   --trails-success-text: rgb(22 163 74);
   --trails-success-border: rgb(187 247 208);
@@ -3024,6 +3038,18 @@
   --trails-hover-bg: rgb(55 65 81);
   --trails-hover-text: rgb(255 255 255);
   --trails-focus-ring: rgb(59 130 246);
+  --trails-input-bg: rgb(31 41 55);
+  --trails-input-border: rgb(75 85 99);
+  --trails-input-text: rgb(255 255 255);
+  --trails-input-placeholder: rgb(107 114 128);
+  --trails-input-focus-border: rgb(59 130 246);
+  --trails-input-focus-ring: rgb(59 130 246);
+  --trails-dropdown-bg: rgb(31 41 55);
+  --trails-dropdown-border: rgb(75 85 99);
+  --trails-dropdown-text: rgb(255 255 255);
+  --trails-dropdown-hover-bg: rgb(55 65 81);
+  --trails-dropdown-selected-bg: rgb(55 65 81);
+  --trails-dropdown-selected-text: rgb(255 255 255);
   --trails-success-bg: rgb(22 163 74 / 0.2);
   --trails-success-text: rgb(134 239 172);
   --trails-success-border: rgb(22 163 74 / 0.3);

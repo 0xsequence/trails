@@ -432,7 +432,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                 value={displayAmount}
                 onChange={(e) => handleAmountChange(e.target.value)}
                 placeholder="0"
-                className={`bg-transparent border-none outline-none ${inputStyles.fontSize} font-bold text-right text-gray-900 placeholder-gray-900 dark:text-white dark:placeholder-white`}
+                className={`bg-transparent border-none outline-none ${inputStyles.fontSize} font-bold text-right trails-text-primary placeholder-trails-text-primary`}
                 style={{
                   width: `${Math.max((displayAmount || "0").length, 1)}ch`,
                   minWidth: "1ch",
@@ -496,7 +496,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
               <button
                 type="button"
                 onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
-                className="w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white border-gray-300 text-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                className="w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 trails-dropdown"
               >
                 <ChainImage chainId={selectedDestinationChain.id} size={24} />
                 <span className="ml-2 flex-1 text-left">
@@ -510,7 +510,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
               </button>
 
               {isChainDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                <div className="absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar trails-dropdown">
                   {supportedChains.map((chain) => (
                     <button
                       key={chain.id}
@@ -525,10 +525,10 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                         e.preventDefault()
                         e.stopPropagation()
                       }}
-                      className={`w-full flex items-center px-4 py-3 ${
+                      className={`w-full flex items-center px-4 py-3 trails-dropdown-item ${
                         selectedDestinationChain.id === chain.id
-                          ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white"
-                          : "text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-700"
+                          ? "trails-dropdown-item-selected"
+                          : "hover:trails-dropdown-item"
                       }`}
                     >
                       <ChainImage chainId={chain.id} size={24} />
@@ -559,7 +559,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
               <button
                 type="button"
                 onClick={() => setIsTokenDropdownOpen(!isTokenDropdownOpen)}
-                className="w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white border-gray-300 text-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                className="w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 trails-dropdown"
               >
                 <div className="w-5 h-5 rounded-full flex items-center justify-center text-sm bg-gray-100 dark:bg-gray-700">
                   <TokenImage
@@ -579,7 +579,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
               </button>
 
               {isTokenDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                <div className="absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar trails-dropdown">
                   {supportedTokens.map((token) => (
                     <button
                       key={`${token.contractAddress}-${token.chainId}`}
@@ -588,10 +588,10 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                         setSelectedDestToken(token as TokenInfo)
                         setIsTokenDropdownOpen(false)
                       }}
-                      className={`w-full flex items-center px-4 py-3 cursor-pointer ${
+                      className={`w-full flex items-center px-4 py-3 cursor-pointer trails-dropdown-item ${
                         selectedDestToken?.symbol === token.symbol
-                          ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white"
-                          : "text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-700"
+                          ? "trails-dropdown-item-selected"
+                          : "hover:trails-dropdown-item"
                       }`}
                     >
                       <TokenImage

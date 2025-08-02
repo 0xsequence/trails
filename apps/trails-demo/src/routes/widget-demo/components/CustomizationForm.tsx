@@ -1619,7 +1619,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           } as React.CSSProperties
                         }
                       >
-                        Green
+                        Mint
                       </button>
                       <button
                         type="button"
@@ -1632,7 +1632,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           } as React.CSSProperties
                         }
                       >
-                        Blue
+                        Pale
                       </button>
                       <button
                         type="button"
@@ -1673,6 +1673,18 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       >
                         Purple
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("mono")}
+                        className="px-2 py-1 bg-white border border-gray-300 text-gray-900 hover:bg-gray-50 rounded text-xs font-medium cursor-pointer"
+                        style={
+                          {
+                            fontFamily: "monospace",
+                          } as React.CSSProperties
+                        }
+                      >
+                        Mono
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1687,7 +1699,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             onClick={handleReset}
             className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors duration-200 text-sm font-medium border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer"
           >
-            Reset
+            Reset All Settings
           </button>
         </div>
       </div>

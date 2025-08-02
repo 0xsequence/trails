@@ -7,6 +7,9 @@
 
 /* Trails Widget Theme Variables - Easy to customize */
 :root {
+  /* Font Family - Customizable font for the entire widget */
+  --trails-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
   /* Primary Colors - These apply to both themes */
   --trails-primary: rgb(59 130 246); /* blue-500 - Change this to customize */
   --trails-primary-hover: rgb(37 99 235); /* blue-600 - Change this for hover state */
@@ -79,6 +82,47 @@
   --tw-ring-color: var(--trails-focus-ring);
 }
 
+/* Font Family Utility Class */
+.trails-font {
+  font-family: var(--trails-font-family);
+}
+
+/* Input Field Utility Classes */
+.trails-input {
+  background-color: var(--trails-input-bg);
+  border-color: var(--trails-input-border);
+  color: var(--trails-input-text);
+}
+
+.trails-input::placeholder {
+  color: var(--trails-input-placeholder);
+}
+
+.trails-input:focus {
+  border-color: var(--trails-input-focus-border);
+  --tw-ring-color: var(--trails-input-focus-ring);
+}
+
+/* Dropdown Utility Classes */
+.trails-dropdown {
+  background-color: var(--trails-dropdown-bg);
+  border-color: var(--trails-dropdown-border);
+  color: var(--trails-dropdown-text);
+}
+
+.trails-dropdown-item {
+  color: var(--trails-dropdown-text);
+}
+
+.trails-dropdown-item:hover {
+  background-color: var(--trails-dropdown-hover-bg);
+}
+
+.trails-dropdown-item-selected {
+  background-color: var(--trails-dropdown-selected-bg);
+  color: var(--trails-dropdown-selected-text);
+}
+
 /* Light Mode Theme Variables */
 [data-theme="light"] {
   /* Background Colors */
@@ -104,6 +148,22 @@
   --trails-hover-bg: rgb(249 250 251); /* gray-50 */
   --trails-hover-text: rgb(17 24 39); /* gray-900 */
   --trails-focus-ring: rgb(59 130 246); /* blue-500 */
+
+  /* Input Field Colors */
+  --trails-input-bg: rgb(255 255 255); /* white */
+  --trails-input-border: rgb(209 213 219); /* gray-300 */
+  --trails-input-text: rgb(17 24 39); /* gray-900 */
+  --trails-input-placeholder: rgb(156 163 175); /* gray-400 */
+  --trails-input-focus-border: rgb(59 130 246); /* blue-500 */
+  --trails-input-focus-ring: rgb(59 130 246); /* blue-500 */
+
+  /* Dropdown Colors */
+  --trails-dropdown-bg: rgb(255 255 255); /* white */
+  --trails-dropdown-border: rgb(229 231 235); /* gray-200 */
+  --trails-dropdown-text: rgb(17 24 39); /* gray-900 */
+  --trails-dropdown-hover-bg: rgb(249 250 251); /* gray-50 */
+  --trails-dropdown-selected-bg: rgb(243 244 246); /* gray-100 */
+  --trails-dropdown-selected-text: rgb(17 24 39); /* gray-900 */
 
   /* Status Colors */
   --trails-success-bg: rgb(240 253 244); /* green-50 */
@@ -148,6 +208,22 @@
   --trails-hover-bg: rgb(55 65 81); /* gray-700 */
   --trails-hover-text: rgb(255 255 255); /* white */
   --trails-focus-ring: rgb(59 130 246); /* blue-500 */
+
+  /* Input Field Colors */
+  --trails-input-bg: rgb(31 41 55); /* gray-800 */
+  --trails-input-border: rgb(75 85 99); /* gray-600 */
+  --trails-input-text: rgb(255 255 255); /* white */
+  --trails-input-placeholder: rgb(107 114 128); /* gray-500 */
+  --trails-input-focus-border: rgb(59 130 246); /* blue-500 */
+  --trails-input-focus-ring: rgb(59 130 246); /* blue-500 */
+
+  /* Dropdown Colors */
+  --trails-dropdown-bg: rgb(31 41 55); /* gray-800 */
+  --trails-dropdown-border: rgb(75 85 99); /* gray-600 */
+  --trails-dropdown-text: rgb(255 255 255); /* white */
+  --trails-dropdown-hover-bg: rgb(55 65 81); /* gray-700 */
+  --trails-dropdown-selected-bg: rgb(55 65 81); /* gray-700 */
+  --trails-dropdown-selected-text: rgb(255 255 255); /* white */
 
   /* Status Colors */
   --trails-success-bg: rgb(22 163 74 / 0.2); /* green-600 with opacity */

@@ -247,7 +247,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               <button
                 type="button"
                 onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
-                className="w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white border-gray-300 text-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                className="w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 trails-dropdown"
               >
                 <ChainImage chainId={selectedDestinationChain.id} size={24} />
                 <span className="ml-2 flex-1 text-left">
@@ -261,7 +261,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               </button>
 
               {isChainDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                <div className="absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar trails-dropdown">
                   {supportedChains.map((chain) => (
                     <button
                       key={chain.id}
@@ -276,10 +276,10 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
                         e.preventDefault()
                         e.stopPropagation()
                       }}
-                      className={`w-full flex items-center px-4 py-3 ${
+                      className={`w-full flex items-center px-4 py-3 trails-dropdown-item ${
                         selectedDestinationChain.id === chain.id
-                          ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white"
-                          : "text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-700"
+                          ? "trails-dropdown-item-selected"
+                          : "hover:trails-dropdown-item"
                       }`}
                     >
                       <ChainImage chainId={chain.id} size={24} />
@@ -310,7 +310,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               <button
                 type="button"
                 onClick={() => setIsTokenDropdownOpen(!isTokenDropdownOpen)}
-                className="w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white border-gray-300 text-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                className="w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 trails-dropdown"
               >
                 <div className="w-5 h-5 rounded-full flex items-center justify-center text-sm bg-gray-100 dark:bg-gray-700">
                   <TokenImage
@@ -330,7 +330,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               </button>
 
               {isTokenDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+                <div className="absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar trails-dropdown">
                   {supportedTokens.map((token) => (
                     <button
                       key={`${token.contractAddress}-${token.chainId}`}
@@ -339,10 +339,10 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
                         setSelectedDestToken(token as TokenInfo)
                         setIsTokenDropdownOpen(false)
                       }}
-                      className={`w-full flex items-center px-4 py-3 cursor-pointer ${
+                      className={`w-full flex items-center px-4 py-3 cursor-pointer trails-dropdown-item ${
                         selectedDestToken?.symbol === token.symbol
-                          ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white"
-                          : "text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-700"
+                          ? "trails-dropdown-item-selected"
+                          : "hover:trails-dropdown-item"
                       }`}
                     >
                       <TokenImage
@@ -382,7 +382,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
                 value={amount}
                 onChange={(e) => handleAmountChange(e.target.value)}
                 placeholder="0.00"
-                className="block w-full pl-4 pr-12 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg bg-white border-gray-300 text-gray-900 placeholder-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-500"
+                className="block w-full pl-4 pr-12 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg trails-input"
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-4">
                 <span className="text-gray-400">
@@ -503,7 +503,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               value={recipientInput}
               onChange={handleRecipientInputChange}
               placeholder="0x... or name.eth"
-              className="block w-full px-4 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm bg-white border-gray-300 text-gray-900 placeholder-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:placeholder-gray-500"
+              className="block w-full px-4 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm trails-input"
             />
             {ensAddress && <p className="text-sm text-gray-400">{recipient}</p>}
           </div>

@@ -1,5 +1,8 @@
 // Default CSS values from index.css
-export const DEFAULT_CSS_VALUES = `/* Primary Colors - These apply to both themes */
+export const DEFAULT_CSS_VALUES = `/* Font Family - Customizable font for the entire widget */
+--trails-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+/* Primary Colors - These apply to both themes */
 --trails-primary: rgb(59 130 246); /* blue-500 - Change this to customize */
 --trails-primary-hover: rgb(37 99 235); /* blue-600 - Change this for hover state */
 --trails-primary-disabled: rgb(209 213 219); /* gray-300 - Disabled state */
@@ -40,10 +43,29 @@ export const DEFAULT_CSS_VALUES = `/* Primary Colors - These apply to both theme
 
 --trails-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 
+/* Input Field Colors */
+--trails-input-bg: rgb(255 255 255); /* white */
+--trails-input-border: rgb(209 213 219); /* gray-300 */
+--trails-input-text: rgb(17 24 39); /* gray-900 */
+--trails-input-placeholder: rgb(156 163 175); /* gray-400 */
+--trails-input-focus-border: rgb(59 130 246); /* blue-500 */
+--trails-input-focus-ring: rgb(59 130 246); /* blue-500 */
+
+/* Dropdown Colors */
+--trails-dropdown-bg: rgb(255 255 255); /* white */
+--trails-dropdown-border: rgb(229 231 235); /* gray-200 */
+--trails-dropdown-text: rgb(17 24 39); /* gray-900 */
+--trails-dropdown-hover-bg: rgb(249 250 251); /* gray-50 */
+--trails-dropdown-selected-bg: rgb(243 244 246); /* gray-100 */
+--trails-dropdown-selected-text: rgb(17 24 39); /* gray-900 */
+
 `
 
 // Green theme preset for light mode
-export const GREEN_THEME_PRESET = `/* Primary Colors - Green Theme */
+export const GREEN_THEME_PRESET = `/* Font Family - Modern sans-serif for green theme */
+--trails-font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+/* Primary Colors - Green Theme */
 --trails-primary: rgb(16 185 129); /* emerald-500 - more minty */
 --trails-primary-hover: rgb(5 150 105); /* emerald-600 - darker minty */
 --trails-primary-disabled: rgb(209 213 219); /* gray-300 */
@@ -84,10 +106,29 @@ export const GREEN_THEME_PRESET = `/* Primary Colors - Green Theme */
 
 --trails-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 
+/* Input Field Colors */
+--trails-input-bg: rgb(248 254 250); /* very light mint green background */
+--trails-input-border: rgb(134 239 172); /* green-400 */
+--trails-input-text: rgb(21 128 61); /* green-800 */
+--trails-input-placeholder: rgb(134 239 172); /* green-400 */
+--trails-input-focus-border: rgb(34 197 94); /* green-500 */
+--trails-input-focus-ring: rgb(34 197 94); /* green-500 */
+
+/* Dropdown Colors */
+--trails-dropdown-bg: rgb(248 254 250); /* very light mint green background */
+--trails-dropdown-border: rgb(187 247 208); /* green-200 */
+--trails-dropdown-text: rgb(21 128 61); /* green-800 */
+--trails-dropdown-hover-bg: rgb(220 252 231); /* green-100 */
+--trails-dropdown-selected-bg: rgb(187 247 208); /* green-200 */
+--trails-dropdown-selected-text: rgb(21 128 61); /* green-800 */
+
 `
 
 // Blue theme preset
-export const BLUE_THEME_PRESET = `/* Primary Colors - Blue Theme */
+export const BLUE_THEME_PRESET = `/* Font Family - Clean sans-serif for blue theme */
+--trails-font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+/* Primary Colors - Blue Theme */
 --trails-primary: rgb(59 130 246); /* blue-500 */
 --trails-primary-hover: rgb(37 99 235); /* blue-600 */
 --trails-primary-disabled: rgb(209 213 219); /* gray-300 */
@@ -128,10 +169,29 @@ export const BLUE_THEME_PRESET = `/* Primary Colors - Blue Theme */
 
 --trails-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 
+/* Input Field Colors */
+--trails-input-bg: rgb(248 250 255); /* very light blue background */
+--trails-input-border: rgb(147 197 253); /* blue-400 */
+--trails-input-text: rgb(30 58 138); /* blue-900 */
+--trails-input-placeholder: rgb(147 197 253); /* blue-400 */
+--trails-input-focus-border: rgb(59 130 246); /* blue-500 */
+--trails-input-focus-ring: rgb(59 130 246); /* blue-500 */
+
+/* Dropdown Colors */
+--trails-dropdown-bg: rgb(248 250 255); /* very light blue background */
+--trails-dropdown-border: rgb(191 219 254); /* blue-200 */
+--trails-dropdown-text: rgb(30 58 138); /* blue-900 */
+--trails-dropdown-hover-bg: rgb(219 234 254); /* blue-100 */
+--trails-dropdown-selected-bg: rgb(191 219 254); /* blue-200 */
+--trails-dropdown-selected-text: rgb(30 58 138); /* blue-900 */
+
 `
 
 // Gray theme preset
-export const GRAY_THEME_PRESET = `/* Primary Colors - Gray Theme */
+export const GRAY_THEME_PRESET = `/* Font Family - Professional sans-serif for gray theme */
+--trails-font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+
+/* Primary Colors - Gray Theme */
 --trails-primary: rgb(75 85 99); /* gray-600 - darker gray */
 --trails-primary-hover: rgb(55 65 81); /* gray-700 - even darker gray */
 --trails-primary-disabled: rgb(209 213 219); /* gray-300 */
@@ -172,10 +232,29 @@ export const GRAY_THEME_PRESET = `/* Primary Colors - Gray Theme */
 
 --trails-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 
+/* Input Field Colors */
+--trails-input-bg: rgb(249 250 251); /* gray-50 background */
+--trails-input-border: rgb(209 213 219); /* gray-300 */
+--trails-input-text: rgb(17 24 39); /* gray-900 */
+--trails-input-placeholder: rgb(107 114 128); /* gray-500 */
+--trails-input-focus-border: rgb(107 114 128); /* gray-500 */
+--trails-input-focus-ring: rgb(107 114 128); /* gray-500 */
+
+/* Dropdown Colors */
+--trails-dropdown-bg: rgb(249 250 251); /* gray-50 background */
+--trails-dropdown-border: rgb(229 231 235); /* gray-200 */
+--trails-dropdown-text: rgb(17 24 39); /* gray-900 */
+--trails-dropdown-hover-bg: rgb(243 244 246); /* gray-100 */
+--trails-dropdown-selected-bg: rgb(229 231 235); /* gray-200 */
+--trails-dropdown-selected-text: rgb(17 24 39); /* gray-900 */
+
 `
 
 // Dark theme preset (Binance Chain-inspired)
-export const DARK_THEME_PRESET = `/* Primary Colors - Dark Theme */
+export const DARK_THEME_PRESET = `/* Font Family - Bold sans-serif for dark theme */
+--trails-font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+/* Primary Colors - Dark Theme */
 --trails-primary: rgb(245 158 11); /* amber-500 - Binance gold */
 --trails-primary-hover: rgb(217 119 6); /* amber-600 - darker gold */
 --trails-primary-disabled: rgb(75 85 99); /* gray-600 */
@@ -216,10 +295,29 @@ export const DARK_THEME_PRESET = `/* Primary Colors - Dark Theme */
 
 --trails-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
 
+/* Input Field Colors */
+--trails-input-bg: rgb(15 15 15); /* very dark gray background */
+--trails-input-border: rgb(75 85 99); /* gray-600 */
+--trails-input-text: rgb(255 255 255); /* white */
+--trails-input-placeholder: rgb(245 158 11); /* amber-500 - Binance gold placeholder */
+--trails-input-focus-border: rgb(245 158 11); /* amber-500 - Binance gold */
+--trails-input-focus-ring: rgb(245 158 11); /* amber-500 - Binance gold */
+
+/* Dropdown Colors */
+--trails-dropdown-bg: rgb(15 15 15); /* very dark gray background */
+--trails-dropdown-border: rgb(75 85 99); /* gray-600 */
+--trails-dropdown-text: rgb(255 255 255); /* white */
+--trails-dropdown-hover-bg: rgb(25 25 25); /* dark gray on hover */
+--trails-dropdown-selected-bg: rgb(25 25 25); /* dark gray selected background */
+--trails-dropdown-selected-text: rgb(245 158 11); /* amber-500 - Binance gold selected text */
+
 `
 
 // Purple theme preset (Polygon-inspired)
-export const PURPLE_THEME_PRESET = `/* Primary Colors - Purple Theme */
+export const PURPLE_THEME_PRESET = `/* Font Family - Modern geometric sans-serif for purple theme */
+--trails-font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+/* Primary Colors - Purple Theme */
 --trails-primary: rgb(147 51 234); /* purple-600 */
 --trails-primary-hover: rgb(126 34 206); /* purple-700 */
 --trails-primary-disabled: rgb(75 85 99); /* gray-600 */
@@ -260,6 +358,85 @@ export const PURPLE_THEME_PRESET = `/* Primary Colors - Purple Theme */
 
 --trails-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
 
+/* Input Field Colors */
+--trails-input-bg: rgb(45 35 65); /* medium dark purple background */
+--trails-input-border: rgb(75 65 95); /* purple border */
+--trails-input-text: rgb(255 255 255); /* white */
+--trails-input-placeholder: rgb(147 51 234); /* purple-600 placeholder */
+--trails-input-focus-border: rgb(147 51 234); /* purple-600 */
+--trails-input-focus-ring: rgb(147 51 234); /* purple-600 */
+
+/* Dropdown Colors */
+--trails-dropdown-bg: rgb(45 35 65); /* medium dark purple background */
+--trails-dropdown-border: rgb(75 65 95); /* purple border */
+--trails-dropdown-text: rgb(255 255 255); /* white */
+--trails-dropdown-hover-bg: rgb(65 55 85); /* lighter purple on hover */
+--trails-dropdown-selected-bg: rgb(75 65 95); /* purple selected background */
+--trails-dropdown-selected-text: rgb(255 255 255); /* white */
+
+`
+
+// Mono theme preset (default theme with monospace font)
+export const MONO_THEME_PRESET = `/* Font Family - Monospace for code-like theme */
+--trails-font-family: monospace;
+
+/* Primary Colors - These apply to both themes */
+--trails-primary: rgb(0 0 0); /* black - Change this to customize */
+--trails-primary-hover: rgb(55 65 81); /* gray-700 - Change this for hover state */
+--trails-primary-disabled: rgb(209 213 219); /* gray-300 - Disabled state */
+--trails-primary-disabled-text: rgb(107 114 128); /* gray-500 - Disabled text */
+
+/* Light Mode Theme Variables */
+--trails-bg-primary: rgb(255 255 255); /* white */
+--trails-bg-secondary: rgb(249 250 251); /* gray-50 */
+--trails-bg-tertiary: rgb(243 244 246); /* gray-100 */
+--trails-bg-card: rgb(255 255 255); /* white */
+--trails-bg-overlay: rgb(255 255 255); /* white */
+
+--trails-text-primary: rgb(17 24 39); /* gray-900 */
+--trails-text-secondary: rgb(75 85 99); /* gray-600 */
+--trails-text-tertiary: rgb(107 114 128); /* gray-500 */
+--trails-text-muted: rgb(156 163 175); /* gray-400 */
+--trails-text-inverse: rgb(255 255 255); /* white */
+
+--trails-border-primary: rgb(229 231 235); /* gray-200 */
+--trails-border-secondary: rgb(209 213 219); /* gray-300 */
+--trails-border-tertiary: rgb(243 244 246); /* gray-100 */
+
+--trails-hover-bg: rgb(249 250 251); /* gray-50 */
+--trails-hover-text: rgb(17 24 39); /* gray-900 */
+--trails-focus-ring: rgb(59 130 246); /* blue-500 */
+
+--trails-success-bg: rgb(240 253 244); /* green-50 */
+--trails-success-text: rgb(22 163 74); /* green-600 */
+--trails-success-border: rgb(187 247 208); /* green-200 */
+
+--trails-warning-bg: rgb(255 251 235); /* amber-50 */
+--trails-warning-text: rgb(217 119 6); /* amber-600 */
+--trails-warning-border: rgb(253 230 138); /* amber-200 */
+
+--trails-error-bg: rgb(254 242 242); /* red-50 */
+--trails-error-text: rgb(220 38 38); /* red-600 */
+--trails-error-border: rgb(254 202 202); /* red-200 */
+
+--trails-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+
+/* Input Field Colors */
+--trails-input-bg: rgb(255 255 255); /* white */
+--trails-input-border: rgb(209 213 219); /* gray-300 */
+--trails-input-text: rgb(17 24 39); /* gray-900 */
+--trails-input-placeholder: rgb(156 163 175); /* gray-400 */
+--trails-input-focus-border: rgb(59 130 246); /* blue-500 */
+--trails-input-focus-ring: rgb(59 130 246); /* blue-500 */
+
+/* Dropdown Colors */
+--trails-dropdown-bg: rgb(255 255 255); /* white */
+--trails-dropdown-border: rgb(229 231 235); /* gray-200 */
+--trails-dropdown-text: rgb(17 24 39); /* gray-900 */
+--trails-dropdown-hover-bg: rgb(249 250 251); /* gray-50 */
+--trails-dropdown-selected-bg: rgb(243 244 246); /* gray-100 */
+--trails-dropdown-selected-text: rgb(17 24 39); /* gray-900 */
+
 `
 
 // Export all presets as an object for easy access
@@ -270,6 +447,7 @@ export const CSS_PRESETS = {
   gray: GRAY_THEME_PRESET,
   dark: DARK_THEME_PRESET,
   purple: PURPLE_THEME_PRESET,
+  mono: MONO_THEME_PRESET,
 } as const
 
 export type PresetName = keyof typeof CSS_PRESETS
