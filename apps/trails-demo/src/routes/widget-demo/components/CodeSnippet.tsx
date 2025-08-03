@@ -129,14 +129,18 @@ export const App = () => {
       walletOptions && `walletOptions: ${JSON.stringify(walletOptions)}`,
       gasless && `gasless: true`,
       buttonText && `buttonText: '${buttonText}'`,
+      customCss && `customCss: \`${customCss}\``,
       onOriginConfirmation && `onOriginConfirmation: ${onOriginConfirmation}`,
       onDestinationConfirmation &&
         `onDestinationConfirmation: ${onDestinationConfirmation}`,
     ].filter(Boolean)
 
+    const hostname =
+      typeof window !== "undefined" ? window.location.host : "demo.trails.build"
+
     return `<div id="trails"></div>
 
-<script src="https://demo.trails.build/js/trails.min.js"></script>
+<script src="https://${hostname}/js/trails.min.js"></script>
 <script>
     TrailsWidget.render(document.getElementById('trails'), {
       ${props.join(",\n       ")}
