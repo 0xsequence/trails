@@ -459,7 +459,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
         <button
           type="button"
           onClick={() => setShowDetails(!showDetails)}
-          className="w-full flex items-center justify-center gap-2 py-1 px-4 rounded-[24px] transition-colors cursor-pointer text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+          className="w-full flex items-center justify-center gap-2 py-1 px-4 trails-border-radius-button transition-colors cursor-pointer text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
           aria-label={
             showDetails
               ? "Hide transaction details"

@@ -6,29 +6,6 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
-  /* Trails Widget Border Radius Variables */
-  --trails-border-radius-widget: 32px;
-  --trails-border-radius-button: 24px;
-  --trails-border-radius-input: 24px;
-  --trails-border-radius-dropdown: 12px;
-}
-
-/* Trails Widget Border Radius Classes */
-.trails-border-radius-widget {
-  border-radius: var(--trails-border-radius-widget);
-}
-
-.trails-border-radius-button {
-  border-radius: var(--trails-border-radius-button);
-}
-
-.trails-border-radius-input {
-  border-radius: var(--trails-border-radius-input);
-}
-
-.trails-border-radius-dropdown {
-  border-radius: var(--trails-border-radius-dropdown);
 }
 
 html,

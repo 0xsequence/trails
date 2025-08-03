@@ -1,6 +1,7 @@
 import type { SequenceIndexerGateway } from "@0xsequence/indexer"
 import { ChevronLeft, Search } from "lucide-react"
 import type React from "react"
+import { useEffect, useRef } from "react"
 import type { Token, TokenFormatted } from "../hooks/useTokenList.js"
 import { useTokenList } from "../hooks/useTokenList.js"
 import { TokenImage } from "./TokenImage.js"
@@ -25,6 +26,14 @@ export const TokenList: React.FC<TokenListProps> = ({
   onError,
   mode,
 }) => {
+  const searchInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    // Auto-focus the search input when component mounts
+    if (searchInputRef.current) {
+      searchInputRef.current.focus()
+    }
+  }, [])
   const {
     searchQuery,
     setSearchQuery,
@@ -54,7 +63,7 @@ export const TokenList: React.FC<TokenListProps> = ({
             <button
               type="button"
               onClick={onBack}
-              className={`p-2 rounded-full transition-colors cursor-pointer ${"hover:bg-gray-800 text-gray-400"}`}
+              className="p-2 rounded-full transition-colors cursor-pointer hover:trails-hover-bg text-gray-400"
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
@@ -72,9 +81,16 @@ export const TokenList: React.FC<TokenListProps> = ({
         </div>
 
         {totalBalanceUsd > 0 && mode !== "fund" && (
-          <p className={`text-xs mr-8 ${"text-gray-500 dark:text-gray-400"}`}>
-            Total balance: {totalBalanceUsdFormatted}
-          </p>
+          <div className="text-right max-w-[125px] mr-8">
+            <p className={`text-xs ${"text-gray-500 dark:text-gray-400"}`}>
+              Total balance:
+            </p>
+            <p
+              className={`text-xs font-medium ${"text-gray-900 dark:text-white"}`}
+            >
+              {totalBalanceUsdFormatted}
+            </p>
+          </div>
         )}
       </div>
 
@@ -84,11 +100,12 @@ export const TokenList: React.FC<TokenListProps> = ({
           <Search className={`h-5 w-5 ${"text-gray-500 dark:text-gray-500"}`} />
         </div>
         <input
+          ref={searchInputRef}
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search tokens"
-          className="block w-full pl-10 pr-3 py-2 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 trails-input"
+          className="block w-full pl-10 pr-3 py-2 border trails-border-radius-input focus:ring-2 focus:ring-blue-500 focus:border-blue-500 trails-input"
         />
       </div>
 
@@ -114,94 +131,94 @@ export const TokenList: React.FC<TokenListProps> = ({
         )}
 
       {/* Token List */}
-      <div className="divide-y divide-gray-200 dark:divide-gray-700/50 max-h-[35vh] overflow-y-auto rounded-[16px] custom-scrollbar trails-bg-card">
-        {filteredTokensFormatted.map((token: TokenFormatted) => {
-          const {
-            symbol,
-            imageUrl,
-            chainId,
-            contractAddress,
-            balanceUsdFormatted,
-            tokenName,
-            priceUsd,
-            balanceFormatted,
-            isSufficientBalance,
-          } = token
+      {filteredTokensFormatted.length > 0 && (
+        <div className="max-h-[35vh] overflow-y-auto trails-border-radius-list trails-scrollbar trails-list">
+          {filteredTokensFormatted.map((token: TokenFormatted) => {
+            const {
+              symbol,
+              imageUrl,
+              chainId,
+              contractAddress,
+              balanceUsdFormatted,
+              tokenName,
+              priceUsd,
+              balanceFormatted,
+              isSufficientBalance,
+            } = token
 
-          return (
-            <button
-              key={`${chainId}-${contractAddress}`}
-              type="button"
-              onClick={() => handleTokenSelect(token)}
-              title={
-                !isSufficientBalance
-                  ? "Insufficient balance for this token"
-                  : undefined
-              }
-              className={`w-full py-2.5 px-3 flex items-center space-x-3 transition-colors ${
-                isTokenSelected(token)
-                  ? "bg-gray-50 dark:bg-gray-800"
-                  : "hover:bg-gray-50 dark:hover:bg-gray-800/80"
-              } ${!isSufficientBalance ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-            >
-              <div className="relative flex-shrink-0">
-                <div
-                  className={`rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-700`}
-                >
-                  {contractAddress ? (
-                    <TokenImage
-                      symbol={symbol[0]}
-                      imageUrl={imageUrl}
-                      chainId={chainId}
-                      size={32}
-                    />
-                  ) : (
-                    <span className="text-base font-medium text-gray-600 dark:text-gray-300">
-                      {symbol}
-                    </span>
-                  )}
+            return (
+              <button
+                key={`${chainId}-${contractAddress}`}
+                type="button"
+                onClick={() => handleTokenSelect(token)}
+                title={
+                  !isSufficientBalance
+                    ? "Insufficient balance for this token"
+                    : undefined
+                }
+                className={`w-full py-2.5 px-3 flex items-center space-x-3 transition-colors trails-list-item border-b trails-border-list ${
+                  isTokenSelected(token) ? "bg-gray-50 dark:bg-gray-800" : ""
+                } ${!isSufficientBalance ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+              >
+                <div className="relative flex-shrink-0">
+                  <div
+                    className={`rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-700`}
+                  >
+                    {contractAddress ? (
+                      <TokenImage
+                        symbol={symbol[0]}
+                        imageUrl={imageUrl}
+                        chainId={chainId}
+                        size={32}
+                      />
+                    ) : (
+                      <span className="text-base font-medium text-gray-600 dark:text-gray-300">
+                        {symbol}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex-1 min-w-0 text-left">
-                <h3
-                  className={`text-sm font-medium truncate ${"text-gray-900 dark:text-white"} ${!isSufficientBalance ? "text-gray-500 dark:text-gray-500" : ""}`}
-                >
-                  {tokenName}
-                </h3>
-                <p
-                  className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${!isSufficientBalance ? "text-gray-600 dark:text-gray-600" : ""}`}
-                >
-                  {symbol}
-                </p>
-              </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <h3
+                    className={`text-sm font-medium truncate ${"text-gray-900 dark:text-white"} ${!isSufficientBalance ? "text-gray-500 dark:text-gray-500" : ""}`}
+                  >
+                    {tokenName}
+                  </h3>
+                  <p
+                    className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${!isSufficientBalance ? "text-gray-600 dark:text-gray-600" : ""}`}
+                  >
+                    {symbol}
+                  </p>
+                </div>
 
-              <div className="text-right flex-shrink-0">
-                {priceUsd > 0 ? (
-                  <>
+                <div className="text-right flex-shrink-0">
+                  {priceUsd > 0 ? (
+                    <>
+                      <p
+                        className={`text-sm font-medium ${"text-gray-900 dark:text-white"} ${!isSufficientBalance ? "text-gray-500 dark:text-gray-500" : ""}`}
+                      >
+                        {balanceUsdFormatted}
+                      </p>
+                      <p
+                        className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${!isSufficientBalance ? "text-gray-600 dark:text-gray-600" : ""}`}
+                      >
+                        {balanceFormatted}
+                      </p>
+                    </>
+                  ) : (
                     <p
                       className={`text-sm font-medium ${"text-gray-900 dark:text-white"} ${!isSufficientBalance ? "text-gray-500 dark:text-gray-500" : ""}`}
                     >
-                      {balanceUsdFormatted}
-                    </p>
-                    <p
-                      className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${!isSufficientBalance ? "text-gray-600 dark:text-gray-600" : ""}`}
-                    >
                       {balanceFormatted}
                     </p>
-                  </>
-                ) : (
-                  <p
-                    className={`text-sm font-medium ${"text-gray-900 dark:text-white"} ${!isSufficientBalance ? "text-gray-500 dark:text-gray-500" : ""}`}
-                  >
-                    {balanceFormatted}
-                  </p>
-                )}
-              </div>
-            </button>
-          )
-        })}
-      </div>
+                  )}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       {showInsufficientBalance && (
         <div
@@ -222,7 +239,7 @@ export const TokenList: React.FC<TokenListProps> = ({
             type="button"
             onClick={() => selectedToken && onContinue(selectedToken)}
             disabled={!selectedToken}
-            className={`w-full font-semibold py-3 px-4 rounded-[24px] transition-colors bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white disabled:text-gray-500 disabled:cursor-not-allowed cursor-pointer`}
+            className={`w-full font-semibold py-3 px-4 trails-border-radius-button transition-colors bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white disabled:text-gray-500 disabled:cursor-not-allowed cursor-pointer`}
           >
             Continue
           </button>

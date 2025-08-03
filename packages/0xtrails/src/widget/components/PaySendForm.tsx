@@ -184,7 +184,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className={`absolute -left-2 p-2 rounded-full transition-colors cursor-pointer ${"dark:hover:bg-gray-800 text-gray-400"}`}
+          className="absolute -left-2 p-2 rounded-full transition-colors cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 hover:trails-hover-bg text-gray-400"
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
@@ -193,7 +193,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
         </h2>
       </div>
 
-      <div className="flex items-center space-x-4 p-4 rounded-lg trails-bg-secondary">
+      <div className="flex items-center space-x-4 p-4 trails-border-radius-container trails-bg-secondary">
         <div className="flex items-start justify-between w-full">
           {/* Left side - Chain and Token images with token name */}
           <div className="flex items-start space-x-2">
@@ -247,7 +247,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               <button
                 type="button"
                 onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
-                className="w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 trails-dropdown"
+                className="w-full flex items-center px-4 py-3 border trails-border-radius-dropdown hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 trails-dropdown"
               >
                 <ChainImage chainId={selectedDestinationChain.id} size={24} />
                 <span className="ml-2 flex-1 text-left">
@@ -261,7 +261,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               </button>
 
               {isChainDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar trails-dropdown">
+                <div className="absolute z-10 w-full mt-1 border trails-border-radius-dropdown shadow-lg max-h-60 overflow-y-auto custom-scrollbar trails-dropdown">
                   {supportedChains.map((chain) => (
                     <button
                       key={chain.id}
@@ -310,7 +310,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               <button
                 type="button"
                 onClick={() => setIsTokenDropdownOpen(!isTokenDropdownOpen)}
-                className="w-full flex items-center px-4 py-3 border rounded-[24px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 trails-dropdown"
+                className="w-full flex items-center px-4 py-3 border trails-border-radius-dropdown hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 trails-dropdown"
               >
                 <div className="w-5 h-5 rounded-full flex items-center justify-center text-sm bg-gray-100 dark:bg-gray-700">
                   <TokenImage
@@ -330,7 +330,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               </button>
 
               {isTokenDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 border rounded-[24px] shadow-lg max-h-60 overflow-y-auto custom-scrollbar trails-dropdown">
+                <div className="absolute z-10 w-full mt-1 border trails-border-radius-dropdown shadow-lg max-h-60 overflow-y-auto custom-scrollbar trails-dropdown">
                   {supportedTokens.map((token) => (
                     <button
                       key={`${token.contractAddress}-${token.chainId}`}
@@ -375,14 +375,14 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
             >
               Amount to Receive
             </label>
-            <div className="relative rounded-lg">
+            <div className="relative trails-border-radius-container">
               <input
                 id="amount"
                 type="text"
                 value={amount}
                 onChange={(e) => handleAmountChange(e.target.value)}
                 placeholder="0.00"
-                className="block w-full pl-4 pr-12 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg trails-input"
+                className="block w-full pl-4 pr-12 py-3 border trails-border-radius-input focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg trails-input"
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-4">
                 <span className="text-gray-400">
@@ -490,7 +490,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
                       setRecipientInput(account.address)
                       setRecipient(account.address)
                     }}
-                    className={`px-2 py-1 text-xs cursor-pointer rounded-[24px] transition-colors bg-blue-500 hover:bg-blue-600 text-white`}
+                    className={`px-2 py-1 text-xs cursor-pointer trails-border-radius-button transition-colors bg-blue-500 hover:bg-blue-600 text-white`}
                   >
                     Use Account
                   </button>
@@ -503,7 +503,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               value={recipientInput}
               onChange={handleRecipientInputChange}
               placeholder="0x... or name.eth"
-              className="block w-full px-4 py-3 border rounded-[24px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm trails-input"
+              className="block w-full px-4 py-3 border trails-border-radius-input focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm trails-input"
             />
             {ensAddress && <p className="text-sm text-gray-400">{recipient}</p>}
           </div>
@@ -538,7 +538,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               isLoadingQuote ||
               !prepareSendQuote
             }
-            className={`w-full font-semibold py-3 px-4 rounded-[24px] transition-colors bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white disabled:text-gray-500 disabled:cursor-not-allowed cursor-pointer relative`}
+            className={`w-full font-semibold py-4 px-4 trails-border-radius-button transition-colors bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white disabled:text-gray-500 disabled:cursor-not-allowed cursor-pointer relative`}
           >
             {isSubmitting ? (
               <div className="flex items-center justify-center">
@@ -559,7 +559,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
             <button
               type="button"
               onClick={() => setShowMoreDetails(!showMoreDetails)}
-              className={`w-full flex items-center justify-center gap-2 py-1 px-4 rounded-[24px] transition-colors cursor-pointer text-xs ${"text-gray-400 hover:text-gray-300"}`}
+              className={`w-full flex items-center justify-center gap-2 py-1 px-4 trails-border-radius-button transition-colors cursor-pointer text-xs ${"text-gray-400 hover:text-gray-300"}`}
             >
               <span>More Details</span>
               <svg

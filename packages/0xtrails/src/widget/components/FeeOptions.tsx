@@ -98,7 +98,7 @@ export const FeeOptions: React.FC<FeeOptionsProps> = ({
         <button
           type="button"
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className="w-32 flex items-center px-3 py-2 border rounded-[16px] hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white border-gray-300 text-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+          className="w-32 flex items-center px-3 py-2 border trails-border-radius-container hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white border-gray-300 text-gray-900 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
         >
           {selectedOption ? (
             <>
@@ -124,7 +124,7 @@ export const FeeOptions: React.FC<FeeOptionsProps> = ({
         </button>
 
         {isDropdownOpen && (
-          <div className="absolute z-10 mt-1 border rounded-[16px] shadow-lg w-32 bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <div className="absolute z-10 mt-1 border trails-border-radius-container shadow-lg w-32 bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700">
             {options.map((option) => (
               <button
                 key={option.symbol}
@@ -136,7 +136,7 @@ export const FeeOptions: React.FC<FeeOptionsProps> = ({
                 className={`w-full flex items-center px-3 py-2 cursor-pointer text-sm ${
                   selectedOption?.symbol === option.symbol
                     ? "bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white"
-                    : "text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-700"
+                    : "text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 hover:trails-hover-bg"
                 }`}
               >
                 <div

@@ -5,22 +5,31 @@
 @tailwind components;
 @tailwind utilities;
 
+*:focus {
+  outline: none;
+}
+
 /* Trails Widget Theme Variables - Easy to customize */
 :root {
   /* Font Family - Customizable font for the entire widget */
---trails-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --trails-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
-/* Border Radius - Customizable border radius for the widget */
---trails-border-radius-widget: 32px; /* Main widget container border radius */
---trails-border-radius-button: 24px; /* Primary buttons border radius */
---trails-border-radius-input: 24px; /* Input fields border radius */
---trails-border-radius-dropdown: 12px; /* Dropdown border radius */
+  /* Border Radius - Customizable border radius for the widget */
+  --trails-border-radius-widget: 32px; /* Main widget container border radius */
+  --trails-border-radius-button: 32px; /* Primary buttons border radius */
+  --trails-border-radius-input: 32px; /* Input fields border radius */
+  --trails-border-radius-dropdown: 32px; /* Dropdown border radius now matches input and button */
+  --trails-border-radius-container: 8px; /* Container elements border radius (balance cards, etc.) */
+  --trails-border-radius-list: 8px; /* Token list border radius */
 
-/* Primary Colors - These apply to both themes */
---trails-primary: rgb(59 130 246); /* blue-500 - Change this to customize */
---trails-primary-hover: rgb(37 99 235); /* blue-600 - Change this for hover state */
---trails-primary-disabled: rgb(209 213 219); /* gray-300 - Disabled state */
---trails-primary-disabled-text: rgb(107 114 128); /* gray-500 - Disabled text */
+  /* Widget Border - Customizable widget border */
+  --trails-widget-border: 1px solid rgb(229 231 235); /* Default widget border */
+
+  /* Primary Colors - These apply to both themes */
+  --trails-primary: rgb(59 130 246); /* blue-500 - Change this to customize */
+  --trails-primary-hover: rgb(37 99 235); /* blue-600 - Change this for hover state */
+  --trails-primary-disabled: rgb(209 213 219); /* gray-300 - Disabled state */
+  --trails-primary-disabled-text: rgb(107 114 128); /* gray-500 - Disabled text */
 }
 
 /* Utility Classes that use CSS Variables */
@@ -84,9 +93,7 @@
   color: var(--trails-hover-text);
 }
 
-.trails-focus-ring:focus {
-  --tw-ring-color: var(--trails-focus-ring);
-}
+
 
 /* Font Family Utility Class */
 .trails-font {
@@ -110,6 +117,22 @@
   border-radius: var(--trails-border-radius-dropdown);
 }
 
+.trails-border-radius-container {
+  border-radius: var(--trails-border-radius-container);
+}
+
+.trails-border-radius-list {
+  border-radius: var(--trails-border-radius-list);
+}
+
+.trails-border-radius-container {
+  border-radius: var(--trails-border-radius-container);
+}
+
+.trails-widget-border {
+  border: var(--trails-widget-border);
+}
+
 /* Input Field Utility Classes */
 .trails-input {
   background-color: var(--trails-input-bg);
@@ -124,7 +147,7 @@
 
 .trails-input:focus {
   border-color: var(--trails-input-focus-border);
-  --tw-ring-color: var(--trails-input-focus-ring);
+  --tw-ring-color: var(--trails-input-focus-border);
 }
 
 /* Dropdown Utility Classes */
@@ -135,12 +158,31 @@
   border-radius: var(--trails-border-radius-dropdown);
 }
 
+.trails-dropdown:focus {
+  border-color: var(--trails-dropdown-focus-border, var(--trails-dropdown-border));
+  --tw-ring-color: var(--trails-dropdown-focus-border, var(--trails-dropdown-border));
+}
+
 .trails-dropdown-item {
   color: var(--trails-dropdown-text);
 }
 
 .trails-dropdown-item:hover {
   background-color: var(--trails-dropdown-hover-bg);
+}
+
+.trails-list-item:hover {
+  background-color: var(--trails-list-hover-bg);
+}
+
+/* Token List Utility Classes */
+.trails-list {
+  background-color: var(--trails-list-bg);
+  border: 1px solid var(--trails-list-border);
+}
+
+.trails-border-list {
+  border-color: var(--trails-list-border);
 }
 
 .trails-dropdown-item-selected {
@@ -172,7 +214,6 @@
   /* Interactive Colors */
   --trails-hover-bg: rgb(249 250 251); /* gray-50 */
   --trails-hover-text: rgb(17 24 39); /* gray-900 */
-  --trails-focus-ring: rgb(59 130 246); /* blue-500 */
 
   /* Input Field Colors */
   --trails-input-bg: rgb(255 255 255); /* white */
@@ -180,7 +221,6 @@
   --trails-input-text: rgb(17 24 39); /* gray-900 */
   --trails-input-placeholder: rgb(156 163 175); /* gray-400 */
   --trails-input-focus-border: rgb(59 130 246); /* blue-500 */
-  --trails-input-focus-ring: rgb(59 130 246); /* blue-500 */
 
   /* Dropdown Colors */
   --trails-dropdown-bg: rgb(255 255 255); /* white */
@@ -189,6 +229,23 @@
   --trails-dropdown-hover-bg: rgb(249 250 251); /* gray-50 */
   --trails-dropdown-selected-bg: rgb(243 244 246); /* gray-100 */
   --trails-dropdown-selected-text: rgb(17 24 39); /* gray-900 */
+  --trails-dropdown-focus-border: rgb(59 130 246); /* blue-500 - matches input focus border */
+
+  /* Token List Colors */
+  --trails-list-bg: rgb(255 255 255); /* white background for token list */
+  --trails-list-border: rgb(229 231 235); /* gray-200 border */
+  --trails-list-hover-bg: rgb(249 250 251); /* gray-50 hover */
+
+  /* Widget Border - Customizable widget border */
+  --trails-widget-border: none; /* Default widget border */
+
+  /* Border Radius - Customizable border radius for the widget */
+  --trails-border-radius-widget: 32px; /* Main widget container border radius */
+  --trails-border-radius-button: 32px; /* Primary buttons border radius */
+  --trails-border-radius-input: 32px; /* Input fields border radius */
+  --trails-border-radius-dropdown: 32px; /* Dropdown border radius */
+  --trails-border-radius-container: 8px; /* Container elements border radius (balance cards, etc.) */
+  --trails-border-radius-list: 8px; /* Token list border radius */
 
   /* Status Colors */
   --trails-success-bg: rgb(240 253 244); /* green-50 */
@@ -232,15 +289,13 @@
   /* Interactive Colors */
   --trails-hover-bg: rgb(55 65 81); /* gray-700 */
   --trails-hover-text: rgb(255 255 255); /* white */
-  --trails-focus-ring: rgb(59 130 246); /* blue-500 */
 
   /* Input Field Colors */
   --trails-input-bg: rgb(31 41 55); /* gray-800 */
   --trails-input-border: rgb(75 85 99); /* gray-600 */
   --trails-input-text: rgb(255 255 255); /* white */
   --trails-input-placeholder: rgb(107 114 128); /* gray-500 */
-  --trails-input-focus-border: rgb(59 130 246); /* blue-500 */
-  --trails-input-focus-ring: rgb(59 130 246); /* blue-500 */
+--trails-input-focus-border: rgb(59 130 246); /* blue-500 */
 
   /* Dropdown Colors */
   --trails-dropdown-bg: rgb(31 41 55); /* gray-800 */
@@ -249,6 +304,23 @@
   --trails-dropdown-hover-bg: rgb(55 65 81); /* gray-700 */
   --trails-dropdown-selected-bg: rgb(55 65 81); /* gray-700 */
   --trails-dropdown-selected-text: rgb(255 255 255); /* white */
+  --trails-dropdown-focus-border: rgb(59 130 246); /* blue-500 - matches input focus border */
+
+    /* Token List Colors */
+  --trails-list-bg: rgb(31 41 55); /* gray-800 background for token list */
+  --trails-list-border: rgb(55 65 81); /* gray-700 border - good balance */
+  --trails-list-hover-bg: rgb(55 65 81); /* gray-700 hover */
+
+  /* Widget Border - Customizable widget border */
+  --trails-widget-border: none; /* Default widget border */
+
+  /* Border Radius - Customizable border radius for the widget */
+  --trails-border-radius-widget: 32px; /* Main widget container border radius */
+  --trails-border-radius-button: 32px; /* Primary buttons border radius */
+  --trails-border-radius-input: 32px; /* Input fields border radius */
+  --trails-border-radius-dropdown: 32px; /* Dropdown border radius */
+  --trails-border-radius-container: 8px; /* Container elements border radius (balance cards, etc.) */
+  --trails-border-radius-list: 8px; /* Token list border radius */
 
   /* Status Colors */
   --trails-success-bg: rgb(22 163 74 / 0.2); /* green-600 with opacity */
@@ -269,42 +341,42 @@
 }
 
 /* Custom Scrollbar Styles */
-.custom-scrollbar {
+.trails-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: rgb(209 213 219) transparent;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
+.trails-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
+.trails-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
+.trails-scrollbar::-webkit-scrollbar-thumb {
   background-color: rgb(209 213 219);
   border-radius: 3px;
   transition: background-color 0.2s ease;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+.trails-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: rgb(156 163 175);
 }
 
 /* Dark mode scrollbar styles */
-[data-theme="dark"] .custom-scrollbar,
-.dark .custom-scrollbar {
+[data-theme="dark"] .trails-scrollbar,
+.dark .trails-scrollbar {
   scrollbar-color: rgb(75 85 99) transparent;
 }
 
-[data-theme="dark"] .custom-scrollbar::-webkit-scrollbar-thumb,
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+[data-theme="dark"] .trails-scrollbar::-webkit-scrollbar-thumb,
+.dark .trails-scrollbar::-webkit-scrollbar-thumb {
   background-color: rgb(75 85 99);
 }
 
-[data-theme="dark"] .custom-scrollbar::-webkit-scrollbar-thumb:hover,
-.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+[data-theme="dark"] .trails-scrollbar::-webkit-scrollbar-thumb:hover,
+.dark .trails-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: rgb(107 114 128);
 }
 
@@ -332,42 +404,42 @@
 /* Primary Button Override Classes - These will override Tailwind classes */
 /* Light mode primary button */
 .bg-blue-500 {
-  background-color: var(--trails-primary, rgb(59 130 246)) !important;
+  background-color: var(--trails-primary, rgb(59 130 246));
 }
 
 /* Dark mode primary button */
 .dark .bg-blue-500 {
-  background-color: var(--trails-primary, rgb(37 99 235)) !important; /* blue-600 for dark mode */
+  background-color: var(--trails-primary, rgb(37 99 235)); /* blue-600 for dark mode */
 }
 
 /* Light mode hover */
 .hover\:bg-blue-600:hover {
-  background-color: var(--trails-primary-hover, rgb(37 99 235)) !important;
+  background-color: var(--trails-primary-hover, rgb(37 99 235));
 }
 
 /* Dark mode hover */
 .dark .hover\:bg-blue-600:hover {
-  background-color: var(--trails-primary-hover, rgb(29 78 216)) !important; /* blue-700 for dark mode */
+  background-color: var(--trails-primary-hover, rgb(29 78 216)); /* blue-700 for dark mode */
 }
 
 /* Light mode disabled background */
 .disabled\:bg-gray-300:disabled {
-  background-color: var(--trails-primary-disabled, rgb(209 213 219)) !important;
+  background-color: var(--trails-primary-disabled, rgb(209 213 219));
 }
 
 /* Dark mode disabled background */
 .dark .disabled\:bg-gray-300:disabled {
-  background-color: rgb(55 65 81) !important; /* gray-700 for dark mode */
+  background-color: rgb(55 65 81); /* gray-700 for dark mode */
 }
 
 /* Light mode disabled text */
 .disabled\:text-gray-500:disabled {
-  color: var(--trails-primary-disabled-text, rgb(107 114 128)) !important;
+  color: var(--trails-primary-disabled-text, rgb(107 114 128));
 }
 
 /* Dark mode disabled text */
 .dark .disabled\:text-gray-500:disabled {
-  color: rgb(156 163 175) !important; /* gray-400 for dark mode */
+  color: rgb(156 163 175); /* gray-400 for dark mode */
 }
 
 /* Alternative approach: Direct color overrides */

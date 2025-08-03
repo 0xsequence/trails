@@ -655,6 +655,15 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           setSelectedToken(dummySelectedToken)
           setPrepareSendQuote(dummyQuote)
           setTransactionStates([])
+          setShowWalletConfirmRetry(false)
+          setCurrentScreen("wallet-confirmation")
+          break
+        case "wallet-confirmation-retry":
+          // Set dummy USDC token for debug mode
+          setSelectedToken(dummySelectedToken)
+          setPrepareSendQuote(dummyQuote)
+          setTransactionStates([])
+          setShowWalletConfirmRetry(true)
           setCurrentScreen("wallet-confirmation")
           break
         case "pending-1-item-0-confirmed":
@@ -1160,7 +1169,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             damping: 30,
             mass: 1,
           }}
-          className="flex flex-col min-h-[400px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto custom-scrollbar trails-bg-primary trails-text-primary trails-font trails-border-radius-widget"
+          className="flex flex-col min-h-[400px] shadow-xl p-4 sm:p-6 relative w-full sm:w-[400px] mx-auto custom-scrollbar trails-bg-primary trails-text-primary trails-font trails-border-radius-widget trails-widget-border"
           layout
           layoutId="modal-container"
           onClick={(e) => e.stopPropagation()}
@@ -1206,7 +1215,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsModalOpen(true)}
-            className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white cursor-pointer font-semibold py-3 px-6 shadow-sm transition-colors trails-border-radius-button"
+            className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white cursor-pointer font-semibold py-3 px-6 shadow-sm transition-colors trails-border-radius-button trails-font"
           >
             {buttonText || (mode === "fund" ? "Fund" : "Pay")}
           </motion.button>

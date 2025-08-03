@@ -131,7 +131,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 dark:hover:text-white"
+              className="w-full cursor-pointer font-semibold py-3 px-4 trails-border-radius-button transition-colors bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 dark:hover:text-white"
             >
               Close
             </button>
@@ -228,7 +228,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 dark:hover:text-white"
+            className="w-full cursor-pointer font-semibold py-3 px-4 trails-border-radius-button transition-colors bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 dark:hover:text-white"
           >
             Close
           </button>
@@ -236,7 +236,7 @@ export const Receipt: React.FC<ReceiptProps> = ({
         <button
           type="button"
           onClick={() => setShowDetails(!showDetails)}
-          className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-[24px] transition-colors cursor-pointer text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+          className="w-full flex items-center justify-center gap-2 py-2 px-4 trails-border-radius-button transition-colors cursor-pointer text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
         >
           <span>More Details</span>
           <svg

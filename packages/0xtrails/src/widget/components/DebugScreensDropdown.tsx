@@ -13,6 +13,7 @@ const SCREENS = [
   "Send Form",
   "Fund Form",
   "Wallet Confirmation",
+  "Wallet Confirmation Retry",
   "Pending 1-item-0-confirmed",
   "Pending 1-item-1-confirmed",
   "Pending 2-item-0-confirmed",
@@ -56,7 +57,7 @@ export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
               key={screen}
               type="button"
               onClick={() => {
-                onScreenSelect(screen?.toLowerCase().replace(" ", "-"))
+                onScreenSelect(screen?.toLowerCase().replaceAll(" ", "-"))
                 setIsOpen(false)
               }}
               className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"

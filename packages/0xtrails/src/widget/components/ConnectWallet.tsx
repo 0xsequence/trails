@@ -110,14 +110,14 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
             <button
               type="button"
               onClick={onContinue}
-              className="w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors bg-blue-500 hover:bg-blue-600 text-white"
+              className="w-full cursor-pointer font-semibold py-3 px-4 trails-border-radius-button transition-colors bg-blue-500 hover:bg-blue-600 text-white"
             >
               Continue
             </button>
             <button
               type="button"
               onClick={handleDisconnect}
-              className="w-full cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors border trails-bg-card trails-hover-bg trails-text-primary trails-border-primary"
+              className="w-full cursor-pointer font-semibold py-3 px-4 trails-border-radius-button transition-colors border trails-bg-card trails-hover-bg trails-text-primary trails-border-primary"
             >
               Disconnect
             </button>
@@ -131,7 +131,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
                 type="button"
                 key={wallet.id}
                 onClick={() => onConnect(wallet.id)}
-                className={`w-full flex items-center justify-center space-x-2 cursor-pointer font-semibold py-3 px-4 rounded-[24px] transition-colors ${getWalletButtonStyle(wallet.id)}`}
+                className={`w-full flex items-center justify-center space-x-2 cursor-pointer font-semibold py-3 px-4 trails-border-radius-button transition-colors ${getWalletButtonStyle(wallet.id)}`}
               >
                 {wallet.id === "privy" ? (
                   <>

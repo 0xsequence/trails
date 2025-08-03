@@ -13,7 +13,7 @@ export function ConnectButton() {
         <button
           type="button"
           onClick={() => appKit.open({ view: "Connect" })}
-          className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-[24px] transition-colors text-sm font-medium cursor-pointer"
+          className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white trails-border-radius-button transition-colors text-sm font-medium cursor-pointer"
         >
           Connect wallet
         </button>

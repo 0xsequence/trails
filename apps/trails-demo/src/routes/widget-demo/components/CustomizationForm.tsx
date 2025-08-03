@@ -871,7 +871,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
       if (
         presetName === "dark" ||
         presetName === "purple" ||
-        presetName === "square"
+        presetName === "square" ||
+        presetName === "binance" ||
+        presetName === "neon" ||
+        presetName === "sequence"
       ) {
         setTheme("dark")
       } else {
@@ -1614,12 +1617,70 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       </button>
                       <button
                         type="button"
+                        onClick={() => applyPreset("square")}
+                        className="px-2 py-1 text-white text-xs font-medium cursor-pointer"
+                        style={
+                          {
+                            backgroundColor: "rgb(31 41 55)",
+                            "--tw-hover-bg": "rgb(31 41 55)",
+                            borderRadius: "0px",
+                            fontFamily: '"Courier New", "Courier", monospace',
+                          } as React.CSSProperties
+                        }
+                      >
+                        Square
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("mono")}
+                        className="px-2 py-1 bg-white border border-black text-gray-900 hover:bg-gray-50 rounded text-xs font-medium cursor-pointer"
+                        style={
+                          {
+                            fontFamily: "monospace",
+                          } as React.CSSProperties
+                        }
+                      >
+                        Mono
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("neon")}
+                        className="px-2 py-1 text-black rounded text-xs font-medium cursor-pointer"
+                        style={
+                          {
+                            backgroundColor: "rgb(0 0 0)",
+                            color: "rgb(0 255 255)",
+                            "--tw-hover-bg": "rgb(0 200 200)",
+                            fontFamily: '"Courier New", "Courier", monospace',
+                          } as React.CSSProperties
+                        }
+                      >
+                        Neon
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("gray")}
+                        className="px-2 py-1 text-white rounded text-xs font-medium cursor-pointer"
+                        style={
+                          {
+                            backgroundColor: "rgb(153 158 169)",
+                            "--tw-hover-bg": "rgb(75 85 99)",
+                            fontFamily: '"Arial", "Helvetica", sans-serif',
+                          } as React.CSSProperties
+                        }
+                      >
+                        Gray
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => applyPreset("green")}
                         className="px-2 py-1 text-white rounded text-xs font-medium cursor-pointer"
                         style={
                           {
                             backgroundColor: "rgb(16 185 129)",
                             "--tw-hover-bg": "rgb(5 150 105)",
+                            fontFamily:
+                              '"Comic Sans MS", "Chalkboard SE", "Comic Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
                           } as React.CSSProperties
                         }
                       >
@@ -1633,6 +1694,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           {
                             backgroundColor: "rgb(59 130 246)",
                             "--tw-hover-bg": "rgb(37 99 235)",
+                            fontFamily: '"Times New Roman", "Times", serif',
                           } as React.CSSProperties
                         }
                       >
@@ -1640,68 +1702,102 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       </button>
                       <button
                         type="button"
-                        onClick={() => applyPreset("gray")}
+                        onClick={() => applyPreset("metamask")}
                         className="px-2 py-1 text-white rounded text-xs font-medium cursor-pointer"
                         style={
                           {
-                            backgroundColor: "rgb(107 114 128)",
-                            "--tw-hover-bg": "rgb(75 85 99)",
+                            backgroundColor: "white",
+                            color: "rgb(242 101 34)",
+                            border: "1px solid rgb(242 101 34)",
+                            "--tw-hover-bg": "rgb(220 92 31)",
+                            fontFamily: '"Tahoma", "Arial", sans-serif',
                           } as React.CSSProperties
                         }
                       >
-                        Gray
+                        MetaMask
                       </button>
                       <button
                         type="button"
-                        onClick={() => applyPreset("dark")}
-                        className="px-2 py-1 text-yellow-500 rounded text-xs font-medium cursor-pointer"
-                        style={
-                          {
-                            backgroundColor: "rgb(0 0 0)",
-                            "--tw-hover-bg": "rgb(20 20 20)",
-                          } as React.CSSProperties
-                        }
-                      >
-                        Dark
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => applyPreset("purple")}
+                        onClick={() => applyPreset("coinbase")}
                         className="px-2 py-1 text-white rounded text-xs font-medium cursor-pointer"
                         style={
                           {
-                            backgroundColor: "rgb(147 51 234)",
-                            "--tw-hover-bg": "rgb(126 34 206)",
+                            backgroundColor: "white",
+                            color: "rgb(0 82 204)",
+                            border: "1px solid rgb(0 82 204)",
+                            "--tw-hover-bg": "rgb(0 66 163)",
+                            fontFamily: '"Trebuchet MS", "Arial", sans-serif',
                           } as React.CSSProperties
                         }
                       >
-                        Purple
+                        Coinbase
                       </button>
                       <button
                         type="button"
-                        onClick={() => applyPreset("mono")}
-                        className="px-2 py-1 bg-white border border-gray-300 text-gray-900 hover:bg-gray-50 rounded text-xs font-medium cursor-pointer"
+                        onClick={() => applyPreset("binance")}
+                        className="px-2 py-1 text-black rounded text-xs font-medium cursor-pointer"
                         style={
                           {
-                            fontFamily: "monospace",
+                            backgroundColor: "black",
+                            color: "rgb(245 158 11)",
+                            "--tw-hover-bg": "rgb(217 119 6)",
+                            fontFamily:
+                              '"Lucida Sans Unicode", "Lucida Grande", sans-serif',
                           } as React.CSSProperties
                         }
                       >
-                        Mono
+                        Binance
                       </button>
                       <button
                         type="button"
-                        onClick={() => applyPreset("square")}
-                        className="px-2 py-1 text-white text-xs font-medium cursor-pointer"
+                        onClick={() => applyPreset("uniswap")}
+                        className="px-2 py-1 text-white rounded text-xs font-medium cursor-pointer"
                         style={
                           {
-                            backgroundColor: "rgb(17 24 39)",
-                            "--tw-hover-bg": "rgb(31 41 55)",
+                            backgroundColor: "white",
+                            color: "rgb(255 0 199)",
+                            border: "1px solid rgb(255 0 199)",
+                            "--tw-hover-bg": "rgb(230 0 179)",
+                            fontFamily: '"Century Gothic", "Arial", sans-serif',
+                          } as React.CSSProperties
+                        }
+                      >
+                        Uniswap
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("win95")}
+                        className="px-2 py-1 text-xs font-medium cursor-pointer border border-gray-400"
+                        style={
+                          {
+                            backgroundColor: "#c0c0c0",
+                            color: "#222",
+                            fontFamily:
+                              '"MS Sans Serif", "Tahoma", "Geneva", sans-serif',
                             borderRadius: "0px",
+                            boxShadow: "2px 2px 0 #fff, 4px 4px 0 #808080",
                           } as React.CSSProperties
                         }
                       >
-                        Square
+                        Win95
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("sequence")}
+                        className="px-2 py-1 text-xs font-medium cursor-pointer"
+                        style={
+                          {
+                            background:
+                              "linear-gradient(135deg, #4411E1 0%, #7537F9 100%)",
+                            color: "#ffffff",
+                            fontFamily:
+                              '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                            borderRadius: "8px",
+                            border: "none",
+                          } as React.CSSProperties
+                        }
+                      >
+                        Sequence
                       </button>
                     </div>
                   </div>

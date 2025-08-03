@@ -43,7 +43,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className="absolute left-0 top-0 p-2 rounded-full transition-colors cursor-pointer hover:bg-gray-100 text-gray-600 dark:hover:bg-gray-800 dark:text-gray-400"
+          className="absolute left-0 top-0 p-2 rounded-full transition-colors cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 hover:trails-hover-bg text-gray-600 dark:text-gray-400"
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
@@ -92,7 +92,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
           <button
             type="button"
             onClick={() => setShowDetails(!showDetails)}
-            className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-[24px] transition-colors cursor-pointer text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            className="w-full flex items-center justify-center gap-2 py-2 px-4 trails-border-radius-button transition-colors cursor-pointer text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
           >
             <span>More Details</span>
             <svg
@@ -160,7 +160,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
             <button
               type="button"
               onClick={onRetry}
-              className="w-full px-4 py-2 rounded-lg font-medium transition-colors cursor-pointer bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
+              className="w-full px-4 py-2 trails-border-radius-button font-medium transition-colors cursor-pointer bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700"
             >
               Try Again
             </button>
