@@ -34,7 +34,6 @@ import {
   TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
   TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
   TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS,
-  DEFAULT_USE_V3_RELAYERS,
 } from "./constants.js"
 import { getERC20TransferData } from "./encoders.js"
 import type {
@@ -52,6 +51,7 @@ import type { MetaTxn } from "./metaTxnMonitor.js"
 import { useMetaTxnsMonitor } from "./metaTxnMonitor.js"
 import { findPreconditionAddresses } from "./preconditions.js"
 import { getBackupRelayer, useRelayers } from "./relayer.js"
+import { getSequenceUseV3Relayers } from "./config.js"
 
 export type WagmiAccount = {
   address: `0x${string}`
@@ -181,7 +181,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     account,
     disableAutoExecute = false,
     env,
-    useV3Relayers = DEFAULT_USE_V3_RELAYERS,
+    useV3Relayers = getSequenceUseV3Relayers(),
     sequenceProjectAccessKey,
   } = config
   const apiClient = useAPIClient({ projectAccessKey: sequenceProjectAccessKey })

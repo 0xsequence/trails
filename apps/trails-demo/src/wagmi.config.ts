@@ -1,12 +1,11 @@
 import * as chains from "viem/chains"
 import { createConfig, http } from "wagmi"
 import { injected, metaMask } from "wagmi/connectors"
+import { sequenceProjectAccessKey } from "./config"
 
 // import { sequenceWallet } from '@0xsequence/wagmi-connector'
 
-const projectAccessKey = import.meta.env.VITE_PROJECT_ACCESS_KEY
-
-if (!projectAccessKey) {
+if (!sequenceProjectAccessKey) {
   console.warn(
     "VITE_PROJECT_ACCESS_KEY is not set in .env file. Sequence connector may not work correctly.",
   )

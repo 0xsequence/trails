@@ -1,6 +1,16 @@
 import type { Hex } from "viem"
 import * as chains from "viem/chains"
 
+export const sequenceProjectAccessKey = import.meta.env.VITE_PROJECT_ACCESS_KEY
+export const sequenceApiUrl =
+  import.meta.env.VITE_API_URL || "https://v3-api.sequence.app"
+export const sequenceIndexerUrl =
+  import.meta.env.VITE_INDEXER_URL || "https://indexer.sequence.app"
+export const sequenceEnv = import.meta.env.VITE_ENV
+export const privyAppId = import.meta.env.VITE_PRIVY_APP_ID
+export const privyClientId = import.meta.env.VITE_PRIVY_CLIENT_ID
+export const reownProjectId = import.meta.env.VITE_REOWN_PROJECT_ID // WalletConnect Project ID
+
 export const LANDING_PAGE_URL = "https://trails.build/"
 export const DOCS_URL = "https://docs.trails.build/"
 export const DEMOS_URL = "https://demo.trails.build/"
@@ -35,3 +45,4 @@ export const PAY_AMOUNT_FORMATTED = "0.1"
 export const PAY_DISPLAY_TEXT = `(Donate $${PAY_AMOUNT_FORMATTED} ${PAY_TOKEN_SYMBOL})`
 
 export const GIT_COMMIT_SHA = import.meta.env.VITE_COMMIT_SHA || ""
+export const pageAuthPassword = import.meta.env.VITE_AUTH_PASSWORD

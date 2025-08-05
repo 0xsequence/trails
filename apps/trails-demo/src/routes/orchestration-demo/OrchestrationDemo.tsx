@@ -17,6 +17,7 @@ import {
   PAY_CHAIN_ID,
   PAY_RECIPIENT_ADDRESS,
   PAY_TOKEN_ADDRESS,
+  sequenceEnv,
 } from "@/config"
 import { AccountInfoSection } from "@/routes/orchestration-demo/components/AccountInfoSection"
 import { AdvancedControlsSection } from "@/routes/orchestration-demo/components/AdvancedControlsSection"
@@ -96,7 +97,7 @@ function useOrchestrationDemo() {
     originCallSuccess,
   } = useTrails({
     account: account as WagmiAccount,
-    env: import.meta.env.VITE_ENV,
+    env: sequenceEnv,
   })
 
   useEffect(() => {

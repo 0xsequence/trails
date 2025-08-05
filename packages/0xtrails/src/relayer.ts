@@ -2,8 +2,10 @@ import { Relayer } from "@0xsequence/wallet-core"
 import fetch from "isomorphic-fetch"
 import { useMemo } from "react"
 import { getChainInfo } from "./chains.js"
-import { DEFAULT_USE_V3_RELAYERS } from "./constants.js"
-import { getSequenceProjectAccessKey } from "./config.js"
+import {
+  getSequenceProjectAccessKey,
+  getSequenceUseV3Relayers,
+} from "./config.js"
 
 export type RelayerOperationStatus = Relayer.OperationStatus
 export type RpcRelayer = Relayer.Standard.Rpc.RpcRelayer
@@ -244,7 +246,7 @@ export function getRelayer(
 
 export function useRelayers(
   config: RelayerEnvConfig = {
-    useV3Relayers: DEFAULT_USE_V3_RELAYERS,
+    useV3Relayers: getSequenceUseV3Relayers(),
   },
 ): {
   relayers: Map<number, Relayer.Standard.Rpc.RpcRelayer>

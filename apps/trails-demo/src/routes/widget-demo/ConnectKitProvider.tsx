@@ -10,14 +10,13 @@ import type { Transport } from "wagmi"
 import * as chains from "viem/chains"
 import { useTheme } from "@/contexts/ThemeContext"
 import { connectors } from "./connectors"
+import { reownProjectId } from "../../config"
 
 interface ConnectKitProviderProps {
   children: React.ReactNode
 }
 
 type ConnectKitChain = any
-
-const REOWN_PROJECT_ID = import.meta.env.VITE_REOWN_PROJECT_ID
 
 export const ConnectProvider = ({ children }: ConnectKitProviderProps) => {
   const { theme } = useTheme()
@@ -43,7 +42,7 @@ export const ConnectProvider = ({ children }: ConnectKitProviderProps) => {
       }),
 
       // WalletConnect configuration
-      walletConnectProjectId: REOWN_PROJECT_ID,
+      walletConnectProjectId: reownProjectId,
 
       // App metadata
       appName: "Trails",

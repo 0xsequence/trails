@@ -8,9 +8,9 @@ export const TRAILS_RELAY_SAPIENT_SIGNER_ADDRESS =
 export const TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS =
   "0xc1A9B197eBb31Fc2B613C59dAC3f3E5698A429D0"
 
-export const DEFAULT_INDEXER_GATEWAY_URL = "https://dev-indexer.sequence.app"
-export const DEFAULT_API_URL = "https://v3-api.sequence.app"
-export const DEFAULT_ENV = "dev"
+export const DEFAULT_SEQUENCE_INDEXER_URL = "https://dev-indexer.sequence.app"
+export const DEFAULT_SEQUENCE_API_URL = "https://v3-api.sequence.app"
+export const DEFAULT_SEQUENCE_ENV = "dev"
 
 export const intentEntrypoints: Record<number, `0x${string}`> = {
   8453: "0x2bf4c63199eD7D8A737E8DB2cC19E0C0103F6bE3",

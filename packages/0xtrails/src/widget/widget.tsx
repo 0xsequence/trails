@@ -64,7 +64,12 @@ import {
   getIsWalletRejectedError,
   getIsBalanceTooLowError,
 } from "../error.js"
-import { setSequenceProjectAccessKey } from "../config.js"
+import {
+  setSequenceIndexerUrl,
+  setSequenceApiUrl,
+  setSequenceProjectAccessKey,
+  setSequenceUseV3Relayers,
+} from "../config.js"
 import { FundSendForm } from "./components/FundSendForm.js"
 import type { Mode } from "../mode.js"
 
@@ -96,6 +101,7 @@ interface Token {
 
 export type TrailsWidgetProps = {
   appId: string
+  sequenceUseV3Relayers?: boolean
   sequenceIndexerUrl?: string | null
   sequenceApiUrl?: string | null
   sequenceEnv?: RelayerEnv
@@ -1251,7 +1257,21 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       if (props.appId) {
         setSequenceProjectAccessKey(props.appId)
       }
-    }, [props.appId])
+      if (typeof props.sequenceUseV3Relayers === "boolean") {
+        setSequenceUseV3Relayers(props.sequenceUseV3Relayers)
+      }
+      if (props.sequenceIndexerUrl) {
+        setSequenceIndexerUrl(props.sequenceIndexerUrl)
+      }
+      if (props.sequenceApiUrl) {
+        setSequenceApiUrl(props.sequenceApiUrl)
+      }
+    }, [
+      props.appId,
+      props.sequenceUseV3Relayers,
+      props.sequenceIndexerUrl,
+      props.sequenceApiUrl,
+    ])
 
     // Check if privy is in walletOptions
     // const walletOptions = props.walletOptions || defaultWalletOptions

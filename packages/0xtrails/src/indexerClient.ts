@@ -1,8 +1,7 @@
 import { useConfig } from "@0xsequence/hooks"
 import { SequenceIndexerGateway } from "@0xsequence/indexer"
 import { useMemo } from "react"
-import { DEFAULT_INDEXER_GATEWAY_URL } from "./constants.js"
-import { getSequenceProjectAccessKey } from "./config.js"
+import { getSequenceIndexerUrl, getSequenceProjectAccessKey } from "./config.js"
 
 export type IndexerGatewayConfig = {
   indexerGatewayUrl?: string
@@ -11,7 +10,7 @@ export type IndexerGatewayConfig = {
 }
 
 export function getIndexerGatewayClient({
-  indexerGatewayUrl = DEFAULT_INDEXER_GATEWAY_URL,
+  indexerGatewayUrl = getSequenceIndexerUrl(),
   projectAccessKey = getSequenceProjectAccessKey(),
   jwt,
 }: IndexerGatewayConfig): SequenceIndexerGateway {

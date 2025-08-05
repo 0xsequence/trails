@@ -2,16 +2,16 @@ import { useEffect, useState, useRef, useCallback } from "react"
 import type { Mode } from "0xtrails"
 import { CustomizationForm, STORAGE_KEYS } from "./components/CustomizationForm"
 import { OutputScreen } from "./components/OutputScreen"
+import {
+  sequenceProjectAccessKey as defaultSequenceProjectAccessKey,
+  sequenceApiUrl,
+  sequenceIndexerUrl,
+  sequenceEnv,
+  privyAppId,
+  privyClientId,
+} from "../../config"
 
 export const WidgetDemo = () => {
-  const defaultSequenceProjectAccessKey = import.meta.env
-    .VITE_PROJECT_ACCESS_KEY
-  const apiUrl = import.meta.env.VITE_API_URL
-  const indexerUrl = import.meta.env.VITE_INDEXER_URL
-  const env = import.meta.env.VITE_ENV
-  const privyAppId = import.meta.env.VITE_PRIVY_APP_ID
-  const privyClientId = import.meta.env.VITE_PRIVY_CLIENT_ID
-
   const [sequenceProjectAccessKey, setSequenceProjectAccessKey] = useState("")
   const [toAddress, setToAddress] = useState("")
   const [toAmount, setToAmount] = useState("")
@@ -220,9 +220,9 @@ export const WidgetDemo = () => {
                 gasless={gasless}
                 buttonText={buttonText}
                 customCss={customCss}
-                apiUrl={apiUrl}
-                indexerUrl={indexerUrl}
-                env={env}
+                apiUrl={sequenceApiUrl}
+                indexerUrl={sequenceIndexerUrl}
+                env={sequenceEnv}
                 privyAppId={privyAppId}
                 privyClientId={privyClientId}
                 defaultSequenceProjectAccessKey={

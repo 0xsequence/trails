@@ -5,9 +5,7 @@ import {
   coinbaseWallet,
 } from "@wagmi/connectors"
 import type { CreateConnectorFn } from "wagmi"
-
-// Get projectId
-const walletConnectProjectId = import.meta.env.VITE_REOWN_PROJECT_ID
+import { reownProjectId } from "../../config"
 
 // Create metadata object
 const metadata = {
@@ -43,15 +41,15 @@ connectors.push(
     overrideIsMetaMask: false,
     preference: {
       telemetry: false,
-    },
+    } as any,
   }),
 )
 
-if (walletConnectProjectId) {
+if (reownProjectId) {
   connectors.push(
     walletConnect({
       showQrModal: false,
-      projectId: walletConnectProjectId,
+      projectId: reownProjectId,
       metadata,
     }),
   )

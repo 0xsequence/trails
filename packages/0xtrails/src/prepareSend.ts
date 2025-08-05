@@ -52,7 +52,7 @@ import {
 import type { Attestation } from "./cctp.js"
 import { getChainInfo, getTestnetChainInfo } from "./chains.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
-import { DEFAULT_USE_V3_RELAYERS, intentEntrypoints } from "./constants.js"
+import { intentEntrypoints } from "./constants.js"
 import { getERC20TransferData } from "./encoders.js"
 import { getExplorerUrl } from "./explorer.js"
 import {
@@ -77,7 +77,7 @@ import {
 import { findFirstPreconditionForChainId } from "./preconditions.js"
 import { calcAmountUsdPrice, useTokenPrice } from "./prices.js"
 import { getQueryParam } from "./queryParams.js"
-import type { RelayerEnvConfig } from "./relayer.js"
+import type { RelayerEnvConfig, RelayerEnv } from "./relayer.js"
 import { useRelayers } from "./relayer.js"
 import {
   executeSimpleRelayTransaction,
@@ -113,6 +113,7 @@ import { requestWithTimeout } from "./utils.js"
 import { InsufficientBalanceError } from "./error.js"
 import { estimateGasCostUsd } from "./estimate.js"
 import { wrapCalldataWithProxyCallerIfNeeded } from "./proxyCaller.js"
+import { getSequenceUseV3Relayers, getSequenceEnv } from "./config.js"
 
 export enum TradeType {
   EXACT_INPUT = "EXACT_INPUT",
@@ -2331,8 +2332,8 @@ export function useQuote({
 }: Partial<UseQuoteProps> = {}): UseQuoteReturn {
   const apiClient = useAPIClient()
   const { getRelayer } = useRelayers({
-    env: "dev",
-    useV3Relayers: DEFAULT_USE_V3_RELAYERS,
+    env: getSequenceEnv() as RelayerEnv,
+    useV3Relayers: getSequenceUseV3Relayers(),
   })
   const indexerGatewayClient = useIndexerGatewayClient()
 

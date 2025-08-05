@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import TrailsLogo from "../assets/Trails-logo-black.svg"
+import { pageAuthPassword as expectedPassword } from "../config"
 
 interface AuthPageProps {
   onAuthSuccess: () => void
@@ -16,9 +17,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onAuthSuccess }) => {
     e.preventDefault()
     setIsLoading(true)
     setError("")
-
-    // Get password from environment variable
-    const expectedPassword = import.meta.env.VITE_AUTH_PASSWORD
 
     if (!expectedPassword) {
       setError("Authentication not configured")

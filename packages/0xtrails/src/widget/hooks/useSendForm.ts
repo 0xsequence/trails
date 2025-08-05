@@ -38,7 +38,7 @@ import {
   useTokenAddress,
   useTokenInfo,
 } from "../../tokens.js"
-import { DEFAULT_USE_V3_RELAYERS } from "../../constants.js"
+import { getSequenceUseV3Relayers } from "../../config.js"
 
 export interface Token {
   id: number
@@ -414,7 +414,7 @@ export function useSendForm({
   )
   const balanceUsdDisplay = selectedToken.balanceUsdFormatted ?? ""
   const relayerConfig = useMemo(
-    () => ({ env, useV3Relayers: DEFAULT_USE_V3_RELAYERS }),
+    () => ({ env, useV3Relayers: getSequenceUseV3Relayers() }),
     [env],
   )
 
