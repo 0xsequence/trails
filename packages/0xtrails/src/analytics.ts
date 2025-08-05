@@ -288,9 +288,9 @@ abstract class BaseAnalytics {
         takerFeeUSD: data.takerFeeUSD?.toString(),
         providerFeeUSD: data.providerFeeUSD?.toString(),
         trailsSwapFeeUSD: data.trailsSwapFeeUSD?.toString(),
-        gasFeesPerChainUSD: data.gasFeesPerChainUSD?.map((fee) =>
-          fee?.toString(),
-        ),
+        gasFeesPerChainUSD: data.gasFeesPerChainUSD
+          ?.map((fee) => fee?.toString())
+          .join(","),
         originTokenTotalAmount: data.originTokenTotalAmount?.toString(),
         destinationTokenAmount: data.destinationTokenAmount?.toString(),
         provider: data.provider,

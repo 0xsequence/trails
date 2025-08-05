@@ -29,10 +29,6 @@ export function getSequenceProjectAccessKey() {
 
 export function setSequenceProjectAccessKey(sequenceProjectAccessKey: string) {
   globalConfig.sequenceProjectAccessKey = sequenceProjectAccessKey
-
-  if (sequenceProjectAccessKey !== DEFAULT_SEQUENCE_PROJECT_ACCESS_KEY) {
-    setRpcSequenceProjectAccessKey(sequenceProjectAccessKey)
-  }
 }
 
 export function getRpcSequenceProjectAccessKey() {
