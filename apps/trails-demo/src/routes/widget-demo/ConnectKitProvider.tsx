@@ -9,6 +9,7 @@ import {
 import type { Transport } from "wagmi"
 import * as chains from "viem/chains"
 import { useTheme } from "@/contexts/ThemeContext"
+import { connectors } from "./connectors"
 
 interface ConnectKitProviderProps {
   children: React.ReactNode
@@ -24,6 +25,7 @@ export const ConnectProvider = ({ children }: ConnectKitProviderProps) => {
   // Create wagmi config with ConnectKit defaults
   const config = createConfig(
     getDefaultConfig({
+      connectors,
       enableFamily: false,
       chains: (
         Object.values(chains) as [ConnectKitChain, ...ConnectKitChain[]]
