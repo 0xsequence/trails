@@ -29,7 +29,7 @@ export const DEFAULT_RPC_SEQUENCE_PROJECT_ACCESS_KEY =
   "AQAAAAAAAJbd_5JOcE50AqglZCtvu51YlGI"
 
 // This is used for getting v3 relayer URLS
-export const DEFAULT_USE_V3_RELAYERS = true
+export const DEFAULT_USE_V3_RELAYERS = false
 
 export const DATABEAT_SERVER = "https://databeat.sequence.app"
 export const DATABEAT_KEY =
