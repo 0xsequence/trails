@@ -18,7 +18,7 @@ jobs:
         run: pnpm run build
       - name: Prepare dist branch
         run: |
-          PACKAGES=("0xtrails")
+          PACKAGES=("0xtrails" "trails-api" "trails-relayer")
 
           for PACKAGE in "${PACKAGES[@]}"; do
             BRANCH="dists/$PACKAGE"
@@ -43,10 +43,12 @@ jobs:
               const path = require("path");
               const pkgPath = path.resolve("package.json");
               const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
-              const repo = "github:0xsequence/sequence.js";
+              const repo = "github:0xsequence/trails";
 
               const versions = {
                 "0xtrails": `${repo}#dists/packages/0xtrails`,
+                "trails-api": `${repo}#dists/packages/trails-api`,
+                "trails-relayer": `${repo}#dists/packages/trails-relayer`,
               };
 
               const rewrite = (deps = {}) => {
