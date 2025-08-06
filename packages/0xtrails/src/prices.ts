@@ -192,5 +192,11 @@ export function calcAmountUsdPrice({
   amount: number | string
   usdPrice: string | number | null | undefined
 }) {
-  return Number(amount) * Number(usdPrice || 0)
+  return normalizeNumber(amount) * normalizeNumber(usdPrice)
+}
+
+export function normalizeNumber(
+  number: number | string | null | undefined,
+): number {
+  return Number(number?.toString().replace(/[^0-9.-]/g, "") || 0)
 }

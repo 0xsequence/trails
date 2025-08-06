@@ -528,6 +528,19 @@ export function useSendForm({
         }
       }
 
+      if (
+        !destinationTokenPriceUsd &&
+        selectedToken.symbol === selectedDestToken.symbol
+      ) {
+        destinationTokenPriceUsd = sourceTokenPriceUsd
+      }
+      if (
+        !sourceTokenPriceUsd &&
+        selectedToken.symbol === selectedDestToken.symbol
+      ) {
+        sourceTokenPriceUsd = destinationTokenPriceUsd
+      }
+
       if (!sourceTokenPriceUsd || !destinationTokenPriceUsd) {
         console.warn("[trails-sdk] Missing token prices for quote", {
           sourceTokenPriceUsd,
