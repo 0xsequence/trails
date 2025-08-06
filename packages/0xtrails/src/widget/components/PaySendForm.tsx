@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
 import type React from "react"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import type { Account, WalletClient } from "viem"
 import { isAddress } from "viem"
 import type { TransactionState } from "../../transactions.js"
@@ -61,8 +61,6 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
   gasless,
   setWalletConfirmRetryHandler,
 }) => {
-  // Local state for showing more details
-  const [showMoreDetails, setShowMoreDetails] = useState(false)
   const {
     amount,
     amountUsdDisplay,
@@ -179,7 +177,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center relative">
         <button
           type="button"
@@ -193,7 +191,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
         </h2>
       </div>
 
-      <div className="flex items-center space-x-4 p-4 trails-border-radius-container trails-bg-secondary">
+      <div className="flex items-center space-x-2 p-4 trails-border-radius-container trails-bg-secondary">
         <div className="flex items-start justify-between w-full">
           {/* Left side - Chain and Token images with token name */}
           <div className="flex items-start space-x-2">
@@ -526,61 +524,35 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
           onSelect={setSelectedFeeToken}
         />
 
-        <div className="flex flex-col space-y-3 pt-2">
-          <button
-            type="submit"
-            disabled={
-              !amount ||
-              !isValidRecipient ||
-              isSubmitting ||
-              !destinationTokenAddress ||
-              !isValidCustomToken ||
-              isLoadingQuote ||
-              !prepareSendQuote
-            }
-            className={`w-full font-semibold py-4 px-4 trails-border-radius-button transition-colors bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white disabled:text-gray-500 disabled:cursor-not-allowed cursor-pointer relative`}
-          >
-            {isSubmitting ? (
-              <div className="flex items-center justify-center">
-                <Loader2
-                  className={`w-5 h-5 animate-spin mr-2 ${"text-gray-400"}`}
-                />
-                <span>{buttonText}</span>
-              </div>
-            ) : (
-              buttonText
-            )}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={
+            !amount ||
+            !isValidRecipient ||
+            isSubmitting ||
+            !destinationTokenAddress ||
+            !isValidCustomToken ||
+            isLoadingQuote ||
+            !prepareSendQuote
+          }
+          className={`w-full font-semibold py-4 px-4 trails-border-radius-button transition-colors bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white disabled:text-gray-500 disabled:cursor-not-allowed cursor-pointer relative`}
+        >
+          {isSubmitting ? (
+            <div className="flex items-center justify-center">
+              <Loader2
+                className={`w-5 h-5 animate-spin mr-2 ${"text-gray-400"}`}
+              />
+              <span>{buttonText}</span>
+            </div>
+          ) : (
+            buttonText
+          )}
+        </button>
 
         {/* Quote Details */}
         {prepareSendQuote && (
           <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => setShowMoreDetails(!showMoreDetails)}
-              className={`w-full flex items-center justify-center gap-2 py-1 px-4 trails-border-radius-button transition-colors cursor-pointer text-xs ${"text-gray-400 hover:text-gray-300"}`}
-            >
-              <span>More Details</span>
-              <svg
-                className={`w-3 h-3 transition-transform ${showMoreDetails ? "rotate-180" : ""}`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <title>Expand</title>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-
-            {showMoreDetails && (
-              <QuoteDetails quote={prepareSendQuote} showContent={true} />
-            )}
+            <QuoteDetails quote={prepareSendQuote} showContent={true} />
           </div>
         )}
       </form>

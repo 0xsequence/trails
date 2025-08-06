@@ -345,9 +345,6 @@
   .pointer-events-none {
     pointer-events: none;
   }
-  .collapse {
-    visibility: collapse;
-  }
   .visible {
     visibility: visible;
   }
@@ -462,6 +459,9 @@
   .my-4 {
     margin-block: calc(var(--spacing) * 4);
   }
+  .-mt-2 {
+    margin-top: calc(var(--spacing) * -2);
+  }
   .mt-0\.5 {
     margin-top: calc(var(--spacing) * 0.5);
   }
@@ -473,9 +473,6 @@
   }
   .mt-4 {
     margin-top: calc(var(--spacing) * 4);
-  }
-  .mt-6 {
-    margin-top: calc(var(--spacing) * 6);
   }
   .mt-auto {
     margin-top: auto;
@@ -614,9 +611,6 @@
   }
   .max-h-\[360px\] {
     max-height: 360px;
-  }
-  .max-h-\[1000px\] {
-    max-height: 1000px;
   }
   .max-h-\[calc\(100dvh-80px\)\] {
     max-height: calc(100dvh - 80px);
@@ -983,6 +977,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .overflow-auto {
+    overflow: auto;
   }
   .overflow-hidden {
     overflow: hidden;
@@ -1662,10 +1659,6 @@
     --tw-shadow: 0 10px 15px -3px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 4px 6px -4px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
-  .shadow-sm {
-    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
   .shadow-xl {
     --tw-shadow: 0 20px 25px -5px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 8px 10px -6px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -2213,13 +2206,6 @@
       }
     }
   }
-  .hover\:text-gray-300 {
-    &:hover {
-      @media (hover: hover) {
-        color: var(--color-gray-300);
-      }
-    }
-  }
   .hover\:text-gray-700 {
     &:hover {
       @media (hover: hover) {
@@ -2725,6 +2711,15 @@
       }
     }
   }
+  .dark\:hover\:bg-gray-600 {
+    &:is([data-theme="dark"] *) {
+      &:hover {
+        @media (hover: hover) {
+          background-color: var(--color-gray-600);
+        }
+      }
+    }
+  }
   .dark\:hover\:bg-gray-700 {
     &:is([data-theme="dark"] *) {
       &:hover {
@@ -2867,6 +2862,10 @@
   --trails-primary-hover: rgb(37 99 235);
   --trails-primary-disabled: rgb(209 213 219);
   --trails-primary-disabled-text: rgb(107 114 128);
+  --trails-modal-button-bg: var(--trails-primary, rgb(59 130 246));
+  --trails-modal-button-hover-bg: var(--trails-primary-hover, rgb(37 99 235));
+  --trails-modal-button-text: rgb(255 255 255);
+  --trails-modal-button-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 .trails-bg-primary {
   background-color: var(--trails-bg-primary);
@@ -3011,6 +3010,10 @@
   --trails-dropdown-selected-bg: rgb(243 244 246);
   --trails-dropdown-selected-text: rgb(17 24 39);
   --trails-dropdown-focus-border: rgb(59 130 246);
+  --trails-modal-button-bg: var(--trails-primary, rgb(59 130 246));
+  --trails-modal-button-hover-bg: var(--trails-primary-hover, rgb(37 99 235));
+  --trails-modal-button-text: rgb(255 255 255);
+  --trails-modal-button-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --trails-list-bg: rgb(255 255 255);
   --trails-list-border: rgb(229 231 235);
   --trails-list-hover-bg: rgb(249 250 251);
@@ -3060,6 +3063,10 @@
   --trails-dropdown-selected-bg: rgb(55 65 81);
   --trails-dropdown-selected-text: rgb(255 255 255);
   --trails-dropdown-focus-border: rgb(59 130 246);
+  --trails-modal-button-bg: var(--trails-primary, rgb(37 99 235));
+  --trails-modal-button-hover-bg: var(--trails-primary-hover, rgb(29 78 216));
+  --trails-modal-button-text: rgb(255 255 255);
+  --trails-modal-button-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.1);
   --trails-list-bg: rgb(31 41 55);
   --trails-list-border: rgb(55 65 81);
   --trails-list-hover-bg: rgb(55 65 81);
@@ -3157,6 +3164,16 @@
   background-color: var(--trails-primary-disabled, rgb(209 213 219));
   color: var(--trails-primary-disabled-text, rgb(107 114 128));
   cursor: not-allowed;
+}
+.trails-modal-button {
+  background-color: var(--trails-modal-button-bg, var(--trails-primary, rgb(59 130 246)));
+  color: var(--trails-modal-button-text, rgb(255 255 255));
+  box-shadow: var(--trails-modal-button-shadow, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+  transition: all 0.2s ease-in-out;
+  border-radius: var(--trails-border-radius-button);
+}
+.trails-modal-button:hover {
+  background-color: var(--trails-modal-button-hover-bg, var(--trails-primary-hover, rgb(37 99 235)));
 }
 @property --tw-translate-x {
   syntax: "*";

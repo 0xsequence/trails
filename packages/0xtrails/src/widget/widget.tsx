@@ -1221,7 +1221,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsModalOpen(true)}
-            className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white cursor-pointer font-semibold py-3 px-6 shadow-sm transition-colors trails-border-radius-button trails-font"
+            className="trails-modal-button cursor-pointer font-semibold py-3 px-6 trails-font"
           >
             {buttonText || (mode === "fund" ? "Fund" : "Pay")}
           </motion.button>

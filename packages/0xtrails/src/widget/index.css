@@ -30,6 +30,12 @@
   --trails-primary-hover: rgb(37 99 235); /* blue-600 - Change this for hover state */
   --trails-primary-disabled: rgb(209 213 219); /* gray-300 - Disabled state */
   --trails-primary-disabled-text: rgb(107 114 128); /* gray-500 - Disabled text */
+
+  /* Modal Button Colors - Customizable modal trigger button */
+  --trails-modal-button-bg: var(--trails-primary, rgb(59 130 246)); /* Defaults to primary color */
+  --trails-modal-button-hover-bg: var(--trails-primary-hover, rgb(37 99 235)); /* Defaults to primary hover */
+  --trails-modal-button-text: rgb(255 255 255); /* white text */
+  --trails-modal-button-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* subtle shadow */
 }
 
 /* Utility Classes that use CSS Variables */
@@ -231,6 +237,12 @@
   --trails-dropdown-selected-text: rgb(17 24 39); /* gray-900 */
   --trails-dropdown-focus-border: rgb(59 130 246); /* blue-500 - matches input focus border */
 
+  /* Modal Button Colors - Light Mode */
+  --trails-modal-button-bg: var(--trails-primary, rgb(59 130 246)); /* blue-500 for light mode */
+  --trails-modal-button-hover-bg: var(--trails-primary-hover, rgb(37 99 235)); /* blue-600 for light mode */
+  --trails-modal-button-text: rgb(255 255 255); /* white text */
+  --trails-modal-button-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* subtle shadow for light mode */
+
   /* Token List Colors */
   --trails-list-bg: rgb(255 255 255); /* white background for token list */
   --trails-list-border: rgb(229 231 235); /* gray-200 border */
@@ -305,6 +317,12 @@
   --trails-dropdown-selected-bg: rgb(55 65 81); /* gray-700 */
   --trails-dropdown-selected-text: rgb(255 255 255); /* white */
   --trails-dropdown-focus-border: rgb(59 130 246); /* blue-500 - matches input focus border */
+
+  /* Modal Button Colors - Dark Mode */
+  --trails-modal-button-bg: var(--trails-primary, rgb(37 99 235)); /* blue-600 for dark mode */
+  --trails-modal-button-hover-bg: var(--trails-primary-hover, rgb(29 78 216)); /* blue-700 for dark mode */
+  --trails-modal-button-text: rgb(255 255 255); /* white text */
+  --trails-modal-button-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.1); /* subtle shadow for dark mode */
 
     /* Token List Colors */
   --trails-list-bg: rgb(31 41 55); /* gray-800 background for token list */
@@ -458,4 +476,17 @@
   background-color: var(--trails-primary-disabled, rgb(209 213 219));
   color: var(--trails-primary-disabled-text, rgb(107 114 128));
   cursor: not-allowed;
+}
+
+/* Modal Button Utility Classes */
+.trails-modal-button {
+  background-color: var(--trails-modal-button-bg, var(--trails-primary, rgb(59 130 246)));
+  color: var(--trails-modal-button-text, rgb(255 255 255));
+  box-shadow: var(--trails-modal-button-shadow, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+  transition: all 0.2s ease-in-out;
+  border-radius: var(--trails-border-radius-button);
+}
+
+.trails-modal-button:hover {
+  background-color: var(--trails-modal-button-hover-bg, var(--trails-primary-hover, rgb(37 99 235)));
 }

@@ -64,7 +64,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
 }) => {
   // Local state for fund-specific functionality
   const [isInputTypeUsd, setIsInputTypeUsd] = useState(false)
-  const [showMoreDetails, setShowMoreDetails] = useState(false)
+
   const [tokenAmountForBackend, setTokenAmountForBackend] = useState("")
   const [inputDisplayValue, setInputDisplayValue] = useState("")
   const inputRef = useRef<HTMLInputElement>(null)
@@ -365,7 +365,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center relative">
         <button
@@ -420,9 +420,9 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-2">
         {/* Origin Amount Input Section */}
-        <div className="space-y-3">
+        <div className="space-y-1">
           {/* Amount Input */}
           <div className="flex items-center justify-center">
             <div className="flex items-center">
@@ -715,31 +715,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
         {/* Quote Details */}
         {prepareSendQuote && (
           <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => setShowMoreDetails(!showMoreDetails)}
-              className="w-full flex items-center justify-center gap-2 py-1 px-4 trails-border-radius-button transition-colors cursor-pointer text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-            >
-              <span>More Details</span>
-              <svg
-                className={`w-3 h-3 transition-transform ${showMoreDetails ? "rotate-180" : ""}`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <title>Expand</title>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
-
-            {showMoreDetails && (
-              <QuoteDetails quote={prepareSendQuote} showContent={true} />
-            )}
+            <QuoteDetails quote={prepareSendQuote} showContent={true} />
           </div>
         )}
       </form>

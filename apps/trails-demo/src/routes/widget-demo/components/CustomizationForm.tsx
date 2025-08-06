@@ -869,8 +869,6 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
 
       // Set widget theme based on preset
       if (
-        presetName === "dark" ||
-        presetName === "purple" ||
         presetName === "square" ||
         presetName === "binance" ||
         presetName === "neon" ||
@@ -1677,28 +1675,15 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         className="px-2 py-1 text-white rounded text-xs font-medium cursor-pointer"
                         style={
                           {
-                            backgroundColor: "rgb(16 185 129)",
-                            "--tw-hover-bg": "rgb(5 150 105)",
+                            backgroundColor: "white",
+                            color: "rgb(0 200 83)",
+                            "--tw-hover-bg": "rgb(0 180 73)",
                             fontFamily:
-                              '"Comic Sans MS", "Chalkboard SE", "Comic Neue", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+                              '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                           } as React.CSSProperties
                         }
                       >
                         Mint
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => applyPreset("blue")}
-                        className="px-2 py-1 text-white rounded text-xs font-medium cursor-pointer"
-                        style={
-                          {
-                            backgroundColor: "rgb(59 130 246)",
-                            "--tw-hover-bg": "rgb(37 99 235)",
-                            fontFamily: '"Times New Roman", "Times", serif',
-                          } as React.CSSProperties
-                        }
-                      >
-                        Pale
                       </button>
                       <button
                         type="button"
@@ -1724,7 +1709,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                           {
                             backgroundColor: "white",
                             color: "rgb(0 82 204)",
-                            border: "1px solid rgb(0 82 204)",
+                            border: "2px solid rgb(0 82 204)",
                             "--tw-hover-bg": "rgb(0 66 163)",
                             fontFamily: '"Trebuchet MS", "Arial", sans-serif',
                           } as React.CSSProperties
@@ -1798,6 +1783,24 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                         }
                       >
                         Sequence
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyPreset("swap")}
+                        className="px-2 py-1 text-xs font-medium cursor-pointer"
+                        style={
+                          {
+                            backgroundColor: "rgb(255 255 255)",
+                            color: "rgb(9 9 11)",
+                            border: "1px solid rgb(228 228 231)",
+                            fontFamily:
+                              '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                            borderRadius: "8px",
+                            boxShadow: "0 50px 200px 0 rgb(0 0 0 / 0.1)",
+                          } as React.CSSProperties
+                        }
+                      >
+                        Swap
                       </button>
                     </div>
                   </div>

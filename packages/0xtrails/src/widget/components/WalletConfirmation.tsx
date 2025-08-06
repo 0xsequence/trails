@@ -20,7 +20,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   quote,
 }) => {
   const [showContent, setShowContent] = useState(false)
-  const [showDetails, setShowDetails] = useState(false)
+
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false)
 
   useEffect(() => {
@@ -85,33 +85,6 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
           </div>
         </div>
 
-        {/* More Details Button */}
-        <div
-          className={`transition-all duration-500 ease-out delay-100 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
-        >
-          <button
-            type="button"
-            onClick={() => setShowDetails(!showDetails)}
-            className="w-full flex items-center justify-center gap-2 py-2 px-4 trails-border-radius-button transition-colors cursor-pointer text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-          >
-            <span>More Details</span>
-            <svg
-              className={`w-4 h-4 transition-transform ${showDetails ? "rotate-180" : ""}`}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <title>Expand</title>
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
-        </div>
-
         {/* Timeout Warning */}
         {showTimeoutWarning && (
           <div
@@ -148,9 +121,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
         )}
 
         {/* Transaction Details */}
-        {showDetails && (
-          <QuoteDetails quote={quote} showContent={showContent} />
-        )}
+        <QuoteDetails quote={quote} showContent={true} />
 
         {/* Retry Button */}
         {retryEnabled && onRetry && (

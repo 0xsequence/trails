@@ -24,7 +24,6 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
   const [showDots, setShowDots] = useState(false)
   const [showLine, setShowLine] = useState(false)
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false)
-  const [showDetails, setShowDetails] = useState(false)
 
   useEffect(() => {
     const timeoutTimer = setTimeout(() => {
@@ -456,40 +455,9 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
           showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         }`}
       >
-        <button
-          type="button"
-          onClick={() => setShowDetails(!showDetails)}
-          className="w-full flex items-center justify-center gap-2 py-1 px-4 trails-border-radius-button transition-colors cursor-pointer text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-          aria-label={
-            showDetails
-              ? "Hide transaction details"
-              : "Show transaction details"
-          }
-        >
-          <span>More Details</span>
-          <svg
-            className={`w-3 h-3 transition-transform duration-200 ${
-              showDetails ? "rotate-180" : ""
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </button>
-
-        {showDetails && (
-          <div className="mt-4">
-            <QuoteDetails quote={quote} showContent={true} />
-          </div>
-        )}
+        <div className="mt-4">
+          <QuoteDetails quote={quote} showContent={true} />
+        </div>
       </div>
     </div>
   )
