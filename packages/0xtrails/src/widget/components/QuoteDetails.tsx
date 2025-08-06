@@ -426,15 +426,7 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
                     <InfoIcon className="w-3 h-3 text-gray-500 dark:text-gray-400 cursor-pointer" />
                   </Tooltip>
                 </span>
-                <span
-                  className={`font-medium text-xs ${
-                    Number(quote.priceImpact) > 5
-                      ? "text-red-400 dark:text-red-400"
-                      : Number(quote.priceImpact) > 2
-                        ? "text-yellow-400 dark:text-yellow-400"
-                        : "text-gray-900 dark:text-white"
-                  }`}
-                >
+                <span className="font-medium text-xs text-gray-900 dark:text-white">
                   {quote.priceImpact}%
                 </span>
               </div>

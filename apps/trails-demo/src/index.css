@@ -1,11 +1,92 @@
 @import "tailwindcss";
 @import "@0xsequence/design-system/preset";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Border defaults */
+  --tw-border-style: solid;
+  --tw-border-width: 1px;
+  --tw-border-color: rgb(229 231 235); /* gray-200 */
+  
+  /* Ring/Focus defaults */
+  --tw-ring-offset-width: 2px;
+  --tw-ring-offset-color: #fff;
+  --tw-ring-color: rgb(59 130 246 / 0.5); /* blue-500 with opacity */
+  --tw-ring-width: 3px;
+  
+  /* Shadow defaults */
+  --tw-shadow: 0 0 #0000;
+  --tw-shadow-colored: 0 0 #0000;
+  --tw-drop-shadow: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1)) drop-shadow(0 1px 1px rgb(0 0 0 / 0.06));
+  
+  /* Transform defaults */
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+  --tw-transform: translateX(var(--tw-translate-x)) translateY(var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+  
+  /* Filter defaults */
+  --tw-blur: ;
+  --tw-brightness: ;
+  --tw-contrast: ;
+  --tw-grayscale: ;
+  --tw-hue-rotate: ;
+  --tw-invert: ;
+  --tw-saturate: ;
+  --tw-sepia: ;
+  --tw-filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia);
+  
+  /* Backdrop filter defaults */
+  --tw-backdrop-blur: ;
+  --tw-backdrop-brightness: ;
+  --tw-backdrop-contrast: ;
+  --tw-backdrop-grayscale: ;
+  --tw-backdrop-hue-rotate: ;
+  --tw-backdrop-invert: ;
+  --tw-backdrop-opacity: ;
+  --tw-backdrop-saturate: ;
+  --tw-backdrop-sepia: ;
+  --tw-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+  
+  /* Gradient defaults */
+  --tw-gradient-from-position: ;
+  --tw-gradient-via-position: ;
+  --tw-gradient-to-position: ;
+  
+  /* Outline defaults */
+  --tw-outline-style: solid;
+  --tw-outline-width: 2px;
+  --tw-outline-offset: 2px;
+  --tw-outline-color: rgb(59 130 246); /* blue-500 */
+  
+  /* Divide defaults */
+  --tw-divide-x-reverse: 0;
+  --tw-divide-y-reverse: 0;
+  --tw-divide-opacity: 1;
+  --tw-divide-style: solid;
+  
+  /* Space defaults */
+  --tw-space-x-reverse: 0;
+  --tw-space-y-reverse: 0;
+  
+  /* Text decoration defaults */
+  --tw-text-opacity: 1;
+  --tw-bg-opacity: 1;
+  --tw-border-opacity: 1;
+  
+  /* Scroll behavior */
+  --tw-scroll-snap-strictness: proximity;
 }
 
 html,

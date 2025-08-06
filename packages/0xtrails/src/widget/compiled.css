@@ -1585,9 +1585,6 @@
   .text-primary {
     color: var(--seq-color-primary);
   }
-  .text-red-400 {
-    color: var(--color-red-400);
-  }
   .text-red-500 {
     color: var(--color-red-500);
   }

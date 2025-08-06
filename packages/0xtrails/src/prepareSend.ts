@@ -77,7 +77,7 @@ import {
 import { findFirstPreconditionForChainId } from "./preconditions.js"
 import { calcAmountUsdPrice, useTokenPrice } from "./prices.js"
 import { getQueryParam } from "./queryParams.js"
-import type { RelayerEnvConfig, RelayerEnv } from "./relayer.js"
+import type { RelayerEnv } from "./relayer.js"
 import { useRelayers } from "./relayer.js"
 import {
   executeSimpleRelayTransaction,
@@ -131,7 +131,7 @@ export type SendOptions = {
   swapAmount: string
   tradeType?: TradeType
   destinationTokenSymbol: string
-  sequenceProjectAccessKey: string
+  sequenceProjectAccessKey?: string
   fee: string
   client?: WalletClient
   dryMode: boolean
@@ -146,7 +146,6 @@ export type SendOptions = {
   destinationTokenDecimals: number
   paymasterUrl?: string
   gasless?: boolean
-  relayerConfig: RelayerEnvConfig
   slippageTolerance?: string
   originNativeTokenPriceUsd?: number | null
 }
@@ -320,8 +319,6 @@ export async function prepareSend(
     destinationTokenDecimals,
     paymasterUrl,
     gasless = false,
-    relayerConfig,
-    sequenceProjectAccessKey,
     slippageTolerance = "0.03", // 0.03 = 3%
     originNativeTokenPriceUsd,
   } = options
@@ -496,8 +493,6 @@ export async function prepareSend(
     paymasterUrl,
     originRelayer,
     destinationRelayer,
-    sequenceProjectAccessKey,
-    relayerConfig,
     walletClient,
     publicClient,
     chain,
@@ -532,8 +527,6 @@ async function sendHandlerForDifferentChainDifferentToken({
   paymasterUrl,
   originRelayer,
   destinationRelayer,
-  sequenceProjectAccessKey,
-  relayerConfig,
   walletClient,
   publicClient,
   chain,
@@ -565,8 +558,6 @@ async function sendHandlerForDifferentChainDifferentToken({
   paymasterUrl?: string
   originRelayer: Relayer.Standard.Rpc.RpcRelayer
   destinationRelayer: Relayer.Standard.Rpc.RpcRelayer
-  sequenceProjectAccessKey: string
-  relayerConfig: RelayerEnvConfig
   walletClient: WalletClient
   publicClient: PublicClient
   chain: Chain
@@ -734,8 +725,6 @@ async function sendHandlerForDifferentChainDifferentToken({
 
         const sequenceWalletAddress = await simpleCreateSequenceWallet(
           delegatorAccount as any,
-          relayerConfig,
-          sequenceProjectAccessKey,
         )
         console.log("[trails-sdk] sequenceWalletAddress", sequenceWalletAddress)
         const sequenceTxHash = await sequenceSendTransaction(
@@ -744,8 +733,6 @@ async function sendHandlerForDifferentChainDifferentToken({
           destinationPublicClient,
           calls,
           destinationChain,
-          relayerConfig,
-          sequenceProjectAccessKey,
         )
 
         const destinationReceipt =
@@ -943,8 +930,6 @@ async function sendHandlerForDifferentChainDifferentToken({
           paymasterUrl,
           chain: effectiveOriginChain,
           account,
-          relayerConfig,
-          sequenceProjectAccessKey,
           originRelayer,
           firstPreconditionMin,
           intentAddress,
@@ -1489,8 +1474,6 @@ async function attemptGaslessDeposit({
   walletClient,
   chain,
   account,
-  relayerConfig,
-  sequenceProjectAccessKey,
   originRelayer,
 }: {
   paymasterUrl?: string
@@ -1501,8 +1484,6 @@ async function attemptGaslessDeposit({
   walletClient: WalletClient
   chain: Chain
   account: Account
-  relayerConfig: RelayerEnvConfig
-  sequenceProjectAccessKey: string
   originRelayer: Relayer.Standard.Rpc.RpcRelayer
 }): Promise<TransactionReceipt | null> {
   let originUserTxReceipt: TransactionReceipt | null = null
@@ -1590,8 +1571,6 @@ async function attemptGaslessDeposit({
     console.log("[trails-sdk] creating sequence wallet")
     const sequenceWalletAddress = await simpleCreateSequenceWallet(
       delegatorAccount as any,
-      relayerConfig,
-      sequenceProjectAccessKey,
     )
     console.log("[trails-sdk] sequenceWalletAddress", sequenceWalletAddress)
 
@@ -1653,8 +1632,6 @@ async function attemptGaslessDeposit({
       publicClient,
       calls,
       chain,
-      relayerConfig,
-      sequenceProjectAccessKey,
     )
     console.log("[trails-sdk] sequenceTxHash", sequenceTxHash)
     if (onOriginSend) {
@@ -1930,8 +1907,6 @@ async function attemptUserDepositTx({
   paymasterUrl,
   chain,
   account,
-  relayerConfig,
-  sequenceProjectAccessKey,
   originRelayer,
   firstPreconditionMin,
   intentAddress,
@@ -1953,8 +1928,6 @@ async function attemptUserDepositTx({
   paymasterUrl?: string
   chain: Chain
   account: Account
-  relayerConfig: RelayerEnvConfig
-  sequenceProjectAccessKey: string
   originRelayer: Relayer.Standard.Rpc.RpcRelayer
   firstPreconditionMin: string
   intentAddress: string
@@ -1986,8 +1959,6 @@ async function attemptUserDepositTx({
         walletClient,
         chain,
         account,
-        relayerConfig,
-        sequenceProjectAccessKey,
         originRelayer,
       })
     } catch (error) {
@@ -2389,7 +2360,6 @@ export function useQuote({
       }
 
       const originTokenBalanceAmount = originTokenBalance?.balance ?? "0"
-      const sequenceProjectAccessKey = ""
       const destinationRelayer = getRelayer(toChainId)
       const originRelayer = getRelayer(fromChainId)
       const sourceTokenPriceUsd = originTokenBalance?.price?.value ?? 0
@@ -2425,7 +2395,6 @@ export function useQuote({
         swapAmount: swapAmount.toString(),
         tradeType: tradeType ?? TradeType.EXACT_OUTPUT,
         destinationTokenSymbol: destinationTokenSymbol,
-        sequenceProjectAccessKey,
         client: walletClient,
         apiClient,
         originRelayer,
@@ -2437,7 +2406,6 @@ export function useQuote({
         fee: "0",
         dryMode: false,
         onTransactionStateChange: onStatusUpdate ?? (() => {}),
-        relayerConfig: {},
         slippageTolerance: slippageTolerance?.toString(),
       }
 

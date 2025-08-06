@@ -193,11 +193,11 @@ importers:
         specifier: ^2.3.23
         version: 2.3.23(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@0xsequence/trails-api':
-        specifier: workspace:*
-        version: link:../trails-api
+        specifier: github:0xsequence/trails#dists/trails-api
+        version: https://codeload.github.com/0xsequence/trails/tar.gz/4f1a86ebc9015d9bb4484aad0c0ef84b91e3ecc0
       '@0xsequence/trails-relayer':
-        specifier: workspace:*
-        version: link:../trails-relayer
+        specifier: github:0xsequence/trails#dists/trails-relayer
+        version: https://codeload.github.com/0xsequence/trails/tar.gz/ebf5ac09f4070b8274898150490c5ddb161dc0b2
       '@0xsequence/wagmi-connector':
         specifier: ^4.0.1
         version: 4.0.1(0xsequence@2.3.17(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(viem@2.33.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76))(wagmi@2.16.0(@tanstack/query-core@5.83.0)(@tanstack/react-query@5.83.0(react@19.1.1))(@types/react@19.1.9)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.1)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.33.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76))
@@ -498,6 +498,14 @@ packages:
 
   '@0xsequence/tee-verifier@0.1.2':
     resolution: {integrity: sha512-7sKr8/T4newknx6LAukjlRI3siGiGhBnZohz2Z3jX0zb0EBQdKUq0L//A7CPSckHFPxTg/QvQU2v8e9x9GfkDw==}
+
+  '@0xsequence/trails-api@https://codeload.github.com/0xsequence/trails/tar.gz/4f1a86ebc9015d9bb4484aad0c0ef84b91e3ecc0':
+    resolution: {tarball: https://codeload.github.com/0xsequence/trails/tar.gz/4f1a86ebc9015d9bb4484aad0c0ef84b91e3ecc0}
+    version: 0.0.0
+
+  '@0xsequence/trails-relayer@https://codeload.github.com/0xsequence/trails/tar.gz/ebf5ac09f4070b8274898150490c5ddb161dc0b2':
+    resolution: {tarball: https://codeload.github.com/0xsequence/trails/tar.gz/ebf5ac09f4070b8274898150490c5ddb161dc0b2}
+    version: 0.0.0
 
   '@0xsequence/utils@2.3.17':
     resolution: {integrity: sha512-oTHNHoeV6uvlLUQMSp+4gK67g/eMYPhpv1p2OHFdrWcOi/+TPRCLNinOh2zuIu16iPrhyhq4yzsFR8y3lYpmTw==}
@@ -5978,6 +5986,10 @@ snapshots:
     dependencies:
       cbor2: 1.12.0
       pkijs: 3.2.5
+
+  '@0xsequence/trails-api@https://codeload.github.com/0xsequence/trails/tar.gz/4f1a86ebc9015d9bb4484aad0c0ef84b91e3ecc0': {}
+
+  '@0xsequence/trails-relayer@https://codeload.github.com/0xsequence/trails/tar.gz/ebf5ac09f4070b8274898150490c5ddb161dc0b2': {}
 
   '@0xsequence/utils@2.3.17(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:

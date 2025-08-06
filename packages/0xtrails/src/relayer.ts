@@ -5,6 +5,7 @@ import { getChainInfo } from "./chains.js"
 import {
   getSequenceProjectAccessKey,
   getSequenceUseV3Relayers,
+  getSequenceEnv,
 } from "./config.js"
 
 export type RelayerOperationStatus = Relayer.OperationStatus
@@ -61,7 +62,10 @@ export function getBackupRelayer(
 
 // TODO: add relayer url to config
 export function getRelayerUrl(
-  config: RelayerEnvConfig,
+  config: RelayerEnvConfig = {
+    env: getSequenceEnv() as RelayerEnv,
+    useV3Relayers: getSequenceUseV3Relayers(),
+  },
   chainId: number,
 ): string {
   let relayerUrl = ""
@@ -220,7 +224,10 @@ export function getRelayerUrl(
 }
 
 export function getRelayer(
-  config: RelayerEnvConfig,
+  config: RelayerEnvConfig = {
+    env: getSequenceEnv() as RelayerEnv,
+    useV3Relayers: getSequenceUseV3Relayers(),
+  },
   chainId: number,
 ): Relayer.Standard.Rpc.RpcRelayer {
   const chain = getChainInfo(chainId)
@@ -246,6 +253,7 @@ export function getRelayer(
 
 export function useRelayers(
   config: RelayerEnvConfig = {
+    env: getSequenceEnv() as RelayerEnv,
     useV3Relayers: getSequenceUseV3Relayers(),
   },
 ): {

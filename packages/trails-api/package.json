@@ -8,6 +8,7 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "tsc",
+    "copy": "cp ../../../stack/api/proto/clients/api.gen.ts src/",
     "dev": "tsc --watch",
     "test": "echo",
     "typecheck": "tsc --noEmit"

@@ -69,6 +69,9 @@ import {
   setSequenceApiUrl,
   setSequenceProjectAccessKey,
   setSequenceUseV3Relayers,
+  getSequenceIndexerUrl,
+  getSequenceApiUrl,
+  setSequenceEnv,
 } from "../config.js"
 import { FundSendForm } from "./components/FundSendForm.js"
 import type { Mode } from "../mode.js"
@@ -236,7 +239,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       appId: sequenceProjectAccessKey,
       sequenceIndexerUrl,
       sequenceApiUrl,
-      sequenceEnv,
       toAddress,
       toAmount,
       toChainId,
@@ -1079,9 +1081,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onComplete={handleTransferComplete}
               selectedToken={selectedToken}
               account={walletClient.account}
-              sequenceProjectAccessKey={sequenceProjectAccessKey}
-              apiUrl={sequenceApiUrl || undefined}
-              env={sequenceEnv}
               toRecipient={toAddress || undefined}
               toAmount={toAmount || undefined}
               toChainId={toChainId ? Number(toChainId) : undefined}
@@ -1109,9 +1108,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onComplete={handleTransferComplete}
               selectedToken={selectedToken}
               account={walletClient.account}
-              sequenceProjectAccessKey={sequenceProjectAccessKey}
-              apiUrl={sequenceApiUrl || undefined}
-              env={sequenceEnv}
               toAmount={toAmount || undefined}
               toRecipient={toAddress || undefined}
               toChainId={toChainId ? Number(toChainId) : undefined}
@@ -1266,11 +1262,15 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       if (props.sequenceApiUrl) {
         setSequenceApiUrl(props.sequenceApiUrl)
       }
+      if (props.sequenceEnv) {
+        setSequenceEnv(props.sequenceEnv)
+      }
     }, [
       props.appId,
       props.sequenceUseV3Relayers,
       props.sequenceIndexerUrl,
       props.sequenceApiUrl,
+      props.sequenceEnv,
     ])
 
     // Check if privy is in walletOptions
@@ -1327,9 +1327,11 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               config={{
                 projectAccessKey: props.appId,
                 env: {
-                  indexerUrl: props.sequenceIndexerUrl || undefined,
-                  indexerGatewayUrl: props.sequenceIndexerUrl || undefined,
-                  apiUrl: props.sequenceApiUrl || undefined,
+                  indexerUrl:
+                    props.sequenceIndexerUrl || getSequenceIndexerUrl(),
+                  indexerGatewayUrl:
+                    props.sequenceIndexerUrl || getSequenceIndexerUrl(),
+                  apiUrl: props.sequenceApiUrl || getSequenceApiUrl(),
                 },
               }}
             >

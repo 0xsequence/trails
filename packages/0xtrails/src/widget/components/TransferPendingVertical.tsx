@@ -347,7 +347,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-xs font-medium text-gray-900 dark:text-white">
+                <span className="text-xs font-medium text-left text-gray-900 dark:text-white">
                   {quote?.originToken.name}
                 </span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
@@ -362,7 +362,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
 
           {/* Right side - USD value and amount */}
           <div className="text-right">
-            <div className="text-xs font-medium text-gray-900 dark:text-white">
+            <div className="text-xs font-medium text-left text-gray-900 dark:text-white">
               {quote?.originAmountUsdDisplay}
             </div>
             <div className="text-xs text-gray-600 dark:text-gray-400">

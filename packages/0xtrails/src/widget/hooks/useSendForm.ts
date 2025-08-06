@@ -25,7 +25,7 @@ import {
 import type { TransactionState } from "../../transactions.js"
 import { getTokenPrice, useTokenPrices } from "../../prices.js"
 import { useQueryParams } from "../../queryParams.js"
-import { getRelayer, type RelayerEnv } from "../../relayer.js"
+import { getRelayer } from "../../relayer.js"
 import {
   formatRawAmount,
   formatUsdAmountDisplay,
@@ -38,7 +38,6 @@ import {
   useTokenAddress,
   useTokenInfo,
 } from "../../tokens.js"
-import { getSequenceUseV3Relayers } from "../../config.js"
 
 export interface Token {
   id: number
@@ -101,9 +100,6 @@ export type OnCompleteProps = {
 
 export type UseSendProps = {
   account: Account
-  sequenceProjectAccessKey: string
-  apiUrl?: string
-  env?: RelayerEnv
   toAmount?: string
   toRecipient?: string
   toChainId?: number
@@ -169,9 +165,6 @@ export type UseSendReturn = {
 
 export function useSendForm({
   account,
-  sequenceProjectAccessKey,
-  apiUrl,
-  env,
   toAmount, // Custom specified amount
   toRecipient, // Custom specified recipient
   toChainId, // Custom specified destination chain id
@@ -312,10 +305,7 @@ export function useSendForm({
     }
   }, [selectedDestToken, defaultDestToken])
 
-  const apiClient = useAPIClient({
-    apiUrl,
-    projectAccessKey: sequenceProjectAccessKey,
-  })
+  const apiClient = useAPIClient()
 
   const destTokenAddress = useTokenAddress({
     chainId: selectedDestinationChain?.id,
@@ -413,11 +403,6 @@ export function useSendForm({
     selectedToken.contractInfo?.decimals,
   )
   const balanceUsdDisplay = selectedToken.balanceUsdFormatted ?? ""
-  const relayerConfig = useMemo(
-    () => ({ env, useV3Relayers: getSequenceUseV3Relayers() }),
-    [env],
-  )
-
   const isValidRecipient = Boolean(recipient && isAddress(recipient))
 
   // Calculate USD value based on trade type
@@ -484,9 +469,9 @@ export function useSendForm({
 
       const parsedAmount = parseUnits(amount, decimals).toString()
 
-      const originRelayer = getRelayer(relayerConfig, selectedToken.chainId)
+      const originRelayer = getRelayer(undefined, selectedToken.chainId)
       const destinationRelayer = getRelayer(
-        relayerConfig,
+        undefined,
         selectedDestinationChain.id,
       )
 
@@ -576,7 +561,6 @@ export function useSendForm({
         swapAmount: parsedAmount,
         tradeType,
         destinationTokenSymbol: selectedDestToken.symbol,
-        sequenceProjectAccessKey,
         fee: "0",
         client: walletClient,
         apiClient,
@@ -596,7 +580,6 @@ export function useSendForm({
             (p) => p.chainId.toString() === selectedToken.chainId.toString(),
           )?.url ?? undefined,
         gasless,
-        relayerConfig,
         originNativeTokenPriceUsd: nativeTokenPriceUsd,
       }
 
@@ -613,9 +596,7 @@ export function useSendForm({
     }
   }, [
     tradeType,
-    relayerConfig,
     isDryMode,
-    sequenceProjectAccessKey,
     account,
     walletClient,
     apiClient,

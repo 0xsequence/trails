@@ -1,6 +1,7 @@
 import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import type { Theme } from "../../theme.js"
+import { ThemeProvider as DesignSystemThemeProvider } from "@0xsequence/design-system"
 
 interface ThemeContextType {
   theme: Theme
@@ -59,14 +60,16 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   }, [theme])
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, isDark }}>
-      <div
-        className={isDark ? "dark" : ""}
-        data-theme={isDark ? "dark" : "light"}
-      >
-        {children}
-      </div>
-    </ThemeContext.Provider>
+    <DesignSystemThemeProvider theme={theme === "dark" ? "dark" : "light"}>
+      <ThemeContext.Provider value={{ theme, setTheme, isDark }}>
+        <div
+          className={isDark ? "dark" : ""}
+          data-theme={isDark ? "dark" : "light"}
+        >
+          {children}
+        </div>
+      </ThemeContext.Provider>
+    </DesignSystemThemeProvider>
   )
 }
 

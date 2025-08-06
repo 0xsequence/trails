@@ -14,8 +14,13 @@ import {
   toHex,
   type WalletClient,
 } from "viem"
-import type { Relayer, RelayerEnvConfig } from "./relayer.js"
+import type { Relayer, RelayerEnvConfig, RelayerEnv } from "./relayer.js"
 import { getRelayerUrl } from "./relayer.js"
+import {
+  getSequenceProjectAccessKey,
+  getSequenceEnv,
+  getSequenceUseV3Relayers,
+} from "./config.js"
 
 export type FlatTransaction = {
   to: string
@@ -214,8 +219,11 @@ export function recoverSigner(
 
 export async function simpleCreateSequenceWallet(
   account: Account,
-  relayerConfig: RelayerEnvConfig,
-  sequenceProjectAccessKey: string,
+  relayerConfig: RelayerEnvConfig = {
+    env: getSequenceEnv() as RelayerEnv,
+    useV3Relayers: getSequenceUseV3Relayers(),
+  },
+  sequenceProjectAccessKey: string = getSequenceProjectAccessKey(),
 ): Promise<`0x${string}`> {
   const signer = account.address
   const threshold = 1
@@ -261,8 +269,11 @@ export async function sequenceSendTransaction(
   publicClient: PublicClient,
   calls: any[],
   chain: Chain,
-  relayerConfig: RelayerEnvConfig,
-  sequenceProjectAccessKey: string,
+  relayerConfig: RelayerEnvConfig = {
+    env: getSequenceEnv() as RelayerEnv,
+    useV3Relayers: getSequenceUseV3Relayers(),
+  },
+  sequenceProjectAccessKey: string = getSequenceProjectAccessKey(),
 ): Promise<string | null> {
   const chainId = chain.id
   if (!accountClient?.account?.address || !sequenceWalletAddress) {

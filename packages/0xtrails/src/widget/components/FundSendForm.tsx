@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import type { Account, WalletClient } from "viem"
 import { formatUnits } from "viem"
 import type { TransactionState } from "../../transactions.js"
-import type { RelayerEnv } from "../../relayer.js"
 import type { OnCompleteProps, Token, TokenInfo } from "../hooks/useSendForm.js"
 import { useSendForm } from "../hooks/useSendForm.js"
 import { ChainImage } from "./ChainImage.js"
@@ -22,9 +21,6 @@ interface FundSendFormProps {
   onConfirm: () => void
   onComplete: (result: OnCompleteProps) => void
   account: Account
-  sequenceProjectAccessKey: string
-  apiUrl?: string
-  env?: RelayerEnv
   toRecipient?: string
   toAmount?: string
   toChainId?: number
@@ -46,9 +42,6 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
   onConfirm,
   onComplete,
   account,
-  sequenceProjectAccessKey,
-  apiUrl,
-  env,
   toAmount,
   toRecipient,
   toChainId,
@@ -108,9 +101,6 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     prepareSendQuote,
   } = useSendForm({
     account,
-    sequenceProjectAccessKey,
-    apiUrl,
-    env,
     // Don't pass toAmount for fund form - user enters input amount
     toRecipient: toRecipient || account.address,
     toChainId,
@@ -395,7 +385,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-medium max-w-[135px] truncate text-gray-900 dark:text-white">
+                <span className="text-sm font-medium max-w-[135px] truncate text-left text-gray-900 dark:text-white">
                   {selectedToken.name}
                 </span>
                 <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -618,7 +608,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
         {/* Receive Section */}
         <div className="space-y-1">
           <div
-            className={`text-lg font-semibold ${"text-gray-900 dark:text-white"}`}
+            className={`text-lg font-semibold text-left ${"text-gray-900 dark:text-white"}`}
           >
             Receive
           </div>
@@ -649,7 +639,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
                   )}
                 </div>
                 <div
-                  className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${isLoadingQuote ? "animate-pulse" : ""}`}
+                  className={`text-xs text-left ${"text-gray-500 dark:text-gray-400"} ${isLoadingQuote ? "animate-pulse" : ""}`}
                 >
                   ≈ {receiveUsdValue}{" "}
                   {selectedDestinationChain
@@ -664,7 +654,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
           {recipient &&
             recipient.toLowerCase() !== account.address.toLowerCase() && (
               <div className="px-2 pb-1">
-                <div className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="text-xs text-left text-gray-500 dark:text-gray-400">
                   Recipient:{" "}
                   <TruncatedAddress
                     address={recipient}
@@ -678,7 +668,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
         {/* Custom Calldata */}
         {toCalldata && (
           <div className="px-2 pb-1">
-            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+            <p className="text-[10px] text-left text-gray-500 dark:text-gray-400">
               This transaction includes custom calldata for contract interaction
               at the destination address
             </p>

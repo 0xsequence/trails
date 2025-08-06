@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef } from "react"
 import type { Account, WalletClient } from "viem"
 import { isAddress } from "viem"
 import type { TransactionState } from "../../transactions.js"
-import type { RelayerEnv } from "../../relayer.js"
 import type { OnCompleteProps, Token, TokenInfo } from "../hooks/useSendForm.js"
 import { useSendForm } from "../hooks/useSendForm.js"
 import { ChainImage } from "./ChainImage.js"
@@ -21,9 +20,6 @@ interface PaySendFormProps {
   onConfirm: () => void
   onComplete: (result: OnCompleteProps) => void
   account: Account
-  sequenceProjectAccessKey: string
-  apiUrl?: string
-  env?: RelayerEnv
   toRecipient?: string
   toAmount?: string
   toChainId?: number
@@ -45,9 +41,6 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
   onConfirm,
   onComplete,
   account,
-  sequenceProjectAccessKey,
-  apiUrl,
-  env,
   toAmount,
   toRecipient,
   toChainId,
@@ -98,9 +91,6 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
     prepareSendQuote,
   } = useSendForm({
     account,
-    sequenceProjectAccessKey,
-    apiUrl,
-    env,
     toAmount,
     toRecipient,
     toChainId,
@@ -206,7 +196,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-medium max-w-[135px] truncate text-gray-900 dark:text-white">
+                <span className="text-sm font-medium max-w-[135px] truncate text-left text-gray-900 dark:text-white">
                   {selectedToken.name}
                 </span>
                 <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -402,7 +392,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
         {(toAmount || toChainId || toToken) && (
           <div className="space-y-1">
             <div
-              className={`text-lg font-semibold ${"text-gray-900 dark:text-white"}`}
+              className={`text-lg font-semibold text-left ${"text-gray-900 dark:text-white"}`}
             >
               Receive
             </div>
@@ -448,7 +438,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
             {recipient &&
               recipient.toLowerCase() !== account.address.toLowerCase() && (
                 <div className="px-2 pb-1">
-                  <div className={`text-xs ${"text-gray-400"}`}>
+                  <div className={`text-xs text-left ${"text-gray-400"}`}>
                     Recipient:{" "}
                     <TruncatedAddress
                       address={recipient}
@@ -474,7 +464,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
                 {recipient &&
                   isAddress(recipient) &&
                   recipient.toLowerCase() === account.address.toLowerCase() && (
-                    <div className="text-xs mt-0.5 text-gray-400">
+                    <div className="text-xs mt-0.5 text-left text-gray-400">
                       Same as sender
                     </div>
                   )}
@@ -510,7 +500,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
         {/* Custom Calldata - More Compact */}
         {toCalldata && (
           <div className="px-2 py-1">
-            <p className={`text-[10px] ${"text-gray-400"}`}>
+            <p className={`text-[10px] text-left ${"text-gray-400"}`}>
               This transaction includes custom calldata for contract interaction
               at the destination address
             </p>

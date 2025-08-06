@@ -15,7 +15,11 @@ let modified = false
   if (!sdkPkg[field]) return
 
   for (const dep of workspaceDeps) {
-    if (sdkPkg[field][dep] && !sdkPkg[field][dep].startsWith("workspace:")) {
+    if (
+      sdkPkg[field][dep] &&
+      !sdkPkg[field][dep].startsWith("workspace:") &&
+      !sdkPkg[field][dep].startsWith("github:")
+    ) {
       sdkPkg[field][dep] = "workspace:*"
       modified = true
       console.log(`🔁 Restored ${dep} → workspace:*`)
