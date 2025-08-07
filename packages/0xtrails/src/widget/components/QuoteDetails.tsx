@@ -99,7 +99,7 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
       <div
         ref={containerRef}
         className={`overflow-auto transition-all duration-300 ease-out ${
-          isExpanded ? "max-h-[300px] opacity-100" : "max-h-0 opacity-0"
+          isExpanded ? "max-h-[250px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         <div className="p-4 rounded-lg text-sm space-y-4 trails-bg-secondary">

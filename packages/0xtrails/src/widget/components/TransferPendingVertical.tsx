@@ -412,7 +412,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
       )}
 
       {/* Vertical Stepper */}
-      <div className="w-full mx-auto" style={{ width: "auto" }}>
+      <div className="mb-2 w-full mx-auto" style={{ width: "auto" }}>
         <div className="relative">
           {/* Vertical line connecting all steps */}
           <div

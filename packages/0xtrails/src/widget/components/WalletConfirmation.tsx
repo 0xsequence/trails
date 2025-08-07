@@ -120,13 +120,10 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
           </div>
         )}
 
-        {/* Transaction Details */}
-        <QuoteDetails quote={quote} showContent={true} />
-
         {/* Retry Button */}
         {retryEnabled && onRetry && (
           <div
-            className={`transition-all duration-500 ease-out delay-300 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
+            className={`mb-2 transition-all duration-500 ease-out delay-300 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
           >
             <button
               type="button"
@@ -137,6 +134,9 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
             </button>
           </div>
         )}
+
+        {/* Transaction Details */}
+        <QuoteDetails quote={quote} showContent={true} />
       </div>
     </div>
   )

@@ -614,6 +614,9 @@
   .max-h-\[35vh\] {
     max-height: 35vh;
   }
+  .max-h-\[250px\] {
+    max-height: 250px;
+  }
   .max-h-\[300px\] {
     max-height: 300px;
   }

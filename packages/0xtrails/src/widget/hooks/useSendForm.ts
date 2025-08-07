@@ -797,6 +797,10 @@ export function useSendForm({
       const checksummedRecipient = getAddress(recipient)
       const checksummedAccount = getAddress(account.address)
 
+      if (tradeType === TradeType.EXACT_INPUT) {
+        return `Fund with ${amountDisplay} ${tokenSymbol}`
+      }
+
       if (isSameChain && isSameToken) {
         return `Execute`
       }
@@ -807,10 +811,6 @@ export function useSendForm({
 
       if (checksummedRecipient === checksummedAccount) {
         return `Receive ${destinationAmountDisplay} ${destinationTokenSymbol}`
-      }
-
-      if (tradeType === TradeType.EXACT_INPUT) {
-        return `Fund with ${amountDisplay} ${tokenSymbol}`
       }
 
       return `Pay with ${amountDisplay} ${tokenSymbol}`
