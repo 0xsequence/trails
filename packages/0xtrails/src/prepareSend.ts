@@ -192,6 +192,8 @@ export type PrepareSendQuote = {
   gasCostUsdDisplay: string
   originTokenRate: string
   destinationTokenRate: string
+  quoteProvider: string
+  quoteProviderUrl: string
 }
 
 export type PrepareSendReturn = {
@@ -598,6 +600,7 @@ async function sendHandlerForDifferentChainDifferentToken({
         transactionStates,
         originNativeTokenPriceUsd,
         slippageTolerance,
+        quoteProvider: "cctp",
       }),
       send: async (onOriginSend?: () => void): Promise<SendReturn> => {
         const originChain = testnet ? getTestnetChainInfo(chain)! : chain
@@ -870,6 +873,7 @@ async function sendHandlerForDifferentChainDifferentToken({
       priceImpact: getPriceImpactFromIntent(intent),
       transactionStates,
       originNativeTokenPriceUsd,
+      quoteProvider: intent?.quote?.quoteProvider,
     }),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
@@ -1140,6 +1144,7 @@ async function sendHandlerForSameChainSameToken({
       destinationChainId: effectiveOriginChainId,
       originNativeTokenPriceUsd,
       slippageTolerance,
+      quoteProvider: "",
     }),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
@@ -1426,6 +1431,7 @@ async function sendHandlerForSameChainDifferentToken({
       originChainId,
       destinationChainId: originChainId,
       originNativeTokenPriceUsd,
+      quoteProvider: "relay",
     }),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
       const { hasEnoughBalance, balanceError } = await checkAccountBalance({
@@ -2636,6 +2642,7 @@ export async function getNormalizedQuoteObject({
   slippageTolerance,
   priceImpact,
   originNativeTokenPriceUsd,
+  quoteProvider,
 }: {
   originAddress?: string
   destinationAddress?: string
@@ -2655,6 +2662,7 @@ export async function getNormalizedQuoteObject({
   slippageTolerance?: string
   priceImpact?: string
   originNativeTokenPriceUsd?: number | null
+  quoteProvider?: string
 }): Promise<PrepareSendQuote> {
   if (!destinationChainId) {
     throw new Error("Destination chain id is required")
@@ -2781,6 +2789,15 @@ export async function getNormalizedQuoteObject({
     destinationToken.symbol,
   )
 
+  let quoteProviderUrl = ""
+  if (quoteProvider === "cctp") {
+    quoteProviderUrl = "https://www.circle.com/"
+  } else if (quoteProvider === "relay") {
+    quoteProviderUrl = "https://relay.link/"
+  } else if (quoteProvider === "lifi") {
+    quoteProviderUrl = "https://li.fi/"
+  }
+
   return {
     originAddress: originAddress || "",
     destinationAddress: destinationAddress || "",
@@ -2821,6 +2838,8 @@ export async function getNormalizedQuoteObject({
     destinationAmountMinDisplay: formatAmountDisplay(
       destinationAmountMinFormatted,
     ),
+    quoteProvider: quoteProvider || "",
+    quoteProviderUrl: quoteProviderUrl || "",
   }
 }
 

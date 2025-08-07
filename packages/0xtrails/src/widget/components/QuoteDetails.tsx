@@ -446,6 +446,39 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
               </div>
             )}
 
+            {quote?.quoteProvider && (
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                  Swap Provider:
+                  <Tooltip message="The service that fullfils the swap and/or bridge">
+                    <InfoIcon className="w-3 h-3 text-gray-500 dark:text-gray-400 cursor-pointer" />
+                  </Tooltip>
+                </span>
+                <a
+                  href={quote.quoteProviderUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-xs text-gray-900 dark:text-white hover:underline flex items-center gap-1"
+                >
+                  {quote.quoteProvider}
+                  <svg
+                    className="w-3 h-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
+                </a>
+              </div>
+            )}
+
             {quote?.destinationCalldata && (
               <div className="space-y-2">
                 <button
