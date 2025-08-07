@@ -1,13 +1,15 @@
 import type { SequenceIndexerGateway } from "@0xsequence/indexer"
-import { ChevronLeft, Search } from "lucide-react"
+import { ChevronLeft, Search, ChevronDown } from "lucide-react"
 import type React from "react"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState, useMemo } from "react"
 import type { Token, TokenFormatted } from "../hooks/useTokenList.js"
 import { useTokenList } from "../hooks/useTokenList.js"
 import { TokenImage } from "./TokenImage.js"
+import { ChainImage } from "./ChainImage.js"
 import type { Mode } from "../../mode.js"
 import type { SupportedToken } from "../../tokens.js"
 import { RecentTokens } from "./RecentTokens.js"
+import { getChainInfo } from "../../chains.js"
 
 interface TokenListProps {
   onContinue: (selectedToken: Token) => void
@@ -33,11 +35,31 @@ export const TokenList: React.FC<TokenListProps> = ({
   onRecentTokenSelect,
 }) => {
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [filterByChainId, setFilterByChainId] = useState<number | null>(null)
+  const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false)
 
   useEffect(() => {
     // Auto-focus the search input when component mounts
     if (searchInputRef.current) {
       searchInputRef.current.focus()
+    }
+  }, [])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsChainDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
     }
   }, [])
   const {
@@ -49,7 +71,7 @@ export const TokenList: React.FC<TokenListProps> = ({
     isTokenSelected,
     selectedToken,
     showContinueButton,
-    filteredTokensFormatted,
+    filteredTokensFormatted: baseFilteredTokensFormatted,
     totalBalanceUsd,
     totalBalanceUsdFormatted,
     showInsufficientBalance,
@@ -60,6 +82,33 @@ export const TokenList: React.FC<TokenListProps> = ({
     indexerGatewayClient,
     onError,
   })
+
+  // Apply chain filter to tokens
+  const filteredTokensFormatted = useMemo(() => {
+    if (filterByChainId === null) {
+      return baseFilteredTokensFormatted
+    }
+    return baseFilteredTokensFormatted.filter(
+      (token) => token.chainId === filterByChainId,
+    )
+  }, [baseFilteredTokensFormatted, filterByChainId])
+
+  // Get unique chains from all tokens (not filtered by chain)
+  const uniqueChains = useMemo(() => {
+    const chainIds = new Set(
+      baseFilteredTokensFormatted.map((token) => token.chainId),
+    )
+    return Array.from(chainIds)
+      .map((chainId) => {
+        const chainInfo = getChainInfo(chainId)
+        return {
+          chainId,
+          name: chainInfo?.name || `Chain ${chainId}`,
+          imageUrl: "", // We'll use TokenImage component for chain icons
+        }
+      })
+      .sort((a, b) => a.name.localeCompare(b.name))
+  }, [baseFilteredTokensFormatted])
 
   // Filter recent tokens to only show ones that exist in the current token list and match search
   const filteredRecentTokens = recentTokens.filter((recentToken) => {
@@ -153,8 +202,74 @@ export const TokenList: React.FC<TokenListProps> = ({
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search tokens"
-          className="block w-full pl-10 pr-3 py-2 border trails-border-radius-input focus:ring-2 focus:ring-blue-500 focus:border-blue-500 trails-input"
+          className="block w-full pl-10 pr-12 py-2 border trails-border-radius-input focus:ring-2 focus:ring-blue-500 focus:border-blue-500 trails-input"
         />
+
+        {/* Chain Filter Dropdown Button */}
+        <div
+          className="absolute inset-y-0 right-0 flex items-center"
+          ref={dropdownRef}
+        >
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              setIsChainDropdownOpen(!isChainDropdownOpen)
+            }}
+            className="h-full px-3 flex items-center gap-2 cursor-pointer"
+          >
+            {filterByChainId && (
+              <ChainImage chainId={filterByChainId} size={20} />
+            )}
+            <ChevronDown
+              className={`h-4 w-4 text-gray-400 transition-transform ${
+                isChainDropdownOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+
+          {isChainDropdownOpen && (
+            <div className="absolute right-0 top-full mt-1 min-w-10 p-2 trails-bg-secondary trails-border trails-border-radius-list shadow-lg z-50 max-h-[300px] overflow-y-auto trails-scrollbar">
+              {/* All option */}
+              <div
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setFilterByChainId(null)
+                  setIsChainDropdownOpen(false)
+                }}
+                className={`flex items-center justify-center py-2 cursor-pointer hover:trails-hover-bg transition-colors ${
+                  filterByChainId === null ? "trails-bg-selected" : ""
+                }`}
+              >
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-full bg-gray-400" />
+                </div>
+              </div>
+
+              {/* Chain options */}
+              {uniqueChains.map((chain) => (
+                <div
+                  key={chain.chainId}
+                  onMouseDown={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setFilterByChainId(chain.chainId)
+                    setIsChainDropdownOpen(false)
+                  }}
+                  className={`flex items-center justify-center py-2 cursor-pointer hover:trails-hover-bg transition-colors ${
+                    filterByChainId === chain.chainId
+                      ? "trails-bg-selected"
+                      : ""
+                  }`}
+                >
+                  <ChainImage chainId={chain.chainId} size={32} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Recent Tokens */}
