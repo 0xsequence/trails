@@ -464,12 +464,12 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
                   </Tooltip>
                 </span>
                 <a
-                  href={quote.quoteProviderUrl}
+                  href={quote.quoteProvider?.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-medium text-xs text-gray-900 dark:text-white hover:underline flex items-center gap-1"
                 >
-                  {quote.quoteProvider}
+                  {quote.quoteProvider?.name}
                   <svg
                     className="w-3 h-3"
                     fill="none"

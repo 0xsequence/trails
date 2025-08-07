@@ -193,8 +193,7 @@ export type PrepareSendQuote = {
   gasCostUsdDisplay: string
   originTokenRate: string
   destinationTokenRate: string
-  quoteProvider: string
-  quoteProviderUrl: string
+  quoteProvider: QuoteProviderInfo | null
 }
 
 export type PrepareSendReturn = {
@@ -2299,6 +2298,12 @@ export type SwapReturn = {
   totalCompletionSeconds?: number
 }
 
+export type QuoteProviderInfo = {
+  id: string
+  name: string
+  url: string
+}
+
 export type UseQuoteReturn = {
   quote: {
     fromAmount: string
@@ -2315,6 +2320,7 @@ export type UseQuoteReturn = {
     completionEstimateSeconds: number
     transactionStates?: TransactionState[]
     originTokenRate?: string
+    quoteProvider?: QuoteProviderInfo | null
     destinationTokenRate?: string
   } | null
   swap: (() => Promise<SwapReturn | null>) | null
@@ -2462,6 +2468,7 @@ export function useQuote({
         transactionStates: prepareSendQuote.transactionStates,
         originTokenRate: prepareSendQuote.originTokenRate,
         destinationTokenRate: prepareSendQuote.destinationTokenRate,
+        quoteProvider: prepareSendQuote.quoteProvider,
       }
 
       const swap = async (): Promise<SwapReturn> => {
@@ -2814,6 +2821,22 @@ export async function getNormalizedQuoteObject({
     quoteProviderUrl = "https://li.fi/"
   }
 
+  const quoteProviderNames = {
+    cctp: "Circle CCTP",
+    relay: "Relay",
+    lifi: "LiFi",
+  }
+
+  const quoteProviderName =
+    quoteProviderNames[quoteProvider as keyof typeof quoteProviderNames] ||
+    quoteProvider ||
+    ""
+  const quoteProviderInfo: QuoteProviderInfo = {
+    id: quoteProvider || "",
+    name: quoteProviderName || "",
+    url: quoteProviderUrl || "",
+  }
+
   const priceImpactUsdDisplay = formatUsdAmountDisplay(priceImpactUsd)
 
   return {
@@ -2857,8 +2880,7 @@ export async function getNormalizedQuoteObject({
     destinationAmountMinDisplay: formatAmountDisplay(
       destinationAmountMinFormatted,
     ),
-    quoteProvider: quoteProvider || "",
-    quoteProviderUrl: quoteProviderUrl || "",
+    quoteProvider: quoteProviderInfo,
   }
 }
 
