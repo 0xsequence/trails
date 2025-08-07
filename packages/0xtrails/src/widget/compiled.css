@@ -125,12 +125,14 @@
   --color-green-600: oklch(62.7% 0.194 149.214);
   --color-green-700: oklch(52.7% 0.154 150.069);
   --color-green-900: oklch(39.3% 0.095 152.535);
+  --color-blue-100: oklch(93.2% 0.032 255.585);
   --color-blue-200: oklch(88.2% 0.059 254.128);
   --color-blue-300: oklch(80.9% 0.105 251.813);
   --color-blue-400: oklch(70.7% 0.165 254.624);
   --color-blue-500: oklch(62.3% 0.214 259.815);
   --color-blue-600: oklch(54.6% 0.245 262.881);
   --color-blue-700: oklch(48.8% 0.243 264.376);
+  --color-blue-900: oklch(37.9% 0.146 265.522);
   --color-gray-50: oklch(98.5% 0.002 247.839);
   --color-gray-100: oklch(96.7% 0.003 264.542);
   --color-gray-200: oklch(92.8% 0.006 264.531);
@@ -485,6 +487,9 @@
   }
   .mr-8 {
     margin-right: calc(var(--spacing) * 8);
+  }
+  .mb-0 {
+    margin-bottom: calc(var(--spacing) * 0);
   }
   .mb-1 {
     margin-bottom: calc(var(--spacing) * 1);
@@ -1040,6 +1045,10 @@
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
+  .border-2 {
+    border-style: var(--tw-border-style);
+    border-width: 2px;
+  }
   .border-b {
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 1px;
@@ -1086,6 +1095,9 @@
   .border-red-200 {
     border-color: var(--color-red-200);
   }
+  .border-transparent {
+    border-color: transparent;
+  }
   .border-yellow-200 {
     border-color: var(--color-yellow-200);
   }
@@ -1130,6 +1142,9 @@
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-black) 50%, transparent);
     }
+  }
+  .bg-blue-100 {
+    background-color: var(--color-blue-100);
   }
   .bg-blue-500 {
     background-color: var(--color-blue-500);
@@ -2543,6 +2558,14 @@
   .dark\:bg-blue-600 {
     &:is([data-theme="dark"] *) {
       background-color: var(--color-blue-600);
+    }
+  }
+  .dark\:bg-blue-900\/30 {
+    &:is([data-theme="dark"] *) {
+      background-color: color-mix(in srgb, oklch(37.9% 0.146 265.522) 30%, transparent);
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: color-mix(in oklab, var(--color-blue-900) 30%, transparent);
+      }
     }
   }
   .dark\:bg-gray-600 {

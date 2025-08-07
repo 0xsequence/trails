@@ -6,6 +6,8 @@ import type { Token, TokenFormatted } from "../hooks/useTokenList.js"
 import { useTokenList } from "../hooks/useTokenList.js"
 import { TokenImage } from "./TokenImage.js"
 import type { Mode } from "../../mode.js"
+import type { SupportedToken } from "../../tokens.js"
+import { RecentTokens } from "./RecentTokens.js"
 
 interface TokenListProps {
   onContinue: (selectedToken: Token) => void
@@ -15,6 +17,8 @@ interface TokenListProps {
   targetAmountUsdFormatted?: string | null
   onError: (error: Error | string | null) => void
   mode?: Mode
+  recentTokens?: SupportedToken[]
+  onRecentTokenSelect?: (token: SupportedToken) => void
 }
 
 export const TokenList: React.FC<TokenListProps> = ({
@@ -25,6 +29,8 @@ export const TokenList: React.FC<TokenListProps> = ({
   targetAmountUsdFormatted,
   onError,
   mode,
+  recentTokens = [],
+  onRecentTokenSelect,
 }) => {
   const searchInputRef = useRef<HTMLInputElement>(null)
 
@@ -54,6 +60,48 @@ export const TokenList: React.FC<TokenListProps> = ({
     indexerGatewayClient,
     onError,
   })
+
+  // Filter recent tokens to only show ones that exist in the current token list and match search
+  const filteredRecentTokens = recentTokens.filter((recentToken) => {
+    // First check if this recent token exists in the current token list
+    const existsInTokenList = filteredTokensFormatted.some(
+      (token) =>
+        token.contractAddress.toLowerCase() ===
+          recentToken.contractAddress.toLowerCase() &&
+        token.chainId === recentToken.chainId,
+    )
+
+    if (!existsInTokenList) return false
+
+    // Then apply search filtering
+    if (!searchQuery.trim()) return true
+
+    const query = searchQuery.toLowerCase()
+    return (
+      recentToken.symbol.toLowerCase().includes(query) ||
+      recentToken.name.toLowerCase().includes(query) ||
+      recentToken.contractAddress.toLowerCase().includes(query)
+    )
+  })
+
+  // Handle recent token selection by finding the actual token from the list
+  const handleRecentTokenSelect = (recentToken: SupportedToken) => {
+    // Find the actual token from the filtered tokens list
+    const actualToken = filteredTokensFormatted.find(
+      (token) =>
+        token.contractAddress.toLowerCase() ===
+          recentToken.contractAddress.toLowerCase() &&
+        token.chainId === recentToken.chainId,
+    )
+
+    if (actualToken) {
+      // Use the actual token with balance info
+      handleTokenSelect(actualToken)
+    } else if (onRecentTokenSelect) {
+      // Fallback to the original handler if token not found in current list
+      onRecentTokenSelect(recentToken)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -108,6 +156,14 @@ export const TokenList: React.FC<TokenListProps> = ({
           className="block w-full pl-10 pr-3 py-2 border trails-border-radius-input focus:ring-2 focus:ring-blue-500 focus:border-blue-500 trails-input"
         />
       </div>
+
+      {/* Recent Tokens */}
+      {!isLoadingSortedTokens && filteredRecentTokens.length > 0 && (
+        <RecentTokens
+          recentTokens={filteredRecentTokens}
+          onTokenSelect={handleRecentTokenSelect}
+        />
+      )}
 
       {isLoadingSortedTokens && (
         <div className="text-center py-4">

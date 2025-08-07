@@ -55,10 +55,12 @@ import WalletConfirmation from "./components/WalletConfirmation.js"
 import { ThemeProvider } from "./components/ThemeProvider.js"
 import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
 import { useAmountUsd } from "./hooks/useAmountUsd.js"
+import { useRecentTokens } from "./hooks/useRecentTokens.js"
 import css from "./compiled.css?inline"
 import { trackWalletConnected, trackWidgetScreen } from "../analytics.js"
 import type { PrepareSendQuote } from "../prepareSend.js"
 import { getNormalizedQuoteObject } from "../prepareSend.js"
+import type { SupportedToken } from "../tokens.js"
 import {
   getErrorString,
   getIsWalletRejectedError,
@@ -258,6 +260,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
   ) => {
     const { address, isConnected, chainId, connector } = useAccount()
     const { disconnectAsync } = useDisconnect()
+    const { recentTokens, addRecentToken } = useRecentTokens(address)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [currentScreen, setCurrentScreen] = useState<Screen>(
       isConnected ? "tokens" : "connect",
@@ -467,11 +470,45 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         setError(null)
         setSelectedToken(token)
         setCurrentScreen(mode === "fund" ? "fund-form" : "send-form")
+
+        // Track the token in recent tokens
+        const chainInfo = getChainInfo(token.chainId)
+        const supportedToken: SupportedToken = {
+          id: `${token.symbol}-${chainInfo?.name || token.chainId}`,
+          symbol: token.symbol,
+          name: token.name,
+          contractAddress: token.contractAddress,
+          decimals: token.contractInfo?.decimals || 18,
+          chainId: token.chainId,
+          chainName: chainInfo?.name || `Chain ${token.chainId}`,
+          imageUrl: token.imageUrl,
+        }
+        addRecentToken(supportedToken)
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "An unknown error occurred",
         )
       }
+    }
+
+    const handleRecentTokenSelect = (supportedToken: SupportedToken) => {
+      // Convert SupportedToken back to Token format for consistency
+      const token: Token = {
+        id: Math.random(), // Temporary ID
+        name: supportedToken.name,
+        symbol: supportedToken.symbol,
+        balance: "0", // We don't have balance info for recent tokens
+        imageUrl: supportedToken.imageUrl,
+        chainId: supportedToken.chainId,
+        contractAddress: supportedToken.contractAddress,
+        contractInfo: {
+          decimals: supportedToken.decimals,
+          symbol: supportedToken.symbol,
+          name: supportedToken.name,
+        },
+      }
+
+      handleTokenSelect(token)
     }
 
     const handleOnSend = async (amount: string, recipient: string) => {
@@ -1069,6 +1106,8 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               targetAmountUsdFormatted={targetAmountUsdFormatted}
               onError={handleTokenListError}
               mode={mode}
+              recentTokens={recentTokens}
+              onRecentTokenSelect={handleRecentTokenSelect}
             />
           )
         case "send-form":
