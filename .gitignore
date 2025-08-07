@@ -47,3 +47,6 @@ apps/trails-demo/public/js/trails.min.js
 
 # Wrangler cache
 .wrangler/
+
+# Tarball files
+*.tgz
