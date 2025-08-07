@@ -32,6 +32,7 @@ interface PaySendFormProps {
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
   setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
+  quoteProvider?: string
 }
 
 export const PaySendForm: React.FC<PaySendFormProps> = ({
@@ -53,6 +54,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
   paymasterUrls,
   gasless,
   setWalletConfirmRetryHandler,
+  quoteProvider,
 }) => {
   const {
     amount,
@@ -108,6 +110,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
     selectedToken,
     setWalletConfirmRetryHandler,
     tradeType: TradeType.EXACT_OUTPUT,
+    quoteProvider,
   })
 
   // Handle amount input changes with decimal validation

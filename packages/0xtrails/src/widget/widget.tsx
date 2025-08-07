@@ -128,6 +128,7 @@ export type TrailsWidgetProps = {
   gasless?: boolean
   buttonText?: string
   customCss?: string
+  quoteProvider?: string
 }
 
 export interface TrailsWidgetRef {
@@ -255,6 +256,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       paymasterUrls,
       gasless,
       buttonText,
+      quoteProvider,
     },
     ref,
   ) => {
@@ -1131,6 +1133,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               paymasterUrls={paymasterUrls}
               gasless={gasless}
               setWalletConfirmRetryHandler={setWalletConfirmRetryHandler}
+              quoteProvider={quoteProvider}
             />
           ) : (
             <div className="text-center p-4 rounded-lg text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800">
@@ -1158,6 +1161,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               gasless={gasless}
               setWalletConfirmRetryHandler={setWalletConfirmRetryHandler}
               toCalldata={toCalldata || undefined}
+              quoteProvider={quoteProvider}
             />
           ) : (
             <div className="text-center p-4 rounded-lg text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800">

@@ -46,6 +46,7 @@ interface OutputScreenProps {
   gasless: boolean | null
   buttonText: string
   customCss: string
+  quoteProvider: string
   children: React.ReactNode
   apiUrl: string
   indexerUrl: string
@@ -72,6 +73,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
     gasless,
     buttonText,
     customCss,
+    quoteProvider,
     apiUrl,
     indexerUrl,
     env,
@@ -185,6 +187,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
                   onDestinationConfirmation={onDestinationConfirmation}
                   buttonText={buttonText}
                   customCss={customCss}
+                  {...(quoteProvider !== "auto" && { quoteProvider })}
                 />
               </div>
             </div>
@@ -215,6 +218,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
                 onDestinationConfirmation={onDestinationConfirmation}
                 buttonText={buttonText}
                 customCss={customCss}
+                {...(quoteProvider !== "auto" && { quoteProvider })}
               >
                 {useCustomButton ? (
                   <button
@@ -246,6 +250,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
                 gasless={gasless}
                 buttonText={buttonText}
                 customCss={customCss}
+                quoteProvider={quoteProvider}
                 onOriginConfirmation={onOriginConfirmation?.toString()}
                 onDestinationConfirmation={onDestinationConfirmation?.toString()}
               />

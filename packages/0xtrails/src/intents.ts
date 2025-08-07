@@ -2,7 +2,7 @@ import type {
   CommitIntentConfigArgs,
   CommitIntentConfigReturn,
   GetIntentCallsPayloadsArgs,
-  GetIntentCallsPayloadsReturn as GetIntentCallsPayloadsReturnFromAPI,
+  GetIntentCallsPayloadsReturn,
   IntentCallsPayload,
   IntentPrecondition,
   SequenceAPIClient,
@@ -95,7 +95,7 @@ export interface TrailsFee {
 // QuoteProvider defines the possible liquidity providers.
 export type QuoteProvider = "lifi" | "relay" | "cctp"
 
-export type GetIntentCallsPayloadsReturn = GetIntentCallsPayloadsReturnFromAPI
+export type { GetIntentCallsPayloadsReturn }
 
 export type OriginCallParams = {
   to: `0x${string}` | null

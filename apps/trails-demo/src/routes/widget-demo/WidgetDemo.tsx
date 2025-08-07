@@ -36,6 +36,7 @@ export const WidgetDemo = () => {
       return ""
     }
   })
+  const [quoteProvider, setQuoteProvider] = useState("auto")
   const [mode, setMode] = useState<Mode | null>(null)
 
   // Resizable sidebar state
@@ -174,6 +175,8 @@ export const WidgetDemo = () => {
               setButtonText={setButtonText}
               customCss={customCss}
               setCustomCss={setCustomCss}
+              quoteProvider={quoteProvider}
+              setQuoteProvider={setQuoteProvider}
             />
           </div>
         </div>
@@ -220,6 +223,7 @@ export const WidgetDemo = () => {
                 gasless={gasless}
                 buttonText={buttonText}
                 customCss={customCss}
+                quoteProvider={quoteProvider}
                 apiUrl={sequenceApiUrl}
                 indexerUrl={sequenceIndexerUrl}
                 env={sequenceEnv}

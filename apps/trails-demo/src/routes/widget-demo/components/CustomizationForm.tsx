@@ -57,6 +57,8 @@ interface CustomizationFormProps {
   setButtonText: (value: string) => void
   customCss: string
   setCustomCss: (value: string) => void
+  quoteProvider: string
+  setQuoteProvider: (value: string) => void
 }
 
 // Local storage keys
@@ -78,6 +80,7 @@ export const STORAGE_KEYS = {
   CUSTOM_TOKEN_ADDRESS: "trails_demo_custom_token_address",
   BUTTON_TEXT: "trails_demo_button_text",
   CUSTOM_CSS: "trails_demo_custom_css",
+  QUOTE_PROVIDER: "trails_demo_quote_provider",
 } as const
 
 interface UseAccountButtonProps {
@@ -168,6 +171,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   setButtonText,
   customCss,
   setCustomCss,
+  quoteProvider,
+  setQuoteProvider,
 }) => {
   // Separate state for textarea content - initialize from localStorage
   const [textareaCss, setTextareaCss] = useState(() => {
@@ -534,6 +539,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     )
     const savedButtonText = localStorage.getItem(STORAGE_KEYS.BUTTON_TEXT)
     const savedCustomCss = localStorage.getItem(STORAGE_KEYS.CUSTOM_CSS)
+    const savedQuoteProvider = localStorage.getItem(STORAGE_KEYS.QUOTE_PROVIDER)
 
     // Only set values if they exist in localStorage
     if (savedAppId !== null) setAppId(savedAppId)
@@ -577,6 +583,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
     if (savedButtonText !== null) setButtonText(savedButtonText)
     if (savedCustomCss !== null) setCustomCss(savedCustomCss)
+    if (savedQuoteProvider !== null) setQuoteProvider(savedQuoteProvider)
 
     setInitialStateLoaded(true)
   }, [
@@ -596,6 +603,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setCustomTokenAddress,
     setButtonText,
     setCustomCss,
+    setQuoteProvider,
   ])
 
   // Save values to localStorage whenever they change and clear scenario when mode changes
@@ -743,6 +751,15 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
   }, [customCss])
 
+  // Save quoteProvider to localStorage
+  useEffect(() => {
+    if (quoteProvider) {
+      localStorage.setItem(STORAGE_KEYS.QUOTE_PROVIDER, quoteProvider)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.QUOTE_PROVIDER)
+    }
+  }, [quoteProvider])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Close scenario dropdown when clicking outside
@@ -778,6 +795,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setCustomTokenAddress("") // Reset customTokenAddress
     setShowCustomTokenInput(false) // Reset custom token input visibility
     setButtonText("") // Reset buttonText
+    setQuoteProvider("auto") // Reset quoteProvider to default
     resetCustomCss() // Reset custom CSS
     // Clear localStorage
     Object.values(STORAGE_KEYS).forEach((key) => {
@@ -1804,6 +1822,47 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                       </button>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div className="pt-2">
+          <details className="group">
+            <summary className="flex items-center cursor-pointer list-none py-2">
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                Advanced Settings
+              </span>
+              <ChevronDown className="text-gray-500 dark:text-gray-400 h-5 w-5 transition-transform group-open:rotate-180 ml-2" />
+            </summary>
+            <div className="mt-3 space-y-4">
+              <div>
+                <label
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2 flex items-center gap-2"
+                  htmlFor="quoteProvider"
+                >
+                  Quote Provider
+                  <Tooltip message="Choose which swap provider to use for quote. Auto will select the best available provider automatically.">
+                    <InfoIcon
+                      size="sm"
+                      className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                    />
+                  </Tooltip>
+                </label>
+                <div className="relative inline-block">
+                  <select
+                    id="quoteProvider"
+                    value={quoteProvider}
+                    onChange={(e) => setQuoteProvider(e.target.value)}
+                    className="px-3 sm:px-4 py-2 pr-10 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm appearance-none cursor-pointer"
+                  >
+                    <option value="auto">Auto (Recommended)</option>
+                    <option value="relay">Relay</option>
+                    <option value="lifi">LiFi</option>
+                    <option value="cctp">CCTP</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
                 </div>
               </div>
             </div>

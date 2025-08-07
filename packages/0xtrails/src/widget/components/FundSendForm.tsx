@@ -33,6 +33,7 @@ interface FundSendFormProps {
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
   setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
+  quoteProvider?: string
 }
 
 export const FundSendForm: React.FC<FundSendFormProps> = ({
@@ -54,6 +55,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
   paymasterUrls,
   gasless,
   setWalletConfirmRetryHandler,
+  quoteProvider,
 }) => {
   // Local state for fund-specific functionality
   const [isInputTypeUsd, setIsInputTypeUsd] = useState(false)
@@ -118,6 +120,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     selectedToken,
     setWalletConfirmRetryHandler,
     tradeType: TradeType.EXACT_INPUT,
+    quoteProvider,
   })
 
   // Get source token price for USD conversions

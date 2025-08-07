@@ -120,7 +120,7 @@ export enum TradeType {
   EXACT_OUTPUT = "EXACT_OUTPUT",
 }
 
-export type SendOptions = {
+export type PrepareSendOptions = {
   account: Account
   originTokenAddress: string
   originChainId: number
@@ -148,6 +148,7 @@ export type SendOptions = {
   gasless?: boolean
   slippageTolerance?: string
   originNativeTokenPriceUsd?: number | null
+  quoteProvider?: string | null
 }
 
 export type PrepareSendFees = {
@@ -270,8 +271,13 @@ function getIntentArgs(
   destinationSalt: string = Date.now().toString(),
   slippageTolerance: string, // 0.03 = 3%
   tradeType: TradeType,
+  provider?: string | null,
 ): GetIntentCallsPayloadsArgs {
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
+
+  if (!provider || provider === "auto") {
+    provider = undefined
+  }
 
   const intentArgs = {
     userAddress: mainSignerAddress,
@@ -288,13 +294,14 @@ function getIntentArgs(
     destinationSalt,
     slippageTolerance: Number(slippageTolerance),
     tradeType,
+    provider,
   }
 
   return intentArgs
 }
 
 export async function prepareSend(
-  options: SendOptions,
+  options: PrepareSendOptions,
 ): Promise<PrepareSendReturn> {
   const {
     account,
@@ -323,6 +330,7 @@ export async function prepareSend(
     gasless = false,
     slippageTolerance = "0.03", // 0.03 = 3%
     originNativeTokenPriceUsd,
+    quoteProvider,
   } = options
 
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
@@ -506,6 +514,7 @@ export async function prepareSend(
     slippageTolerance,
     tradeType,
     originNativeTokenPriceUsd,
+    quoteProvider,
   })
 }
 
@@ -540,6 +549,7 @@ async function sendHandlerForDifferentChainDifferentToken({
   slippageTolerance,
   tradeType,
   originNativeTokenPriceUsd,
+  quoteProvider,
 }: {
   mainSignerAddress: string
   originChainId: number
@@ -571,6 +581,7 @@ async function sendHandlerForDifferentChainDifferentToken({
   slippageTolerance: string
   tradeType: TradeType
   originNativeTokenPriceUsd?: number | null
+  quoteProvider?: string | null
 }): Promise<PrepareSendReturn> {
   const testnet = isTestnetDebugMode()
   const useCctp = getUseCctp(
@@ -778,6 +789,7 @@ async function sendHandlerForDifferentChainDifferentToken({
     destinationSalt,
     slippageTolerance,
     tradeType,
+    quoteProvider,
   )
 
   console.log("[trails-sdk] Creating intent with args:", intentArgs)

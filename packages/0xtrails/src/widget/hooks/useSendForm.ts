@@ -117,6 +117,7 @@ export type UseSendProps = {
   selectedToken: Token
   setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
   tradeType?: TradeType
+  quoteProvider?: string
 }
 
 export type UseSendReturn = {
@@ -182,6 +183,7 @@ export function useSendForm({
   onComplete,
   setWalletConfirmRetryHandler,
   tradeType = TradeType.EXACT_OUTPUT,
+  quoteProvider,
 }: UseSendProps): UseSendReturn {
   const [amount, setAmount] = useState(
     tradeType === TradeType.EXACT_INPUT ? "" : (toAmount ?? ""),
@@ -581,6 +583,7 @@ export function useSendForm({
           )?.url ?? undefined,
         gasless,
         originNativeTokenPriceUsd: nativeTokenPriceUsd,
+        quoteProvider,
       }
 
       const result = await prepareSend(options)
@@ -619,6 +622,7 @@ export function useSendForm({
     selectedDestToken,
     selectedDestinationChain,
     selectedToken,
+    quoteProvider,
   ])
 
   // Auto-fetch quotes when inputs change (debounced)
