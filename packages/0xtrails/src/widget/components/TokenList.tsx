@@ -2,6 +2,7 @@ import type { SequenceIndexerGateway } from "@0xsequence/indexer"
 import { ChevronLeft, Search, ChevronDown } from "lucide-react"
 import type React from "react"
 import { useEffect, useRef, useState, useMemo } from "react"
+import { AnimatePresence, motion } from "framer-motion"
 import type { Token, TokenFormatted } from "../hooks/useTokenList.js"
 import { useTokenList } from "../hooks/useTokenList.js"
 import { TokenImage } from "./TokenImage.js"
@@ -153,7 +154,7 @@ export const TokenList: React.FC<TokenListProps> = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       <div className="flex items-center justify-between relative">
         <div className="flex items-center">
           {!targetAmountUsd && mode !== "fund" && (
@@ -273,12 +274,21 @@ export const TokenList: React.FC<TokenListProps> = ({
       </div>
 
       {/* Recent Tokens */}
-      {!isLoadingSortedTokens && filteredRecentTokens.length > 0 && (
-        <RecentTokens
-          recentTokens={filteredRecentTokens}
-          onTokenSelect={handleRecentTokenSelect}
-        />
-      )}
+      <AnimatePresence>
+        {!isLoadingSortedTokens && filteredRecentTokens.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.05, ease: "easeOut" }}
+          >
+            <RecentTokens
+              recentTokens={filteredRecentTokens}
+              onTokenSelect={handleRecentTokenSelect}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {isLoadingSortedTokens && (
         <div className="text-center py-4">
@@ -304,90 +314,101 @@ export const TokenList: React.FC<TokenListProps> = ({
       {/* Token List */}
       {filteredTokensFormatted.length > 0 && (
         <div className="max-h-[35vh] overflow-y-auto trails-border-radius-list trails-scrollbar trails-list">
-          {filteredTokensFormatted.map((token: TokenFormatted) => {
-            const {
-              symbol,
-              imageUrl,
-              chainId,
-              contractAddress,
-              balanceUsdFormatted,
-              tokenName,
-              priceUsd,
-              balanceFormatted,
-              isSufficientBalance,
-            } = token
+          <AnimatePresence mode="popLayout">
+            {filteredTokensFormatted.map((token: TokenFormatted) => {
+              const {
+                symbol,
+                imageUrl,
+                chainId,
+                contractAddress,
+                balanceUsdFormatted,
+                tokenName,
+                priceUsd,
+                balanceFormatted,
+                isSufficientBalance,
+              } = token
 
-            return (
-              <button
-                key={`${chainId}-${contractAddress}`}
-                type="button"
-                onClick={() => handleTokenSelect(token)}
-                title={
-                  !isSufficientBalance
-                    ? "Insufficient balance for this token"
-                    : undefined
-                }
-                className={`w-full py-2.5 px-3 flex items-center space-x-3 transition-colors trails-list-item border-b trails-border-list ${
-                  isTokenSelected(token) ? "bg-gray-50 dark:bg-gray-800" : ""
-                } ${!isSufficientBalance ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-              >
-                <div className="relative flex-shrink-0">
-                  <div
-                    className={`rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-700`}
-                  >
-                    {contractAddress ? (
-                      <TokenImage
-                        symbol={symbol[0]}
-                        imageUrl={imageUrl}
-                        chainId={chainId}
-                        size={32}
-                      />
-                    ) : (
-                      <span className="text-base font-medium text-gray-600 dark:text-gray-300">
-                        {symbol}
-                      </span>
-                    )}
+              return (
+                <motion.button
+                  key={`${chainId}-${contractAddress}`}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{
+                    duration: 0.05,
+                    ease: "easeOut",
+                    layout: { duration: 0.08, ease: "easeOut" },
+                  }}
+                  type="button"
+                  onClick={() => handleTokenSelect(token)}
+                  title={
+                    !isSufficientBalance
+                      ? "Insufficient balance for this token"
+                      : undefined
+                  }
+                  className={`w-full py-2.5 px-3 flex items-center space-x-3 transition-colors trails-list-item border-b trails-border-list ${
+                    isTokenSelected(token) ? "bg-gray-50 dark:bg-gray-800" : ""
+                  } ${!isSufficientBalance ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                >
+                  <div className="relative flex-shrink-0">
+                    <div
+                      className={`rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-700`}
+                    >
+                      {contractAddress ? (
+                        <TokenImage
+                          symbol={symbol[0]}
+                          imageUrl={imageUrl}
+                          chainId={chainId}
+                          size={32}
+                        />
+                      ) : (
+                        <span className="text-base font-medium text-gray-600 dark:text-gray-300">
+                          {symbol}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex-1 min-w-0 text-left">
-                  <h3
-                    className={`text-sm font-medium truncate ${"text-gray-900 dark:text-white"} ${!isSufficientBalance ? "text-gray-500 dark:text-gray-500" : ""}`}
-                  >
-                    {tokenName}
-                  </h3>
-                  <p
-                    className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${!isSufficientBalance ? "text-gray-600 dark:text-gray-600" : ""}`}
-                  >
-                    {symbol}
-                  </p>
-                </div>
+                  <div className="flex-1 min-w-0 text-left">
+                    <h3
+                      className={`text-sm font-medium truncate ${"text-gray-900 dark:text-white"} ${!isSufficientBalance ? "text-gray-500 dark:text-gray-500" : ""}`}
+                    >
+                      {tokenName}
+                    </h3>
+                    <p
+                      className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${!isSufficientBalance ? "text-gray-600 dark:text-gray-600" : ""}`}
+                    >
+                      {symbol}
+                    </p>
+                  </div>
 
-                <div className="text-right flex-shrink-0">
-                  {priceUsd > 0 ? (
-                    <>
+                  <div className="text-right flex-shrink-0">
+                    {priceUsd > 0 ? (
+                      <>
+                        <p
+                          className={`text-sm font-medium ${"text-gray-900 dark:text-white"} ${!isSufficientBalance ? "text-gray-500 dark:text-gray-500" : ""}`}
+                        >
+                          {balanceUsdFormatted}
+                        </p>
+                        <p
+                          className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${!isSufficientBalance ? "text-gray-600 dark:text-gray-600" : ""}`}
+                        >
+                          {balanceFormatted}
+                        </p>
+                      </>
+                    ) : (
                       <p
                         className={`text-sm font-medium ${"text-gray-900 dark:text-white"} ${!isSufficientBalance ? "text-gray-500 dark:text-gray-500" : ""}`}
                       >
-                        {balanceUsdFormatted}
-                      </p>
-                      <p
-                        className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${!isSufficientBalance ? "text-gray-600 dark:text-gray-600" : ""}`}
-                      >
                         {balanceFormatted}
                       </p>
-                    </>
-                  ) : (
-                    <p
-                      className={`text-sm font-medium ${"text-gray-900 dark:text-white"} ${!isSufficientBalance ? "text-gray-500 dark:text-gray-500" : ""}`}
-                    >
-                      {balanceFormatted}
-                    </p>
-                  )}
-                </div>
-              </button>
-            )
-          })}
+                    )}
+                  </div>
+                </motion.button>
+              )
+            })}
+          </AnimatePresence>
         </div>
       )}
 
