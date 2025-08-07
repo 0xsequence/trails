@@ -1,6 +1,6 @@
 {
   "name": "0xtrails",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "SDK for Trails",
   "type": "module",
   "main": "./dist/index.js",
