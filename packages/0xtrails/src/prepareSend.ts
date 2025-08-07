@@ -186,6 +186,7 @@ export type PrepareSendQuote = {
   fees: PrepareSendFees
   slippageTolerance: string
   priceImpact: string
+  priceImpactUsdDisplay: string
   completionEstimateSeconds: number
   transactionStates: TransactionState[]
   gasCostUsd: number
@@ -871,6 +872,7 @@ async function sendHandlerForDifferentChainDifferentToken({
       destinationChainId,
       slippageTolerance: slippageTolerance,
       priceImpact: getPriceImpactFromIntent(intent),
+      priceImpactUsd: getPriceImpactUsdFromIntent(intent),
       transactionStates,
       originNativeTokenPriceUsd,
       quoteProvider: intent?.quote?.quoteProvider,
@@ -1427,6 +1429,7 @@ async function sendHandlerForSameChainDifferentToken({
       fees: getFeesFromRelaySdkQuote(quote),
       slippageTolerance: getSlippageToleranceFromRelaySdkQuote(quote),
       priceImpact: getPriceImpactFromRelaySdkQuote(quote),
+      priceImpactUsd: getPriceImpactUsdFromRelaySdkQuote(quote),
       transactionStates,
       originChainId,
       destinationChainId: originChainId,
@@ -2530,8 +2533,8 @@ export function getFeesFromIntent(
     toAmountUsd,
   }: { tradeType: TradeType; fromAmountUsd: number; toAmountUsd: number },
 ): PrepareSendFees {
-  const totalFeeAmountUsd = Math.max(fromAmountUsd - toAmountUsd, 0)
-
+  // TODO: remove this once API types are regenerated
+  const totalFeeAmountUsd = (intent?.quote as any)?.quoteProviderFeeUsd ?? 0
   const totalFeeAmountUsdDisplay = formatUsdAmountDisplay(totalFeeAmountUsd)
 
   console.log("[trails-sdk] getFeesFromIntent", {
@@ -2562,6 +2565,13 @@ export function getPriceImpactFromIntent(
   return intent?.quote?.priceImpact?.toString() ?? "0"
 }
 
+export function getPriceImpactUsdFromIntent(
+  intent: GetIntentCallsPayloadsReturn,
+): string {
+  // Temporary type assertion until API types are regenerated
+  return (intent?.quote as any)?.priceImpactUsd?.toString() ?? "0"
+}
+
 export function getFeesFromRelaySdkQuote(quote: RelayQuote): PrepareSendFees {
   const totalFeeAmountUsd = quote?.fees?.relayer?.amount ?? 0
   const totalFeeAmountUsdDisplay = formatUsdAmountDisplay(totalFeeAmountUsd)
@@ -2582,7 +2592,11 @@ export function getSlippageToleranceFromRelaySdkQuote(
 }
 
 export function getPriceImpactFromRelaySdkQuote(quote: RelayQuote): string {
-  return quote?.details?.swapImpact?.percent ?? "0"
+  return (quote?.details?.swapImpact?.percent ?? 0).toString()
+}
+
+export function getPriceImpactUsdFromRelaySdkQuote(quote: RelayQuote): string {
+  return (quote?.details?.swapImpact?.usd ?? 0).toString()
 }
 
 export function getZeroFees(): PrepareSendFees {
@@ -2641,6 +2655,7 @@ export async function getNormalizedQuoteObject({
   fees,
   slippageTolerance,
   priceImpact,
+  priceImpactUsd,
   originNativeTokenPriceUsd,
   quoteProvider,
 }: {
@@ -2661,6 +2676,7 @@ export async function getNormalizedQuoteObject({
   fees?: PrepareSendFees
   slippageTolerance?: string
   priceImpact?: string
+  priceImpactUsd?: string
   originNativeTokenPriceUsd?: number | null
   quoteProvider?: string
 }): Promise<PrepareSendQuote> {
@@ -2798,6 +2814,8 @@ export async function getNormalizedQuoteObject({
     quoteProviderUrl = "https://li.fi/"
   }
 
+  const priceImpactUsdDisplay = formatUsdAmountDisplay(priceImpactUsd)
+
   return {
     originAddress: originAddress || "",
     destinationAddress: destinationAddress || "",
@@ -2821,6 +2839,7 @@ export async function getNormalizedQuoteObject({
     fees: fees || getZeroFees(),
     slippageTolerance: slippageTolerance || "0",
     priceImpact: priceImpact || "0",
+    priceImpactUsdDisplay: priceImpactUsdDisplay || "0",
     originChain,
     destinationChain,
     completionEstimateSeconds: getCompletionEstimateSeconds({

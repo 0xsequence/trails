@@ -419,16 +419,25 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
             )}
 
             {quote?.priceImpact != null && (
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                  Price Impact:
-                  <Tooltip message="The percentage change in the token price caused by your trade. Higher impact means your trade affects the market price more, potentially resulting in worse rates.">
-                    <InfoIcon className="w-3 h-3 text-gray-500 dark:text-gray-400 cursor-pointer" />
-                  </Tooltip>
-                </span>
-                <span className="font-medium text-xs text-gray-900 dark:text-white">
-                  {quote.priceImpact}%
-                </span>
+              <div className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                    Price Impact:
+                    <Tooltip message="The percentage change in the token price caused by your trade. Higher impact means your trade affects the market price more, potentially resulting in worse rates.">
+                      <InfoIcon className="w-3 h-3 text-gray-500 dark:text-gray-400 cursor-pointer" />
+                    </Tooltip>
+                  </span>
+                  <span className="font-medium text-xs text-gray-900 dark:text-white">
+                    {quote.priceImpact}%
+                  </span>
+                </div>
+                {quote.priceImpactUsdDisplay && (
+                  <div className="text-right">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      ≈ {quote.priceImpactUsdDisplay}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 
