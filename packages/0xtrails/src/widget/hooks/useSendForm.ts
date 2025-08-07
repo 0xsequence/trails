@@ -792,8 +792,18 @@ export function useSendForm({
     )
 
     try {
+      const isSameChain = selectedToken.chainId === selectedDestinationChain.id
+      const isSameToken = selectedToken.symbol === selectedDestToken.symbol
       const checksummedRecipient = getAddress(recipient)
       const checksummedAccount = getAddress(account.address)
+
+      if (isSameChain && isSameToken) {
+        return `Execute`
+      }
+
+      if (isSameChain && !isSameToken) {
+        return `Swap ${amountDisplay} ${tokenSymbol}`
+      }
 
       if (checksummedRecipient === checksummedAccount) {
         return `Receive ${destinationAmountDisplay} ${destinationTokenSymbol}`
@@ -820,6 +830,7 @@ export function useSendForm({
     selectedToken,
     tradeType,
     prepareSendResult?.quote?.originAmountFormatted,
+    selectedDestinationChain.id,
   ])
 
   return {

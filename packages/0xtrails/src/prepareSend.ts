@@ -1384,6 +1384,30 @@ async function sendHandlerForSameChainDifferentToken({
       quote?.steps?.[quote?.steps?.length - 1]?.items?.length - 1
     ]?.data?.to
 
+  if (
+    quote?.details?.currencyIn?.amountFormatted &&
+    quote?.details?.currencyIn?.amountUsd
+  ) {
+    const quoteProviderSourceTokenPriceUsd =
+      Number(quote.details.currencyIn.amountUsd) /
+      Number(quote.details.currencyIn.amountFormatted)
+    if (quoteProviderSourceTokenPriceUsd) {
+      sourceTokenPriceUsd = quoteProviderSourceTokenPriceUsd
+    }
+  }
+
+  if (
+    quote?.details?.currencyOut?.amountFormatted &&
+    quote?.details?.currencyOut?.amountUsd
+  ) {
+    const quoteProviderDestinationTokenPriceUsd =
+      Number(quote.details.currencyOut.amountUsd) /
+      Number(quote.details.currencyOut.amountFormatted)
+    if (quoteProviderDestinationTokenPriceUsd) {
+      destinationTokenPriceUsd = quoteProviderDestinationTokenPriceUsd
+    }
+  }
+
   return {
     quote: await getNormalizedQuoteObject({
       originAddress: depositOriginAddress,
