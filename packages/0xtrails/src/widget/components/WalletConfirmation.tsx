@@ -143,8 +143,8 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
                       className="cursor-pointer transition-opacity hover:opacity-80"
                       title={
                         useSimpleQrCode
-                          ? `Click to show detailed QR code (EIP-681). Current URL: ${eip681Url}`
-                          : `Click to show simple address QR code (EIP-631). Current URL: ${eip631Url}`
+                          ? `Click to show detailed QR code (EIP-681). Current URL: ${eip631Url}`
+                          : `Click to show simple address QR code (EIP-631). Current URL: ${eip681Url}`
                       }
                     >
                       <QrCode
