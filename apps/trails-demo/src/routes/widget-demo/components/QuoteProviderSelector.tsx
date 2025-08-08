@@ -20,7 +20,7 @@ const QUOTE_PROVIDERS: QuoteProvider[] = [
   {
     id: "relay",
     name: "Relay",
-    description: "Sequence Relay Network",
+    description: "Relay Protocol",
     icon: relayIcon,
   },
   {
