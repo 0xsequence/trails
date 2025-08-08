@@ -995,13 +995,13 @@ async function sendHandlerForDifferentChainDifferentToken({
                 await new Promise((resolve) => setTimeout(resolve, 1000))
                 continue
               }
-              const isReceive = tx.transfers.some(
-                (transfer) => transfer.transferType === "RECEIVE",
-              )
-              if (!isReceive) {
-                await new Promise((resolve) => setTimeout(resolve, 1000))
-                continue
-              }
+              // const isReceive = tx.transfers.some(
+              //   (transfer) => transfer.transferType === "RECEIVE",
+              // )
+              // if (!isReceive) {
+              //   await new Promise((resolve) => setTimeout(resolve, 1000))
+              //   continue
+              // }
               const originDepositTxReceipt =
                 await publicClient.getTransactionReceipt({
                   hash: tx.txnHash as `0x${string}`,
