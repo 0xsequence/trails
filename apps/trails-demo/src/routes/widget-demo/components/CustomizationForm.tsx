@@ -8,6 +8,7 @@ import { encodeFunctionData, parseUnits, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
 import { ChainSelector } from "./ChainSelector"
 import { TokenSelector } from "./TokenSelector"
+import { QuoteProviderSelector } from "./QuoteProviderSelector"
 import { CSS_PRESETS, DEFAULT_CSS_VALUES, type PresetName } from "./cssPresets"
 
 // Reusable Checkmark Component
@@ -1850,20 +1851,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                     />
                   </Tooltip>
                 </label>
-                <div className="relative inline-block">
-                  <select
-                    id="quoteProvider"
-                    value={quoteProvider}
-                    onChange={(e) => setQuoteProvider(e.target.value)}
-                    className="px-3 sm:px-4 py-2 pr-10 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm appearance-none cursor-pointer"
-                  >
-                    <option value="auto">Auto (Recommended)</option>
-                    <option value="relay">Relay</option>
-                    <option value="lifi">LiFi</option>
-                    <option value="cctp">CCTP</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
-                </div>
+                <QuoteProviderSelector
+                  selectedProvider={quoteProvider}
+                  onProviderSelect={setQuoteProvider}
+                />
               </div>
             </div>
           </details>
