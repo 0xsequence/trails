@@ -31,6 +31,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   const [showContent, setShowContent] = useState(false)
   const [showQrCode, setShowQrCode] = useState(false)
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false)
+  const [useSimpleQrCode, setUseSimpleQrCode] = useState(false)
 
   useEffect(() => {
     setShowContent(true)
@@ -126,7 +127,11 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
               <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div className="flex justify-center">
                   <QrCode
-                    url={`ethereum:${quote.originToken.contractAddress}@${quote.originChain.id}/transfer?address=${quote.originAddress}&uint256=${quote.originAmount}`}
+                    url={
+                      useSimpleQrCode
+                        ? `ethereum:${quote.originAddress}`
+                        : `ethereum:${quote.originToken.contractAddress}@${quote.originChain.id}/transfer?address=${quote.originAddress}&uint256=${quote.originAmount}`
+                    }
                     size={200}
                   />
                 </div>
@@ -162,6 +167,18 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
                       <span className="text-xs text-gray-500 dark:text-gray-400">
                         to
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => setUseSimpleQrCode(!useSimpleQrCode)}
+                        className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer"
+                        title={
+                          useSimpleQrCode
+                            ? "Show detailed QR code"
+                            : "Show simple address QR code"
+                        }
+                      >
+                        <QrCodeIcon className="w-3 h-3" />
+                      </button>
                       <a
                         href={getExplorerUrlForAddress({
                           address: quote.originAddress,
@@ -220,8 +237,8 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
           </div>
         )}
 
-        {/* Retry Button */}
-        {retryEnabled && onRetry && (
+        {/* Retry Button - hide if QR code is shown */}
+        {retryEnabled && onRetry && !showQrCode && (
           <div
             className={`mb-2 transition-all duration-500 ease-out delay-300 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
           >

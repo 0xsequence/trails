@@ -108,7 +108,7 @@ import type {
   TransactionState,
   TransactionStateStatus,
 } from "./transactions.js"
-import { getTxTimeDiff } from "./transactions.js"
+import { getTxTimeDiff, getAccountTransactionHistory } from "./transactions.js"
 import { requestWithTimeout } from "./utils.js"
 import { InsufficientBalanceError } from "./error.js"
 import { estimateGasCostUsd } from "./estimate.js"
@@ -439,6 +439,8 @@ export async function prepareSend(
       label: hasCustomCalldata ? "Execute" : "Receive",
     })
   }
+
+  onTransactionStateChange(transactionStates)
 
   if (isToSameChain && !isToSameToken) {
     return await sendHandlerForSameChainDifferentToken({
@@ -976,6 +978,56 @@ async function sendHandlerForDifferentChainDifferentToken({
         onTransactionStateChange(transactionStates)
       }
 
+      const checkForDepositTx = async () => {
+        while (true) {
+          try {
+            const response = await getAccountTransactionHistory({
+              chainId: originChainId,
+              accountAddress: intentAddress,
+            })
+            console.log(
+              "[trails-sdk] getAccountTransactionHistory response",
+              response,
+            )
+            if (response.transactions.length > 0) {
+              const tx = response.transactions[0]
+              if (!tx) {
+                await new Promise((resolve) => setTimeout(resolve, 1000))
+                continue
+              }
+              const isReceive = tx.transfers.some(
+                (transfer) => transfer.transferType === "RECEIVE",
+              )
+              if (!isReceive) {
+                await new Promise((resolve) => setTimeout(resolve, 1000))
+                continue
+              }
+              const originDepositTxReceipt =
+                await publicClient.getTransactionReceipt({
+                  hash: tx.txnHash as `0x${string}`,
+                })
+
+              originUserTxReceipt = originDepositTxReceipt
+
+              transactionStates[0] = getTransactionStateFromReceipt(
+                originDepositTxReceipt,
+                originChainId,
+                "Transfer",
+              )
+              onTransactionStateChange(transactionStates)
+
+              if (onOriginSend) {
+                onOriginSend()
+              }
+              break
+            }
+          } catch (error) {
+            console.error("Error checking for deposit tx", error)
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+        }
+      }
+
       const originMetaTxnPromise = async () => {
         if (intent.metaTxns[0] && intent.preconditions[0]) {
           originMetaTxnReceipt = await sendMetaTxAndWaitForReceipt({
@@ -1054,6 +1106,10 @@ async function sendHandlerForDifferentChainDifferentToken({
           }
         }
       }
+
+      checkForDepositTx().catch((error) => {
+        console.error("Error checking for deposit tx", error)
+      })
 
       await Promise.all([
         depositPromise(),

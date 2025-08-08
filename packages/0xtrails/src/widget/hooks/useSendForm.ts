@@ -1,5 +1,4 @@
 import type { TokenPrice } from "@0xsequence/trails-api"
-import type { MetaTxnReceipt } from "@0xsequence/trails-relayer"
 import type React from "react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import {
@@ -7,7 +6,6 @@ import {
   getAddress,
   isAddress,
   parseUnits,
-  type TransactionReceipt,
   type WalletClient,
   zeroAddress,
 } from "viem"
@@ -91,11 +89,7 @@ const FEE_TOKENS: TokenInfo[] = [
 ]
 
 export type OnCompleteProps = {
-  originChainId: number
-  destinationChainId: number
-  originUserTxReceipt: TransactionReceipt | null
-  originMetaTxnReceipt: MetaTxnReceipt | null
-  destinationMetaTxnReceipt: MetaTxnReceipt | null
+  transactionStates: TransactionState[]
 }
 
 export type UseSendProps = {
@@ -399,6 +393,14 @@ export function useSendForm({
   const [isLoadingQuote, setIsLoadingQuote] = useState(false)
   const [prepareSendResult, setPrepareSendResult] =
     useState<PrepareSendReturn | null>(null)
+  // Create a stable callback for transaction state changes
+  const handleTransactionStateChange = useCallback(
+    (transactionStates: TransactionState[]) => {
+      // Pass transaction states to widget-level handler
+      onTransactionStateChange(transactionStates)
+    },
+    [onTransactionStateChange],
+  )
 
   const balanceFormatted = formatRawAmount(
     selectedToken.balance,
@@ -570,9 +572,7 @@ export function useSendForm({
         destinationRelayer,
         destinationCalldata: toCalldata,
         dryMode: isDryMode,
-        onTransactionStateChange: (transactionStates: TransactionState[]) => {
-          onTransactionStateChange(transactionStates)
-        },
+        onTransactionStateChange: handleTransactionStateChange,
         sourceTokenPriceUsd,
         destinationTokenPriceUsd,
         sourceTokenDecimals,
@@ -615,7 +615,7 @@ export function useSendForm({
     toCalldata,
     paymasterUrls,
     gasless,
-    onTransactionStateChange,
+    handleTransactionStateChange,
     isValidRecipient,
     destTokenPrices?.[0]?.price?.value,
     amount,
@@ -706,11 +706,7 @@ export function useSendForm({
 
         // Move to receipt screen
         onComplete({
-          originChainId: selectedToken.chainId,
-          destinationChainId: selectedDestinationChain.id,
-          originUserTxReceipt,
-          originMetaTxnReceipt,
-          destinationMetaTxnReceipt,
+          transactionStates: quote.transactionStates,
         })
       }
 
@@ -752,7 +748,6 @@ export function useSendForm({
   }, [
     prepareSendResult,
     amount,
-    selectedToken,
     onSend,
     onConfirm,
     onComplete,
@@ -760,7 +755,6 @@ export function useSendForm({
     onWaitingForWalletConfirm,
     recipient,
     onError,
-    selectedDestinationChain?.id,
   ])
 
   const handleSubmit = async (e: React.FormEvent) => {

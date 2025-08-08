@@ -25,7 +25,7 @@ import React, {
   useState,
 } from "react"
 import { createPortal } from "react-dom"
-import type { Chain, TransactionReceipt, WalletClient } from "viem"
+import type { Chain, WalletClient } from "viem"
 import { createWalletClient, custom, http, parseUnits } from "viem"
 import { mainnet } from "viem/chains"
 import type { Connector } from "wagmi"
@@ -77,6 +77,7 @@ import {
 } from "../config.js"
 import { FundSendForm } from "./components/FundSendForm.js"
 import type { Mode } from "../mode.js"
+import type { OnCompleteProps } from "./hooks/useSendForm.js"
 
 type Screen =
   | "connect"
@@ -199,6 +200,7 @@ const useWalletManager = (
 const useTransactionState = (
   onOriginConfirmation?: (txHash: string, chainId: number) => void,
   onDestinationConfirmation?: (txHash: string, chainId: number) => void,
+  onComplete?: (result: OnCompleteProps) => void,
 ) => {
   const [originTxHash, setOriginTxHash] = useState("")
   const [originChainId, setOriginChainId] = useState<number | null>(null)
@@ -221,6 +223,38 @@ const useTransactionState = (
       onDestinationConfirmation(destinationTxHash, destinationChainId)
     }
   }, [destinationTxHash, onDestinationConfirmation, destinationChainId])
+
+  // Monitor transaction states for completion - this runs regardless of which screen is active
+  useEffect(() => {
+    if (!transactionStates || transactionStates.length === 0) return
+
+    const allConfirmed = transactionStates.every(
+      (tx: TransactionState) => tx.state === "confirmed",
+    )
+    const hasFailures = transactionStates.some(
+      (tx: TransactionState) => tx.state === "failed",
+    )
+
+    console.log(
+      "[trails-sdk] Transaction state monitoring:",
+      "allConfirmed:",
+      allConfirmed,
+      "hasFailures:",
+      hasFailures,
+      "states:",
+      transactionStates.map((tx) => tx.state),
+    )
+
+    if (allConfirmed && !hasFailures && onComplete) {
+      console.log(
+        "[trails-sdk] All transactions confirmed, triggering completion",
+      )
+      // All transactions are confirmed, trigger completion
+      onComplete({
+        transactionStates: transactionStates,
+      })
+    }
+  }, [transactionStates, onComplete])
 
   return {
     originTxHash,
@@ -301,7 +335,11 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       setOriginChainId,
       transactionStates,
       setTransactionStates,
-    } = useTransactionState(onOriginConfirmation, onDestinationConfirmation)
+    } = useTransactionState(
+      onOriginConfirmation,
+      onDestinationConfirmation,
+      handleTransferComplete,
+    )
 
     // Update screen based on connection state
     useEffect(() => {
@@ -599,35 +637,35 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       setTotalCompletionSeconds(totalCompletionSeconds)
     }
 
-    function handleTransferComplete(data?: {
-      originChainId: number
-      destinationChainId: number
-      originUserTxReceipt: TransactionReceipt | null
-      originMetaTxnReceipt: MetaTxnReceipt | null
-      destinationMetaTxnReceipt: MetaTxnReceipt | null
-    }) {
-      if (data) {
-        if (data.originUserTxReceipt) {
-          setOriginTxHash(data.originUserTxReceipt.transactionHash)
-        }
+    function handleTransferComplete({ transactionStates }: OnCompleteProps) {
+      const firstTransactionState = transactionStates[0]
+      const lastTransactionState =
+        transactionStates[transactionStates.length - 1]
 
-        if (data.originChainId) {
-          setOriginChainId(data.originChainId)
-        }
-
-        if (data.destinationMetaTxnReceipt || data.originUserTxReceipt) {
-          setDestinationTxHash(
-            (data.destinationMetaTxnReceipt as MetaTxnReceipt)?.txnHash ||
-              (data.originUserTxReceipt as TransactionReceipt)?.transactionHash,
-          )
-        }
-
-        if (data.destinationChainId) {
-          setDestinationChainId(data.destinationChainId)
-        }
-
-        setCurrentScreen("receipt")
+      if (
+        firstTransactionState?.transactionHash &&
+        firstTransactionState?.chainId
+      ) {
+        setOriginTxHash(firstTransactionState.transactionHash)
+        setOriginChainId(firstTransactionState.chainId)
       }
+
+      if (
+        lastTransactionState?.transactionHash ||
+        ((lastTransactionState as unknown as MetaTxnReceipt)?.txnHash &&
+          lastTransactionState?.chainId)
+      ) {
+        setDestinationTxHash(
+          lastTransactionState?.transactionHash ||
+            (lastTransactionState as unknown as MetaTxnReceipt)?.txnHash,
+        )
+        setDestinationChainId(lastTransactionState?.chainId)
+      } else {
+        setError("No destination transaction hash found")
+        return
+      }
+
+      setCurrentScreen("receipt")
     }
 
     function handleTransactionStateChange(

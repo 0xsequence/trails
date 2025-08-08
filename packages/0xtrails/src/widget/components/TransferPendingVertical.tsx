@@ -362,7 +362,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
 
           {/* Right side - USD value and amount */}
           <div className="text-right">
-            <div className="text-xs font-medium text-left text-gray-900 dark:text-white">
+            <div className="text-xs font-medium text-right text-gray-900 dark:text-white">
               {quote?.originAmountUsdDisplay}
             </div>
             <div className="text-xs text-gray-600 dark:text-gray-400">
