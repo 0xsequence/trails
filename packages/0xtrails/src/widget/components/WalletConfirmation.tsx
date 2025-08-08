@@ -7,7 +7,7 @@ import {
   ExternalLink,
 } from "lucide-react"
 import type React from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import type { PrepareSendQuote } from "../../prepareSend.js"
 import { QuoteDetails } from "./QuoteDetails.js"
 import { QrCode } from "./QrCode.js"
@@ -31,7 +31,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   const [showContent, setShowContent] = useState(false)
   const [showQrCode, setShowQrCode] = useState(false)
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false)
-  const [useSimpleQrCode, setUseSimpleQrCode] = useState(false)
+  const [useSimpleQrCode, setUseSimpleQrCode] = useState(true)
 
   useEffect(() => {
     setShowContent(true)
@@ -49,6 +49,16 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
 
     return () => clearTimeout(timer)
   }, [retryEnabled])
+
+  const eip631Url = useMemo(() => {
+    if (!quote) return ""
+    return `ethereum:${quote.originAddress}`
+  }, [quote])
+
+  const eip681Url = useMemo(() => {
+    if (!quote) return ""
+    return `ethereum:${quote.originToken.contractAddress}@${quote.originChain.id}/transfer?address=${quote.originAddress}&uint256=${quote.originAmount}`
+  }, [quote])
 
   return (
     <div className="space-y-6">
@@ -126,14 +136,34 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
             {showQrCode && (
               <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div className="flex justify-center">
-                  <QrCode
-                    url={
-                      useSimpleQrCode
-                        ? `ethereum:${quote.originAddress}`
-                        : `ethereum:${quote.originToken.contractAddress}@${quote.originChain.id}/transfer?address=${quote.originAddress}&uint256=${quote.originAmount}`
-                    }
-                    size={200}
-                  />
+                  <div className="flex flex-col items-center">
+                    <button
+                      type="button"
+                      onClick={() => setUseSimpleQrCode(!useSimpleQrCode)}
+                      className="cursor-pointer transition-opacity hover:opacity-80"
+                      title={
+                        useSimpleQrCode
+                          ? "Click to show detailed QR code (EIP-681)"
+                          : "Click to show simple address QR code (EIP-631)"
+                      }
+                    >
+                      <QrCode
+                        url={useSimpleQrCode ? eip631Url : eip681Url}
+                        size={200}
+                      />
+                    </button>
+                    {!useSimpleQrCode && (
+                      <a
+                        href="https://eips.ethereum.org/EIPS/eip-681"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 font-mono hover:underline transition-all"
+                      >
+                        EIP-681
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
+                  </div>
                 </div>
 
                 {quote.originAmount && (
@@ -167,18 +197,6 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
                       <span className="text-xs text-gray-500 dark:text-gray-400">
                         to
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => setUseSimpleQrCode(!useSimpleQrCode)}
-                        className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors cursor-pointer"
-                        title={
-                          useSimpleQrCode
-                            ? "Show detailed QR code"
-                            : "Show simple address QR code"
-                        }
-                      >
-                        <QrCodeIcon className="w-3 h-3" />
-                      </button>
                       <a
                         href={getExplorerUrlForAddress({
                           address: quote.originAddress,
