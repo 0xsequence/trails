@@ -52,7 +52,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
 
   const eip631Url = useMemo(() => {
     if (!quote) return ""
-    return `ethereum:${quote.originAddress}`
+    return `ethereum:${quote.originAddress}@${quote.originChain.id}`
   }, [quote])
 
   const eip681Url = useMemo(() => {
@@ -143,7 +143,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
                       className="cursor-pointer transition-opacity hover:opacity-80"
                       title={
                         useSimpleQrCode
-                          ? `Click to show detailed QR code (EIP-681). Current URL: ${eip631Url}`
+                          ? `Click to show detailed transfer QR code (EIP-681). Current URL: ${eip631Url}`
                           : `Click to show simple address QR code (EIP-631). Current URL: ${eip681Url}`
                       }
                     >
