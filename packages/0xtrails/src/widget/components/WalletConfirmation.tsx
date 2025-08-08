@@ -1,11 +1,18 @@
 import { TokenImage } from "./TokenImage.js"
-import { ChevronLeft, ChevronDown, QrCode as QrCodeIcon } from "lucide-react"
+import { ChainImage } from "./ChainImage.js"
+import {
+  ChevronLeft,
+  ChevronDown,
+  QrCode as QrCodeIcon,
+  ExternalLink,
+} from "lucide-react"
 import type React from "react"
 import { useEffect, useState } from "react"
 import type { PrepareSendQuote } from "../../prepareSend.js"
 import { QuoteDetails } from "./QuoteDetails.js"
 import { QrCode } from "./QrCode.js"
 import { formatUnits } from "viem"
+import { getExplorerUrlForAddress } from "../../explorer.js"
 
 interface WalletConfirmationProps {
   onBack: () => void
@@ -90,15 +97,15 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
           </div>
         </div>
 
-        {/* QR Code Section */}
-        {quote && (
+        {/* QR Code Section - only show for cross-chain transactions */}
+        {quote && quote.originChain.id !== quote.destinationChain.id && (
           <div className="space-y-2">
             <button
               type="button"
               onClick={() => setShowQrCode(!showQrCode)}
               className="w-full flex items-center justify-center gap-2 py-1 px-4 trails-border-radius-button transition-colors cursor-pointer text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             >
-              <span>
+              <span className="flex items-center gap-2">
                 {showQrCode ? (
                   "close QR code"
                 ) : (
@@ -119,29 +126,58 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
               <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div className="flex justify-center">
                   <QrCode
-                    url={`ethereum:${quote.destinationToken.contractAddress}@${quote.destinationChain.id}/transfer?address=${quote.destinationAddress}&uint256=${quote.destinationAmount}`}
+                    url={`ethereum:${quote.originToken.contractAddress}@${quote.originChain.id}/transfer?address=${quote.originAddress}&uint256=${quote.originAmount}`}
                     size={200}
                   />
                 </div>
 
-                {quote.destinationAmount && (
-                  <div className="flex items-center justify-center gap-2 pt-2">
-                    <span className="text-sm text-gray-600 dark:text-gray-300">
-                      deposit exactly
-                    </span>
-                    <TokenImage
-                      imageUrl={quote.destinationToken.imageUrl}
-                      symbol={quote.destinationToken.symbol}
-                      chainId={quote.destinationChain.id}
-                      size={20}
-                    />
-                    <span className="text-sm font-bold text-gray-900 dark:text-white">
-                      {formatUnits(
-                        BigInt(quote.destinationAmount),
-                        quote.destinationToken.decimals,
-                      )}{" "}
-                      {quote.destinationToken.symbol}
-                    </span>
+                {quote.originAmount && (
+                  <div className="flex flex-col items-center justify-center gap-1 pt-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-600 dark:text-gray-300">
+                        deposit exactly
+                      </span>
+                      <TokenImage
+                        imageUrl={quote.originToken.imageUrl}
+                        symbol={quote.originToken.symbol}
+                        chainId={quote.originChain.id}
+                        size={20}
+                      />
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">
+                        {formatUnits(
+                          BigInt(quote.originAmount),
+                          quote.originToken.decimals,
+                        )}{" "}
+                        {quote.originToken.symbol}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        on
+                      </span>
+                      <ChainImage chainId={quote.originChain.id} size={16} />
+                      <span className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                        {quote.originChain.name}
+                      </span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        to
+                      </span>
+                      <a
+                        href={getExplorerUrlForAddress({
+                          address: quote.originAddress,
+                          chainId: quote.originChain.id,
+                        })}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:underline transition-all"
+                      >
+                        <span>
+                          {quote.originAddress.slice(0, 6)}...
+                          {quote.originAddress.slice(-4)}
+                        </span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
                   </div>
                 )}
               </div>
