@@ -1,9 +1,10 @@
 import { TokenImage } from "./TokenImage.js"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft, ChevronDown, QrCode as QrCodeIcon } from "lucide-react"
 import type React from "react"
 import { useEffect, useState } from "react"
 import type { PrepareSendQuote } from "../../prepareSend.js"
 import { QuoteDetails } from "./QuoteDetails.js"
+import { QrCode } from "./QrCode.js"
 
 interface WalletConfirmationProps {
   onBack: () => void
@@ -20,7 +21,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   quote,
 }) => {
   const [showContent, setShowContent] = useState(false)
-
+  const [showQrCode, setShowQrCode] = useState(false)
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false)
 
   useEffect(() => {
@@ -28,11 +29,14 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   }, [])
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!retryEnabled) {
-        setShowTimeoutWarning(true)
-      }
-    }, 60000) // 1 minute
+    const timer = setTimeout(
+      () => {
+        if (!retryEnabled) {
+          setShowTimeoutWarning(true)
+        }
+      },
+      2 * 60 * 1000,
+    ) // 2 minutes
 
     return () => clearTimeout(timer)
   }, [retryEnabled])
@@ -84,6 +88,34 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
             </p>
           </div>
         </div>
+
+        {/* QR Code Section */}
+        {quote && (
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => setShowQrCode(!showQrCode)}
+              className="w-full flex items-center justify-center gap-2 py-1 px-4 trails-border-radius-button transition-colors cursor-pointer text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            >
+              <QrCodeIcon className="w-3 h-3" />
+              <span>or scan QR code to deposit funds</span>
+              <ChevronDown
+                className={`w-3 h-3 transition-transform duration-300 ease-out ${
+                  showQrCode ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {showQrCode && (
+              <div className="flex justify-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <QrCode
+                  url={`ethereum:${quote.destinationToken.contractAddress}@${quote.destinationChain.id}/transfer?address=${quote.destinationAddress}&uint256=${quote.destinationAmount}`}
+                  size={200}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Timeout Warning */}
         {showTimeoutWarning && (
