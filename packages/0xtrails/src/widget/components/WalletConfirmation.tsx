@@ -5,6 +5,7 @@ import { useEffect, useState } from "react"
 import type { PrepareSendQuote } from "../../prepareSend.js"
 import { QuoteDetails } from "./QuoteDetails.js"
 import { QrCode } from "./QrCode.js"
+import { formatUnits } from "viem"
 
 interface WalletConfirmationProps {
   onBack: () => void
@@ -97,8 +98,16 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
               onClick={() => setShowQrCode(!showQrCode)}
               className="w-full flex items-center justify-center gap-2 py-1 px-4 trails-border-radius-button transition-colors cursor-pointer text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             >
-              <QrCodeIcon className="w-3 h-3" />
-              <span>or scan QR code to deposit funds</span>
+              <span>
+                {showQrCode ? (
+                  "close QR code"
+                ) : (
+                  <>
+                    <QrCodeIcon className="w-3 h-3" /> or scan QR code to
+                    deposit funds
+                  </>
+                )}
+              </span>
               <ChevronDown
                 className={`w-3 h-3 transition-transform duration-300 ease-out ${
                   showQrCode ? "rotate-180" : ""
@@ -107,11 +116,34 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
             </button>
 
             {showQrCode && (
-              <div className="flex justify-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <QrCode
-                  url={`ethereum:${quote.destinationToken.contractAddress}@${quote.destinationChain.id}/transfer?address=${quote.destinationAddress}&uint256=${quote.destinationAmount}`}
-                  size={200}
-                />
+              <div className="space-y-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="flex justify-center">
+                  <QrCode
+                    url={`ethereum:${quote.destinationToken.contractAddress}@${quote.destinationChain.id}/transfer?address=${quote.destinationAddress}&uint256=${quote.destinationAmount}`}
+                    size={200}
+                  />
+                </div>
+
+                {quote.destinationAmount && (
+                  <div className="flex items-center justify-center gap-2 pt-2">
+                    <span className="text-sm text-gray-600 dark:text-gray-300">
+                      deposit exactly
+                    </span>
+                    <TokenImage
+                      imageUrl={quote.destinationToken.imageUrl}
+                      symbol={quote.destinationToken.symbol}
+                      chainId={quote.destinationChain.id}
+                      size={20}
+                    />
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {formatUnits(
+                        BigInt(quote.destinationAmount),
+                        quote.destinationToken.decimals,
+                      )}{" "}
+                      {quote.destinationToken.symbol}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
           </div>
