@@ -337,8 +337,8 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       if (walletClient) {
         const intentAddress = walletClient?.account?.address
         const toTokenSymbol = "USDC"
-        const toTokenAmount = parseUnits("4.20", 6).toString()
-        const toChainId = 137
+        const toTokenAmount = "4.20"
+        const toChainId = 8453
         const toRecipientAddress = intentAddress
 
         setMeshConnectProps({
@@ -691,6 +691,22 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       }
 
       setCurrentScreen("receipt")
+    }
+
+    function handleMeshConnectComplete(transferData: any) {
+      console.log("[trails-sdk] Mesh Connect transfer completed:", transferData)
+
+      // Create a mock transaction state for the pending screen
+      const mockTransactionState = {
+        transactionHash: transferData.txId || transferData.transactionId || "",
+        explorerUrl: "", // Could construct this based on network
+        chainId: 8453, // Base chain
+        state: "confirmed" as const,
+        label: "Deposit",
+      }
+
+      setTransactionStates([mockTransactionState])
+      setCurrentScreen("pending")
     }
 
     function handleTransactionStateChange(
@@ -1264,7 +1280,13 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             />
           )
         case "mesh-connect":
-          return <MeshConnect onBack={handleBack} {...meshConnectProps} />
+          return (
+            <MeshConnect
+              onBack={handleBack}
+              onComplete={handleMeshConnectComplete}
+              {...meshConnectProps}
+            />
+          )
         default:
           return null
       }

@@ -13,6 +13,7 @@ import {
 export interface MeshConnectProps {
   onBack: () => void
   toTokenSymbol?: string
+  onComplete?: (transferData: any) => void
   toTokenAmount?: string
   toChainId?: number
   toRecipientAddress?: string
@@ -24,6 +25,7 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({
   toTokenAmount,
   toChainId,
   toRecipientAddress,
+  onComplete,
 }) => {
   const [linkToken, setLinkToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -378,10 +380,20 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({
 
       {transferFinishedData && (
         <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <p className="text-sm text-blue-600 dark:text-blue-200">
+          <p className="text-sm text-blue-600 dark:text-blue-200 mb-3">
             ✓ Transfer completed: {transferFinishedData.amount}{" "}
             {transferFinishedData.symbol}
           </p>
+          <button
+            onClick={() => {
+              if (onComplete) {
+                onComplete(transferFinishedData)
+              }
+            }}
+            className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Continue
+          </button>
         </div>
       )}
 
