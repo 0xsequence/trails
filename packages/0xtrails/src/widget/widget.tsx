@@ -76,6 +76,7 @@ import {
   setSequenceEnv,
 } from "../config.js"
 import { FundSendForm } from "./components/FundSendForm.js"
+import MeshConnect from "./components/MeshConnect.js"
 import type { Mode } from "../mode.js"
 import type { OnCompleteProps } from "./hooks/useSendForm.js"
 
@@ -87,6 +88,7 @@ type Screen =
   | "wallet-confirmation"
   | "pending"
   | "receipt"
+  | "mesh-connect"
 
 export const defaultWalletOptions = ["injected", "privy"]
 
@@ -624,6 +626,9 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           setOriginTxHash("")
           setOriginChainId(null)
           break
+        case "mesh-connect":
+          setCurrentScreen("tokens")
+          break
         default:
           break
       }
@@ -1060,6 +1065,9 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
 
           setCurrentScreen("receipt")
           break
+        case "mesh-connect":
+          setCurrentScreen("mesh-connect")
+          break
       }
     }
 
@@ -1235,6 +1243,8 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               quote={prepareSendQuote}
             />
           )
+        case "mesh-connect":
+          return <MeshConnect onBack={handleBack} />
         default:
           return null
       }

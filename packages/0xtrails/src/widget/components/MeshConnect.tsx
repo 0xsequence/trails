@@ -1,0 +1,413 @@
+import type React from "react"
+import { useEffect, useState, useCallback } from "react"
+import { createPortal } from "react-dom"
+import { ArrowLeft } from "lucide-react"
+import * as meshSDK from "@meshconnect/web-link-sdk"
+import {
+  createDefaultLinkToken,
+  getMeshConnectClientId,
+  getMeshConnectEnvironment,
+} from "../../meshconnect.js"
+
+interface MeshConnectProps {
+  onBack: () => void
+}
+
+export const MeshConnect: React.FC<MeshConnectProps> = ({ onBack }) => {
+  const [linkToken, setLinkToken] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [payload, setPayload] = useState<any>(null)
+  const [transferFinishedData, setTransferFinishedData] = useState<any>(null)
+  const [meshLink, setMeshLink] = useState<any>(null)
+  const [iframeContainer, setIframeContainer] = useState<HTMLDivElement | null>(
+    null,
+  )
+  const [showIframe, setShowIframe] = useState(false)
+  const [iframePlaceholder, setIframePlaceholder] =
+    useState<HTMLDivElement | null>(null)
+
+  // Create iframe container outside shadow DOM on mount
+  useEffect(() => {
+    // Create container div in document body
+    const container = document.createElement("div")
+    container.id = "mesh-iframe-portal"
+    // Position will be set dynamically based on widget position
+    container.style.position = "absolute"
+    container.style.zIndex = "10000"
+    container.style.display = "none" // Initially hidden
+
+    document.body.appendChild(container)
+    setIframeContainer(container)
+
+    // Cleanup on unmount
+    return () => {
+      if (document.body.contains(container)) {
+        document.body.removeChild(container)
+      }
+    }
+  }, [])
+
+  // Generate link token on component mount
+  useEffect(() => {
+    const generateLinkToken = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        // Generate a new link token with default credentials
+        const response = await createDefaultLinkToken({
+          environment: getMeshConnectEnvironment(),
+        })
+
+        console.log(
+          "[trails-sdk] Generated Mesh Connect link token response:",
+          response,
+        )
+        console.log("[trails-sdk] Link token:", response.content.linkToken)
+
+        // Validate link token format
+        if (
+          !response.content.linkToken ||
+          typeof response.content.linkToken !== "string"
+        ) {
+          throw new Error("Invalid link token received")
+        }
+
+        setLinkToken(response.content.linkToken)
+      } catch (err) {
+        console.error(
+          "[trails-sdk] Failed to generate Mesh Connect link token:",
+          err,
+        )
+        setError(
+          err instanceof Error ? err.message : "Failed to generate link token",
+        )
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    generateLinkToken()
+  }, [])
+
+  const handleIntegrationConnected = useCallback((authData: any) => {
+    console.log("[trails-sdk] MESH CONNECTED:", authData)
+    setPayload(authData)
+  }, [])
+
+  const handleTransferFinished = useCallback((transferData: any) => {
+    console.log("[trails-sdk] MESH TRANSFER FINISHED:", transferData)
+    setTransferFinishedData(transferData)
+  }, [])
+
+  const handleExit = useCallback((error?: string) => {
+    if (error) {
+      console.error("[trails-sdk] MESH ERROR:", error)
+      setError(error)
+    }
+  }, [])
+
+  // Create Mesh Connect link instance when component mounts
+  useEffect(() => {
+    const createMeshLink = async () => {
+      try {
+        console.log("[trails-sdk] Creating Mesh Connect link...")
+        const link = meshSDK.createLink({
+          clientId: getMeshConnectClientId(),
+          language: "en",
+          onIntegrationConnected: handleIntegrationConnected,
+          onExit: handleExit,
+          onTransferFinished: handleTransferFinished,
+          onEvent: (ev: any) => {
+            console.log("[trails-sdk] MESH Event:", ev)
+            if (ev.type === "transferExecuted" && ev.payload) {
+              setTransferFinishedData(ev.payload)
+            }
+          },
+        })
+
+        console.log("[trails-sdk] Mesh Connect link created successfully")
+        setMeshLink(link)
+      } catch (err) {
+        console.error("[trails-sdk] Failed to create Mesh Connect link:", err)
+        setError(
+          `Failed to load Mesh Connect SDK: ${err instanceof Error ? err.message : String(err)}`,
+        )
+      }
+    }
+
+    createMeshLink()
+  }, [handleIntegrationConnected, handleTransferFinished, handleExit])
+
+  // Position the iframe container based on placeholder position
+  useEffect(() => {
+    if (!iframeContainer || !iframePlaceholder || !showIframe) {
+      console.log("[trails-sdk] Positioning check failed:", {
+        iframeContainer: !!iframeContainer,
+        iframePlaceholder: !!iframePlaceholder,
+        showIframe,
+      })
+      return
+    }
+
+    const positionIframe = () => {
+      const rect = iframePlaceholder.getBoundingClientRect()
+      console.log("[trails-sdk] Positioning iframe at:", rect)
+
+      iframeContainer.style.position = "fixed"
+      iframeContainer.style.left = `${rect.left}px`
+      iframeContainer.style.top = `${rect.top}px`
+      iframeContainer.style.width = `${rect.width}px`
+      iframeContainer.style.height = `${rect.height}px`
+      iframeContainer.style.display = "block"
+      iframeContainer.style.backgroundColor = "white"
+      iframeContainer.style.border = "1px solid #ccc"
+      iframeContainer.style.zIndex = "10000"
+
+      console.log("[trails-sdk] Applied styles:", iframeContainer.style.cssText)
+    }
+
+    // Use setTimeout to ensure DOM is ready
+    setTimeout(positionIframe, 100)
+
+    // Update position on scroll/resize
+    const handleUpdate = () => positionIframe()
+    window.addEventListener("scroll", handleUpdate)
+    window.addEventListener("resize", handleUpdate)
+
+    return () => {
+      window.removeEventListener("scroll", handleUpdate)
+      window.removeEventListener("resize", handleUpdate)
+    }
+  }, [iframeContainer, iframePlaceholder, showIframe])
+
+  // Open Mesh Connect iframe
+  const openMeshConnect = useCallback(() => {
+    console.log("[trails-sdk] openMeshConnect called:", {
+      meshLink: !!meshLink,
+      linkToken: !!linkToken,
+      iframeContainer: !!iframeContainer,
+    })
+
+    if (!meshLink || !linkToken || !iframeContainer) {
+      console.log("[trails-sdk] Missing requirements for opening")
+      return
+    }
+
+    console.log("[trails-sdk] Setting showIframe to true")
+    setShowIframe(true)
+
+    // Wait for iframe to be positioned before opening
+    setTimeout(() => {
+      console.log("[trails-sdk] Opening Mesh Connect with token:", linkToken)
+      try {
+        // Try opening in iframe first
+        meshLink.openLink(linkToken, "mesh-iframe")
+        console.log("[trails-sdk] Opened in iframe successfully")
+
+        ;(window as any).meshLink = meshLink
+      } catch (iframeError) {
+        console.warn(
+          "[trails-sdk] Failed to open in iframe, trying popup:",
+          iframeError,
+        )
+        try {
+          // Fallback to popup
+          meshLink.openLink(linkToken)
+          console.log("[trails-sdk] Opened in popup successfully")
+        } catch (popupError) {
+          console.error("[trails-sdk] Failed to open link:", popupError)
+          setError("Failed to open Mesh Connect link")
+        }
+      }
+    }, 200)
+  }, [meshLink, linkToken, iframeContainer])
+
+  // Handle closing the iframe
+  const handleCloseMeshConnect = useCallback(() => {
+    setShowIframe(false)
+    if (iframeContainer) {
+      iframeContainer.style.display = "none"
+    }
+  }, [iframeContainer])
+
+  if (loading) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between mb-6">
+          <button
+            type="button"
+            onClick={onBack}
+            className="p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h2 className="text-lg font-semibold">Mesh Connect</h2>
+          <div className="w-9" />
+        </div>
+
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">
+              Generating secure connection...
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex items-center justify-between mb-6">
+          <button
+            type="button"
+            onClick={onBack}
+            className="p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h2 className="text-lg font-semibold">Mesh Connect</h2>
+          <div className="w-9" />
+        </div>
+
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center p-4 border border-red-200 rounded-lg bg-red-50 dark:bg-red-900/20 dark:border-red-800">
+            <p className="text-red-600 dark:text-red-200 mb-4">{error}</p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between mb-6">
+        <button
+          type="button"
+          onClick={onBack}
+          className="p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <h2 className="text-lg font-semibold">Fund with Mesh Connect</h2>
+        <div className="w-9" />
+      </div>
+
+      {/* Status indicators */}
+      {payload && (
+        <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+          <p className="text-sm text-green-600 dark:text-green-200">
+            ✓ Connected to{" "}
+            {payload.accessToken?.brokerName || "financial institution"}
+          </p>
+        </div>
+      )}
+
+      {transferFinishedData && (
+        <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <p className="text-sm text-blue-600 dark:text-blue-200">
+            ✓ Transfer completed: {transferFinishedData.amount}{" "}
+            {transferFinishedData.symbol}
+          </p>
+        </div>
+      )}
+
+      {/* Mesh Connect iframe area */}
+      <div className="flex-1">
+        {!showIframe ? (
+          <div className="flex items-center justify-center h-full min-h-[500px]">
+            <div className="text-center p-8 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4">
+                Fund your account with Mesh Connect
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Connect to bank account or exchange to fund your wallet
+                securely.
+              </p>
+              <button
+                onClick={openMeshConnect}
+                disabled={!meshLink || !linkToken}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {!meshLink || !linkToken ? "Preparing..." : "Continue"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="relative">
+            <button
+              onClick={handleCloseMeshConnect}
+              className="absolute top-2 right-2 z-10 bg-gray-800 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-700"
+            >
+              ×
+            </button>
+            <div
+              ref={setIframePlaceholder}
+              className="w-full h-[500px] border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Portal for iframe outside shadow DOM */}
+      {iframeContainer &&
+        showIframe &&
+        createPortal(
+          <div style={{ width: "100%", height: "100%", position: "relative" }}>
+            <iframe
+              id="mesh-iframe"
+              title="Mesh Connect"
+              style={{
+                width: "100%",
+                height: "100%",
+                border: "none",
+                borderRadius: "8px",
+                backgroundColor: "lightblue",
+              }}
+            />
+          </div>,
+          iframeContainer,
+        )}
+
+      {/* Debug information */}
+      {(payload || transferFinishedData) && (
+        <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+          <details className="text-xs">
+            <summary className="cursor-pointer text-gray-600 dark:text-gray-400 mb-2">
+              Debug Information
+            </summary>
+            {payload && (
+              <div className="mb-2">
+                <strong>Connection Data:</strong>
+                <pre className="mt-1 text-xs overflow-x-auto">
+                  {JSON.stringify(payload, null, 2)}
+                </pre>
+              </div>
+            )}
+            {transferFinishedData && (
+              <div>
+                <strong>Transfer Data:</strong>
+                <pre className="mt-1 text-xs overflow-x-auto">
+                  {JSON.stringify(transferFinishedData, null, 2)}
+                </pre>
+              </div>
+            )}
+          </details>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default MeshConnect

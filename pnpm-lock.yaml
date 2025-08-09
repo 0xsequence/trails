@@ -194,10 +194,10 @@ importers:
         version: 2.3.23(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@0xsequence/trails-api':
         specifier: github:0xsequence/trails#dists/trails-api
-        version: https://codeload.github.com/0xsequence/trails/tar.gz/4f1a86ebc9015d9bb4484aad0c0ef84b91e3ecc0
+        version: https://codeload.github.com/0xsequence/trails/tar.gz/b4b0fc2178bdeb302098b12e1d091e74ceed3d10
       '@0xsequence/trails-relayer':
         specifier: github:0xsequence/trails#dists/trails-relayer
-        version: https://codeload.github.com/0xsequence/trails/tar.gz/ebf5ac09f4070b8274898150490c5ddb161dc0b2
+        version: https://codeload.github.com/0xsequence/trails/tar.gz/a3d5a33bd0fc6e6ecf83016a6a80a553119c1c41
       '@0xsequence/wagmi-connector':
         specifier: ^4.0.1
         version: 4.0.1(0xsequence@2.3.17(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)))(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(viem@2.33.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76))(wagmi@2.16.0(@tanstack/query-core@5.83.0)(@tanstack/react-query@5.83.0(react@19.1.1))(@types/react@19.1.9)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.1)(typescript@5.8.3)(utf-8-validate@5.0.10)(viem@2.33.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.25.76))(zod@3.25.76))
@@ -210,6 +210,12 @@ importers:
       '@databeat/tracker':
         specifier: ^0.9.3
         version: 0.9.3
+      '@meshconnect/node-api':
+        specifier: ^2.0.22
+        version: 2.0.22
+      '@meshconnect/web-link-sdk':
+        specifier: ^3.2.14
+        version: 3.2.14(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@privy-io/react-auth':
         specifier: ^2.21.0
         version: 2.21.0(@solana/web3.js@1.98.2(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.8.3)(utf-8-validate@5.0.10))(@types/react@19.1.9)(bs58@6.0.0)(bufferutil@4.0.9)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.8.3)(use-sync-external-store@1.4.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
@@ -502,12 +508,12 @@ packages:
   '@0xsequence/tee-verifier@0.1.2':
     resolution: {integrity: sha512-7sKr8/T4newknx6LAukjlRI3siGiGhBnZohz2Z3jX0zb0EBQdKUq0L//A7CPSckHFPxTg/QvQU2v8e9x9GfkDw==}
 
-  '@0xsequence/trails-api@https://codeload.github.com/0xsequence/trails/tar.gz/4f1a86ebc9015d9bb4484aad0c0ef84b91e3ecc0':
-    resolution: {tarball: https://codeload.github.com/0xsequence/trails/tar.gz/4f1a86ebc9015d9bb4484aad0c0ef84b91e3ecc0}
+  '@0xsequence/trails-api@https://codeload.github.com/0xsequence/trails/tar.gz/b4b0fc2178bdeb302098b12e1d091e74ceed3d10':
+    resolution: {tarball: https://codeload.github.com/0xsequence/trails/tar.gz/b4b0fc2178bdeb302098b12e1d091e74ceed3d10}
     version: 0.0.0
 
-  '@0xsequence/trails-relayer@https://codeload.github.com/0xsequence/trails/tar.gz/ebf5ac09f4070b8274898150490c5ddb161dc0b2':
-    resolution: {tarball: https://codeload.github.com/0xsequence/trails/tar.gz/ebf5ac09f4070b8274898150490c5ddb161dc0b2}
+  '@0xsequence/trails-relayer@https://codeload.github.com/0xsequence/trails/tar.gz/a3d5a33bd0fc6e6ecf83016a6a80a553119c1c41':
+    resolution: {tarball: https://codeload.github.com/0xsequence/trails/tar.gz/a3d5a33bd0fc6e6ecf83016a6a80a553119c1c41}
     version: 0.0.0
 
   '@0xsequence/utils@2.3.17':
@@ -1294,6 +1300,15 @@ packages:
     peerDependencies:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
+
+  '@meshconnect/node-api@2.0.22':
+    resolution: {integrity: sha512-5z79Di8zhvEMPsfexhXp9b6tmtJH0EnvW+rD9jLkBlTQ3HBKhwo9sq8IBqXvAv4T1S9xMSKt7JaAXjXpwDdlNQ==}
+
+  '@meshconnect/solana-web3.js@1.0.4':
+    resolution: {integrity: sha512-9NC7rHrkVO3XEshZ1k5n4368BHbfHz6Nak8chiZlrNNHceNyecKrvlHiUG87gaJhC39zNsZYfaKrIYolp5D7Qg==}
+
+  '@meshconnect/web-link-sdk@3.2.14':
+    resolution: {integrity: sha512-U82ie4tN6D9uv1y8crRggPl3FKa5+DXQLtVJrXmLuDj6JH3w4hAPICQP2KJOLaB+ckNZzgyqc93EHpMkcjvoXw==}
 
   '@metamask/abi-utils@1.2.0':
     resolution: {integrity: sha512-Hf7fnBDM9ptCPDtq/wQffWbw859CdVGMwlpWUEsTH6gLXhXONGrRXHA2piyYPRuia8YYTdJvRC/zSK1/nyLvYg==}
@@ -5990,9 +6005,9 @@ snapshots:
       cbor2: 1.12.0
       pkijs: 3.2.5
 
-  '@0xsequence/trails-api@https://codeload.github.com/0xsequence/trails/tar.gz/4f1a86ebc9015d9bb4484aad0c0ef84b91e3ecc0': {}
+  '@0xsequence/trails-api@https://codeload.github.com/0xsequence/trails/tar.gz/b4b0fc2178bdeb302098b12e1d091e74ceed3d10': {}
 
-  '@0xsequence/trails-relayer@https://codeload.github.com/0xsequence/trails/tar.gz/ebf5ac09f4070b8274898150490c5ddb161dc0b2': {}
+  '@0xsequence/trails-relayer@https://codeload.github.com/0xsequence/trails/tar.gz/a3d5a33bd0fc6e6ecf83016a6a80a553119c1c41': {}
 
   '@0xsequence/utils@2.3.17(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:
@@ -7063,6 +7078,46 @@ snapshots:
     dependencies:
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
+
+  '@meshconnect/node-api@2.0.22':
+    dependencies:
+      axios: 1.11.0
+    transitivePeerDependencies:
+      - debug
+
+  '@meshconnect/solana-web3.js@1.0.4(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)':
+    dependencies:
+      '@babel/runtime': 7.28.2
+      '@noble/curves': 1.9.6
+      '@noble/hashes': 1.8.0
+      '@solana/buffer-layout': 4.0.1
+      agentkeepalive: 4.6.0
+      bn.js: 5.2.2
+      borsh: 0.7.0
+      bs58: 4.0.1
+      buffer: 6.0.3
+      fast-stable-stringify: 1.0.0
+      jayson: 4.2.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      node-fetch: 2.7.0(encoding@0.1.13)
+      rpc-websockets: 9.1.3
+      superstruct: 2.0.2
+    transitivePeerDependencies:
+      - bufferutil
+      - encoding
+      - utf-8-validate
+
+  '@meshconnect/web-link-sdk@3.2.14(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)':
+    dependencies:
+      '@meshconnect/node-api': 2.0.22
+      '@meshconnect/solana-web3.js': 1.0.4(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)
+      bs58: 5.0.0
+      buffer: 6.0.3
+      ethers: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - encoding
+      - utf-8-validate
 
   '@metamask/abi-utils@1.2.0':
     dependencies:
