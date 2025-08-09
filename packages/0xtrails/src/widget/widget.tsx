@@ -76,7 +76,8 @@ import {
   setSequenceEnv,
 } from "../config.js"
 import { FundSendForm } from "./components/FundSendForm.js"
-import MeshConnect from "./components/MeshConnect.js"
+import { MeshConnect } from "./components/MeshConnect.js"
+import type { MeshConnectProps } from "./components/MeshConnect.js"
 import type { Mode } from "../mode.js"
 import type { OnCompleteProps } from "./hooks/useSendForm.js"
 
@@ -314,7 +315,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const [totalCompletionSeconds, setTotalCompletionSeconds] = useState<
       number | null
     >(null)
-
     const { connect } = useConnect()
 
     const {
@@ -329,6 +329,26 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const usePrivyLogin = true // Set to true to use Privy email login options
 
     const walletClient = useWalletManager(address, chainId, connector)
+
+    const [meshConnectProps, setMeshConnectProps] =
+      useState<Partial<MeshConnectProps> | null>(null)
+    useEffect(() => {
+      // TESTING ONLY
+      if (walletClient) {
+        const intentAddress = walletClient?.account?.address
+        const toTokenSymbol = "USDC"
+        const toTokenAmount = parseUnits("4.20", 6).toString()
+        const toChainId = 137
+        const toRecipientAddress = intentAddress
+
+        setMeshConnectProps({
+          toTokenSymbol: toTokenSymbol,
+          toTokenAmount: toTokenAmount,
+          toChainId: toChainId,
+          toRecipientAddress: toRecipientAddress,
+        })
+      }
+    }, [walletClient])
 
     const {
       setOriginTxHash,
@@ -1244,7 +1264,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             />
           )
         case "mesh-connect":
-          return <MeshConnect onBack={handleBack} />
+          return <MeshConnect onBack={handleBack} {...meshConnectProps} />
         default:
           return null
       }

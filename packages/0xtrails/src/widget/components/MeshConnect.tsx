@@ -4,16 +4,27 @@ import { createPortal } from "react-dom"
 import { ArrowLeft } from "lucide-react"
 import * as meshSDK from "@meshconnect/web-link-sdk"
 import {
-  createDefaultLinkToken,
+  createNewLinkToken,
   getMeshConnectClientId,
   getMeshConnectEnvironment,
+  getMeshNetworkIdFromChainId,
 } from "../../meshconnect.js"
 
-interface MeshConnectProps {
+export interface MeshConnectProps {
   onBack: () => void
+  toTokenSymbol?: string
+  toTokenAmount?: string
+  toChainId?: number
+  toRecipientAddress?: string
 }
 
-export const MeshConnect: React.FC<MeshConnectProps> = ({ onBack }) => {
+export const MeshConnect: React.FC<MeshConnectProps> = ({
+  onBack,
+  toTokenSymbol,
+  toTokenAmount,
+  toChainId,
+  toRecipientAddress,
+}) => {
   const [linkToken, setLinkToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -55,10 +66,38 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({ onBack }) => {
         setLoading(true)
         setError(null)
 
-        // Generate a new link token with default credentials
-        const response = await createDefaultLinkToken({
-          environment: getMeshConnectEnvironment(),
-        })
+        if (
+          !toRecipientAddress ||
+          !toTokenSymbol ||
+          !toChainId ||
+          !toTokenAmount
+        ) {
+          console.error("[trails-sdk] Missing required parameters", {
+            toRecipientAddress,
+            toTokenSymbol,
+            toChainId,
+            toTokenAmount,
+          })
+          throw new Error("Missing required parameters")
+        }
+
+        const networkId = (await getMeshNetworkIdFromChainId(
+          toChainId,
+        )) as string
+
+        // Generate a new link token for receiving tokens
+        const response = await createNewLinkToken(
+          undefined, // Use default API key
+          undefined, // Use default client ID
+          {
+            environment: getMeshConnectEnvironment(),
+            address: toRecipientAddress,
+            symbol: toTokenSymbol,
+            networkId: networkId,
+            amount: toTokenAmount.toString(),
+            transactionId: `txid_${Date.now()}`,
+          },
+        )
 
         console.log(
           "[trails-sdk] Generated Mesh Connect link token response:",
@@ -89,11 +128,16 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({ onBack }) => {
     }
 
     generateLinkToken()
-  }, [])
+  }, [toRecipientAddress, toTokenSymbol, toChainId, toTokenAmount])
 
   const handleIntegrationConnected = useCallback((authData: any) => {
     console.log("[trails-sdk] MESH CONNECTED:", authData)
     setPayload(authData)
+
+    // Once connected, we can initiate a transfer
+    if (authData.accessToken) {
+      console.log("[trails-sdk] Ready to transfer - access token available")
+    }
   }, [])
 
   const handleTransferFinished = useCallback((transferData: any) => {
@@ -101,12 +145,23 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({ onBack }) => {
     setTransferFinishedData(transferData)
   }, [])
 
-  const handleExit = useCallback((error?: string) => {
-    if (error) {
-      console.error("[trails-sdk] MESH ERROR:", error)
-      setError(error)
-    }
-  }, [])
+  const handleExit = useCallback(
+    (error?: string) => {
+      console.log("[trails-sdk] MESH EXIT:", error)
+
+      // Hide the iframe when user exits
+      setShowIframe(false)
+      if (iframeContainer) {
+        iframeContainer.style.display = "none"
+      }
+
+      if (error) {
+        console.error("[trails-sdk] MESH ERROR:", error)
+        setError(error)
+      }
+    },
+    [iframeContainer],
+  )
 
   // Create Mesh Connect link instance when component mounts
   useEffect(() => {
@@ -232,6 +287,23 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({ onBack }) => {
     }
   }, [iframeContainer])
 
+  // Console log payload changes
+  useEffect(() => {
+    if (payload) {
+      console.log("[trails-sdk] Payload updated:", payload)
+    }
+  }, [payload])
+
+  // Console log transfer finished data changes
+  useEffect(() => {
+    if (transferFinishedData) {
+      console.log(
+        "[trails-sdk] Transfer finished data updated:",
+        transferFinishedData,
+      )
+    }
+  }, [transferFinishedData])
+
   if (loading) {
     return (
       <div className="flex flex-col h-full">
@@ -304,16 +376,6 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({ onBack }) => {
         <div className="w-9" />
       </div>
 
-      {/* Status indicators */}
-      {payload && (
-        <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-          <p className="text-sm text-green-600 dark:text-green-200">
-            ✓ Connected to{" "}
-            {payload.accessToken?.brokerName || "financial institution"}
-          </p>
-        </div>
-      )}
-
       {transferFinishedData && (
         <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
           <p className="text-sm text-blue-600 dark:text-blue-200">
@@ -325,7 +387,7 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({ onBack }) => {
 
       {/* Mesh Connect iframe area */}
       <div className="flex-1">
-        {!showIframe ? (
+        {!showIframe && !payload ? (
           <div className="flex items-center justify-center h-full min-h-[500px]">
             <div className="text-center p-8 border border-gray-200 dark:border-gray-700 rounded-lg">
               <h3 className="text-lg font-semibold mb-4">
@@ -344,7 +406,7 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({ onBack }) => {
               </button>
             </div>
           </div>
-        ) : (
+        ) : showIframe ? (
           <div className="relative">
             <button
               onClick={handleCloseMeshConnect}
@@ -357,7 +419,7 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({ onBack }) => {
               className="w-full h-[500px] border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800"
             />
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Portal for iframe outside shadow DOM */}
@@ -373,39 +435,12 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({ onBack }) => {
                 height: "100%",
                 border: "none",
                 borderRadius: "8px",
-                backgroundColor: "lightblue",
+                backgroundColor: "white",
               }}
             />
           </div>,
           iframeContainer,
         )}
-
-      {/* Debug information */}
-      {(payload || transferFinishedData) && (
-        <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <details className="text-xs">
-            <summary className="cursor-pointer text-gray-600 dark:text-gray-400 mb-2">
-              Debug Information
-            </summary>
-            {payload && (
-              <div className="mb-2">
-                <strong>Connection Data:</strong>
-                <pre className="mt-1 text-xs overflow-x-auto">
-                  {JSON.stringify(payload, null, 2)}
-                </pre>
-              </div>
-            )}
-            {transferFinishedData && (
-              <div>
-                <strong>Transfer Data:</strong>
-                <pre className="mt-1 text-xs overflow-x-auto">
-                  {JSON.stringify(transferFinishedData, null, 2)}
-                </pre>
-              </div>
-            )}
-          </details>
-        </div>
-      )}
     </div>
   )
 }

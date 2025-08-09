@@ -26,6 +26,7 @@ export interface TransferOptions {
   symbol?: string
   networkId?: string
   transactionId?: string
+  amount?: string
   amountInFiat?: number
   clientFee?: number
   restrictMultipleAccounts?: boolean
@@ -40,8 +41,10 @@ export interface LinkTokenRequest {
       networkId: string
       symbol: string
       address: string
+      amount?: string
     }>
     transactionId?: string
+    amount?: string
     amountInFiat?: number
     clientFee?: number
   }
@@ -100,6 +103,7 @@ function buildPayload(
         networkId: options.networkId,
         symbol: options.symbol,
         address: options.address,
+        amount: options.amount,
       })
     }
 
@@ -111,6 +115,10 @@ function buildPayload(
     // Add amount in fiat if provided
     if (options.amountInFiat !== undefined) {
       payload.transferOptions.amountInFiat = options.amountInFiat
+    }
+
+    if (options.amount !== undefined) {
+      payload.transferOptions.amount = options.amount
     }
 
     // Add client fee if provided
@@ -268,9 +276,56 @@ export async function createLinkToken(
 export const MESH_NETWORK_IDS = {
   ETHEREUM: "e3c7fdd8-b1fc-4e51-85ae-bb276e075611",
   POLYGON: "7436e9d0-ba42-4d2b-b4c0-8e4e606b2c12",
-  ARBITRUM: "2a9c1557-4f06-4f56-8e4e-8c4c8c4c8c4c",
+  ARBITRUM: "a34f2431-0ddd-4de4-bc22-4a8143287aeb",
+  BASE: "aa883b03-120d-477c-a588-37c2afd3ca71",
+  AVALANCHE: "bad16371-c22a-4bf4-a311-274d046cd760",
   BSC: "3b8c1557-4f06-4f56-8e4e-8c4c8c4c8c4c",
 } as const
+
+/**
+ * Get Mesh Connect network ID from chain ID by fetching from API
+ * @param chainId - The EVM chain ID (e.g., 1 for Ethereum, 8453 for Base)
+ * @returns The corresponding Mesh Connect network ID, or undefined if not supported
+ */
+export async function getMeshNetworkIdFromChainId(
+  chainId: number | string,
+): Promise<string | undefined> {
+  try {
+    const apiUrl = SANDBOX_API_URL // or PRODUCTION_API_URL based on environment
+    const endpoint = `${apiUrl}/api/v1/transfers/managed/networks`
+
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "X-Client-Id": DEFAULT_CLIENT_ID,
+        "X-Client-Secret": DEFAULT_API_KEY,
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch networks: ${response.status} ${response.statusText}`,
+      )
+    }
+
+    const data = await response.json()
+    const networks = data.content?.networks || []
+
+    // Find network by chain ID
+    const targetChainId = chainId.toString()
+    const network = networks.find((net: any) => net.chainId === targetChainId)
+
+    return network?.id
+  } catch (error) {
+    console.error(
+      "[meshconnect] Failed to fetch network ID for chain ID:",
+      chainId,
+      error,
+    )
+    return undefined
+  }
+}
 
 /**
  * Common Integration IDs (based on Mesh Connect API)
@@ -310,6 +365,17 @@ export function getMeshConnectClientId(): string {
 
 export function getMeshConnectEnvironment(): "sandbox" | "production" {
   return "sandbox"
+}
+
+const networkIdMap: Record<string, string> = {
+  "1": "e3c7fdd8-b1fc-4e51-85ae-bb276e075611",
+  "137": "7436e9d0-ba42-4d2b-b4c0-8e4e606b2c12",
+  "42161": "2a9c1557-4f06-4f56-8e4e-8c4c8c4c8c4c",
+  "56": "3b8c1557-4f06-4f56-8e4e-8c4c8c4c8c4c",
+}
+
+export function getMeshConnectNetworkId(chainId: string): string {
+  return networkIdMap[chainId] || "e3c7fdd8-b1fc-4e51-85ae-bb276e075611"
 }
 
 /*
