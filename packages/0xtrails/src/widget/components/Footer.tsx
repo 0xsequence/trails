@@ -2,7 +2,7 @@ import { motion } from "motion/react"
 import type React from "react"
 import TrailsLogoBlack from "../assets/Trails-logo-black.svg"
 import TrailsLogoWhite from "../assets/Trails-logo-white.svg"
-import { SITE_URL } from "../config.js"
+import { SITE_URL } from "../../constants.js"
 import DebugScreensDropdown from "./DebugScreensDropdown.js"
 
 interface FooterProps {

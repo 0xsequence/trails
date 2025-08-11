@@ -57,30 +57,33 @@ interface OutputScreenProps {
 }
 
 export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
-  ({
-    mode,
-    appId,
-    toAddress,
-    toAmount,
-    toChainId,
-    toToken,
-    toCalldata,
-    useCustomButton,
-    renderInline,
-    theme,
-    walletOptions,
-    paymasterUrls,
-    gasless,
-    buttonText,
-    customCss,
-    quoteProvider,
-    apiUrl,
-    indexerUrl,
-    env,
-    privyAppId,
-    privyClientId,
-    defaultSequenceProjectAccessKey,
-  }) => {
+  (
+    {
+      mode,
+      appId,
+      toAddress,
+      toAmount,
+      toChainId,
+      toToken,
+      toCalldata,
+      useCustomButton,
+      renderInline,
+      theme,
+      walletOptions,
+      paymasterUrls,
+      gasless,
+      buttonText,
+      customCss,
+      quoteProvider,
+      apiUrl,
+      indexerUrl,
+      env,
+      privyAppId,
+      privyClientId,
+      defaultSequenceProjectAccessKey,
+    },
+    _ref,
+  ) => {
     const [activeTab, setActiveTab] = useState<"modal" | "button" | "code">(
       "modal",
     )

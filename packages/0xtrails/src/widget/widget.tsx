@@ -27,7 +27,7 @@ import React, {
 import { createPortal } from "react-dom"
 import type { Chain, WalletClient } from "viem"
 import { createWalletClient, custom, http, parseUnits } from "viem"
-import { mainnet } from "viem/chains"
+import * as viemChains from "viem/chains"
 import type { Connector } from "wagmi"
 import {
   createConfig,
@@ -36,7 +36,8 @@ import {
   useDisconnect,
   WagmiContext,
 } from "wagmi"
-import { injected } from "wagmi/connectors"
+import { injected, walletConnect } from "wagmi/connectors"
+// import { walletConnect } from "./walletconnectConnector.js"
 import { useAPIClient } from "../apiClient.js"
 import { getChainInfo } from "../chains.js"
 import { useIndexerGatewayClient } from "../indexerClient.js"
@@ -53,7 +54,14 @@ import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPendingVertical.js"
 import WalletConfirmation from "./components/WalletConfirmation.js"
 import { ThemeProvider } from "./components/ThemeProvider.js"
-import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
+import {
+  getPrivyAppId,
+  getPrivyClientId,
+  getWalletConnectProjectId,
+  setPrivyAppId,
+  setPrivyClientId,
+  setWalletConnectProjectId,
+} from "../config.js"
 import { useAmountUsd } from "./hooks/useAmountUsd.js"
 import { useRecentTokens } from "./hooks/useRecentTokens.js"
 import css from "./compiled.css?inline"
@@ -78,6 +86,7 @@ import {
 import { FundSendForm } from "./components/FundSendForm.js"
 import { MeshConnect } from "./components/MeshConnect.js"
 import type { MeshConnectProps } from "./components/MeshConnect.js"
+import WalletConnectScreen from "./components/WalletConnect.js"
 import type { Mode } from "../mode.js"
 import type { OnCompleteProps } from "./hooks/useSendForm.js"
 
@@ -90,6 +99,7 @@ type Screen =
   | "pending"
   | "receipt"
   | "mesh-connect"
+  | "wallet-connect"
 
 export const defaultWalletOptions = ["injected", "privy"]
 
@@ -128,6 +138,7 @@ export type TrailsWidgetProps = {
   onDestinationConfirmation?: (txHash: string, chainId: number) => void
   privyAppId?: string
   privyClientId?: string
+  walletConnectProjectId?: string
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
   buttonText?: string
@@ -143,6 +154,18 @@ export interface TrailsWidgetRef {
 
 const queryClient = new QueryClient()
 
+// WalletConnect connector singleton to avoid multiple Core initializations
+let wcConnectorSingleton: ReturnType<typeof walletConnect> | null = null
+function getWalletConnectConnectorSingleton() {
+  if (!wcConnectorSingleton) {
+    wcConnectorSingleton = walletConnect({
+      projectId: getWalletConnectProjectId(),
+      showQrModal: false,
+    })
+  }
+  return wcConnectorSingleton
+}
+
 const WALLET_CONFIGS: Record<
   string,
   { id: string; name: string; connector: () => any }
@@ -151,6 +174,11 @@ const WALLET_CONFIGS: Record<
     id: "injected",
     name: "Injected Web3",
     connector: injected,
+  },
+  walletconnect: {
+    id: "walletconnect",
+    name: "WalletConnect",
+    connector: () => getWalletConnectConnectorSingleton(),
   },
   privy: {
     id: "privy",
@@ -370,7 +398,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           setCurrentScreen("tokens")
         }
       } else {
-        if (currentScreen !== "connect") {
+        if (currentScreen !== "connect" && currentScreen !== "wallet-connect") {
           setTimeout(() => {
             setCurrentScreen("connect")
           }, 0)
@@ -427,8 +455,13 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           setError(`No configuration found for wallet: ${walletId}`)
           return
         }
+        console.log("[trails-sdk] Connecting to wallet", walletId)
         if (walletId === "injected") {
           await connect({ connector: config.connector() })
+        } else if (walletId === "walletconnect") {
+          // Route to dedicated WalletConnect screen where we show our own QR
+          setCurrentScreen("wallet-connect")
+          return
         } else if (walletId === "privy") {
           console.log("[trails-sdk] Privy ready", privyReady)
           if (!privyReady) {
@@ -1104,6 +1137,9 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         case "mesh-connect":
           setCurrentScreen("mesh-connect")
           break
+        case "wallet-connect":
+          setCurrentScreen("wallet-connect")
+          break
       }
     }
 
@@ -1287,6 +1323,8 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               {...meshConnectProps}
             />
           )
+        case "wallet-connect":
+          return <WalletConnectScreen onBack={handleBack} />
         default:
           return null
       }
@@ -1398,12 +1436,24 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       if (props.sequenceEnv) {
         setSequenceEnv(props.sequenceEnv)
       }
+      if (props.privyAppId) {
+        setPrivyAppId(props.privyAppId)
+      }
+      if (props.privyClientId) {
+        setPrivyClientId(props.privyClientId)
+      }
+      if (props.walletConnectProjectId) {
+        setWalletConnectProjectId(props.walletConnectProjectId)
+      }
     }, [
       props.appId,
       props.sequenceUseV3Relayers,
       props.sequenceIndexerUrl,
       props.sequenceApiUrl,
       props.sequenceEnv,
+      props.privyAppId,
+      props.privyClientId,
+      props.walletConnectProjectId,
     ])
 
     // Check if privy is in walletOptions
@@ -1411,10 +1461,10 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const shouldUsePrivy = true // walletOptions.includes('privy') // TODO: need to disable all privy hooks if walletOptions.includes('privy') is false
 
     const wagmiConfig = React.useMemo(() => {
-      const chains = [mainnet] as const
+      const chains = [...Object.values(viemChains)] as any
       const baseConfig = {
         chains,
-        transports: (Object.values(chains) as Array<Chain>).reduce(
+        transports: (chains as Array<Chain>).reduce(
           (acc, chain) => ({
             ...acc,
             [chain.id]: http(),
@@ -1428,7 +1478,13 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       } else {
         return createConfig({
           ...baseConfig,
-          connectors: [injected()],
+          connectors: [
+            injected(),
+            walletConnect({
+              projectId: getWalletConnectProjectId(),
+              showQrModal: false,
+            }),
+          ],
         })
       }
     }, [])
@@ -1486,8 +1542,8 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       if (shouldUsePrivy) {
         return (
           <PrivyProvider
-            appId={props.privyAppId || defaultPrivyAppId}
-            clientId={props.privyClientId || defaultPrivyClientId}
+            appId={props.privyAppId || getPrivyAppId()}
+            clientId={props.privyClientId || getPrivyClientId()}
             config={{
               embeddedWallets: {
                 createOnLogin: "users-without-wallets",

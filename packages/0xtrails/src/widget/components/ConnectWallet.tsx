@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import { useAccount, useDisconnect } from "wagmi"
 import MetaMaskFox from "../assets/MetaMask-icon-fox.svg"
 import MetaMaskLogoWhite from "../assets/MetaMask-logo-white.svg"
+import WalletConnectLogo from "../assets/WalletConnect-logo.svg"
 import PrivyLogoBlack from "../assets/Privy_Brandmark_Black.svg"
 import PrivyLogoWhite from "../assets/Privy_Brandmark_White.svg"
 
@@ -73,6 +74,8 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
     switch (walletId) {
       case "privy":
         return "bg-black hover:bg-black/90 text-white dark:bg-white dark:hover:bg-white/90 dark:text-black"
+      case "walletconnect":
+        return "bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 dark:bg-white dark:hover:bg-gray-100"
       default:
         return "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
     }
@@ -156,6 +159,14 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
                     <img
                       src={MetaMaskLogoWhite}
                       alt="MetaMask"
+                      className="h-6"
+                    />
+                  </div>
+                ) : wallet.id === "walletconnect" ? (
+                  <div className="flex items-center space-x-2">
+                    <img
+                      src={WalletConnectLogo}
+                      alt="WalletConnect"
                       className="h-6"
                     />
                   </div>

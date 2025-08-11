@@ -5,6 +5,9 @@ import {
   DEFAULT_SEQUENCE_INDEXER_URL,
   DEFAULT_SEQUENCE_API_URL,
   DEFAULT_SEQUENCE_ENV,
+  DEFAULT_WALLETCONNECT_PROJECT_ID,
+  DEFAULT_PRIVY_APP_ID,
+  DEFAULT_PRIVY_CLIENT_ID,
 } from "./constants.js"
 
 const globalConfig: {
@@ -14,6 +17,9 @@ const globalConfig: {
   sequenceIndexerUrl: string
   sequenceApiUrl: string
   sequenceEnv: string
+  walletConnectProjectId: string
+  privyAppId: string
+  privyClientId: string
 } = {
   sequenceProjectAccessKey: DEFAULT_SEQUENCE_PROJECT_ACCESS_KEY,
   rpcSequenceProjectAccessKey: DEFAULT_RPC_SEQUENCE_PROJECT_ACCESS_KEY,
@@ -21,6 +27,9 @@ const globalConfig: {
   sequenceIndexerUrl: DEFAULT_SEQUENCE_INDEXER_URL,
   sequenceApiUrl: DEFAULT_SEQUENCE_API_URL,
   sequenceEnv: DEFAULT_SEQUENCE_ENV,
+  walletConnectProjectId: DEFAULT_WALLETCONNECT_PROJECT_ID,
+  privyAppId: DEFAULT_PRIVY_APP_ID,
+  privyClientId: DEFAULT_PRIVY_CLIENT_ID,
 }
 
 export function getSequenceProjectAccessKey() {
@@ -71,4 +80,28 @@ export function setSequenceEnv(sequenceEnv: string) {
 
 export function getSequenceEnv() {
   return globalConfig.sequenceEnv
+}
+
+export function setWalletConnectProjectId(walletConnectProjectId: string) {
+  globalConfig.walletConnectProjectId = walletConnectProjectId
+}
+
+export function getWalletConnectProjectId() {
+  return globalConfig.walletConnectProjectId
+}
+
+export function setPrivyAppId(privyAppId: string) {
+  globalConfig.privyAppId = privyAppId
+}
+
+export function getPrivyAppId() {
+  return globalConfig.privyAppId
+}
+
+export function setPrivyClientId(privyClientId: string) {
+  globalConfig.privyClientId = privyClientId
+}
+
+export function getPrivyClientId() {
+  return globalConfig.privyClientId
 }

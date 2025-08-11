@@ -61,6 +61,8 @@
     "@tanstack/query-core": "^5.83.0",
     "@tanstack/react-query": "^5.83.0",
     "@wagmi/core": "^2.18.0",
+    "@walletconnect/core": "^2.21.7",
+    "@walletconnect/ethereum-provider": "^2.21.7",
     "buffer": "^6.0.3",
     "ethers": "^6.15.0",
     "framer-motion": "^12.23.12",
@@ -113,5 +115,10 @@
       "require": "./dist/widget/widget/index.js",
       "types": "./dist/widget/widget/index.d.ts"
     }
+  },
+  "resolutions": {
+    "@walletconnect/core": "^2.21.7",
+    "@walletconnect/ethereum-provider": "^2.21.7",
+    "@walletconnect/sign-client": "^2.21.7"
   }
 }

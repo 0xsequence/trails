@@ -1414,31 +1414,36 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   </Tooltip>
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  {defaultWalletOptions.map((wallet: string) => {
-                    const isSelected = walletOptions?.includes(wallet)
-                    return (
-                      <div key={wallet} className="flex items-center space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => handleWalletOptionToggle(wallet)}
-                          className={`w-7 h-7 rounded border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
-                            isSelected
-                              ? "bg-blue-500 border-blue-500 text-white"
-                              : "bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600"
-                          }`}
+                  {[...new Set([...defaultWalletOptions, "walletconnect"])].map(
+                    (wallet: string) => {
+                      const isSelected = walletOptions?.includes(wallet)
+                      return (
+                        <div
+                          key={wallet}
+                          className="flex items-center space-x-2"
                         >
-                          {isSelected && <Checkmark />}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleWalletOptionToggle(wallet)}
-                          className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
-                        >
-                          {wallet.charAt(0).toUpperCase() + wallet.slice(1)}
-                        </button>
-                      </div>
-                    )
-                  })}
+                          <button
+                            type="button"
+                            onClick={() => handleWalletOptionToggle(wallet)}
+                            className={`w-7 h-7 rounded border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
+                              isSelected
+                                ? "bg-blue-500 border-blue-500 text-white"
+                                : "bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600"
+                            }`}
+                          >
+                            {isSelected && <Checkmark />}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleWalletOptionToggle(wallet)}
+                            className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+                          >
+                            {wallet.charAt(0).toUpperCase() + wallet.slice(1)}
+                          </button>
+                        </div>
+                      )
+                    },
+                  )}
                 </div>
               </div>
 

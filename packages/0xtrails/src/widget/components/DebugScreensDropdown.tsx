@@ -26,6 +26,7 @@ const SCREENS = [
   "Receipt",
   "Receipt Failed",
   "Mesh Connect",
+  "Wallet Connect",
 ] as const
 
 export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
