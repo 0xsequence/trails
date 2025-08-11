@@ -2,6 +2,7 @@ import { InfoIcon, Tooltip } from "@0xsequence/design-system"
 import { useSupportedChains, useSupportedTokens } from "0xtrails"
 import { defaultWalletOptions } from "0xtrails/widget"
 import type { Mode } from "0xtrails"
+import { TRAILS_CONTRACT_PLACEHOLDER_AMOUNT } from "0xtrails"
 import { ChevronDown, X } from "lucide-react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { encodeFunctionData, parseUnits, zeroAddress } from "viem"
@@ -1922,16 +1923,13 @@ export function encodeAaveEthDepositCalldata(recipient: string = zeroAddress) {
   return calldata
 }
 
-const PLACEHOLDER_AMOUNT =
-  0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefn // used by proxyCaller.ts in widget sdk
-
 export function encodeErc20AaveDepositCalldata(
   recipient: string = zeroAddress,
   amount: string = "0.1",
 ) {
   let effectiveAmount = BigInt(0)
   if (amount === "") {
-    effectiveAmount = PLACEHOLDER_AMOUNT
+    effectiveAmount = TRAILS_CONTRACT_PLACEHOLDER_AMOUNT
   } else {
     effectiveAmount = parseUnits(amount, 6)
   }
