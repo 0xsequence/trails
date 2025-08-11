@@ -82,6 +82,7 @@ import {
   getSequenceIndexerUrl,
   getSequenceApiUrl,
   setSequenceEnv,
+  setSlippageTolerance,
 } from "../config.js"
 import { FundSendForm } from "./components/FundSendForm.js"
 import { MeshConnect } from "./components/MeshConnect.js"
@@ -144,6 +145,7 @@ export type TrailsWidgetProps = {
   buttonText?: string
   customCss?: string
   quoteProvider?: string
+  slippageTolerance?: number | string
 }
 
 export interface TrailsWidgetRef {
@@ -1445,6 +1447,9 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       if (props.walletConnectProjectId) {
         setWalletConnectProjectId(props.walletConnectProjectId)
       }
+      if (props.slippageTolerance !== undefined) {
+        setSlippageTolerance(props.slippageTolerance?.toString())
+      }
     }, [
       props.appId,
       props.sequenceUseV3Relayers,
@@ -1454,6 +1459,7 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       props.privyAppId,
       props.privyClientId,
       props.walletConnectProjectId,
+      props.slippageTolerance,
     ])
 
     // Check if privy is in walletOptions

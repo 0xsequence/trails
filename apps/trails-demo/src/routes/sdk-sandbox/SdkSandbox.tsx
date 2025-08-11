@@ -47,6 +47,7 @@ export function SdkSandbox() {
     TradeType.EXACT_OUTPUT,
   )
   const [quoteToRecipient, setQuoteToRecipient] = useState("")
+  const [slippageTolerance, setSlippageTolerance] = useState("0.03")
 
   // Prefill recipient with connected account address
   useEffect(() => {
@@ -100,7 +101,7 @@ export function SdkSandbox() {
     ).toString(),
     tradeType: quoteTradeType,
     toRecipient: quoteToRecipient,
-    slippageTolerance: "0.03", // 0.03 = 3%
+    slippageTolerance: slippageTolerance,
     onStatusUpdate,
   })
 
@@ -613,6 +614,7 @@ export function SdkSandbox() {
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
           Swap
         </h2>
+        {/* From/To Token Selectors */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label
@@ -684,8 +686,7 @@ export function SdkSandbox() {
           </div>
         </div>
 
-        {/* Amount and Recipient Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
           <div>
             <label
               htmlFor="quote-swap-amount"
@@ -727,6 +728,33 @@ export function SdkSandbox() {
               <option value={TradeType.EXACT_OUTPUT}>
                 {TradeType.EXACT_OUTPUT}
               </option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              htmlFor="slippage-tolerance"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Slippage Tolerance
+            </label>
+            <select
+              id="slippage-tolerance"
+              value={slippageTolerance}
+              onChange={(e) => setSlippageTolerance(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              style={{
+                colorScheme: "light dark",
+                backgroundColor: "var(--tw-bg-opacity, 1)",
+                color: "var(--tw-text-opacity, 1)",
+              }}
+            >
+              <option value="0.001">0.1%</option>
+              <option value="0.005">0.5%</option>
+              <option value="0.01">1%</option>
+              <option value="0.018">1.8%</option>
+              <option value="0.03">3%</option>
+              <option value="0.05">5%</option>
             </select>
           </div>
 
@@ -910,7 +938,12 @@ export function SdkSandbox() {
                           Slippage Tolerance:
                         </span>
                         <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          {Number(quote?.slippageTolerance).toFixed(2)}%
+                          {(
+                            Math.round(
+                              Number(quote?.slippageTolerance) * 100 * 100,
+                            ) / 100
+                          ).toFixed(2)}
+                          %
                         </span>
                       </div>
                     )}

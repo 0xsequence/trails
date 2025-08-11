@@ -43,3 +43,5 @@ export const DEFAULT_PRIVY_CLIENT_ID =
   "client-WY6MrvK6dbp1FSBPU1DKa6ymAHrJBPYxyFX39dFCCd56L"
 
 export const SITE_URL = "https://trails.build/"
+
+export const DEFAULT_SLIPPAGE_TOLERANCE = "0.03" // 0.001 = 0.1%, 0.005 = 0.5%, 0.03 = 3%, 0.05 = 5%

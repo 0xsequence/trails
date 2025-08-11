@@ -113,7 +113,11 @@ import { requestWithTimeout } from "./utils.js"
 import { InsufficientBalanceError } from "./error.js"
 import { estimateGasCostUsd } from "./estimate.js"
 import { wrapCalldataWithProxyCallerIfNeeded } from "./proxyCaller.js"
-import { getSequenceUseV3Relayers, getSequenceEnv } from "./config.js"
+import {
+  getSequenceUseV3Relayers,
+  getSequenceEnv,
+  getSlippageTolerance,
+} from "./config.js"
 
 export enum TradeType {
   EXACT_INPUT = "EXACT_INPUT",
@@ -328,7 +332,7 @@ export async function prepareSend(
     destinationTokenDecimals,
     paymasterUrl,
     gasless = false,
-    slippageTolerance = "0.03", // 0.03 = 3%
+    slippageTolerance = getSlippageTolerance(),
     originNativeTokenPriceUsd,
     quoteProvider,
   } = options

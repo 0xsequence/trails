@@ -75,7 +75,7 @@ export async function getRelaySDKQuote(
       recipient: options.recipient || options.wallet.account!.address,
       options: {
         slippageTolerance: options.slippageTolerance
-          ? (Number(options.slippageTolerance) * 100 * 100).toString()
+          ? Math.round(Number(options.slippageTolerance) * 100 * 100).toString()
           : undefined,
       },
     })

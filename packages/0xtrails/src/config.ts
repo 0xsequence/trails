@@ -8,6 +8,7 @@ import {
   DEFAULT_WALLETCONNECT_PROJECT_ID,
   DEFAULT_PRIVY_APP_ID,
   DEFAULT_PRIVY_CLIENT_ID,
+  DEFAULT_SLIPPAGE_TOLERANCE,
 } from "./constants.js"
 
 const globalConfig: {
@@ -20,6 +21,7 @@ const globalConfig: {
   walletConnectProjectId: string
   privyAppId: string
   privyClientId: string
+  slippageTolerance: string
 } = {
   sequenceProjectAccessKey: DEFAULT_SEQUENCE_PROJECT_ACCESS_KEY,
   rpcSequenceProjectAccessKey: DEFAULT_RPC_SEQUENCE_PROJECT_ACCESS_KEY,
@@ -30,6 +32,7 @@ const globalConfig: {
   walletConnectProjectId: DEFAULT_WALLETCONNECT_PROJECT_ID,
   privyAppId: DEFAULT_PRIVY_APP_ID,
   privyClientId: DEFAULT_PRIVY_CLIENT_ID,
+  slippageTolerance: DEFAULT_SLIPPAGE_TOLERANCE,
 }
 
 export function getSequenceProjectAccessKey() {
@@ -104,4 +107,12 @@ export function setPrivyClientId(privyClientId: string) {
 
 export function getPrivyClientId() {
   return globalConfig.privyClientId
+}
+
+export function setSlippageTolerance(slippageTolerance: string) {
+  globalConfig.slippageTolerance = slippageTolerance
+}
+
+export function getSlippageTolerance() {
+  return globalConfig.slippageTolerance
 }
