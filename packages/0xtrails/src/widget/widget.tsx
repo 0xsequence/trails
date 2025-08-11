@@ -88,6 +88,7 @@ import { FundSendForm } from "./components/FundSendForm.js"
 import { MeshConnect } from "./components/MeshConnect.js"
 import type { MeshConnectProps } from "./components/MeshConnect.js"
 import WalletConnectScreen from "./components/WalletConnect.js"
+import FundMethods from "./components/FundMethods.js"
 import type { Mode } from "../mode.js"
 import type { OnCompleteProps } from "./hooks/useSendForm.js"
 
@@ -96,6 +97,7 @@ type Screen =
   | "tokens"
   | "send-form"
   | "fund-form"
+  | "fund-methods"
   | "wallet-confirmation"
   | "pending"
   | "receipt"
@@ -659,8 +661,11 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const handleBack = () => {
       setError(null)
       switch (currentScreen) {
+        case "fund-methods":
+          setCurrentScreen("tokens")
+          break
         case "tokens":
-          setCurrentScreen("connect")
+          setCurrentScreen("fund-methods")
           break
         case "send-form":
           setCurrentScreen("tokens")
@@ -682,7 +687,10 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           setOriginChainId(null)
           break
         case "mesh-connect":
-          setCurrentScreen("tokens")
+          setCurrentScreen("fund-methods")
+          break
+        case "wallet-connect":
+          setCurrentScreen("fund-methods")
           break
         default:
           break
@@ -1142,7 +1150,18 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         case "wallet-connect":
           setCurrentScreen("wallet-connect")
           break
+        case "fund-methods":
+          setCurrentScreen("fund-methods")
+          break
       }
+    }
+
+    const handleSelectWalletConnect = () => {
+      setCurrentScreen("wallet-connect")
+    }
+
+    const handleSelectExchange = () => {
+      setCurrentScreen("mesh-connect")
     }
 
     const handleSendError = (error: Error | string | null) => {
@@ -1216,6 +1235,15 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onContinue={handleContinue}
               walletOptions={getAvailableWallets()}
               onError={handleConnectError}
+            />
+          )
+        case "fund-methods":
+          return (
+            <FundMethods
+              onBack={handleBack}
+              onSelectWalletConnect={handleSelectWalletConnect}
+              onSelectExchange={handleSelectExchange}
+              onSelectConnectedAccount={() => setCurrentScreen("tokens")}
             />
           )
         case "tokens":
@@ -1448,7 +1476,7 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         setWalletConnectProjectId(props.walletConnectProjectId)
       }
       if (props.slippageTolerance !== undefined) {
-        setSlippageTolerance(props.slippageTolerance?.toString())
+        setSlippageTolerance(String(props.slippageTolerance))
       }
     }, [
       props.appId,

@@ -306,6 +306,14 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({
     }
   }, [transferFinishedData])
 
+  // Auto-click the openMeshConnect button when ready
+  useEffect(() => {
+    if (meshLink && linkToken && !showIframe && !payload) {
+      console.log("[trails-sdk] Auto-clicking openMeshConnect button")
+      openMeshConnect()
+    }
+  }, [meshLink, linkToken, showIframe, payload, openMeshConnect])
+
   if (loading) {
     return (
       <div className="flex flex-col h-full">
@@ -313,7 +321,7 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({
           <button
             type="button"
             onClick={onBack}
-            className="p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -384,16 +392,18 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({
             ✓ Transfer completed: {transferFinishedData.amount}{" "}
             {transferFinishedData.symbol}
           </p>
-          <button
-            onClick={() => {
-              if (onComplete) {
-                onComplete(transferFinishedData)
-              }
-            }}
-            className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Continue
-          </button>
+          <div className="flex justify-center items-center">
+            <button
+              onClick={() => {
+                if (onComplete) {
+                  onComplete(transferFinishedData)
+                }
+              }}
+              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer"
+            >
+              Continue
+            </button>
+          </div>
         </div>
       )}
 
@@ -432,6 +442,18 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({
             />
           </div>
         ) : null}
+      </div>
+
+      {/* Sandbox Environment Banner */}
+      <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+        <div className="text-center">
+          <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+            Sandbox environment
+          </p>
+          <p className="text-xs text-yellow-600 dark:text-yellow-300">
+            No real funds are used
+          </p>
+        </div>
       </div>
 
       {/* Portal for iframe outside shadow DOM */}

@@ -9,6 +9,9 @@ interface DebugScreensDropdownProps {
 
 const SCREENS = [
   "Connect",
+  "Fund Methods",
+  "Mesh Connect",
+  "Wallet Connect",
   "Tokens",
   "Send Form",
   "Fund Form",
@@ -25,8 +28,6 @@ const SCREENS = [
   "Pending 3-item-3-confirmed",
   "Receipt",
   "Receipt Failed",
-  "Mesh Connect",
-  "Wallet Connect",
 ] as const
 
 export const DebugScreensDropdown: React.FC<DebugScreensDropdownProps> = ({
