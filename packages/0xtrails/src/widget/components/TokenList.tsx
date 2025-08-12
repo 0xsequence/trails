@@ -185,7 +185,7 @@ export const TokenList: React.FC<TokenListProps> = ({
           mode !== "fund" &&
           fundMethod !== "qr-code" &&
           fundMethod !== "exchange" && (
-            <div className="text-right max-w-[125px] mr-8">
+            <div className="text-right max-w-[125px]">
               <p className={`text-xs ${"text-gray-500 dark:text-gray-400"}`}>
                 Total balance:
               </p>
