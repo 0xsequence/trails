@@ -35,6 +35,15 @@ interface FundSendFormProps {
   setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
   quoteProvider?: string
   fundMethod?: string | null
+  onNavigateToMeshConnect?: (
+    props: {
+      toTokenSymbol: string
+      toTokenAmount: string
+      toChainId: number
+      toRecipientAddress: string
+    },
+    quote?: PrepareSendQuote | null,
+  ) => void
 }
 
 export const FundSendForm: React.FC<FundSendFormProps> = ({
@@ -58,6 +67,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
   setWalletConfirmRetryHandler,
   quoteProvider,
   fundMethod,
+  onNavigateToMeshConnect,
 }) => {
   // Local state for fund-specific functionality
   const [isInputTypeUsd, setIsInputTypeUsd] = useState(false)
@@ -124,6 +134,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
     tradeType: TradeType.EXACT_INPUT,
     quoteProvider,
     fundMethod,
+    onNavigateToMeshConnect,
   })
 
   // Get source token price for USD conversions
@@ -402,7 +413,7 @@ export const FundSendForm: React.FC<FundSendFormProps> = ({
           </div>
 
           {/* Right side - USD value and amount */}
-          {fundMethod !== "qr-code" && (
+          {fundMethod !== "qr-code" && fundMethod !== "exchange" && (
             <div className="text-right">
               <div className="text-sm font-medium text-gray-900 dark:text-white">
                 <span className="text-gray-600 dark:text-gray-400">

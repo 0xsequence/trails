@@ -34,6 +34,15 @@ interface PaySendFormProps {
   setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
   quoteProvider?: string
   fundMethod?: string | null
+  onNavigateToMeshConnect?: (
+    props: {
+      toTokenSymbol: string
+      toTokenAmount: string
+      toChainId: number
+      toRecipientAddress: string
+    },
+    quote?: PrepareSendQuote | null,
+  ) => void
 }
 
 export const PaySendForm: React.FC<PaySendFormProps> = ({
@@ -57,6 +66,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
   setWalletConfirmRetryHandler,
   quoteProvider,
   fundMethod,
+  onNavigateToMeshConnect,
 }) => {
   const {
     amount,
@@ -114,6 +124,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
     tradeType: TradeType.EXACT_OUTPUT,
     quoteProvider,
     fundMethod,
+    onNavigateToMeshConnect,
   })
 
   // Handle amount input changes with decimal validation
@@ -213,7 +224,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
           </div>
 
           {/* Right side - USD value and amount */}
-          {fundMethod !== "qr-code" && (
+          {fundMethod !== "qr-code" && fundMethod !== "exchange" && (
             <div className="text-right">
               <div className="text-sm font-medium text-gray-900 dark:text-white">
                 <span className="text-gray-600 dark:text-gray-400">

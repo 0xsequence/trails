@@ -1,5 +1,5 @@
 import type React from "react"
-import { ArrowLeft, Link as LinkIcon, Wallet, QrCode, Wifi } from "lucide-react"
+import { ArrowLeft, Wallet, QrCode, Wifi, Building2 } from "lucide-react"
 import { useAccount } from "wagmi"
 import { truncateAddress } from "../../address.js"
 
@@ -66,6 +66,7 @@ const FundMethods: React.FC<FundMethodsProps> = ({
           </button>
 
           <button
+            style={{ display: "none" }}
             type="button"
             onClick={onSelectWalletConnect}
             className="flex flex-col items-center justify-center gap-1 px-3 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
@@ -82,7 +83,7 @@ const FundMethods: React.FC<FundMethodsProps> = ({
             onClick={onSelectExchange}
             className="flex flex-col items-center justify-center gap-1 px-3 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
-            <LinkIcon className="w-5 h-5" />
+            <Building2 className="w-5 h-5" />
             <span className="font-medium">Exchange</span>
             <span className="text-xs text-gray-600 dark:text-gray-400 text-center">
               Transfer from an exchange.

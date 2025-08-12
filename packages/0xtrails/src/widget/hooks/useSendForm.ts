@@ -113,6 +113,15 @@ export type UseSendProps = {
   tradeType?: TradeType
   quoteProvider?: string
   fundMethod?: string | null
+  onNavigateToMeshConnect?: (
+    props: {
+      toTokenSymbol: string
+      toTokenAmount: string
+      toChainId: number
+      toRecipientAddress: string
+    },
+    quote?: PrepareSendQuote | null,
+  ) => void
 }
 
 export type UseSendReturn = {
@@ -180,6 +189,7 @@ export function useSendForm({
   tradeType = TradeType.EXACT_OUTPUT,
   quoteProvider,
   fundMethod,
+  onNavigateToMeshConnect,
 }: UseSendProps): UseSendReturn {
   const [amount, setAmount] = useState(
     tradeType === TradeType.EXACT_INPUT ? "" : (toAmount ?? ""),
@@ -561,7 +571,9 @@ export function useSendForm({
         originTokenAddress: selectedToken.contractAddress,
         originChainId: selectedToken.chainId,
         originTokenBalance:
-          fundMethod === "qr-code" ? "1" : selectedToken.balance,
+          fundMethod === "qr-code" || fundMethod === "exchange"
+            ? "1"
+            : selectedToken.balance,
         destinationChainId: selectedDestinationChain.id,
         recipient,
         destinationTokenAddress,
@@ -685,6 +697,32 @@ export function useSendForm({
 
       console.log("[trails-sdk] Using prepared send result quote:", quote)
 
+      // Handle exchange fund method - navigate to mesh-connect
+      if (fundMethod === "exchange" && onNavigateToMeshConnect) {
+        const toTokenSymbol = selectedDestToken?.symbol || ""
+        const toTokenAmount = quotedDestinationAmount || "0"
+        const toChainId = selectedDestinationChain?.id || 1
+        const toRecipientAddress = quote.destinationAddress || recipient
+
+        console.log("[trails-sdk] Navigating to mesh-connect with props:", {
+          toTokenSymbol,
+          toTokenAmount,
+          toChainId,
+          toRecipientAddress,
+        })
+
+        onNavigateToMeshConnect(
+          {
+            toTokenSymbol,
+            toTokenAmount,
+            toChainId,
+            toRecipientAddress,
+          },
+          prepareSendResult.quote,
+        )
+        return
+      }
+
       function onOriginSend() {
         console.log("[trails-sdk] onOriginSend called")
         onConfirm()
@@ -760,6 +798,11 @@ export function useSendForm({
     onWaitingForWalletConfirm,
     recipient,
     onError,
+    fundMethod,
+    onNavigateToMeshConnect,
+    selectedDestToken?.symbol,
+    quotedDestinationAmount,
+    selectedDestinationChain?.id,
   ])
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -296,15 +296,19 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({
     }
   }, [payload])
 
-  // Console log transfer finished data changes
+  // Navigate to pending screen when transfer is finished
   useEffect(() => {
     if (transferFinishedData) {
       console.log(
         "[trails-sdk] Transfer finished data updated:",
         transferFinishedData,
       )
+      // Navigate to pending screen
+      if (onComplete) {
+        onComplete(transferFinishedData)
+      }
     }
-  }, [transferFinishedData])
+  }, [transferFinishedData, onComplete])
 
   // Auto-click the openMeshConnect button when ready
   useEffect(() => {
@@ -388,22 +392,13 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({
 
       {transferFinishedData && (
         <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <p className="text-sm text-blue-600 dark:text-blue-200 mb-3">
+          <p className="text-sm text-blue-600 dark:text-blue-200">
             ✓ Transfer completed: {transferFinishedData.amount}{" "}
             {transferFinishedData.symbol}
           </p>
-          <div className="flex justify-center items-center">
-            <button
-              onClick={() => {
-                if (onComplete) {
-                  onComplete(transferFinishedData)
-                }
-              }}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer"
-            >
-              Continue
-            </button>
-          </div>
+          <p className="text-xs text-blue-500 dark:text-blue-300 mt-1">
+            Redirecting to pending screen...
+          </p>
         </div>
       )}
 

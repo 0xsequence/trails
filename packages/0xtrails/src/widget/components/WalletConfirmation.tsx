@@ -1,8 +1,7 @@
 import { TokenImage } from "./TokenImage.js"
-import { ChainImage } from "./ChainImage.js"
 import { ChevronLeft } from "lucide-react"
 import type React from "react"
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState } from "react"
 import type { PrepareSendQuote } from "../../prepareSend.js"
 import { QuoteDetails } from "./QuoteDetails.js"
 

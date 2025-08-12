@@ -743,17 +743,12 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
 
     function handleMeshConnectComplete(transferData: any) {
       console.log("[trails-sdk] Mesh Connect transfer completed:", transferData)
-
-      // Create a mock transaction state for the pending screen
-      const mockTransactionState = {
-        transactionHash: transferData.txId || transferData.transactionId || "",
-        explorerUrl: "", // Could construct this based on network
-        chainId: 8453, // Base chain
-        state: "confirmed" as const,
-        label: "Deposit",
+      console.log(
+        "[trails-sdk] Using real transaction states from prepareSendQuote",
+      )
+      if (prepareSendQuote) {
+        setTransactionStates(prepareSendQuote.transactionStates)
       }
-
-      setTransactionStates([mockTransactionState])
       setCurrentScreen("pending")
     }
 
@@ -1166,6 +1161,21 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     }
 
     const handleSelectExchange = () => {
+      setSelectedFundMethod("exchange")
+      setCurrentScreen("tokens")
+    }
+
+    const handleNavigateToMeshConnect = (
+      props: {
+        toTokenSymbol: string
+        toTokenAmount: string
+        toChainId: number
+        toRecipientAddress: string
+      },
+      quote?: PrepareSendQuote | null,
+    ) => {
+      setPrepareSendQuote(quote ?? null)
+      setMeshConnectProps(props)
       setCurrentScreen("mesh-connect")
     }
 
@@ -1301,6 +1311,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               setWalletConfirmRetryHandler={setWalletConfirmRetryHandler}
               quoteProvider={quoteProvider}
               fundMethod={selectedFundMethod}
+              onNavigateToMeshConnect={handleNavigateToMeshConnect}
             />
           ) : (
             <div className="text-center p-4 rounded-lg text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800">
@@ -1330,6 +1341,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               toCalldata={toCalldata || undefined}
               quoteProvider={quoteProvider}
               fundMethod={selectedFundMethod}
+              onNavigateToMeshConnect={handleNavigateToMeshConnect}
             />
           ) : (
             <div className="text-center p-4 rounded-lg text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800">

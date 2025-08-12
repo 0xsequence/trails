@@ -1415,7 +1415,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   </Tooltip>
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  {[...new Set([...defaultWalletOptions, "walletconnect"])].map(
+                  {[...new Set([...defaultWalletOptions])].map(
                     (wallet: string) => {
                       const isSelected = walletOptions?.includes(wallet)
                       return (

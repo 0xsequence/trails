@@ -94,7 +94,9 @@ export function useTokenList({
 
   // Determine loading state based on fund method
   const isLoadingTokens =
-    fundMethod === "qr-code" ? isLoadingSupportedTokens : isLoadingSortedTokens
+    fundMethod === "qr-code" || fundMethod === "exchange"
+      ? isLoadingSupportedTokens
+      : isLoadingSortedTokens
 
   const {
     totalBalanceUsd,
@@ -109,9 +111,9 @@ export function useTokenList({
   const showContinueButton = false
   const { supportedChains: supportedToChains } = useSupportedChains()
 
-  // Fetch all supported tokens when fundMethod is "qr-code"
+  // Fetch all supported tokens when fundMethod is "qr-code" or "exchange"
   useEffect(() => {
-    if (fundMethod === "qr-code") {
+    if (fundMethod === "qr-code" || fundMethod === "exchange") {
       setIsLoadingSupportedTokens(true)
       getSupportedTokens()
         .then((tokens) => {
@@ -131,9 +133,9 @@ export function useTokenList({
   }, [supportedToChains])
 
   const sortedTokens = useMemo<Array<TokenBalanceExtended>>(() => {
-    // If fundMethod is "qr-code", use all supported tokens instead of account-specific tokens
-    if (fundMethod === "qr-code") {
-      // Filter to only show specific tokens for QR code mode
+    // If fundMethod is "qr-code" or "exchange", use all supported tokens instead of account-specific tokens
+    if (fundMethod === "qr-code" || fundMethod === "exchange") {
+      // Filter to only show specific tokens for QR code and exchange modes
       const filteredTokens = allSupportedTokens.filter((token) => {
         const symbol = token.symbol.toUpperCase()
         return ["ETH", "POL", "USDC", "USDT", "DAI", "BAT", "WETH"].includes(
@@ -150,13 +152,13 @@ export function useTokenList({
           // Native token format
           return {
             chainId: token.chainId,
-            balance: "0", // No balance info for QR code mode
+            balance: "0", // No balance info for QR code and exchange modes
             balanceUsd: 0,
             balanceUsdFormatted: "0",
             price: { value: 0, currency: "USD" },
             imageUrl: token.imageUrl,
             symbol: token.symbol,
-            isSufficientBalance: true, // Always true for QR code mode
+            isSufficientBalance: true, // Always true for QR code and exchange modes
             accountAddress: address as Address.Address,
           } as NativeTokenBalanceWithPrice
         } else {
@@ -164,7 +166,7 @@ export function useTokenList({
           return {
             chainId: token.chainId,
             contractAddress: token.contractAddress,
-            balance: "0", // No balance info for QR code mode
+            balance: "0", // No balance info for QR code and exchange modes
             balanceUsd: 0,
             balanceUsdFormatted: "0",
             price: { value: 0, currency: "USD" },
@@ -174,7 +176,7 @@ export function useTokenList({
               symbol: token.symbol,
               name: token.name,
             },
-            isSufficientBalance: true, // Always true for QR code mode
+            isSufficientBalance: true, // Always true for QR code and exchange modes
             // Add required properties for TokenBalanceWithPrice
             contractType: "ERC20",
             accountAddress: address as Address.Address,
