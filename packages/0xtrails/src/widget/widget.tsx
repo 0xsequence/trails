@@ -53,6 +53,7 @@ import { PaySendForm } from "./components/PaySendForm.js"
 import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPendingVertical.js"
 import WalletConfirmation from "./components/WalletConfirmation.js"
+import QRCodeDeposit from "./components/QRCodeDeposit.js"
 import { ThemeProvider } from "./components/ThemeProvider.js"
 import {
   getPrivyAppId,
@@ -99,6 +100,7 @@ type Screen =
   | "fund-form"
   | "fund-methods"
   | "wallet-confirmation"
+  | "qr-code-deposit"
   | "pending"
   | "receipt"
   | "mesh-connect"
@@ -337,6 +339,9 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       isConnected ? "tokens" : "connect",
     )
     const [selectedToken, setSelectedToken] = useState<Token | null>(null)
+    const [selectedFundMethod, setSelectedFundMethod] = useState<string | null>(
+      null,
+    )
     const [error, setError] = useState<string | null>(null)
     const [prepareSendQuote, setPrepareSendQuote] =
       useState<PrepareSendQuote | null>(null)
@@ -1197,7 +1202,12 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
 
     const handleWaitingForWalletConfirm = (quote: PrepareSendQuote) => {
       setShowWalletConfirmRetry(false)
-      setCurrentScreen("wallet-confirmation")
+      // Navigate to QR code deposit screen if fund method is qr-code, otherwise to wallet confirmation
+      if (selectedFundMethod === "qr-code") {
+        setCurrentScreen("qr-code-deposit")
+      } else {
+        setCurrentScreen("wallet-confirmation")
+      }
       setPrepareSendQuote(quote ?? null)
     }
 
@@ -1243,7 +1253,14 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onBack={handleBack}
               onSelectWalletConnect={handleSelectWalletConnect}
               onSelectExchange={handleSelectExchange}
-              onSelectConnectedAccount={() => setCurrentScreen("tokens")}
+              onSelectConnectedAccount={() => {
+                setSelectedFundMethod("connected-account")
+                setCurrentScreen("tokens")
+              }}
+              onSelectQrCode={() => {
+                setSelectedFundMethod("qr-code")
+                setCurrentScreen("tokens")
+              }}
             />
           )
         case "tokens":
@@ -1258,6 +1275,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               mode={mode}
               recentTokens={recentTokens}
               onRecentTokenSelect={handleRecentTokenSelect}
+              fundMethod={selectedFundMethod}
             />
           )
         case "send-form":
@@ -1282,6 +1300,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               gasless={gasless}
               setWalletConfirmRetryHandler={setWalletConfirmRetryHandler}
               quoteProvider={quoteProvider}
+              fundMethod={selectedFundMethod}
             />
           ) : (
             <div className="text-center p-4 rounded-lg text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800">
@@ -1310,6 +1329,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               setWalletConfirmRetryHandler={setWalletConfirmRetryHandler}
               toCalldata={toCalldata || undefined}
               quoteProvider={quoteProvider}
+              fundMethod={selectedFundMethod}
             />
           ) : (
             <div className="text-center p-4 rounded-lg text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800">
@@ -1326,6 +1346,8 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               quote={prepareSendQuote}
             />
           )
+        case "qr-code-deposit":
+          return <QRCodeDeposit onBack={handleBack} quote={prepareSendQuote} />
         case "pending":
           return (
             <TransferPending

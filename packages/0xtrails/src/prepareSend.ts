@@ -153,6 +153,7 @@ export type PrepareSendOptions = {
   slippageTolerance?: string
   originNativeTokenPriceUsd?: number | null
   quoteProvider?: string | null
+  fundMethod?: string | null
 }
 
 export type PrepareSendFees = {
@@ -335,6 +336,7 @@ export async function prepareSend(
     slippageTolerance = getSlippageTolerance(),
     originNativeTokenPriceUsd,
     quoteProvider,
+    fundMethod,
   } = options
 
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
@@ -521,6 +523,7 @@ export async function prepareSend(
     tradeType,
     originNativeTokenPriceUsd,
     quoteProvider,
+    fundMethod,
   })
 }
 
@@ -556,6 +559,7 @@ async function sendHandlerForDifferentChainDifferentToken({
   tradeType,
   originNativeTokenPriceUsd,
   quoteProvider,
+  fundMethod,
 }: {
   mainSignerAddress: string
   originChainId: number
@@ -588,6 +592,7 @@ async function sendHandlerForDifferentChainDifferentToken({
   tradeType: TradeType
   originNativeTokenPriceUsd?: number | null
   quoteProvider?: string | null
+  fundMethod?: string | null
 }): Promise<PrepareSendReturn> {
   const testnet = isTestnetDebugMode()
   const useCctp = getUseCctp(
@@ -947,6 +952,12 @@ async function sendHandlerForDifferentChainDifferentToken({
       console.log("[trails-sdk] testnet", testnet)
 
       const depositPromise = async () => {
+        // Skip wallet deposit if fund method is qr-code
+        if (fundMethod === "qr-code") {
+          console.log("[trails-sdk] Skipping wallet deposit for QR code mode")
+          return
+        }
+
         originUserTxReceipt = await attemptUserDepositTx({
           originTokenAddress: effectiveOriginTokenAddress,
           gasless,
@@ -968,6 +979,7 @@ async function sendHandlerForDifferentChainDifferentToken({
           swapAmount,
           onTransactionStateChange,
           transactionStates,
+          fundMethod,
         })
 
         if (!originUserTxReceipt) {
@@ -2026,6 +2038,7 @@ async function attemptUserDepositTx({
   swapAmount,
   onTransactionStateChange,
   transactionStates,
+  fundMethod,
 }: {
   originTokenAddress: string
   gasless: boolean
@@ -2047,9 +2060,17 @@ async function attemptUserDepositTx({
   fee: string
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   transactionStates: TransactionState[]
+  fundMethod?: string | null
 }): Promise<TransactionReceipt | null> {
   let originUserTxReceipt: TransactionReceipt | null = null
   const originChainId = chain.id
+
+  // Skip wallet deposit if fund method is qr-code
+  if (fundMethod === "qr-code") {
+    console.log("[trails-sdk] Skipping wallet deposit for QR code mode")
+    return null
+  }
+
   const doGasless = getDoGasless(originTokenAddress, gasless, paymasterUrl)
   console.log("[trails-sdk] doGasless", doGasless, paymasterUrl)
   if (doGasless) {

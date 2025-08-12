@@ -22,6 +22,7 @@ interface TokenListProps {
   mode?: Mode
   recentTokens?: SupportedToken[]
   onRecentTokenSelect?: (token: SupportedToken) => void
+  fundMethod?: string | null
 }
 
 export const TokenList: React.FC<TokenListProps> = ({
@@ -34,6 +35,7 @@ export const TokenList: React.FC<TokenListProps> = ({
   mode,
   recentTokens = [],
   onRecentTokenSelect,
+  fundMethod,
 }) => {
   const searchInputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -68,7 +70,7 @@ export const TokenList: React.FC<TokenListProps> = ({
     setSearchQuery,
     handleTokenSelect,
     filteredTokens,
-    isLoadingSortedTokens,
+    isLoadingTokens,
     isTokenSelected,
     selectedToken,
     showContinueButton,
@@ -82,6 +84,7 @@ export const TokenList: React.FC<TokenListProps> = ({
     targetAmountUsd,
     indexerGatewayClient,
     onError,
+    fundMethod,
   })
 
   // Apply chain filter to tokens
@@ -178,7 +181,7 @@ export const TokenList: React.FC<TokenListProps> = ({
           </h2>
         </div>
 
-        {totalBalanceUsd > 0 && mode !== "fund" && (
+        {totalBalanceUsd > 0 && mode !== "fund" && fundMethod !== "qr-code" && (
           <div className="text-right max-w-[125px] mr-8">
             <p className={`text-xs ${"text-gray-500 dark:text-gray-400"}`}>
               Total balance:
@@ -275,7 +278,7 @@ export const TokenList: React.FC<TokenListProps> = ({
 
       {/* Recent Tokens */}
       <AnimatePresence>
-        {!isLoadingSortedTokens && filteredRecentTokens.length > 0 && (
+        {!isLoadingTokens && filteredRecentTokens.length > 0 && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
@@ -290,7 +293,7 @@ export const TokenList: React.FC<TokenListProps> = ({
         )}
       </AnimatePresence>
 
-      {isLoadingSortedTokens && (
+      {isLoadingTokens && (
         <div className="text-center py-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 mx-auto border-black dark:border-white"></div>
           <p className="mt-2 text-gray-500 dark:text-gray-400">
@@ -299,17 +302,15 @@ export const TokenList: React.FC<TokenListProps> = ({
         </div>
       )}
 
-      {!isLoadingSortedTokens &&
-        !balanceError &&
-        filteredTokens.length === 0 && (
-          <div className="text-center py-4 rounded-lg trails-bg-secondary">
-            <p className="text-gray-500 dark:text-gray-400">
-              {searchQuery.trim()
-                ? "No tokens found matching your search."
-                : "No tokens found with balance greater than 0."}
-            </p>
-          </div>
-        )}
+      {!isLoadingTokens && !balanceError && filteredTokens.length === 0 && (
+        <div className="text-center py-4 rounded-lg trails-bg-secondary">
+          <p className="text-gray-500 dark:text-gray-400">
+            {searchQuery.trim()
+              ? "No tokens found matching your search."
+              : "No tokens found with balance greater than 0."}
+          </p>
+        </div>
+      )}
 
       {/* Token List */}
       {filteredTokensFormatted.length > 0 && (
@@ -343,13 +344,13 @@ export const TokenList: React.FC<TokenListProps> = ({
                   type="button"
                   onClick={() => handleTokenSelect(token)}
                   title={
-                    !isSufficientBalance
+                    !isSufficientBalance && fundMethod !== "qr-code"
                       ? "Insufficient balance for this token"
                       : undefined
                   }
                   className={`w-full py-2.5 px-3 flex items-center space-x-3 transition-colors trails-list-item border-b trails-border-list ${
                     isTokenSelected(token) ? "bg-gray-50 dark:bg-gray-800" : ""
-                  } ${!isSufficientBalance ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  } ${!isSufficientBalance && fundMethod !== "qr-code" ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                 >
                   <div className="relative flex-shrink-0">
                     <div
@@ -372,39 +373,41 @@ export const TokenList: React.FC<TokenListProps> = ({
 
                   <div className="flex-1 min-w-0 text-left">
                     <h3
-                      className={`text-sm font-medium truncate ${"text-gray-900 dark:text-white"} ${!isSufficientBalance ? "text-gray-500 dark:text-gray-500" : ""}`}
+                      className={`text-sm font-medium truncate ${"text-gray-900 dark:text-white"} ${!isSufficientBalance && fundMethod !== "qr-code" ? "text-gray-500 dark:text-gray-500" : ""}`}
                     >
                       {tokenName}
                     </h3>
                     <p
-                      className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${!isSufficientBalance ? "text-gray-600 dark:text-gray-600" : ""}`}
+                      className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${!isSufficientBalance && fundMethod !== "qr-code" ? "text-gray-600 dark:text-gray-600" : ""}`}
                     >
                       {symbol}
                     </p>
                   </div>
 
-                  <div className="text-right flex-shrink-0">
-                    {priceUsd > 0 ? (
-                      <>
+                  {fundMethod !== "qr-code" && (
+                    <div className="text-right flex-shrink-0">
+                      {priceUsd > 0 ? (
+                        <>
+                          <p
+                            className={`text-sm font-medium ${"text-gray-900 dark:text-white"} ${!isSufficientBalance && fundMethod !== "qr-code" ? "text-gray-500 dark:text-gray-500" : ""}`}
+                          >
+                            {balanceUsdFormatted}
+                          </p>
+                          <p
+                            className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${!isSufficientBalance && fundMethod !== "qr-code" ? "text-gray-600 dark:text-gray-600" : ""}`}
+                          >
+                            {balanceFormatted}
+                          </p>
+                        </>
+                      ) : (
                         <p
-                          className={`text-sm font-medium ${"text-gray-900 dark:text-white"} ${!isSufficientBalance ? "text-gray-500 dark:text-gray-500" : ""}`}
-                        >
-                          {balanceUsdFormatted}
-                        </p>
-                        <p
-                          className={`text-xs ${"text-gray-500 dark:text-gray-400"} ${!isSufficientBalance ? "text-gray-600 dark:text-gray-600" : ""}`}
+                          className={`text-sm font-medium ${"text-gray-900 dark:text-white"} ${!isSufficientBalance && fundMethod !== "qr-code" ? "text-gray-500 dark:text-gray-500" : ""}`}
                         >
                           {balanceFormatted}
                         </p>
-                      </>
-                    ) : (
-                      <p
-                        className={`text-sm font-medium ${"text-gray-900 dark:text-white"} ${!isSufficientBalance ? "text-gray-500 dark:text-gray-500" : ""}`}
-                      >
-                        {balanceFormatted}
-                      </p>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </motion.button>
               )
             })}
@@ -412,7 +415,7 @@ export const TokenList: React.FC<TokenListProps> = ({
         </div>
       )}
 
-      {showInsufficientBalance && (
+      {showInsufficientBalance && fundMethod !== "qr-code" && (
         <div
           className={`text-left py-3 px-4 rounded-lg ${"bg-amber-500/10 border border-amber-500/30"}`}
         >

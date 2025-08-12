@@ -33,6 +33,7 @@ interface PaySendFormProps {
   gasless?: boolean
   setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
   quoteProvider?: string
+  fundMethod?: string | null
 }
 
 export const PaySendForm: React.FC<PaySendFormProps> = ({
@@ -55,6 +56,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
   gasless,
   setWalletConfirmRetryHandler,
   quoteProvider,
+  fundMethod,
 }) => {
   const {
     amount,
@@ -111,6 +113,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
     setWalletConfirmRetryHandler,
     tradeType: TradeType.EXACT_OUTPUT,
     quoteProvider,
+    fundMethod,
   })
 
   // Handle amount input changes with decimal validation
@@ -210,17 +213,19 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
           </div>
 
           {/* Right side - USD value and amount */}
-          <div className="text-right">
-            <div className="text-sm font-medium text-gray-900 dark:text-white">
-              <span className="text-gray-600 dark:text-gray-400">
-                Balance:{" "}
-              </span>
-              {balanceUsdDisplay}
+          {fundMethod !== "qr-code" && (
+            <div className="text-right">
+              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                <span className="text-gray-600 dark:text-gray-400">
+                  Balance:{" "}
+                </span>
+                {balanceUsdDisplay}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {balanceFormatted} {selectedToken.symbol}
+              </div>
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              {balanceFormatted} {selectedToken.symbol}
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
