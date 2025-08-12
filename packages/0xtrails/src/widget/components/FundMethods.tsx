@@ -1,5 +1,5 @@
 import type React from "react"
-import { ArrowLeft, Wallet, QrCode, Wifi, Building2 } from "lucide-react"
+import { ChevronLeft, Wallet, QrCode, Wifi, Building2 } from "lucide-react"
 import { useAccount } from "wagmi"
 import { truncateAddress } from "../../address.js"
 
@@ -26,9 +26,9 @@ const FundMethods: React.FC<FundMethodsProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className="p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="p-2 rounded-full transition-colors cursor-pointer hover:trails-hover-bg text-gray-400"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <ChevronLeft className="h-6 w-6" />
         </button>
         <h2 className="text-lg font-semibold">Choose Funding Method</h2>
         <div className="w-9" />
@@ -39,7 +39,7 @@ const FundMethods: React.FC<FundMethodsProps> = ({
           <button
             type="button"
             onClick={onSelectConnectedAccount}
-            className="flex flex-col items-center justify-center gap-1 px-3 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+            className="flex flex-col items-center justify-center gap-1 px-3 py-3 trails-border-radius-button border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
             <Wallet className="w-5 h-5" />
             <span className="font-medium">Connected Account</span>
@@ -56,7 +56,7 @@ const FundMethods: React.FC<FundMethodsProps> = ({
           <button
             type="button"
             onClick={onSelectQrCode}
-            className="flex flex-col items-center justify-center gap-1 px-3 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+            className="flex flex-col items-center justify-center gap-1 px-3 py-3 trails-border-radius-button border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
             <QrCode className="w-5 h-5" />
             <span className="font-medium">Pay with QR Code</span>
@@ -69,7 +69,7 @@ const FundMethods: React.FC<FundMethodsProps> = ({
             style={{ display: "none" }}
             type="button"
             onClick={onSelectWalletConnect}
-            className="flex flex-col items-center justify-center gap-1 px-3 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+            className="flex flex-col items-center justify-center gap-1 px-3 py-3 trails-border-radius-button border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
             <Wifi className="w-5 h-5" />
             <span className="font-medium">WalletConnect</span>
@@ -81,7 +81,7 @@ const FundMethods: React.FC<FundMethodsProps> = ({
           <button
             type="button"
             onClick={onSelectExchange}
-            className="flex flex-col items-center justify-center gap-1 px-3 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+            className="flex flex-col items-center justify-center gap-1 px-3 py-3 trails-border-radius-button border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
             <Building2 className="w-5 h-5" />
             <span className="font-medium">Exchange</span>

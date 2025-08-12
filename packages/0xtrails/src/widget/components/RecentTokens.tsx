@@ -40,7 +40,7 @@ export const RecentTokens: React.FC<RecentTokensProps> = ({
               type="button"
               onClick={() => onTokenSelect(token)}
               title={`${token.symbol} - ${token.name}`}
-              className={`flex-shrink-0 p-2 rounded-lg transition-colors cursor-pointer ${
+              className={`flex-shrink-0 p-2 trails-border-radius-button transition-colors cursor-pointer ${
                 isSelected
                   ? "bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-500"
                   : "trails-bg-secondary border-2 border-transparent hover:trails-hover-bg"
