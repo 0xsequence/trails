@@ -1286,6 +1286,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               recentTokens={recentTokens}
               onRecentTokenSelect={handleRecentTokenSelect}
               fundMethod={selectedFundMethod}
+              renderInline={renderInline}
             />
           )
         case "send-form":

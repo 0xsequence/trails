@@ -23,6 +23,7 @@ interface TokenListProps {
   recentTokens?: SupportedToken[]
   onRecentTokenSelect?: (token: SupportedToken) => void
   fundMethod?: string | null
+  renderInline?: boolean
 }
 
 export const TokenList: React.FC<TokenListProps> = ({
@@ -36,6 +37,7 @@ export const TokenList: React.FC<TokenListProps> = ({
   recentTokens = [],
   onRecentTokenSelect,
   fundMethod,
+  renderInline = false,
 }) => {
   const searchInputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -185,7 +187,9 @@ export const TokenList: React.FC<TokenListProps> = ({
           mode !== "fund" &&
           fundMethod !== "qr-code" &&
           fundMethod !== "exchange" && (
-            <div className="text-right max-w-[125px] mr-8">
+            <div
+              className={`text-right max-w-[125px] ${renderInline ? "" : "mr-8"}`}
+            >
               <p className={`text-xs ${"text-gray-500 dark:text-gray-400"}`}>
                 Total balance:
               </p>
