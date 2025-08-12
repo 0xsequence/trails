@@ -1063,10 +1063,34 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
         intentCallsPayloads as any[],
       )
 
-      // If no specific ID is selected, send all meta transactions
-      const txnsToSend = selectedId
-        ? [metaTxns.find((tx: MetaTxn) => tx.id === selectedId)]
-        : metaTxns
+      // If a specific ID is selected, send only that one.
+      // Otherwise, group by chainId and pick ONE meta txn per chain (prefer the one with the longest input)
+      let txnsToSend: (MetaTxn | undefined)[]
+      if (selectedId) {
+        txnsToSend = [metaTxns.find((tx: MetaTxn) => tx.id === selectedId)]
+      } else {
+        const groupedByChain: { [chainId: string]: MetaTxn[] } = {}
+        for (const tx of metaTxns as MetaTxn[]) {
+          const cid = tx.chainId
+          if (!groupedByChain[cid]) groupedByChain[cid] = []
+          groupedByChain[cid].push(tx)
+        }
+        const bestPerChain: MetaTxn[] = []
+        for (const cid of Object.keys(groupedByChain)) {
+          const group = groupedByChain[cid] || []
+          if (group.length === 0) continue
+          // pick the txn with the largest input length as a heuristic for containing the full batch
+          const best = group.reduce(
+            (prev, curr) =>
+              (curr?.input?.length || 0) > (prev?.input?.length || 0)
+                ? curr
+                : prev,
+            group[0]!,
+          )
+          bestPerChain.push(best)
+        }
+        txnsToSend = bestPerChain
+      }
 
       if (!txnsToSend || (selectedId && !txnsToSend[0])) {
         throw new Error("Meta transaction not found")
