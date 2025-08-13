@@ -199,6 +199,10 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({
 
   // Position the iframe container based on placeholder position
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return
+    }
+
     if (!iframeContainer || !iframePlaceholder || !showIframe) {
       console.log("[trails-sdk] Positioning check failed:", {
         iframeContainer: !!iframeContainer,
@@ -365,7 +369,11 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({
             <p className="text-red-600 dark:text-red-200 mb-4">{error}</p>
             <button
               type="button"
-              onClick={() => window.location.reload()}
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.location.reload()
+                }
+              }}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
               Try Again

@@ -646,9 +646,12 @@ let singleton: Analytics | null = null
 
 export const getAnalytics = () => {
   const debugMode = getQueryParam("analyticsDebug") === "true"
-  const isLocalhost =
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1"
+  let isLocalhost = true
+  if (typeof window !== "undefined") {
+    isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+  }
   if (!DATABEAT_KEY || debugMode || isLocalhost) {
     return new MockAnalytics({ loggingEnabled: true }) // return a dummy analytics object
   }
