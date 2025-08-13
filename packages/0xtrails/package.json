@@ -117,10 +117,5 @@
       "require": "./dist/widget/widget/index.js",
       "types": "./dist/widget/widget/index.d.ts"
     }
-  },
-  "resolutions": {
-    "@walletconnect/core": "^2.21.7",
-    "@walletconnect/ethereum-provider": "^2.21.7",
-    "@walletconnect/sign-client": "^2.21.7"
   }
 }
