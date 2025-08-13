@@ -113,6 +113,7 @@ export type UseSendProps = {
   tradeType?: TradeType
   quoteProvider?: string
   fundMethod?: string | null
+  mode?: "pay" | "fund" | "earn"
   onNavigateToMeshConnect?: (
     props: {
       toTokenSymbol: string
@@ -126,6 +127,7 @@ export type UseSendProps = {
 
 export type UseSendReturn = {
   amount: string
+  amountRaw: string
   amountUsdDisplay: string
   balanceUsdDisplay: string
   chainInfo: ChainInfo | null
@@ -189,6 +191,7 @@ export function useSendForm({
   tradeType = TradeType.EXACT_OUTPUT,
   quoteProvider,
   fundMethod,
+  mode,
   onNavigateToMeshConnect,
 }: UseSendProps): UseSendReturn {
   const [amount, setAmount] = useState(
@@ -205,6 +208,8 @@ export function useSendForm({
       enabled: !!recipientInput && recipientInput.endsWith(".eth"),
     },
   })
+
+  console.log("GENERATED CALLLDATA", toCalldata)
 
   useEffect(() => {
     if (ensAddress) {
@@ -450,6 +455,35 @@ export function useSendForm({
     return destinationTokenAddressFromTokenSymbol ?? null
   }, [isCustomToken, toToken, destinationTokenAddressFromTokenSymbol])
 
+  // Calculate raw amount (in wei/smallest unit)
+  const amountRaw = useMemo(() => {
+    if (!amount) {
+      return "0"
+    }
+
+    // For EXACT_INPUT: use source token decimals (user enters source amount)
+    // For EXACT_OUTPUT: use destination token decimals (user enters destination amount)
+    const decimals =
+      tradeType === TradeType.EXACT_INPUT
+        ? selectedToken.contractInfo?.decimals
+        : selectedDestToken?.decimals
+
+    if (!decimals) {
+      return "0"
+    }
+
+    try {
+      return parseUnits(amount, decimals).toString()
+    } catch {
+      return "0"
+    }
+  }, [
+    amount,
+    selectedDestToken?.decimals,
+    selectedToken.contractInfo?.decimals,
+    tradeType,
+  ])
+
   // Get quote automatically when inputs change
   const getQuote = useCallback(async () => {
     // Only get quote if all required inputs are present
@@ -459,7 +493,9 @@ export function useSendForm({
       !isValidRecipient ||
       !selectedDestToken ||
       !selectedDestinationChain ||
-      amount === "0"
+      amount === "0" ||
+      !amountRaw ||
+      amountRaw === "0"
     ) {
       setPrepareSendResult(null)
       return
@@ -468,22 +504,6 @@ export function useSendForm({
     try {
       setIsLoadingQuote(true)
       setError(null)
-
-      // For EXACT_INPUT: use source token decimals (user enters source amount)
-      // For EXACT_OUTPUT: use destination token decimals (user enters destination amount)
-      const decimals =
-        tradeType === TradeType.EXACT_INPUT
-          ? selectedToken.contractInfo?.decimals
-          : selectedDestToken?.decimals
-
-      if (!decimals) {
-        console.warn("[trails-sdk] Invalid token decimals for quote")
-        setPrepareSendResult(null)
-        setIsLoadingQuote(false)
-        return
-      }
-
-      const parsedAmount = parseUnits(amount, decimals).toString()
 
       const originRelayer = getRelayer(undefined, selectedToken.chainId)
       const destinationRelayer = getRelayer(
@@ -577,7 +597,7 @@ export function useSendForm({
         destinationChainId: selectedDestinationChain.id,
         recipient,
         destinationTokenAddress,
-        swapAmount: parsedAmount,
+        swapAmount: amountRaw,
         tradeType,
         destinationTokenSymbol: selectedDestToken.symbol,
         fee: "0",
@@ -640,6 +660,7 @@ export function useSendForm({
     selectedToken,
     quoteProvider,
     fundMethod,
+    amountRaw,
   ])
 
   // Auto-fetch quotes when inputs change (debounced)
@@ -668,16 +689,17 @@ export function useSendForm({
     isValidRecipient,
     selectedDestToken?.symbol,
     selectedDestinationChain?.id,
+    toCalldata,
   ])
 
   // Calculate destination amount from quote if available
   const quotedDestinationAmount = useMemo(() => {
-    if (prepareSendResult && tradeType === TradeType.EXACT_INPUT) {
-      // For EXACT_INPUT, use the destination amount from the quote
+    if (prepareSendResult) {
       return prepareSendResult.quote.destinationAmountFormatted
     }
+
     return toAmountFormatted
-  }, [prepareSendResult, tradeType, toAmountFormatted])
+  }, [prepareSendResult, toAmountFormatted])
 
   const quotedDestinationAmountDisplay = useMemo(() => {
     return formatAmountDisplay(quotedDestinationAmount || "0")
@@ -843,6 +865,10 @@ export function useSendForm({
       const checksummedRecipient = getAddress(recipient)
       const checksummedAccount = getAddress(account.address)
 
+      if (mode === "earn") {
+        return `Deposit ${destinationAmountDisplay} ${destinationTokenSymbol}`
+      }
+
       if (tradeType === TradeType.EXACT_INPUT) {
         return `Fund with ${amountDisplay} ${tokenSymbol}`
       }
@@ -877,10 +903,12 @@ export function useSendForm({
     tradeType,
     prepareSendResult?.quote?.originAmountFormatted,
     selectedDestinationChain.id,
+    mode,
   ])
 
   return {
     amount,
+    amountRaw,
     amountUsdDisplay,
     balanceUsdDisplay,
     chainInfo,

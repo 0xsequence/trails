@@ -90,8 +90,14 @@ import { MeshConnect } from "./components/MeshConnect.js"
 import type { MeshConnectProps } from "./components/MeshConnect.js"
 import WalletConnectScreen from "./components/WalletConnect.js"
 import FundMethods from "./components/FundMethods.js"
+import EarnPools from "./components/EarnPools.js"
 import type { Mode } from "../mode.js"
 import type { OnCompleteProps } from "./hooks/useSendForm.js"
+import type { Pool } from "../pools.js"
+import { AaveProvider, AaveClient } from "@aave/react"
+import { encodeFunctionData } from "viem"
+
+export const aaveClient = AaveClient.create()
 
 type Screen =
   | "connect"
@@ -99,6 +105,7 @@ type Screen =
   | "send-form"
   | "fund-form"
   | "fund-methods"
+  | "earn-pools"
   | "wallet-confirmation"
   | "qr-code-deposit"
   | "pending"
@@ -342,6 +349,10 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const [selectedFundMethod, setSelectedFundMethod] = useState<string | null>(
       null,
     )
+    const [selectedPool, setSelectedPool] = useState<Pool | null>(null)
+    const [generatedCalldata, setGeneratedCalldata] = useState<
+      string | undefined
+    >(undefined)
     const [error, setError] = useState<string | null>(null)
     const [prepareSendQuote, setPrepareSendQuote] =
       useState<PrepareSendQuote | null>(null)
@@ -385,7 +396,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       handleTransferComplete,
     )
 
-    // Update screen based on connection state
+    // Update screen based on connection state and mode
     useEffect(() => {
       if (isConnected) {
         if (currentScreen === "connect") {
@@ -430,6 +441,17 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         chainId,
       })
     }, [address, chainId, connector?.name])
+
+    // Update generated calldata when amount changes in earn mode
+    useEffect(() => {
+      if (selectedPool && mode === "earn" && generatedCalldata) {
+        // The calldata will be updated via the onAmountUpdate callback
+        // This effect ensures we have the initial calldata set up
+        console.log(
+          "Earn mode: Pool selected, calldata ready for amount updates",
+        )
+      }
+    }, [selectedPool, mode, generatedCalldata])
 
     const indexerGatewayClient = useIndexerGatewayClient({
       indexerGatewayUrl: sequenceIndexerUrl || undefined,
@@ -562,7 +584,19 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       try {
         setError(null)
         setSelectedToken(token)
-        setCurrentScreen(mode === "fund" ? "fund-form" : "send-form")
+
+        // For earn mode, check if we have toAddress and toChainId specified
+        if (mode === "earn") {
+          if (toAddress && toChainId) {
+            // Skip earn-pools and go directly to send-form when toAddress and toChainId are specified
+            setCurrentScreen("send-form")
+          } else {
+            // Go to earn-pools for pool selection when no specific destination is set
+            setCurrentScreen("earn-pools")
+          }
+        } else {
+          setCurrentScreen(mode === "fund" ? "fund-form" : "send-form")
+        }
 
         // Track the token in recent tokens
         const chainInfo = getChainInfo(token.chainId)
@@ -617,6 +651,8 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       setSelectedFundMethod(null)
       setCurrentScreen("connect")
       setSelectedToken(null)
+      setSelectedPool(null)
+      setGeneratedCalldata(undefined)
       setOriginTxHash("")
       setOriginChainId(null)
       setDestinationTxHash("")
@@ -662,9 +698,17 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         case "tokens":
           setCurrentScreen("fund-methods")
           break
-        case "send-form":
+        case "earn-pools":
           setCurrentScreen("tokens")
           setSelectedToken(null)
+          break
+        case "send-form":
+          if (mode === "earn") {
+            setCurrentScreen("earn-pools")
+          } else {
+            setCurrentScreen("tokens")
+            setSelectedToken(null)
+          }
           break
         case "fund-form":
           setCurrentScreen("tokens")
@@ -1143,6 +1187,9 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         case "fund-methods":
           setCurrentScreen("fund-methods")
           break
+        case "earn-pools":
+          setCurrentScreen("earn-pools")
+          break
       }
     }
 
@@ -1184,6 +1231,56 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       } else {
         // If no previous connector, go back to fund methods
         setCurrentScreen("fund-methods")
+      }
+    }
+
+    // Generate deposit calldata for Aave pool
+    const generateDepositCalldata = (pool: Pool, amount: string) => {
+      try {
+        const userAddress =
+          walletClient?.account?.address || walletClient?.account
+        if (!userAddress) {
+          throw new Error("User address not found")
+        }
+
+        // Validate amount
+        if (
+          !amount ||
+          amount === "" ||
+          Number.isNaN(Number(amount)) ||
+          Number(amount) <= 0
+        ) {
+          throw new Error("Invalid amount")
+        }
+
+        // Aave V3 Pool contract deposit function
+        // function supply(address asset, uint256 amount, address onBehalfOf, uint16 referralCode)
+        const calldata = encodeFunctionData({
+          abi: [
+            {
+              name: "supply",
+              type: "function",
+              inputs: [
+                { name: "asset", type: "address" },
+                { name: "amount", type: "uint256" },
+                { name: "onBehalfOf", type: "address" },
+                { name: "referralCode", type: "uint16" },
+              ],
+              outputs: [],
+              stateMutability: "nonpayable",
+            },
+          ],
+          args: [
+            pool.token.address as `0x${string}`, // asset address
+            BigInt(amount), // amount to deposit
+            userAddress as `0x${string}`, // onBehalfOf (user's address)
+            0, // referralCode (0 for no referral)
+          ],
+        })
+        return calldata
+      } catch (error) {
+        console.error("Error generating deposit calldata:", error)
+        return undefined
       }
     }
 
@@ -1327,11 +1424,25 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onComplete={handleTransferComplete}
               selectedToken={selectedToken}
               account={walletClient.account}
-              toRecipient={toAddress || undefined}
+              toRecipient={
+                selectedPool
+                  ? selectedPool.depositAddress
+                  : toAddress || undefined
+              }
               toAmount={toAmount || undefined}
-              toChainId={toChainId ? Number(toChainId) : undefined}
-              toToken={toToken || undefined}
-              toCalldata={toCalldata || undefined}
+              toChainId={
+                selectedPool
+                  ? selectedPool.chainId
+                  : toChainId
+                    ? Number(toChainId)
+                    : undefined
+              }
+              toToken={
+                selectedPool ? selectedPool.token.address : toToken || undefined
+              }
+              toCalldata={
+                selectedPool ? generatedCalldata : toCalldata || undefined
+              }
               walletClient={walletClient}
               onTransactionStateChange={handleTransactionStateChange}
               onError={handleSendError}
@@ -1341,6 +1452,29 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               quoteProvider={quoteProvider}
               fundMethod={selectedFundMethod}
               onNavigateToMeshConnect={handleNavigateToMeshConnect}
+              onAmountUpdate={(amount: string) => {
+                if (
+                  selectedPool &&
+                  mode === "earn" &&
+                  amount &&
+                  amount !== ""
+                ) {
+                  try {
+                    const updatedCalldata = generateDepositCalldata(
+                      selectedPool,
+                      amount,
+                    )
+                    console.log("Updated calldata:", updatedCalldata, amount)
+                    setGeneratedCalldata(updatedCalldata)
+                  } catch (error) {
+                    console.error("Error updating calldata:", error)
+                    setGeneratedCalldata(undefined)
+                  }
+                } else {
+                  setGeneratedCalldata(undefined)
+                }
+              }}
+              mode={mode}
             />
           ) : (
             <div className="text-center p-4 rounded-lg text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800">
@@ -1422,6 +1556,17 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onBack={handleBack}
               onContinue={handleContinue}
               onReconnectPreviousWallet={handleReconnectPreviousWallet}
+            />
+          )
+        case "earn-pools":
+          return (
+            <EarnPools
+              onBack={handleBack}
+              onPoolSelect={(pool) => {
+                console.log("Selected pool:", pool)
+                setSelectedPool(pool)
+                setCurrentScreen("send-form")
+              }}
             />
           )
         default:
@@ -1601,44 +1746,46 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       )
 
       const baseContent = (
-        <QueryClientProvider client={queryClient}>
-          {sequenceHooksContext ? (
-            // SequenceHooksProvider exists in parent, don't wrap
-            wagmiContext ? (
-              // Both providers exist in parent, just render widget
-              widgetContent
-            ) : (
-              // Only WagmiProvider missing, wrap with it
-              <WagmiProvider config={wagmiConfig}>
-                {widgetContent}
-              </WagmiProvider>
-            )
-          ) : (
-            // SequenceHooksProvider missing, wrap with it
-            <SequenceHooksProvider
-              config={{
-                projectAccessKey: props.appId,
-                env: {
-                  indexerUrl:
-                    props.sequenceIndexerUrl || getSequenceIndexerUrl(),
-                  indexerGatewayUrl:
-                    props.sequenceIndexerUrl || getSequenceIndexerUrl(),
-                  apiUrl: props.sequenceApiUrl || getSequenceApiUrl(),
-                },
-              }}
-            >
-              {wagmiContext ? (
-                // WagmiProvider exists in parent, don't wrap
+        <AaveProvider client={aaveClient}>
+          <QueryClientProvider client={queryClient}>
+            {sequenceHooksContext ? (
+              // SequenceHooksProvider exists in parent, don't wrap
+              wagmiContext ? (
+                // Both providers exist in parent, just render widget
                 widgetContent
               ) : (
-                // WagmiProvider missing, wrap with it
+                // Only WagmiProvider missing, wrap with it
                 <WagmiProvider config={wagmiConfig}>
                   {widgetContent}
                 </WagmiProvider>
-              )}
-            </SequenceHooksProvider>
-          )}
-        </QueryClientProvider>
+              )
+            ) : (
+              // SequenceHooksProvider missing, wrap with it
+              <SequenceHooksProvider
+                config={{
+                  projectAccessKey: props.appId,
+                  env: {
+                    indexerUrl:
+                      props.sequenceIndexerUrl || getSequenceIndexerUrl(),
+                    indexerGatewayUrl:
+                      props.sequenceIndexerUrl || getSequenceIndexerUrl(),
+                    apiUrl: props.sequenceApiUrl || getSequenceApiUrl(),
+                  },
+                }}
+              >
+                {wagmiContext ? (
+                  // WagmiProvider exists in parent, don't wrap
+                  widgetContent
+                ) : (
+                  // WagmiProvider missing, wrap with it
+                  <WagmiProvider config={wagmiConfig}>
+                    {widgetContent}
+                  </WagmiProvider>
+                )}
+              </SequenceHooksProvider>
+            )}
+          </QueryClientProvider>
+        </AaveProvider>
       )
 
       // Only wrap with PrivyProvider if privy is in walletOptions

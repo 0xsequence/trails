@@ -231,23 +231,6 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         label: "Mint an NFT on Arbitrum Sepolia with USDC using CCTP",
         disabled: true,
       },
-      {
-        key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC,
-        label: "Deposit USDC to Aave lending pool on Base",
-      },
-      {
-        key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH,
-        label: "Deposit ETH to Aave lending pool on Base",
-      },
-      {
-        key: SCENARIO_KEYS.DEPOSIT_MORPHO_BASE_USDC,
-        label: "Deposit USDC to Morpho vault on Base",
-      },
-      {
-        key: SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE,
-        label: "Deposit USDC to Gaunlet vault on Base",
-        disabled: true,
-      },
     ]
 
     const fundScenarios: { key: string; label: string; disabled?: boolean }[] =
@@ -262,7 +245,30 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         },
       ]
 
-    return mode === "fund" ? fundScenarios : payScenarios
+    const earnScenarios: { key: string; label: string; disabled?: boolean }[] =
+      [
+        {
+          key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC,
+          label: "Deposit USDC to Aave lending pool on Base",
+        },
+        {
+          key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH,
+          label: "Deposit ETH to Aave lending pool on Base",
+        },
+        {
+          key: SCENARIO_KEYS.DEPOSIT_MORPHO_BASE_USDC,
+          label: "Deposit USDC to Morpho vault on Base",
+        },
+        {
+          key: SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE,
+          label: "Deposit USDC to Gaunlet vault on Base",
+          disabled: true,
+        },
+      ]
+
+    if (mode === "fund") return fundScenarios
+    if (mode === "earn") return earnScenarios
+    return payScenarios
   }, [
     mode,
     SCENARIO_KEYS.PAY_USDC_BASE,
@@ -919,7 +925,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </Tooltip>
           </label>
           <div className="flex space-x-4">
-            {(["pay", "fund"] as const).map((modeOption) => (
+            {(["pay", "fund", "earn"] as const).map((modeOption) => (
               <div key={modeOption} className="flex items-center space-x-2">
                 <button
                   type="button"

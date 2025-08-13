@@ -43,6 +43,8 @@ interface PaySendFormProps {
     },
     quote?: PrepareSendQuote | null,
   ) => void
+  onAmountUpdate?: (amount: string) => void
+  mode?: "pay" | "fund" | "earn"
 }
 
 export const PaySendForm: React.FC<PaySendFormProps> = ({
@@ -67,9 +69,12 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
   quoteProvider,
   fundMethod,
   onNavigateToMeshConnect,
+  onAmountUpdate,
+  mode,
 }) => {
   const {
     amount,
+    amountRaw,
     amountUsdDisplay,
     balanceUsdDisplay,
     chainInfo,
@@ -124,6 +129,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
     tradeType: TradeType.EXACT_OUTPUT,
     quoteProvider,
     fundMethod,
+    mode,
     onNavigateToMeshConnect,
   })
 
@@ -139,6 +145,13 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
     },
     [setAmount],
   )
+
+  // Call onAmountUpdate when amountRaw changes
+  useEffect(() => {
+    if (onAmountUpdate) {
+      onAmountUpdate(amountRaw)
+    }
+  }, [amountRaw, onAmountUpdate])
 
   const chainDropdownRef = useRef<HTMLDivElement>(null)
   const tokenDropdownRef = useRef<HTMLDivElement>(null)
@@ -184,7 +197,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 px-2">
       <div className="flex items-center relative">
         <button
           type="button"
@@ -194,7 +207,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
           <ChevronLeft className="h-6 w-6" />
         </button>
         <h2 className="text-lg font-semibold w-full text-center text-gray-900 dark:text-white">
-          Send Payment
+          {mode === "earn" ? "Deposit" : "Send Payment"}
         </h2>
       </div>
 
@@ -380,7 +393,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               htmlFor="amount"
               className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300"
             >
-              Amount to Receive
+              Amount to {mode === "earn" ? "Fund" : "Receive"}
             </label>
             <div className="relative trails-border-radius-container">
               <input
@@ -397,13 +410,13 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
                 </span>
               </div>
             </div>
-            <div className="h-6 mt-1">
-              {amount && selectedDestToken?.symbol && (
+            {amountUsdDisplay && selectedDestToken?.symbol && (
+              <div className="h-6 mt-1">
                 <div className="text-sm text-gray-400">
                   ≈ {amountUsdDisplay}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -413,7 +426,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
             <div
               className={`text-lg font-semibold text-left ${"text-gray-900 dark:text-white"}`}
             >
-              Receive
+              {mode === "earn" ? "Deposit" : "Receive"}
             </div>
 
             <div className="p-2">
@@ -458,7 +471,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               recipient.toLowerCase() !== account.address.toLowerCase() && (
                 <div className="px-2 pb-1">
                   <div className={`text-xs text-left ${"text-gray-400"}`}>
-                    Recipient:{" "}
+                    {mode === "earn" ? "Pool" : "Recipient"}:{" "}
                     <TruncatedAddress
                       address={recipient}
                       chainId={selectedDestinationChain.id}
@@ -478,7 +491,11 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
                   htmlFor="recipient"
                   className="text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  {toCalldata ? "Destination Address" : "Recipient Address"}
+                  {toCalldata
+                    ? "Destination Address"
+                    : mode === "earn"
+                      ? "Pool Address"
+                      : "Recipient Address"}
                 </label>
                 {recipient &&
                   isAddress(recipient) &&

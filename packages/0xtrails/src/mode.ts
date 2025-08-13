@@ -1,1 +1,1 @@
-export type Mode = "pay" | "fund"
+export type Mode = "pay" | "fund" | "earn"
