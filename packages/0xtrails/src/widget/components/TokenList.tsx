@@ -168,7 +168,7 @@ export const TokenList: React.FC<TokenListProps> = ({
             <button
               type="button"
               onClick={onBack}
-              className="p-2 rounded-full transition-colors cursor-pointer hover:trails-hover-bg text-gray-400"
+              className="p-2 -ml-2 rounded-full transition-colors cursor-pointer hover:trails-hover-bg text-gray-400"
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
