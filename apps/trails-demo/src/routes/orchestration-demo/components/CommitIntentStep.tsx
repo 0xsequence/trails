@@ -137,6 +137,54 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
     return null
   }
 
+  // Derive origin/destination chainIds and ensure calls are ordered for correct
+  // origin/destination intent address calculation when multiple origin payloads exist.
+  const deriveOriginChainId = () => {
+    const originPrec = intentPreconditions.find(
+      (p) =>
+        (p.type === "transfer-native" || p.type === "native-balance") &&
+        !!p.chainId,
+    )
+    return originPrec?.chainId || intentCallsPayloads?.[0]?.chainId || undefined
+  }
+
+  const deriveDestinationChainId = (originId?: string) => {
+    const destPrec = intentPreconditions.find(
+      (p) => p.type === "erc20-balance" && !!p.chainId,
+    )
+    if (destPrec?.chainId) return destPrec.chainId
+    const other = intentCallsPayloads?.find((c) =>
+      originId ? c.chainId !== originId : true,
+    )?.chainId
+    return other || intentCallsPayloads?.[1]?.chainId || undefined
+  }
+
+  const originChainIdStr = deriveOriginChainId()
+  const destinationChainIdStr = deriveDestinationChainId(originChainIdStr)
+
+  const orderedCalls = (() => {
+    if (!intentCallsPayloads?.length) return intentCallsPayloads
+    if (!originChainIdStr || !destinationChainIdStr) return intentCallsPayloads
+    // Ensure index 0 is origin and index 1 is destination to satisfy SDK assumption
+    const originGroup = intentCallsPayloads.filter(
+      (c) => c.chainId === originChainIdStr,
+    )
+    const destinationGroup = intentCallsPayloads.filter(
+      (c) => c.chainId === destinationChainIdStr,
+    )
+    const remaining = intentCallsPayloads.filter(
+      (c) =>
+        c.chainId !== originChainIdStr && c.chainId !== destinationChainIdStr,
+    )
+    const firstOrigin = originGroup.shift()
+    const firstDestination = destinationGroup.shift()
+    const ordered: typeof intentCallsPayloads = []
+    if (firstOrigin) ordered.push(firstOrigin)
+    if (firstDestination) ordered.push(firstDestination)
+    // Append the rest preserving relative order
+    return [...ordered, ...originGroup, ...destinationGroup, ...remaining]
+  })()
+
   return (
     <>
       <SectionHeader
@@ -249,8 +297,8 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                         label="Committed Origin Intent Address"
                         address={committedOriginIntentAddress}
                         chainId={
-                          intentCallsPayloads?.[0]?.chainId
-                            ? Number(intentCallsPayloads[0].chainId)
+                          originChainIdStr
+                            ? Number(originChainIdStr)
                             : undefined
                         }
                         success={true}
@@ -263,8 +311,8 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                         label="Committed Destination Intent Address"
                         address={committedDestinationIntentAddress}
                         chainId={
-                          intentCallsPayloads?.[1]?.chainId
-                            ? Number(intentCallsPayloads[1].chainId)
+                          destinationChainIdStr
+                            ? Number(destinationChainIdStr)
                             : undefined
                         }
                         success={true}
@@ -365,18 +413,21 @@ export const CommitIntentStep: React.FC<CommitIntentStepProps> = ({
                   )
                   return
                 }
+                const callsForCommit = orderedCalls || intentCallsPayloads
                 console.log(
-                  "All conditions met. Calling commitIntentConfig with args:",
+                  "All conditions met. Calling commitIntentConfig with ordered args:",
                   {
                     mainSignerAddress: accountAddress,
-                    calls: intentCallsPayloads,
+                    calls: callsForCommit,
                     preconditions: intentPreconditions,
                     quoteProvider: trailsFee.quoteProvider as QuoteProvider,
+                    originChainIdStr,
+                    destinationChainIdStr,
                   },
                 )
                 commitIntentConfig({
                   mainSignerAddress: accountAddress,
-                  calls: intentCallsPayloads,
+                  calls: callsForCommit,
                   preconditions: intentPreconditions,
                   quoteProvider: trailsFee.quoteProvider as QuoteProvider,
                 })
