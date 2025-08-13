@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   '@meshconnect/web-link-sdk':
-    hash: 7wfzpofqxnfalwqvs2k2k74wna
+    hash: 21332c57342dc0cb9d02d0018238bf375c4d012cf9348e63ec4e01c700738857
     path: patches/@meshconnect__web-link-sdk.patch
 
 importers:
@@ -220,7 +220,7 @@ importers:
         version: 2.0.22
       '@meshconnect/web-link-sdk':
         specifier: 3.2.14
-        version: 3.2.14(patch_hash=7wfzpofqxnfalwqvs2k2k74wna)(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)
+        version: 3.2.14(patch_hash=21332c57342dc0cb9d02d0018238bf375c4d012cf9348e63ec4e01c700738857)(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)
       '@privy-io/react-auth':
         specifier: ^2.21.0
         version: 2.21.2(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.9.2)(utf-8-validate@5.0.10))(@types/react@19.1.9)(bs58@6.0.0)(bufferutil@4.0.9)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(typescript@5.9.2)(use-sync-external-store@1.5.0(react@19.1.1))(utf-8-validate@5.0.10)(zod@3.25.76)
@@ -7083,7 +7083,7 @@ snapshots:
       - encoding
       - utf-8-validate
 
-  '@meshconnect/web-link-sdk@3.2.14(patch_hash=7wfzpofqxnfalwqvs2k2k74wna)(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)':
+  '@meshconnect/web-link-sdk@3.2.14(patch_hash=21332c57342dc0cb9d02d0018238bf375c4d012cf9348e63ec4e01c700738857)(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)':
     dependencies:
       '@meshconnect/node-api': 2.0.22
       '@meshconnect/solana-web3.js': 1.0.4(bufferutil@4.0.9)(encoding@0.1.13)(utf-8-validate@5.0.10)
@@ -12388,7 +12388,7 @@ snapshots:
 
   extension-port-stream@3.0.0:
     dependencies:
-      readable-stream: 3.6.2
+      readable-stream: 4.7.0
       webextension-polyfill: 0.10.0
 
   external-editor@3.1.0:
