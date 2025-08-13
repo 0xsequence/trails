@@ -345,6 +345,8 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const [error, setError] = useState<string | null>(null)
     const [prepareSendQuote, setPrepareSendQuote] =
       useState<PrepareSendQuote | null>(null)
+    const [previousConnector, setPreviousConnector] =
+      useState<Connector | null>(null)
     const [showWalletConfirmRetry, setShowWalletConfirmRetry] = useState(false)
     const [walletConfirmRetryHandler, setWalletConfirmRetryHandler] = useState<
       (() => Promise<void>) | null
@@ -369,23 +371,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
 
     const [meshConnectProps, setMeshConnectProps] =
       useState<Partial<MeshConnectProps> | null>(null)
-    useEffect(() => {
-      // TESTING ONLY
-      if (walletClient) {
-        const intentAddress = walletClient?.account?.address
-        const toTokenSymbol = "USDC"
-        const toTokenAmount = "4.20"
-        const toChainId = 8453
-        const toRecipientAddress = intentAddress
-
-        setMeshConnectProps({
-          toTokenSymbol: toTokenSymbol,
-          toTokenAmount: toTokenAmount,
-          toChainId: toChainId,
-          toRecipientAddress: toRecipientAddress,
-        })
-      }
-    }, [walletClient])
 
     const {
       setOriginTxHash,
@@ -468,6 +453,10 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         if (walletId === "injected") {
           await connect({ connector: config.connector() })
         } else if (walletId === "walletconnect") {
+          // Store the current connector as previous before switching to WalletConnect
+          if (connector && connector.name !== "WalletConnect") {
+            setPreviousConnector(connector)
+          }
           // Route to dedicated WalletConnect screen where we show our own QR
           setCurrentScreen("wallet-connect")
           return
@@ -625,6 +614,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     }
 
     const resetState = useCallback(() => {
+      setSelectedFundMethod(null)
       setCurrentScreen("connect")
       setSelectedToken(null)
       setOriginTxHash("")
@@ -1157,7 +1147,44 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     }
 
     const handleSelectWalletConnect = () => {
+      // Store the current connector as previous before switching to WalletConnect
+      if (connector && connector.name !== "WalletConnect") {
+        setPreviousConnector(connector)
+      }
       setCurrentScreen("wallet-connect")
+    }
+
+    const handleReconnectPreviousWallet = async () => {
+      if (previousConnector) {
+        try {
+          console.log(
+            "[trails-sdk] Reconnecting to previous wallet:",
+            previousConnector.name,
+          )
+          // First disconnect from current connector to avoid "already connected" error
+          // await disconnectAsync()
+          // Then connect to the previous connector
+          try {
+            await connect({ connector: previousConnector })
+          } catch (error) {
+            console.error(
+              "[trails-sdk] Failed to reconnect to previous wallet:",
+              error,
+            )
+          }
+          setPreviousConnector(null) // Clear the stored connector
+        } catch (error) {
+          console.error(
+            "[trails-sdk] Failed to reconnect to previous wallet:",
+            error,
+          )
+          // If reconnection fails, go back to fund methods
+          setCurrentScreen("fund-methods")
+        }
+      } else {
+        // If no previous connector, go back to fund methods
+        setCurrentScreen("fund-methods")
+      }
     }
 
     const handleSelectExchange = () => {
@@ -1287,6 +1314,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onRecentTokenSelect={handleRecentTokenSelect}
               fundMethod={selectedFundMethod}
               renderInline={renderInline}
+              onNavigateToFundMethods={() => setCurrentScreen("fund-methods")}
             />
           )
         case "send-form":
@@ -1389,7 +1417,13 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             />
           )
         case "wallet-connect":
-          return <WalletConnectScreen onBack={handleBack} />
+          return (
+            <WalletConnectScreen
+              onBack={handleBack}
+              onContinue={handleContinue}
+              onReconnectPreviousWallet={handleReconnectPreviousWallet}
+            />
+          )
         default:
           return null
       }

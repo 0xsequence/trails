@@ -24,6 +24,7 @@ interface TokenListProps {
   onRecentTokenSelect?: (token: SupportedToken) => void
   fundMethod?: string | null
   renderInline?: boolean
+  onNavigateToFundMethods?: () => void
 }
 
 export const TokenList: React.FC<TokenListProps> = ({
@@ -38,6 +39,7 @@ export const TokenList: React.FC<TokenListProps> = ({
   onRecentTokenSelect,
   fundMethod,
   renderInline = false,
+  onNavigateToFundMethods,
 }) => {
   const searchInputRef = useRef<HTMLInputElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -450,6 +452,19 @@ export const TokenList: React.FC<TokenListProps> = ({
             className={`w-full font-semibold py-3 px-4 trails-border-radius-button transition-colors bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white disabled:text-gray-500 disabled:cursor-not-allowed cursor-pointer`}
           >
             Continue
+          </button>
+        </div>
+      )}
+
+      {/* Pay with another method link */}
+      {onNavigateToFundMethods && !isLoadingTokens && (
+        <div className="text-center pt-2 pb-1">
+          <button
+            type="button"
+            onClick={onNavigateToFundMethods}
+            className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:underline cursor-pointer transition-colors"
+          >
+            Pay with another method
           </button>
         </div>
       )}

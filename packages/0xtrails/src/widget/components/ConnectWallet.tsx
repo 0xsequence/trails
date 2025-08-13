@@ -91,7 +91,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
 
       {isConnected ? (
         <div className="space-y-4">
-          <div className="p-4 rounded-2xl trails-bg-secondary">
+          <div className="p-4 trails-border-radius-container trails-bg-secondary">
             <p className="text-gray-500 dark:text-gray-400">
               Connected with {connector?.name || ""}
             </p>
@@ -177,7 +177,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
             ))
           ) : (
             <div className="space-y-6">
-              <div className="text-center p-4 rounded-lg trails-text-tertiary trails-bg-secondary">
+              <div className="text-center p-4 trails-border-radius-container trails-text-tertiary trails-bg-secondary">
                 Please connect wallet in dapp
               </div>
             </div>
