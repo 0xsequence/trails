@@ -29,7 +29,7 @@
     "format": "biome format --write ./src",
     "prepublishOnly": "node scripts/replace-workspace-versions.cjs",
     "postpublish": "node scripts/restore-workspace-versions.cjs",
-    "postinstall": "patch-package"
+    "postinstall": "npx patch-package"
   },
   "keywords": [
     "trails",

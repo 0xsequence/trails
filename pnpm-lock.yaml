@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  '@meshconnect/web-link-sdk':
-    hash: 7wfzpofqxnfalwqvs2k2k74wna
-    path: patches/@meshconnect__web-link-sdk.patch
-
 importers:
 
   .:
