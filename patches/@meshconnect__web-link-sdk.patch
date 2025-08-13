@@ -1,0 +1,11 @@
+diff --git a/utils/sdk-specs.js b/utils/sdk-specs.js
+index 3cc86879bed7a2362f775520aa443559c3139c06..b0d0005a46c846ec6313a3216ffac059354ed093 100644
+--- a/utils/sdk-specs.js
++++ b/utils/sdk-specs.js
+@@ -2,5 +2,5 @@ import { sdkVersion } from './version';
+ export var sdkSpecs = {
+     platform: 'web',
+     version: sdkVersion,
+-    origin: window.location.origin
++    origin: typeof window !== 'undefined' ? window.location.origin : '' // patch
+ };

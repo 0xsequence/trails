@@ -28,7 +28,8 @@
     "lint:fix": "biome lint --write ./src",
     "format": "biome format --write ./src",
     "prepublishOnly": "node scripts/replace-workspace-versions.cjs",
-    "postpublish": "node scripts/restore-workspace-versions.cjs"
+    "postpublish": "node scripts/restore-workspace-versions.cjs",
+    "postinstall": "patch-package"
   },
   "keywords": [
     "trails",
@@ -53,7 +54,7 @@
     "@0xsequence/wallet-primitives": "github:0xsequence/sequence.js#dists/wallet/primitives",
     "@databeat/tracker": "^0.9.3",
     "@meshconnect/node-api": "^2.0.22",
-    "@meshconnect/web-link-sdk": "^3.2.14",
+    "@meshconnect/web-link-sdk": "3.2.14",
     "@privy-io/react-auth": "^2.21.0",
     "@privy-io/wagmi": "^1.0.5",
     "@reservoir0x/relay-sdk": "^2.3.1",
@@ -96,6 +97,7 @@
     "autoprefixer": "^10.4.21",
     "dotenv": "^16.6.1",
     "globals": "^15.15.0",
+    "patch-package": "^8.0.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
     "turbo": "^2.5.5",
