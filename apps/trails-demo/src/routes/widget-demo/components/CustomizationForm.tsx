@@ -1415,7 +1415,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   </Tooltip>
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  {[...new Set([...defaultWalletOptions])].map(
+                  {[...new Set([...defaultWalletOptions, "walletconnect"])].map(
                     (wallet: string) => {
                       const isSelected = walletOptions?.includes(wallet)
                       return (
@@ -1439,7 +1439,10 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                             onClick={() => handleWalletOptionToggle(wallet)}
                             className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
                           >
-                            {wallet.charAt(0).toUpperCase() + wallet.slice(1)}
+                            {wallet === "walletconnect"
+                              ? "WalletConnect"
+                              : wallet.charAt(0).toUpperCase() +
+                                wallet.slice(1)}
                           </button>
                         </div>
                       )

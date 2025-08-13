@@ -21,7 +21,7 @@ const FundMethods: React.FC<FundMethodsProps> = ({
   onSelectConnectedAccount,
   onSelectQrCode,
 }) => {
-  const { address, isConnected } = useAccount()
+  const { address, isConnected, connector } = useAccount()
   const { theme } = useTheme()
 
   return (
@@ -45,15 +45,17 @@ const FundMethods: React.FC<FundMethodsProps> = ({
             onClick={onSelectConnectedAccount}
             className="flex flex-col items-center justify-center gap-1 px-3 py-3 trails-border-radius-list border border-gray-200 dark:border-gray-700 trails-secondary-button-bg text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
-            <Wallet className="w-5 h-5" />
-            <span className="font-medium">Connected Account</span>
-            <span className="text-xs font-mono text-gray-600 dark:text-gray-300">
-              {isConnected && address
-                ? truncateAddress(address)
-                : "No wallet connected"}
-            </span>
+            <div className="flex items-center gap-2">
+              <Wallet className="w-5 h-5" />
+              <span className="font-medium">Connected Account</span>
+            </div>
             <span className="text-xs text-gray-600 dark:text-gray-400 text-center">
               Use your connected wallet to fund directly.
+            </span>
+            <span className="text-xs font-mono text-gray-600 dark:text-gray-300">
+              {isConnected && address
+                ? `${connector?.name || "Connected"}: ${truncateAddress(address)}`
+                : "No wallet connected"}
             </span>
           </button>
 
@@ -62,8 +64,10 @@ const FundMethods: React.FC<FundMethodsProps> = ({
             onClick={onSelectQrCode}
             className="flex flex-col items-center justify-center gap-1 px-3 py-3 trails-border-radius-list border border-gray-200 dark:border-gray-700 trails-secondary-button-bg text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
-            <QrCode className="w-5 h-5" />
-            <span className="font-medium">Pay with QR Code</span>
+            <div className="flex items-center gap-2">
+              <QrCode className="w-5 h-5" />
+              <span className="font-medium">Pay with QR Code</span>
+            </div>
             <span className="text-xs text-gray-600 dark:text-gray-400 text-center">
               Scan a QR code to deposit funds.
             </span>
@@ -74,16 +78,18 @@ const FundMethods: React.FC<FundMethodsProps> = ({
             onClick={onSelectWalletConnect}
             className="flex flex-col items-center justify-center gap-1 px-3 py-3 trails-border-radius-list border border-gray-200 dark:border-gray-700 trails-secondary-button-bg text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
-            <img
-              src={
-                theme === "dark"
-                  ? WalletConnectLogoWhite
-                  : WalletConnectLogoBlack
-              }
-              alt="WalletConnect"
-              className="w-5 h-5"
-            />
-            <span className="font-medium">WalletConnect</span>
+            <div className="flex items-center gap-2">
+              <img
+                src={
+                  theme === "dark"
+                    ? WalletConnectLogoWhite
+                    : WalletConnectLogoBlack
+                }
+                alt="WalletConnect"
+                className="w-5 h-5"
+              />
+              <span className="font-medium">WalletConnect</span>
+            </div>
             <span className="text-xs text-gray-600 dark:text-gray-400 text-center">
               Connect another wallet.
             </span>
@@ -94,8 +100,10 @@ const FundMethods: React.FC<FundMethodsProps> = ({
             onClick={onSelectExchange}
             className="flex flex-col items-center justify-center gap-1 px-3 py-3 trails-border-radius-list border border-gray-200 dark:border-gray-700 trails-secondary-button-bg text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
-            <Building2 className="w-5 h-5" />
-            <span className="font-medium">Exchange</span>
+            <div className="flex items-center gap-2">
+              <Building2 className="w-5 h-5" />
+              <span className="font-medium">Exchange</span>
+            </div>
             <span className="text-xs text-gray-600 dark:text-gray-400 text-center">
               Transfer from an exchange.
             </span>
