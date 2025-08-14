@@ -1,5 +1,14 @@
 import { useAaveMarkets, chainId } from "@aave/react"
 
+// Chain ID to Aave market name mapping
+const CHAIN_TO_MARKET_NAME: Record<number, string> = {
+  1: "proto_mainnet_v3", // Ethereum Mainnet
+  8453: "proto_base_v3", // Base
+  42161: "proto_arbitrum_v3", // Arbitrum
+  137: "proto_polygon_v3", // Polygon
+  10: "proto_optimism_v3", // Optimism
+}
+
 // Pool data interface
 export interface Pool {
   id: string
@@ -17,6 +26,8 @@ export interface Pool {
   }
   depositAddress: string
   isActive: boolean
+  poolUrl?: string
+  protocolUrl?: string
 }
 
 export function usePools() {
@@ -97,6 +108,8 @@ export function usePools() {
               },
               depositAddress: market.address,
               isActive: !reserve.isFrozen && !reserve.isPaused,
+              protocolUrl: "https://app.aave.com/",
+              poolUrl: `https://app.aave.com/reserve-overview/?underlyingAsset=${reserve.underlyingToken?.address?.toLowerCase()}&marketName=${CHAIN_TO_MARKET_NAME[market.chain.chainId] || "proto_mainnet_v3"}`,
             }
 
             console.log("Created pool:", pool)

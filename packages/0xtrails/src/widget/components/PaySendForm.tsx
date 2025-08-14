@@ -12,6 +12,8 @@ import { TokenImage } from "./TokenImage.js"
 import { QuoteDetails } from "./QuoteDetails.js"
 import { TruncatedAddress } from "./TruncatedAddress.js"
 import { type PrepareSendQuote, TradeType } from "../../prepareSend.js"
+import { getChainInfo } from "../../chains.js"
+import aaveLogo from "../assets/aave.svg"
 
 interface PaySendFormProps {
   selectedToken: Token
@@ -45,6 +47,25 @@ interface PaySendFormProps {
   ) => void
   onAmountUpdate?: (amount: string) => void
   mode?: "pay" | "fund" | "earn"
+  selectedPool?: {
+    id: string
+    name: string
+    protocol: string
+    chainId: number
+    apy: number
+    tvl: number
+    token: {
+      symbol: string
+      name: string
+      address: string
+      decimals: number
+      logoUrl?: string
+    }
+    depositAddress: string
+    isActive: boolean
+    poolUrl?: string
+    protocolUrl?: string
+  } | null
 }
 
 export const PaySendForm: React.FC<PaySendFormProps> = ({
@@ -71,7 +92,15 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
   onNavigateToMeshConnect,
   onAmountUpdate,
   mode,
+  selectedPool,
 }) => {
+  // Helper function to format TVL
+  const formatTvl = (tvl: number) => {
+    if (tvl >= 1e9) return `$${(tvl / 1e9).toFixed(1)}B`
+    if (tvl >= 1e6) return `$${(tvl / 1e6).toFixed(1)}M`
+    if (tvl >= 1e3) return `$${(tvl / 1e3).toFixed(1)}K`
+    return `$${tvl.toFixed(0)}`
+  }
   const {
     amount,
     amountRaw,
@@ -207,7 +236,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
           <ChevronLeft className="h-6 w-6" />
         </button>
         <h2 className="text-lg font-semibold w-full text-center text-gray-900 dark:text-white">
-          {mode === "earn" ? "Deposit" : "Send Payment"}
+          {mode === "earn" ? "Earn" : "Send Payment"}
         </h2>
       </div>
 
@@ -252,6 +281,86 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
           )}
         </div>
       </div>
+
+      {/* Pool Information - Only show in earn mode when selectedPool is available */}
+      {mode === "earn" && selectedPool && (
+        <div className="p-4 trails-border-radius-container trails-bg-secondary">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-3">
+              <div style={{ width: "32px", height: "32px" }}>
+                <TokenImage
+                  symbol={selectedPool.token.symbol}
+                  imageUrl={selectedPool.token.logoUrl}
+                  chainId={selectedPool.chainId}
+                  size={32}
+                />
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-900 dark:text-white text-sm">
+                  {selectedPool.poolUrl ? (
+                    <a
+                      href={selectedPool.poolUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline cursor-pointer"
+                    >
+                      {selectedPool.name}
+                    </a>
+                  ) : (
+                    selectedPool.name
+                  )}
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                    {selectedPool.protocol === "Aave" && (
+                      <img src={aaveLogo} alt="Aave" className="w-3 h-3 mr-1" />
+                    )}
+                    {selectedPool.protocolUrl ? (
+                      <a
+                        href={selectedPool.protocolUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:underline cursor-pointer"
+                      >
+                        {selectedPool.protocol}
+                      </a>
+                    ) : (
+                      selectedPool.protocol
+                    )}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    {getChainInfo(selectedPool.chainId)?.name ||
+                      `Chain ${selectedPool.chainId}`}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="flex items-center space-x-1 text-green-600 dark:text-green-400">
+                <span className="font-semibold text-sm">
+                  {selectedPool.apy.toFixed(1)}%
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">APY</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center space-x-1 text-gray-600 dark:text-gray-400">
+              <span className="text-xs">
+                TVL: {formatTvl(selectedPool.tvl)}
+              </span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <span
+                className={`w-2 h-2 rounded-full ${selectedPool.isActive ? "bg-green-500" : "bg-red-500"}`}
+              />
+              <span className="text-xs text-gray-600 dark:text-gray-400">
+                {selectedPool.isActive ? "Active" : "Inactive"}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-2">
         {/* Chain Selection - More Compact */}
@@ -393,7 +502,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               htmlFor="amount"
               className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300"
             >
-              Amount to {mode === "earn" ? "Fund" : "Receive"}
+              Amount to {mode === "earn" ? "Deposit" : "Receive"}
             </label>
             <div className="relative trails-border-radius-container">
               <input

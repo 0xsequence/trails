@@ -1475,6 +1475,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
                 }
               }}
               mode={mode}
+              selectedPool={selectedPool}
             />
           ) : (
             <div className="text-center p-4 rounded-lg text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800">

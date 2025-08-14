@@ -9,7 +9,9 @@ import { motion } from "motion/react"
 import { useState, useRef, useEffect, useMemo } from "react"
 import { usePools, type Pool } from "../../pools.js"
 import { ChainImage } from "./ChainImage.js"
+import { TokenImage } from "./TokenImage.js"
 import { getChainInfo } from "../../chains.js"
+import aaveLogo from "../assets/aave.svg"
 
 interface EarnPoolsProps {
   onBack: () => void
@@ -319,19 +321,27 @@ export const EarnPools: React.FC<EarnPoolsProps> = ({
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-3">
-                  {pool.token.logoUrl && (
-                    <img
-                      src={pool.token.logoUrl}
-                      alt={pool.token.symbol}
-                      className="w-8 h-8 rounded-full"
+                  <div style={{ width: "32px", height: "32px" }}>
+                    <TokenImage
+                      symbol={pool.token.symbol}
+                      imageUrl={pool.token.logoUrl}
+                      chainId={pool.chainId}
+                      size={32}
                     />
-                  )}
+                  </div>
                   <div>
                     <h3 className="font-medium text-gray-900 dark:text-white">
                       {pool.name}
                     </h3>
                     <div className="flex items-center space-x-2">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                      <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                        {pool.protocol === "Aave" && (
+                          <img
+                            src={aaveLogo}
+                            alt="Aave"
+                            className="w-3 h-3 mr-1"
+                          />
+                        )}
                         {pool.protocol}
                       </span>
                       <span
