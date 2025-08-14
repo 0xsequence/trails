@@ -1,10 +1,4 @@
-import {
-  ChevronLeft,
-  TrendingUp,
-  Shield,
-  Search,
-  ChevronDown,
-} from "lucide-react"
+import { ChevronLeft, TrendingUp, Search, ChevronDown } from "lucide-react"
 import { motion } from "motion/react"
 import { useState, useRef, useEffect, useMemo } from "react"
 import { usePools, type Pool } from "../../pools.js"
@@ -267,12 +261,15 @@ export const EarnPools: React.FC<EarnPoolsProps> = ({
             <button
               key={protocol}
               onClick={() => setSelectedProtocol(protocol)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors cursor-pointer flex items-center ${
                 selectedProtocol === protocol
                   ? "bg-blue-500 text-white"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
               }`}
             >
+              {protocol === "Aave" && (
+                <img src={aaveLogo} alt="Aave" className="w-3 h-3 mr-1" />
+              )}
               {protocol === "all" ? "All Protocols" : protocol}
             </button>
           ))}
@@ -348,8 +345,10 @@ export const EarnPools: React.FC<EarnPoolsProps> = ({
                   <span>TVL: {formatTvl(pool.tvl)}</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <Shield className="w-3 h-3 text-blue-500" />
-                  <span className="text-xs text-blue-600 dark:text-blue-400">
+                  <span
+                    className={`w-2 h-2 rounded-full ${pool.isActive ? "bg-green-500" : "bg-red-500"}`}
+                  />
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
                     {pool.isActive ? "Active" : "Inactive"}
                   </span>
                 </div>

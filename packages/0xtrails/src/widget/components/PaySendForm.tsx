@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
+import { ChevronDown, ChevronLeft, Loader2, TrendingUp } from "lucide-react"
 import type React from "react"
 import { useCallback, useEffect, useRef } from "react"
 import type { Account, WalletClient } from "viem"
@@ -333,6 +333,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
             </div>
             <div className="text-right">
               <div className="flex items-center space-x-1 text-green-600 dark:text-green-400">
+                <TrendingUp className="w-3 h-3" />
                 <span className="font-semibold text-sm">
                   {selectedPool.apy.toFixed(1)}%
                 </span>
