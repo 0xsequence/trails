@@ -1252,6 +1252,26 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           />
         </div>
 
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              setToAddress("")
+              setToAmount("")
+              setToChainId(undefined)
+              setToToken(undefined)
+              setToCalldata("")
+              setToRecipient("")
+              setSelectedScenario("")
+              setCustomTokenAddress("")
+              setShowCustomTokenInput(false)
+            }}
+            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors duration-200 text-sm font-medium border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer"
+          >
+            Reset Form Fields
+          </button>
+        </div>
+
         <div className="pt-2">
           <details className="group">
             <summary className="flex items-center cursor-pointer list-none py-2">
