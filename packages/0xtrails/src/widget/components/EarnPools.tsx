@@ -146,12 +146,7 @@ export const EarnPools: React.FC<EarnPoolsProps> = ({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="flex flex-col h-full overflow-hidden px-2"
-    >
+    <div className="flex flex-col h-full overflow-hidden px-2">
       {/* Header */}
       <div className="flex items-center relative mb-2">
         <button
@@ -288,8 +283,8 @@ export const EarnPools: React.FC<EarnPoolsProps> = ({
           filteredPools.map((pool) => (
             <motion.div
               key={pool.id}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
               onClick={() => onPoolSelect(pool)}
               className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 cursor-pointer hover:shadow-md transition-all overflow-hidden"
             >
@@ -364,7 +359,7 @@ export const EarnPools: React.FC<EarnPoolsProps> = ({
           APY rates are variable and subject to change.
         </p>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
