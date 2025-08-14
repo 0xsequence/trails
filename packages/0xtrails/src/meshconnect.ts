@@ -9,18 +9,20 @@ const PRODUCTION_API_URL = "https://integration-api.meshconnect.com"
 
 // API Credentials
 const DEFAULT_SANDBOX_API_KEY =
-  "sk_sand_krakwwuf.jcwzdo4l36dj4lsmpwnk3dboabiqod2ej1ogk3gli146zak0urxapxu2aopeldll"
+  "c2tfc2FuZF9rcmFrd3d1Zi5qY3d6ZG80bDM2ZGo0bHNtcHduazNkYm9hYmlxb2QyZWoxb2drM2dsaTE0NnphazB1cnhhcHh1MmFvcGVsZGxs"
 const DEFAULT_PRODUCTION_API_KEY =
-  "sk_prod_50xt3pf4.dblz97ccukw5n1ovp3fgazhscdhwkslqnstdv8dfth85g6satmeo48yzqw4kvnvg"
+  "c2tfcHJvZF81MHh0M3BmNC5kYmx6OTdjY3VrdzVuMW92cDNmZ2F6aHNjZGh3a3NscW5zdGR2OGRmdGg4NWc2c2F0bWVvNDh5enF3NGt2bnZn"
 const DEFAULT_CLIENT_ID = "018880d9-425c-49fa-b0e5-08ddce68a08d"
 const DEFAULT_ENVIRONMENT = "production"
 
 export function getMeshConnectApiKey(
   environment: "sandbox" | "production" = "sandbox",
 ): string {
-  return environment === "production"
-    ? DEFAULT_PRODUCTION_API_KEY
-    : DEFAULT_SANDBOX_API_KEY
+  return atob(
+    environment === "production"
+      ? DEFAULT_PRODUCTION_API_KEY
+      : DEFAULT_SANDBOX_API_KEY,
+  )
 }
 
 export function getMeshConnectApiUrl(
@@ -236,15 +238,14 @@ export async function createDefaultLinkToken(
  * This is the main function equivalent to createLinkNew.sh
  */
 export async function createNewLinkToken(
-  apiKey: string = DEFAULT_SANDBOX_API_KEY,
-  clientId: string = DEFAULT_CLIENT_ID,
+  apiKey: string,
+  clientId: string,
   options: Omit<TransferOptions, "userId"> & {
     environment?: "sandbox" | "production"
   } = {
     environment: "sandbox",
   },
 ): Promise<LinkTokenResponse> {
-  apiKey = getMeshConnectApiKey(options.environment)
   const config: MeshConnectConfig = {
     apiKey,
     clientId,
@@ -395,27 +396,3 @@ const networkIdMap: Record<string, string> = {
 export function getMeshConnectNetworkId(chainId: string): string {
   return networkIdMap[chainId] || "e3c7fdd8-b1fc-4e51-85ae-bb276e075611"
 }
-
-/*
-import { createNewLinkToken, MESH_NETWORK_IDS } from './meshconnect'
-
-// Basic usage - just authentication
-const response = await createNewLinkToken(
-  'sk_sand_krakwwuf.jcwzdo4l36dj4lsmpwnk3dboabiqod2ej1ogk3gli146zak0urxapxu2aopeldll',
-  '018880d9-425c-49fa-b0e5-08ddce68a08d'
-)
-console.log(response.content.linkToken)
-
-// With transfer options
-const responseWithTransfer = await createNewLinkToken(
-  'sk_sand_krakwwuf.jcwzdo4l36dj4lsmpwnk3dboabiqod2ej1ogk3gli146zak0urxapxu2aopeldll',
-  '018880d9-425c-49fa-b0e5-08ddce68a08d',
-  {
-    address: '0xef180EDd4B6303a4CeBaF9b6e3a38CC39f381A99',
-    symbol: 'USDC',
-    networkId: MESH_NETWORK_IDS.POLYGON,
-    amountInFiat: 2,
-    transactionId: `deposit_${Date.now()}`
-  }
-)
-  */

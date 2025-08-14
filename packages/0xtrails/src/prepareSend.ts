@@ -900,15 +900,17 @@ async function sendHandlerForDifferentChainDifferentToken({
       quoteProvider: intent?.quote?.quoteProvider,
     }),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
-      const { hasEnoughBalance, balanceError } = await checkAccountBalance({
-        account,
-        tokenAddress: originTokenAddress,
-        depositAmount,
-        publicClient,
-      })
+      if (!(fundMethod === "qr-code" || fundMethod === "exchange")) {
+        const { hasEnoughBalance, balanceError } = await checkAccountBalance({
+          account,
+          tokenAddress: originTokenAddress,
+          depositAmount,
+          publicClient,
+        })
 
-      if (!hasEnoughBalance) {
-        throw balanceError
+        if (!hasEnoughBalance) {
+          throw balanceError
+        }
       }
 
       console.log("[trails-sdk] sending origin transaction")
@@ -953,7 +955,7 @@ async function sendHandlerForDifferentChainDifferentToken({
 
       const depositPromise = async () => {
         // Skip wallet deposit if fund method is qr-code
-        if (fundMethod === "qr-code") {
+        if (fundMethod === "qr-code" || fundMethod === "exchange") {
           console.log("[trails-sdk] Skipping wallet deposit for QR code mode")
           return
         }
@@ -2066,7 +2068,7 @@ async function attemptUserDepositTx({
   const originChainId = chain.id
 
   // Skip wallet deposit if fund method is qr-code
-  if (fundMethod === "qr-code") {
+  if (fundMethod === "qr-code" || fundMethod === "exchange") {
     console.log("[trails-sdk] Skipping wallet deposit for QR code mode")
     return null
   }

@@ -721,12 +721,15 @@ export function useSendForm({
 
       // Handle exchange fund method - navigate to mesh-connect
       if (fundMethod === "exchange" && onNavigateToMeshConnect) {
-        const toTokenSymbol = selectedToken?.symbol
+        const originChainId = quote?.originChain?.id
+        const destinationChainId = quote?.destinationChain?.id
+
+        const toTokenSymbol = quote?.originToken?.symbol // MeshConnect will deposit origin token
         const toTokenAmount = normalizeNumber(
           quote.originAmountFormatted,
-        ).toString()
-        const toChainId = selectedToken?.chainId
-        const toRecipientAddress = quote.originAddress
+        ).toString() // MeshConnect will deposit origin token amount
+        const toChainId = quote?.originChain?.id // MeshConnect will deposit to origin chain
+        const toRecipientAddress = quote.originAddress // MeshConnect will deposit to origin address
 
         console.log("[trails-sdk] Navigating to mesh-connect with props:", {
           toTokenSymbol,
@@ -735,14 +738,21 @@ export function useSendForm({
           toRecipientAddress,
         })
 
+        if (originChainId === destinationChainId) {
+          throw new Error(
+            "[trails-sdk] Must be different chain than the origin chain to use mesh-connect",
+          )
+        }
+
         if (
           !toTokenSymbol ||
           !toTokenAmount ||
           !toChainId ||
           !toRecipientAddress
         ) {
-          console.error("[trails-sdk] Missing required props for mesh-connect")
-          return
+          throw new Error(
+            "[trails-sdk] Missing required props for mesh-connect",
+          )
         }
 
         onNavigateToMeshConnect(
@@ -754,6 +764,8 @@ export function useSendForm({
           },
           prepareSendResult.quote,
         )
+
+        await handleSend()
         return
       }
 
@@ -834,8 +846,6 @@ export function useSendForm({
     onError,
     fundMethod,
     onNavigateToMeshConnect,
-    selectedToken?.symbol,
-    selectedToken?.chainId,
   ])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -876,6 +886,14 @@ export function useSendForm({
       const checksummedRecipient = getAddress(recipient)
       const checksummedAccount = getAddress(account.address)
 
+      if (fundMethod === "exchange") {
+        return `Continue to Exchange`
+      }
+
+      if (fundMethod === "qr-code") {
+        return `Continue to QR Code`
+      }
+
       if (mode === "earn") {
         return `Deposit ${destinationAmountDisplay} ${destinationTokenSymbol}`
       }
@@ -915,6 +933,7 @@ export function useSendForm({
     prepareSendResult?.quote?.originAmountFormatted,
     selectedDestinationChain.id,
     mode,
+    fundMethod,
   ])
 
   return {
