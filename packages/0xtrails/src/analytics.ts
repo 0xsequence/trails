@@ -177,6 +177,8 @@ abstract class BaseAnalytics {
       props: {
         ...this.getCommonProps(),
         ...data,
+        originChainId: data.originChainId?.toString(),
+        destinationChainId: data.destinationChainId?.toString(),
         ...(data.userAddress && {
           userAddress: pseudonymize(data.userAddress),
         }),
@@ -338,6 +340,8 @@ abstract class BaseAnalytics {
       props: {
         ...this.getCommonProps(),
         ...data,
+        originChainId: data.originChainId?.toString(),
+        destinationChainId: data.destinationChainId?.toString(),
         intentAddress: pseudonymize(data.intentAddress),
         ...(data.userAddress && {
           userAddress: pseudonymize(data.userAddress),
@@ -356,6 +360,8 @@ abstract class BaseAnalytics {
       props: {
         ...this.getCommonProps(),
         ...data,
+        originChainId: data.originChainId?.toString(),
+        destinationChainId: data.destinationChainId?.toString(),
         intentAddress: pseudonymize(data.intentAddress),
         ...(data.userAddress && {
           userAddress: pseudonymize(data.userAddress),
@@ -471,6 +477,7 @@ abstract class BaseAnalytics {
       props: {
         ...this.getCommonProps(),
         ...data,
+        chainId: data.chainId?.toString(),
         transactionHash: pseudonymize(data.transactionHash),
         ...(data.userAddress && {
           userAddress: pseudonymize(data.userAddress),
@@ -584,6 +591,14 @@ class Analytics extends BaseAnalytics {
     this.databeat = new Databeat<EventTypes>(server, config)
   }
 
+  identifyUser({ address }: { address: string }) {
+    this.databeat.identify(address?.toLowerCase(), { userIdHash: true })
+  }
+
+  unidentifyUser() {
+    this.databeat.identify(undefined, { userIdHash: true })
+  }
+
   track(event: EventProps) {
     return this.databeat
       .track(event)
@@ -616,6 +631,15 @@ class MockAnalytics extends BaseAnalytics {
   constructor({ loggingEnabled }: { loggingEnabled: boolean }) {
     super()
     this.loggingEnabled = loggingEnabled
+  }
+
+  identifyUser({ address }: { address: string }) {
+    console.log("[trails-sdk] MockAnalytics identifyUser:", address)
+    return this
+  }
+
+  unidentifyUser() {
+    return this
   }
 
   enable() {
@@ -652,7 +676,8 @@ export const getAnalytics = () => {
       window.location.hostname === "localhost" ||
       window.location.hostname === "127.0.0.1"
   }
-  if (!DATABEAT_KEY || debugMode || isLocalhost) {
+  const enableMockAnalytics = !DATABEAT_KEY || debugMode || isLocalhost
+  if (enableMockAnalytics) {
     return new MockAnalytics({ loggingEnabled: true }) // return a dummy analytics object
   }
   if (!singleton) {
@@ -731,11 +756,13 @@ export const trackWalletConnected = (data: {
   [key: string]: any
 }) => {
   const analytics = getAnalytics()
+  analytics.identifyUser({ address: data.address })
   analytics.trackWalletConnected(data)
 }
 
 export const trackWalletDisconnected = (data?: { [key: string]: any }) => {
   const analytics = getAnalytics()
+  analytics.unidentifyUser()
   analytics.trackWalletDisconnected(data)
 }
 
