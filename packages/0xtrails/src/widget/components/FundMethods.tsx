@@ -22,7 +22,9 @@ const FundMethods: React.FC<FundMethodsProps> = ({
   onSelectQrCode,
 }) => {
   const { address, isConnected, connector } = useAccount()
-  const { theme } = useTheme()
+  const { getActiveTheme } = useTheme()
+
+  const activeTheme = getActiveTheme()
 
   return (
     <div className="flex flex-col h-full">
@@ -81,7 +83,7 @@ const FundMethods: React.FC<FundMethodsProps> = ({
             <div className="flex items-center gap-2">
               <img
                 src={
-                  theme === "dark"
+                  activeTheme === "dark"
                     ? WalletConnectLogoWhite
                     : WalletConnectLogoBlack
                 }

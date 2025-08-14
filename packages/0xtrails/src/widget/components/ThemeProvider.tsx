@@ -7,6 +7,7 @@ interface ThemeContextType {
   theme: Theme
   setTheme: (theme: Theme) => void
   isDark: boolean
+  getActiveTheme: () => "light" | "dark"
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
@@ -59,9 +60,15 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     return () => mediaQuery.removeEventListener("change", handleChange)
   }, [theme])
 
+  const getActiveTheme = (): "light" | "dark" => {
+    return isDark ? "dark" : "light"
+  }
+
   return (
     <DesignSystemThemeProvider theme={theme === "dark" ? "dark" : "light"}>
-      <ThemeContext.Provider value={{ theme, setTheme, isDark }}>
+      <ThemeContext.Provider
+        value={{ theme, setTheme, isDark, getActiveTheme }}
+      >
         <div
           className={isDark ? "dark" : ""}
           data-theme={isDark ? "dark" : "light"}

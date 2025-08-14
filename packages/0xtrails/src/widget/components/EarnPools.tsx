@@ -60,7 +60,7 @@ export const EarnPools: React.FC<EarnPoolsProps> = ({
         ...new Set(pools.map((pool) => pool.protocol).filter(Boolean)),
       ]
     } catch (error) {
-      console.error("Error computing protocols:", error)
+      console.error("[trails-sdk] Error computing protocols:", error)
       return ["all"]
     }
   }, [pools])
@@ -82,7 +82,7 @@ export const EarnPools: React.FC<EarnPoolsProps> = ({
         }))
         .sort((a, b) => a.name.localeCompare(b.name))
     } catch (error) {
-      console.error("Error computing unique chains:", error)
+      console.error("[trails-sdk] Error computing unique chains:", error)
       return []
     }
   }, [pools])
@@ -119,7 +119,7 @@ export const EarnPools: React.FC<EarnPoolsProps> = ({
 
         return protocolMatch && chainMatch && searchMatch
       } catch (error) {
-        console.error("Error filtering pool:", pool, error)
+        console.error("[trails-sdk] Error filtering pool:", pool, error)
         return false
       }
     })
@@ -179,7 +179,7 @@ export const EarnPools: React.FC<EarnPoolsProps> = ({
             try {
               setSearchFilter(e.target.value || "")
             } catch (error) {
-              console.error("Error updating search filter:", error)
+              console.error("[trails-sdk] Error updating search filter:", error)
               setSearchFilter("")
             }
           }}

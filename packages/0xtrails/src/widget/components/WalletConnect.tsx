@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react"
+import React, { useEffect, useCallback, useRef } from "react"
 import { ChevronLeft } from "lucide-react"
 import { useAccount, useConnect, useDisconnect } from "wagmi"
 import { walletConnect } from "wagmi/connectors"
@@ -41,6 +41,18 @@ export const WalletConnectScreen: React.FC<WalletConnectProps> = ({
   const [wcUri, setWcUri] = React.useState<string | null>(null)
   const [showUri, setShowUri] = React.useState(false)
   const listenerRef = React.useRef<(() => void) | null>(null)
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Debounced setWcUri to prevent rapid QR code changes
+  const debouncedSetWcUri = useCallback((uri: string | null) => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current)
+    }
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      setWcUri(uri)
+    }, 500) // 300ms debounce delay
+  }, [])
   const isWalletConnectConnector = React.useMemo(() => {
     return connector?.name === "WalletConnect" && isConnected
   }, [connector, isConnected])
@@ -84,14 +96,14 @@ export const WalletConnectScreen: React.FC<WalletConnectProps> = ({
               "[WalletConnect] Setting URI from display_uri event:",
               data,
             )
-            setWcUri(data)
+            debouncedSetWcUri(data)
           }
         }
 
         // Set up disconnect handler to regenerate QR code
         const handleDisconnect = async () => {
           console.log("[WalletConnect] Disconnected, regenerating QR code")
-          setWcUri(null)
+          debouncedSetWcUri(null)
           // Try to reconnect
           try {
             await connect({ connector })
@@ -119,7 +131,7 @@ export const WalletConnectScreen: React.FC<WalletConnectProps> = ({
         // If user rejected, try to regenerate QR code
         if ((err as any).code === 4001) {
           console.log("[WalletConnect] User rejected, regenerating QR code")
-          setWcUri(null)
+          debouncedSetWcUri(null)
           // Try to reconnect after a short delay
           setTimeout(() => {
             handleConnect()
@@ -134,6 +146,7 @@ export const WalletConnectScreen: React.FC<WalletConnectProps> = ({
       status,
       wcUri,
       isWalletConnectConnector,
+      debouncedSetWcUri,
     ],
   )
 
@@ -159,6 +172,10 @@ export const WalletConnectScreen: React.FC<WalletConnectProps> = ({
         // Clean up the listener function if it exists
         if (listenerRef.current) {
           listenerRef.current()
+        }
+        // Clean up debounce timeout
+        if (debounceTimeoutRef.current) {
+          clearTimeout(debounceTimeoutRef.current)
         }
       } catch {}
     }
@@ -218,7 +235,7 @@ export const WalletConnectScreen: React.FC<WalletConnectProps> = ({
                   type="button"
                   onClick={() => {
                     disconnect()
-                    setWcUri(null)
+                    debouncedSetWcUri(null)
                     setShowUri(false)
                     setTimeout(() => {
                       if (onReconnectPreviousWallet) {

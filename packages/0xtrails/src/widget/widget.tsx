@@ -65,6 +65,7 @@ import {
 } from "../config.js"
 import { useAmountUsd } from "./hooks/useAmountUsd.js"
 import { useRecentTokens } from "./hooks/useRecentTokens.js"
+import { getWethAddress } from "../tokens.js"
 import css from "./compiled.css?inline"
 import { trackWalletConnected, trackWidgetScreen } from "../analytics.js"
 import type { PrepareSendQuote } from "../prepareSend.js"
@@ -94,6 +95,7 @@ import EarnPools from "./components/EarnPools.js"
 import type { Mode } from "../mode.js"
 import type { OnCompleteProps } from "./hooks/useSendForm.js"
 import type { Pool } from "../pools.js"
+import { usePools } from "../pools.js"
 import { AaveProvider, AaveClient } from "@aave/react"
 import { encodeFunctionData } from "viem"
 
@@ -383,6 +385,96 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const [meshConnectProps, setMeshConnectProps] =
       useState<Partial<MeshConnectProps> | null>(null)
 
+    // Hook to auto-select pool when mode is "earn" and toAddress is specified
+    const useAutoSelectPool = (
+      mode: Mode,
+      toAddress?: string | null,
+      toChainId?: number | string | null,
+      toToken?: string | null,
+    ) => {
+      const { data: pools, loading: poolsLoading } = usePools()
+
+      useEffect(() => {
+        if (
+          mode === "earn" &&
+          toAddress &&
+          toChainId &&
+          toToken &&
+          pools &&
+          pools.length > 0 &&
+          (!selectedPool ||
+            selectedPool.chainId !== toChainId ||
+            (selectedPool.token.address.toLowerCase() !==
+              toToken.toLowerCase() &&
+              selectedPool.token.symbol.toLowerCase() !==
+                toToken.toLowerCase()))
+        ) {
+          const targetChainId =
+            typeof toChainId === "string" ? parseInt(toChainId) : toChainId
+
+          // Find pool that matches the toAddress, toChainId, and toToken (underlying asset)
+          const matchingPool = pools.find((pool) => {
+            let addressMatch =
+              pool.depositAddress.toLowerCase() === toAddress.toLowerCase()
+            const chainMatch = pool.chainId === targetChainId
+
+            // Check if toToken is an address (starts with 0x) or a symbol
+            let tokenMatch = toToken.startsWith("0x")
+              ? pool.token.address.toLowerCase() === toToken.toLowerCase()
+              : pool.token.symbol.toLowerCase() === toToken.toLowerCase()
+
+            // Special handling for Aave pools: ETH can be represented as WETH
+            if (!tokenMatch && pool.protocol === "Aave") {
+              const isEthToken =
+                toToken === "0x0000000000000000000000000000000000000000" ||
+                toToken === "ETH"
+              if (isEthToken) {
+                // Check if pool token is WETH (either by address or symbol)
+                const isWethPool =
+                  pool.token.symbol === "WETH" ||
+                  pool.token.address.toLowerCase() ===
+                    getWethAddress(targetChainId)?.toLowerCase()
+                tokenMatch = isWethPool
+                if (!addressMatch) {
+                  addressMatch =
+                    pool.wrappedTokenGatewayAddress?.toLowerCase() ===
+                    toAddress.toLowerCase()
+                }
+              }
+            }
+
+            return addressMatch && chainMatch && tokenMatch
+          })
+
+          if (matchingPool) {
+            console.log(
+              "[trails-sdk] Auto-selected pool for toAddress:",
+              toAddress,
+              "toChainId:",
+              targetChainId,
+              "toToken:",
+              toToken,
+              matchingPool,
+            )
+            setSelectedPool(matchingPool)
+          } else {
+            console.log(
+              "[trails-sdk] No matching pool found for toAddress:",
+              toAddress,
+              "toChainId:",
+              targetChainId,
+              "toToken:",
+              toToken,
+            )
+          }
+        }
+      }, [mode, toAddress, toChainId, toToken, pools])
+
+      return { poolsLoading }
+    }
+
+    useAutoSelectPool(mode, toAddress, toChainId, toToken)
+
     const {
       setOriginTxHash,
       setDestinationTxHash,
@@ -589,6 +681,9 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
         if (mode === "earn") {
           if (toAddress && toChainId) {
             // Skip earn-pools and go directly to send-form when toAddress and toChainId are specified
+            setCurrentScreen("send-form")
+          } else if (selectedPool) {
+            // If a pool is already selected (auto-selected or manually), go to send-form
             setCurrentScreen("send-form")
           } else {
             // Go to earn-pools for pool selection when no specific destination is set
