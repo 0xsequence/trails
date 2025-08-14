@@ -12,7 +12,8 @@ import { TokenImage } from "./TokenImage.js"
 import { QuoteDetails } from "./QuoteDetails.js"
 import { TruncatedAddress } from "./TruncatedAddress.js"
 import { type PrepareSendQuote, TradeType } from "../../prepareSend.js"
-import { getChainInfo } from "../../chains.js"
+import { getChainInfo, getChainColor } from "../../chains.js"
+import { formatTvl } from "../../prices.js"
 import aaveLogo from "../assets/aave.svg"
 
 interface PaySendFormProps {
@@ -94,13 +95,6 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
   mode,
   selectedPool,
 }) => {
-  // Helper function to format TVL
-  const formatTvl = (tvl: number) => {
-    if (tvl >= 1e9) return `$${(tvl / 1e9).toFixed(1)}B`
-    if (tvl >= 1e6) return `$${(tvl / 1e6).toFixed(1)}M`
-    if (tvl >= 1e3) return `$${(tvl / 1e3).toFixed(1)}K`
-    return `$${tvl.toFixed(0)}`
-  }
   const {
     amount,
     amountRaw,
@@ -328,7 +322,9 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
                       selectedPool.protocol
                     )}
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-xs font-medium ${getChainColor(selectedPool.chainId)}`}
+                  >
                     {getChainInfo(selectedPool.chainId)?.name ||
                       `Chain ${selectedPool.chainId}`}
                   </span>

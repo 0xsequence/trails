@@ -10,7 +10,8 @@ import { useState, useRef, useEffect, useMemo } from "react"
 import { usePools, type Pool } from "../../pools.js"
 import { ChainImage } from "./ChainImage.js"
 import { TokenImage } from "./TokenImage.js"
-import { getChainInfo } from "../../chains.js"
+import { getChainInfo, getChainColor } from "../../chains.js"
+import { formatTvl } from "../../prices.js"
 import aaveLogo from "../assets/aave.svg"
 
 interface EarnPoolsProps {
@@ -129,30 +130,6 @@ export const EarnPools: React.FC<EarnPoolsProps> = ({
       }
     })
   }, [pools, selectedProtocol, filterByChainId, searchFilter])
-
-  const formatTvl = (tvl: number) => {
-    if (tvl >= 1e9) return `$${(tvl / 1e9).toFixed(1)}B`
-    if (tvl >= 1e6) return `$${(tvl / 1e6).toFixed(1)}M`
-    if (tvl >= 1e3) return `$${(tvl / 1e3).toFixed(1)}K`
-    return `$${tvl.toFixed(0)}`
-  }
-
-  const getChainColor = (chainId: number) => {
-    switch (chainId) {
-      case 1:
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-      case 8453:
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-      case 42161:
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-      case 137:
-        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-      case 10:
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-    }
-  }
 
   if (loading) {
     return (

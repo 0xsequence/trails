@@ -200,3 +200,11 @@ export function normalizeNumber(
 ): number {
   return Number(number?.toString().replace(/[^0-9.-]/g, "") || 0)
 }
+
+// Format TVL (Total Value Locked) for display
+export function formatTvl(tvl: number): string {
+  if (tvl >= 1e9) return `$${(tvl / 1e9).toFixed(1)}B`
+  if (tvl >= 1e6) return `$${(tvl / 1e6).toFixed(1)}M`
+  if (tvl >= 1e3) return `$${(tvl / 1e3).toFixed(1)}K`
+  return `$${tvl.toFixed(0)}`
+}
