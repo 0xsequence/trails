@@ -1643,6 +1643,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
             <MeshConnect
               onBack={handleBack}
               onComplete={handleMeshConnectComplete}
+              quote={prepareSendQuote}
               {...meshConnectProps}
             />
           )

@@ -63,20 +63,6 @@ const FundMethods: React.FC<FundMethodsProps> = ({
 
           <button
             type="button"
-            onClick={onSelectQrCode}
-            className="flex flex-col items-center justify-center gap-1 px-3 py-3 trails-border-radius-list border border-gray-200 dark:border-gray-700 trails-secondary-button-bg text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
-          >
-            <div className="flex items-center gap-2">
-              <QrCode className="w-5 h-5" />
-              <span className="font-medium">Pay with QR Code</span>
-            </div>
-            <span className="text-xs text-gray-600 dark:text-gray-400 text-center">
-              Scan a QR code to deposit funds.
-            </span>
-          </button>
-
-          <button
-            type="button"
             onClick={onSelectWalletConnect}
             className="flex flex-col items-center justify-center gap-1 px-3 py-3 trails-border-radius-list border border-gray-200 dark:border-gray-700 trails-secondary-button-bg text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
@@ -99,15 +85,29 @@ const FundMethods: React.FC<FundMethodsProps> = ({
 
           <button
             type="button"
+            onClick={onSelectQrCode}
+            className="flex flex-col items-center justify-center gap-1 px-3 py-3 trails-border-radius-list border border-gray-200 dark:border-gray-700 trails-secondary-button-bg text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <QrCode className="w-5 h-5" />
+              <span className="font-medium">Pay with QR Code</span>
+            </div>
+            <span className="text-xs text-gray-600 dark:text-gray-400 text-center">
+              Scan a QR code to deposit funds.
+            </span>
+          </button>
+
+          <button
+            type="button"
             onClick={onSelectExchange}
             className="flex flex-col items-center justify-center gap-1 px-3 py-3 trails-border-radius-list border border-gray-200 dark:border-gray-700 trails-secondary-button-bg text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2">
               <Building2 className="w-5 h-5" />
-              <span className="font-medium">Exchange</span>
+              <span className="font-medium">Send from Exchange</span>
             </div>
             <span className="text-xs text-gray-600 dark:text-gray-400 text-center">
-              Transfer from an exchange.
+              Transfer from Coinbase, Binance, etc.
             </span>
           </button>
         </div>

@@ -7,8 +7,10 @@ import {
   createNewLinkToken,
   getMeshConnectClientId,
   getMeshConnectEnvironment,
+  getMeshConnectApiKey,
   getMeshNetworkIdFromChainId,
 } from "../../meshconnect.js"
+import type { PrepareSendQuote } from "../../prepareSend.js"
 
 export interface MeshConnectProps {
   onBack: () => void
@@ -17,6 +19,7 @@ export interface MeshConnectProps {
   toTokenAmount?: string
   toChainId?: number
   toRecipientAddress?: string
+  quote?: PrepareSendQuote | null
 }
 
 export const MeshConnect: React.FC<MeshConnectProps> = ({
@@ -85,12 +88,13 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({
 
         const networkId = (await getMeshNetworkIdFromChainId(
           toChainId,
+          getMeshConnectEnvironment(),
         )) as string
 
         // Generate a new link token for receiving tokens
         const response = await createNewLinkToken(
-          undefined, // Use default API key
-          undefined, // Use default client ID
+          getMeshConnectApiKey(getMeshConnectEnvironment()),
+          getMeshConnectClientId(),
           {
             environment: getMeshConnectEnvironment(),
             address: toRecipientAddress,
@@ -448,16 +452,18 @@ export const MeshConnect: React.FC<MeshConnectProps> = ({
       </div>
 
       {/* Sandbox Environment Banner */}
-      <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
-        <div className="text-center">
-          <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-            Sandbox environment
-          </p>
-          <p className="text-xs text-yellow-600 dark:text-yellow-300">
-            No real funds are used
-          </p>
+      {getMeshConnectEnvironment() === "sandbox" && (
+        <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+          <div className="text-center">
+            <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+              Sandbox environment
+            </p>
+            <p className="text-xs text-yellow-600 dark:text-yellow-300">
+              No real funds are used
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Portal for iframe outside shadow DOM */}
       {iframeContainer &&

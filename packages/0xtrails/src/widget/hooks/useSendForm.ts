@@ -21,7 +21,7 @@ import {
   type PrepareSendQuote,
 } from "../../prepareSend.js"
 import type { TransactionState } from "../../transactions.js"
-import { getTokenPrice, useTokenPrices } from "../../prices.js"
+import { getTokenPrice, useTokenPrices, normalizeNumber } from "../../prices.js"
 import { useQueryParams } from "../../queryParams.js"
 import { getRelayer } from "../../relayer.js"
 import {
@@ -721,10 +721,12 @@ export function useSendForm({
 
       // Handle exchange fund method - navigate to mesh-connect
       if (fundMethod === "exchange" && onNavigateToMeshConnect) {
-        const toTokenSymbol = selectedDestToken?.symbol || ""
-        const toTokenAmount = quotedDestinationAmount || "0"
-        const toChainId = selectedDestinationChain?.id || 1
-        const toRecipientAddress = quote.destinationAddress || recipient
+        const toTokenSymbol = selectedToken?.symbol
+        const toTokenAmount = normalizeNumber(
+          quote.originAmountFormatted,
+        ).toString()
+        const toChainId = selectedToken?.chainId
+        const toRecipientAddress = quote.originAddress
 
         console.log("[trails-sdk] Navigating to mesh-connect with props:", {
           toTokenSymbol,
@@ -732,6 +734,16 @@ export function useSendForm({
           toChainId,
           toRecipientAddress,
         })
+
+        if (
+          !toTokenSymbol ||
+          !toTokenAmount ||
+          !toChainId ||
+          !toRecipientAddress
+        ) {
+          console.error("[trails-sdk] Missing required props for mesh-connect")
+          return
+        }
 
         onNavigateToMeshConnect(
           {
@@ -822,9 +834,8 @@ export function useSendForm({
     onError,
     fundMethod,
     onNavigateToMeshConnect,
-    selectedDestToken?.symbol,
-    quotedDestinationAmount,
-    selectedDestinationChain?.id,
+    selectedToken?.symbol,
+    selectedToken?.chainId,
   ])
 
   const handleSubmit = async (e: React.FormEvent) => {

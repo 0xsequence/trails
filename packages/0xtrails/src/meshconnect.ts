@@ -7,10 +7,27 @@
 const SANDBOX_API_URL = "https://sandbox-integration-api.meshconnect.com"
 const PRODUCTION_API_URL = "https://integration-api.meshconnect.com"
 
-// Default API Credentials
-const DEFAULT_API_KEY =
+// API Credentials
+const DEFAULT_SANDBOX_API_KEY =
   "sk_sand_krakwwuf.jcwzdo4l36dj4lsmpwnk3dboabiqod2ej1ogk3gli146zak0urxapxu2aopeldll"
+const DEFAULT_PRODUCTION_API_KEY =
+  "sk_prod_50xt3pf4.dblz97ccukw5n1ovp3fgazhscdhwkslqnstdv8dfth85g6satmeo48yzqw4kvnvg"
 const DEFAULT_CLIENT_ID = "018880d9-425c-49fa-b0e5-08ddce68a08d"
+const DEFAULT_ENVIRONMENT = "production"
+
+export function getMeshConnectApiKey(
+  environment: "sandbox" | "production" = "sandbox",
+): string {
+  return environment === "production"
+    ? DEFAULT_PRODUCTION_API_KEY
+    : DEFAULT_SANDBOX_API_KEY
+}
+
+export function getMeshConnectApiUrl(
+  environment: "sandbox" | "production" = "sandbox",
+): string {
+  return environment === "production" ? PRODUCTION_API_URL : SANDBOX_API_URL
+}
 
 // Types
 export interface MeshConnectConfig {
@@ -137,8 +154,7 @@ async function makeApiRequest(
   payload: LinkTokenRequest,
   config: MeshConnectConfig,
 ): Promise<LinkTokenResponse> {
-  const apiUrl =
-    config.environment === "production" ? PRODUCTION_API_URL : SANDBOX_API_URL
+  const apiUrl = getMeshConnectApiUrl(config.environment)
   const endpoint = `${apiUrl}/api/v1/linktoken`
 
   try {
@@ -180,8 +196,7 @@ async function makeApiRequest(
 export async function checkApiHealth(
   config: MeshConnectConfig,
 ): Promise<boolean> {
-  const apiUrl =
-    config.environment === "production" ? PRODUCTION_API_URL : SANDBOX_API_URL
+  const apiUrl = getMeshConnectApiUrl(config.environment)
   const endpoint = `${apiUrl}/api/v1/health`
 
   try {
@@ -207,9 +222,13 @@ export async function checkApiHealth(
 export async function createDefaultLinkToken(
   options: Omit<TransferOptions, "userId"> & {
     environment?: "sandbox" | "production"
-  } = {},
+  } = {
+    environment: "sandbox",
+  },
 ): Promise<LinkTokenResponse> {
-  return createNewLinkToken(DEFAULT_API_KEY, DEFAULT_CLIENT_ID, options)
+  const apiKey = getMeshConnectApiKey(options.environment)
+  const clientId = getMeshConnectClientId()
+  return createNewLinkToken(apiKey, clientId, options)
 }
 
 /**
@@ -217,16 +236,19 @@ export async function createDefaultLinkToken(
  * This is the main function equivalent to createLinkNew.sh
  */
 export async function createNewLinkToken(
-  apiKey: string = DEFAULT_API_KEY,
+  apiKey: string = DEFAULT_SANDBOX_API_KEY,
   clientId: string = DEFAULT_CLIENT_ID,
   options: Omit<TransferOptions, "userId"> & {
     environment?: "sandbox" | "production"
-  } = {},
+  } = {
+    environment: "sandbox",
+  },
 ): Promise<LinkTokenResponse> {
+  apiKey = getMeshConnectApiKey(options.environment)
   const config: MeshConnectConfig = {
     apiKey,
     clientId,
-    environment: options.environment || "sandbox",
+    environment: options.environment,
     userId: generateUserId(),
   }
 
@@ -289,16 +311,19 @@ export const MESH_NETWORK_IDS = {
  */
 export async function getMeshNetworkIdFromChainId(
   chainId: number | string,
+  environment: "sandbox" | "production" = "sandbox",
 ): Promise<string | undefined> {
   try {
-    const apiUrl = SANDBOX_API_URL // or PRODUCTION_API_URL based on environment
+    const apiUrl = getMeshConnectApiUrl(environment)
+    const apiKey = getMeshConnectApiKey(environment)
+    const clientId = getMeshConnectClientId()
     const endpoint = `${apiUrl}/api/v1/transfers/managed/networks`
 
     const response = await fetch(endpoint, {
       method: "GET",
       headers: {
-        "X-Client-Id": DEFAULT_CLIENT_ID,
-        "X-Client-Secret": DEFAULT_API_KEY,
+        "X-Client-Id": clientId,
+        "X-Client-Secret": apiKey,
         "Content-Type": "application/json",
       },
     })
@@ -343,9 +368,6 @@ export function extractLinkToken(response: LinkTokenResponse): string {
   return response.content.linkToken
 }
 
-// Export constants for external use
-export { DEFAULT_API_KEY, DEFAULT_CLIENT_ID }
-
 // Default export for convenience
 export default {
   createNewLinkToken,
@@ -353,10 +375,6 @@ export default {
   createLinkToken,
   checkApiHealth,
   extractLinkToken,
-  MESH_NETWORK_IDS,
-  MESH_INTEGRATION_IDS,
-  DEFAULT_API_KEY,
-  DEFAULT_CLIENT_ID,
 }
 
 export function getMeshConnectClientId(): string {
@@ -364,7 +382,7 @@ export function getMeshConnectClientId(): string {
 }
 
 export function getMeshConnectEnvironment(): "sandbox" | "production" {
-  return "sandbox"
+  return DEFAULT_ENVIRONMENT
 }
 
 const networkIdMap: Record<string, string> = {
