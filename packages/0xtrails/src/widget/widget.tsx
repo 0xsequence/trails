@@ -703,7 +703,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           setSelectedToken(null)
           break
         case "send-form":
-          if (mode === "earn") {
+          if (mode === "earn" && !toAddress && !toChainId) {
             setCurrentScreen("earn-pools")
           } else {
             setCurrentScreen("tokens")

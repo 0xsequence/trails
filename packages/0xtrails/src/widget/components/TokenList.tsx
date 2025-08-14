@@ -180,7 +180,9 @@ export const TokenList: React.FC<TokenListProps> = ({
             {mode === "fund"
               ? "Fund with any token in your wallet"
               : targetAmountUsd
-                ? `Pay ${targetAmountUsdFormatted} with:`
+                ? mode === "earn"
+                  ? `Deposit ${targetAmountUsdFormatted} with:`
+                  : `Pay ${targetAmountUsdFormatted} with:`
                 : "Select Token"}
           </h2>
         </div>

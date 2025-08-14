@@ -301,7 +301,7 @@ export const EarnPools: React.FC<EarnPoolsProps> = ({
       </div>
 
       {/* Pools List */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3 max-h-[300px]">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden space-y-3 max-h-[300px] px-2">
         {filteredPools.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500 dark:text-gray-400 text-sm">
