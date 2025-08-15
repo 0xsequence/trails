@@ -38,7 +38,7 @@ export const WidgetDemo = () => {
   })
   const [quoteProvider, setQuoteProvider] = useState(() => {
     try {
-      return localStorage.getItem(STORAGE_KEYS.QUOTE_PROVIDER) || ""
+      return localStorage.getItem(STORAGE_KEYS.QUOTE_PROVIDER) || "auto"
     } catch (error) {
       console.error("Error getting quote provider from localStorage:", error)
       return "auto"
