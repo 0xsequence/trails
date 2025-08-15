@@ -30,7 +30,6 @@ import {
 import { useAPIClient } from "./apiClient.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
 import { getChainInfo } from "./chains.js"
-import { getSequenceApiUrl, getSequenceProjectAccessKey } from "./config.js"
 import {
   TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
   TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
@@ -53,6 +52,7 @@ import { useMetaTxnsMonitor } from "./metaTxnMonitor.js"
 import { findPreconditionAddresses } from "./preconditions.js"
 import { getBackupRelayer, useRelayers } from "./relayer.js"
 import { getSequenceUseV3Relayers } from "./config.js"
+import { queueCCTPTransfer } from "./cctpqueue.js"
 
 export type WagmiAccount = {
   address: `0x${string}`
@@ -176,25 +176,6 @@ export type UseTrailsReturn = {
 }
 
 const RETRY_WINDOW_MS = 10_000
-
-// Narrow API client to one that supports queueing CCTP transfers without using 'any'
-type CctpQueueCapable = {
-  queueCCTPTransfer: (
-    args: {
-      sourceTxHash?: string
-      metaTxHash?: string
-      sourceChainId: number
-      destinationChainId: number
-    },
-    headers?: object,
-    signal?: AbortSignal,
-  ) => Promise<unknown>
-}
-
-function hasCctpQueue(client: unknown): client is CctpQueueCapable {
-  const maybe = client as { queueCCTPTransfer?: unknown } | null | undefined
-  return typeof maybe?.queueCCTPTransfer === "function"
-}
 
 export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
   const {
@@ -447,28 +428,6 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       setCommittedDestinationIntentAddress(null)
     },
   })
-
-  const fallbackQueueCCTPTransfer = useCallback(
-    async (args: {
-      sourceTxHash?: string
-      metaTxHash?: string
-      sourceChainId: number
-      destinationChainId: number
-    }) => {
-      const apiUrl = getSequenceApiUrl()
-      const accessKey = getSequenceProjectAccessKey()
-      const headers: { [key: string]: string } = {
-        "Content-Type": "application/json",
-      }
-      if (accessKey) headers["X-Access-Key"] = accessKey
-      await fetch(`${apiUrl.replace(/\/*$/, "")}/rpc/API/QueueCCTPTransfer`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(args),
-      })
-    },
-    [],
-  )
 
   // New Query to fetch committed intent config
   const {
@@ -1539,19 +1498,12 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
               index === 0
             ) {
               lastQueuedCctpSourceTxHash.current = transactionHash
-              if (hasCctpQueue(apiClient)) {
-                await apiClient.queueCCTPTransfer({
-                  sourceTxHash: transactionHash,
-                  sourceChainId: originChainIdForCctp,
-                  destinationChainId: destinationChainIdForCctp,
-                })
-              } else {
-                await fallbackQueueCCTPTransfer({
-                  sourceTxHash: transactionHash,
-                  sourceChainId: originChainIdForCctp,
-                  destinationChainId: destinationChainIdForCctp,
-                })
-              }
+              await queueCCTPTransfer({
+                apiClient,
+                sourceTxHash: transactionHash,
+                sourceChainId: originChainIdForCctp,
+                destinationChainId: destinationChainIdForCctp,
+              })
             }
           } catch (err) {
             console.error(
@@ -1589,7 +1541,6 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     trailsFee,
     createIntentMutation.variables,
     apiClient,
-    fallbackQueueCCTPTransfer,
   ])
 
   const updateAutoExecute = (enabled: boolean) => {

@@ -118,6 +118,7 @@ import {
   getSequenceEnv,
   getSlippageTolerance,
 } from "./config.js"
+import { queueCCTPTransfer } from "./cctpqueue.js"
 
 export enum TradeType {
   EXACT_INPUT = "EXACT_INPUT",
@@ -1125,12 +1126,36 @@ async function sendHandlerForDifferentChainDifferentToken({
         }
       }
 
+      let queueCctpPromise: (() => Promise<void>) | null = null
+
+      const isCctp = intent.quote.quoteProvider === "cctp"
+      if (isCctp) {
+        queueCctpPromise = async () => {
+          while (true) {
+            const originMetaTxnHash = originMetaTxnReceipt?.txnHash
+            if (originMetaTxnHash) {
+              await queueCCTPTransfer({
+                apiClient,
+                sourceTxHash: originMetaTxnHash,
+                sourceChainId: originChainId,
+                destinationChainId: destinationChainId,
+              })
+              break
+            }
+            await new Promise((resolve) => setTimeout(resolve, 1000))
+          }
+        }
+      } else {
+        queueCctpPromise = () => Promise.resolve()
+      }
+
       checkForDepositTx().catch((error) => {
         console.error("Error checking for deposit tx", error)
       })
 
       await Promise.all([
         depositPromise(),
+        queueCctpPromise(),
         originMetaTxnPromise(),
         destinationMetaTxnPromise(),
       ])

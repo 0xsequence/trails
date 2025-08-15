@@ -36,7 +36,14 @@ export const WidgetDemo = () => {
       return ""
     }
   })
-  const [quoteProvider, setQuoteProvider] = useState("auto")
+  const [quoteProvider, setQuoteProvider] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.QUOTE_PROVIDER) || ""
+    } catch (error) {
+      console.error("Error getting quote provider from localStorage:", error)
+      return "auto"
+    }
+  })
   const [mode, setMode] = useState<Mode | null>(null)
 
   // Resizable sidebar state

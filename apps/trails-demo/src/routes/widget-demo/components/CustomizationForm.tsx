@@ -83,6 +83,9 @@ export const STORAGE_KEYS = {
   BUTTON_TEXT: "trails_demo_button_text",
   CUSTOM_CSS: "trails_demo_custom_css",
   QUOTE_PROVIDER: "trails_demo_quote_provider",
+  ACCORDION_GAS_WALLET: "trails_demo_accordion_gas_wallet",
+  ACCORDION_UI_INTERACTION: "trails_demo_accordion_ui_interaction",
+  ACCORDION_ADVANCED: "trails_demo_accordion_advanced",
 } as const
 
 interface UseAccountButtonProps {
@@ -186,6 +189,20 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   const [selectedScenario, setSelectedScenario] = useState<string>("")
   const [showCustomTokenInput, setShowCustomTokenInput] = useState(false)
   const [initialStateLoaded, setInitialStateLoaded] = useState(false)
+
+  // Accordion state with localStorage persistence
+  const [accordionGasWallet, setAccordionGasWallet] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.ACCORDION_GAS_WALLET)
+    return saved === "true"
+  })
+  const [accordionUiInteraction, setAccordionUiInteraction] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.ACCORDION_UI_INTERACTION)
+    return saved === "true"
+  })
+  const [accordionAdvanced, setAccordionAdvanced] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.ACCORDION_ADVANCED)
+    return saved === "true"
+  })
 
   // Scenario keys
   const SCENARIO_KEYS = {
@@ -768,6 +785,28 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
   }, [quoteProvider])
 
+  // Save accordion states to localStorage
+  useEffect(() => {
+    localStorage.setItem(
+      STORAGE_KEYS.ACCORDION_GAS_WALLET,
+      accordionGasWallet.toString(),
+    )
+  }, [accordionGasWallet])
+
+  useEffect(() => {
+    localStorage.setItem(
+      STORAGE_KEYS.ACCORDION_UI_INTERACTION,
+      accordionUiInteraction.toString(),
+    )
+  }, [accordionUiInteraction])
+
+  useEffect(() => {
+    localStorage.setItem(
+      STORAGE_KEYS.ACCORDION_ADVANCED,
+      accordionAdvanced.toString(),
+    )
+  }, [accordionAdvanced])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Close scenario dropdown when clicking outside
@@ -805,6 +844,12 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setButtonText("") // Reset buttonText
     setQuoteProvider("auto") // Reset quoteProvider to default
     resetCustomCss() // Reset custom CSS
+
+    // Reset accordion states
+    setAccordionGasWallet(false)
+    setAccordionUiInteraction(false)
+    setAccordionAdvanced(false)
+
     // Clear localStorage
     Object.values(STORAGE_KEYS).forEach((key) => {
       localStorage.removeItem(key)
@@ -1273,7 +1318,11 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         </div>
 
         <div className="pt-2">
-          <details className="group">
+          <details
+            className="group"
+            open={accordionGasWallet}
+            onToggle={(e) => setAccordionGasWallet(e.currentTarget.open)}
+          >
             <summary className="flex items-center cursor-pointer list-none py-2">
               <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
                 Gas & Wallet Settings
@@ -1503,7 +1552,11 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         </div>
 
         <div className="pt-2">
-          <details className="group">
+          <details
+            className="group"
+            open={accordionUiInteraction}
+            onToggle={(e) => setAccordionUiInteraction(e.currentTarget.open)}
+          >
             <summary className="flex items-center cursor-pointer list-none py-2">
               <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
                 UI & Interaction Settings
@@ -1865,7 +1918,11 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         </div>
 
         <div className="pt-2">
-          <details className="group">
+          <details
+            className="group"
+            open={accordionAdvanced}
+            onToggle={(e) => setAccordionAdvanced(e.currentTarget.open)}
+          >
             <summary className="flex items-center cursor-pointer list-none py-2">
               <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
                 Advanced Settings
