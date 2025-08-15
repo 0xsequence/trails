@@ -1,13 +1,20 @@
 import type { Hex } from "viem"
 import * as chains from "viem/chains"
 
-export const sequenceProjectAccessKey = import.meta.env.VITE_PROJECT_ACCESS_KEY
-// export const sequenceApiUrl = import.meta.env.VITE_API_URL || "https://dev-api.sequence.app"
-export const sequenceApiUrl = "https://dev-api.sequence.app"
-// export const sequenceIndexerUrl = import.meta.env.VITE_INDEXER_URL || "https://dev-indexer.sequence.app"
-export const sequenceIndexerUrl = "https://dev-indexer.sequence.app"
-// export const sequenceEnv = import.meta.env.VITE_ENV || "dev"
-export const sequenceEnv = "dev"
+export const DEFAULT_SEQUENCE_PROJECT_ACCESS_KEY =
+  "AQAAAAAAAJbd_5JOcE50AqglZCtvu51YlGI"
+export const DEFAULT_SEQUENCE_API_URL = "https://dev-api.sequence.app"
+export const DEFAULT_SEQUENCE_INDEXER_URL = "https://dev-indexer.sequence.app"
+export const DEFAULT_SEQUENCE_ENV = "dev"
+
+export const sequenceProjectAccessKey =
+  import.meta.env.VITE_PROJECT_ACCESS_KEY || DEFAULT_SEQUENCE_PROJECT_ACCESS_KEY
+// export const sequenceApiUrl = import.meta.env.VITE_API_URL || DEFAULT_SEQUENCE_API_URL
+export const sequenceApiUrl = DEFAULT_SEQUENCE_API_URL
+// export const sequenceIndexerUrl = import.meta.env.VITE_INDEXER_URL || DEFAULT_SEQUENCE_INDEXER_URL
+export const sequenceIndexerUrl = DEFAULT_SEQUENCE_INDEXER_URL
+// export const sequenceEnv = import.meta.env.VITE_ENV || DEFAULT_SEQUENCE_ENV
+export const sequenceEnv = DEFAULT_SEQUENCE_ENV
 export const privyAppId = import.meta.env.VITE_PRIVY_APP_ID
 export const privyClientId = import.meta.env.VITE_PRIVY_CLIENT_ID
 export const reownProjectId = import.meta.env.VITE_REOWN_PROJECT_ID // WalletConnect Project ID
