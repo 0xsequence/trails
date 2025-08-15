@@ -2,11 +2,12 @@ import type { Hex } from "viem"
 import * as chains from "viem/chains"
 
 export const sequenceProjectAccessKey = import.meta.env.VITE_PROJECT_ACCESS_KEY
-export const sequenceApiUrl =
-  import.meta.env.VITE_API_URL || "https://v3-api.sequence.app"
-export const sequenceIndexerUrl =
-  import.meta.env.VITE_INDEXER_URL || "https://indexer.sequence.app"
-export const sequenceEnv = import.meta.env.VITE_ENV
+// export const sequenceApiUrl = import.meta.env.VITE_API_URL || "https://dev-api.sequence.app"
+export const sequenceApiUrl = "https://dev-api.sequence.app"
+// export const sequenceIndexerUrl = import.meta.env.VITE_INDEXER_URL || "https://indexer.sequence.app"
+export const sequenceIndexerUrl = "https://indexer.sequence.app"
+// export const sequenceEnv = import.meta.env.VITE_ENV || "dev"
+export const sequenceEnv = "dev"
 export const privyAppId = import.meta.env.VITE_PRIVY_APP_ID
 export const privyClientId = import.meta.env.VITE_PRIVY_CLIENT_ID
 export const reownProjectId = import.meta.env.VITE_REOWN_PROJECT_ID // WalletConnect Project ID
