@@ -30,6 +30,7 @@ import {
 import { useAPIClient } from "./apiClient.js"
 import { attemptSwitchChain } from "./chainSwitch.js"
 import { getChainInfo } from "./chains.js"
+import { getSequenceApiUrl, getSequenceProjectAccessKey } from "./config.js"
 import {
   TRAILS_CCTP_SAPIENT_SIGNER_ADDRESS,
   TRAILS_LIFI_SAPIENT_SIGNER_ADDRESS,
@@ -427,6 +428,25 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       setCommittedDestinationIntentAddress(null)
     },
   })
+
+  async function fallbackQueueCCTPTransfer(args: {
+    sourceTxHash?: string
+    metaTxHash?: string
+    sourceChainId: number
+    destinationChainId: number
+  }) {
+    const apiUrl = getSequenceApiUrl()
+    const accessKey = getSequenceProjectAccessKey()
+    const headers: { [key: string]: string } = {
+      "Content-Type": "application/json",
+    }
+    if (accessKey) headers["X-Access-Key"] = accessKey
+    await fetch(`${apiUrl.replace(/\/*$/, "")}/rpc/API/QueueCCTPTransfer`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(args),
+    })
+  }
 
   // Narrow API client to one that supports queueing CCTP transfers without using 'any'
   type CctpQueueCapable = {
@@ -982,6 +1002,12 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
                 )
                 if (hasCctpQueue(apiClient)) {
                   await apiClient.queueCCTPTransfer({
+                    sourceTxHash,
+                    sourceChainId: originChainIdForCctp,
+                    destinationChainId: destinationChainIdForCctp,
+                  })
+                } else {
+                  await fallbackQueueCCTPTransfer({
                     sourceTxHash,
                     sourceChainId: originChainIdForCctp,
                     destinationChainId: destinationChainIdForCctp,
