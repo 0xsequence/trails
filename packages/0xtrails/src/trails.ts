@@ -4,8 +4,8 @@ import type {
   GetIntentConfigReturn,
   IntentCallsPayload,
   IntentPrecondition,
-  SequenceAPIClient,
 } from "@0xsequence/trails-api"
+import type { SequenceAPIClient } from "@0xsequence/trails-api"
 import type { Relayer } from "@0xsequence/wallet-core"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { Address } from "ox"
@@ -427,6 +427,26 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       setCommittedDestinationIntentAddress(null)
     },
   })
+
+  // Narrow API client to one that supports queueing CCTP transfers without using 'any'
+  type CctpQueueCapable = {
+    queueCCTPTransfer: (
+      args: {
+        sourceTxHash?: string
+        metaTxHash?: string
+        sourceChainId: number
+        destinationChainId: number
+      },
+      headers?: object,
+      signal?: AbortSignal,
+    ) => Promise<unknown>
+  }
+
+  function hasCctpQueue(client: unknown): client is CctpQueueCapable {
+    if (!client) return false
+    const record = client as Record<string, unknown>
+    return typeof record["queueCCTPTransfer"] === "function"
+  }
 
   // New Query to fetch committed intent config
   const {
@@ -895,6 +915,51 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
           }
         }
         fetchTimestamp()
+
+        // Queue Circle CCTP transfer when origin call succeeds and provider is CCTP
+        try {
+          const isCctp = trailsFee?.quoteProvider === "cctp"
+          const sourceTxHash = receipt.transactionHash
+          const originChainIdForCctp =
+            createIntentMutation.variables?.originChainId
+          const destinationChainIdForCctp =
+            createIntentMutation.variables?.destinationChainId
+
+          if (
+            isCctp &&
+            apiClient &&
+            sourceTxHash &&
+            typeof originChainIdForCctp === "number" &&
+            typeof destinationChainIdForCctp === "number" &&
+            lastQueuedCctpSourceTxHash.current !== sourceTxHash
+          ) {
+            lastQueuedCctpSourceTxHash.current = sourceTxHash
+            ;(async () => {
+              try {
+                console.log(
+                  "[Trails] Queueing CCTP transfer:",
+                  sourceTxHash,
+                  originChainIdForCctp,
+                  destinationChainIdForCctp,
+                )
+                if (hasCctpQueue(apiClient)) {
+                  await apiClient.queueCCTPTransfer({
+                    sourceTxHash,
+                    sourceChainId: originChainIdForCctp,
+                    destinationChainId: destinationChainIdForCctp,
+                  })
+                }
+              } catch (err) {
+                console.error("[Trails] Failed to queue CCTP transfer:", err)
+                if (lastQueuedCctpSourceTxHash.current === sourceTxHash) {
+                  lastQueuedCctpSourceTxHash.current = null
+                }
+              }
+            })()
+          }
+        } catch (err) {
+          console.error("[Trails] Error while handling CCTP queue flow:", err)
+        }
       } else if (newStatus !== "Success") {
         setOriginBlockTimestamp(null)
       }
@@ -1348,6 +1413,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
   }, [metaTxns, metaTxnMonitorStatuses])
 
   const processedTxns = useRef(new Set<string>())
+  const lastQueuedCctpSourceTxHash = useRef<string | null>(null)
 
   // Effect to fetch meta-transaction block timestamps
   useEffect(() => {
