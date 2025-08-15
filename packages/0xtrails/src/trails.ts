@@ -1541,13 +1541,13 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
               lastQueuedCctpSourceTxHash.current = transactionHash
               if (hasCctpQueue(apiClient)) {
                 await apiClient.queueCCTPTransfer({
-                  metaTxHash: transactionHash,
+                  sourceTxHash: transactionHash,
                   sourceChainId: originChainIdForCctp,
                   destinationChainId: destinationChainIdForCctp,
                 })
               } else {
                 await fallbackQueueCCTPTransfer({
-                  metaTxHash: transactionHash,
+                  sourceTxHash: transactionHash,
                   sourceChainId: originChainIdForCctp,
                   destinationChainId: destinationChainIdForCctp,
                 })
