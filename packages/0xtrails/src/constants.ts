@@ -34,3 +34,14 @@ export const DEFAULT_USE_V3_RELAYERS = true
 export const DATABEAT_SERVER = "https://databeat.sequence.app"
 export const DATABEAT_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOiJzZXEtdHJhaWxzIiwiZXhwIjoyMDI4MTIwOTg4fQ.KZIjEziul_nZ4kjEXudvfqeWmVekc5ftXKx_EqDrmZU"
+
+export const DEFAULT_WALLETCONNECT_PROJECT_ID =
+  "10c5ac56159da00924d110c07c3f6e3a"
+
+export const DEFAULT_PRIVY_APP_ID = "cmc25oq0a01dvl40mn0ex5e1o"
+export const DEFAULT_PRIVY_CLIENT_ID =
+  "client-WY6MrvK6dbp1FSBPU1DKa6ymAHrJBPYxyFX39dFCCd56L"
+
+export const SITE_URL = "https://trails.build/"
+
+export const DEFAULT_SLIPPAGE_TOLERANCE = "0.03" // 0.001 = 0.1%, 0.005 = 0.5%, 0.03 = 3%, 0.05 = 5%

@@ -2,12 +2,14 @@ import { InfoIcon, Tooltip } from "@0xsequence/design-system"
 import { useSupportedChains, useSupportedTokens } from "0xtrails"
 import { defaultWalletOptions } from "0xtrails/widget"
 import type { Mode } from "0xtrails"
+import { TRAILS_CONTRACT_PLACEHOLDER_AMOUNT } from "0xtrails"
 import { ChevronDown, X } from "lucide-react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { encodeFunctionData, parseUnits, zeroAddress } from "viem"
 import { useAccount } from "wagmi"
 import { ChainSelector } from "./ChainSelector"
 import { TokenSelector } from "./TokenSelector"
+import { QuoteProviderSelector } from "./QuoteProviderSelector"
 import { CSS_PRESETS, DEFAULT_CSS_VALUES, type PresetName } from "./cssPresets"
 
 // Reusable Checkmark Component
@@ -57,6 +59,8 @@ interface CustomizationFormProps {
   setButtonText: (value: string) => void
   customCss: string
   setCustomCss: (value: string) => void
+  quoteProvider: string
+  setQuoteProvider: (value: string) => void
 }
 
 // Local storage keys
@@ -78,6 +82,7 @@ export const STORAGE_KEYS = {
   CUSTOM_TOKEN_ADDRESS: "trails_demo_custom_token_address",
   BUTTON_TEXT: "trails_demo_button_text",
   CUSTOM_CSS: "trails_demo_custom_css",
+  QUOTE_PROVIDER: "trails_demo_quote_provider",
 } as const
 
 interface UseAccountButtonProps {
@@ -168,6 +173,8 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
   setButtonText,
   customCss,
   setCustomCss,
+  quoteProvider,
+  setQuoteProvider,
 }) => {
   // Separate state for textarea content - initialize from localStorage
   const [textareaCss, setTextareaCss] = useState(() => {
@@ -224,23 +231,6 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         label: "Mint an NFT on Arbitrum Sepolia with USDC using CCTP",
         disabled: true,
       },
-      {
-        key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC,
-        label: "Deposit USDC to Aave lending pool on Base",
-      },
-      {
-        key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH,
-        label: "Deposit ETH to Aave lending pool on Base",
-      },
-      {
-        key: SCENARIO_KEYS.DEPOSIT_MORPHO_BASE_USDC,
-        label: "Deposit USDC to Morpho vault on Base",
-      },
-      {
-        key: SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE,
-        label: "Deposit USDC to Gaunlet vault on Base",
-        disabled: true,
-      },
     ]
 
     const fundScenarios: { key: string; label: string; disabled?: boolean }[] =
@@ -255,7 +245,30 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         },
       ]
 
-    return mode === "fund" ? fundScenarios : payScenarios
+    const earnScenarios: { key: string; label: string; disabled?: boolean }[] =
+      [
+        {
+          key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_USDC,
+          label: "Deposit USDC to Aave lending pool on Base",
+        },
+        {
+          key: SCENARIO_KEYS.DEPOSIT_AAVE_BASE_ETH,
+          label: "Deposit ETH to Aave lending pool on Base",
+        },
+        {
+          key: SCENARIO_KEYS.DEPOSIT_MORPHO_BASE_USDC,
+          label: "Deposit USDC to Morpho vault on Base",
+        },
+        {
+          key: SCENARIO_KEYS.DEPOSIT_GAUNLET_VAULT_BASE,
+          label: "Deposit USDC to Gaunlet vault on Base",
+          disabled: true,
+        },
+      ]
+
+    if (mode === "fund") return fundScenarios
+    if (mode === "earn") return earnScenarios
+    return payScenarios
   }, [
     mode,
     SCENARIO_KEYS.PAY_USDC_BASE,
@@ -534,6 +547,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     )
     const savedButtonText = localStorage.getItem(STORAGE_KEYS.BUTTON_TEXT)
     const savedCustomCss = localStorage.getItem(STORAGE_KEYS.CUSTOM_CSS)
+    const savedQuoteProvider = localStorage.getItem(STORAGE_KEYS.QUOTE_PROVIDER)
 
     // Only set values if they exist in localStorage
     if (savedAppId !== null) setAppId(savedAppId)
@@ -577,6 +591,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
     if (savedButtonText !== null) setButtonText(savedButtonText)
     if (savedCustomCss !== null) setCustomCss(savedCustomCss)
+    if (savedQuoteProvider !== null) setQuoteProvider(savedQuoteProvider)
 
     setInitialStateLoaded(true)
   }, [
@@ -596,6 +611,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setCustomTokenAddress,
     setButtonText,
     setCustomCss,
+    setQuoteProvider,
   ])
 
   // Save values to localStorage whenever they change and clear scenario when mode changes
@@ -743,6 +759,15 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     }
   }, [customCss])
 
+  // Save quoteProvider to localStorage
+  useEffect(() => {
+    if (quoteProvider) {
+      localStorage.setItem(STORAGE_KEYS.QUOTE_PROVIDER, quoteProvider)
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.QUOTE_PROVIDER)
+    }
+  }, [quoteProvider])
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       // Close scenario dropdown when clicking outside
@@ -778,6 +803,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
     setCustomTokenAddress("") // Reset customTokenAddress
     setShowCustomTokenInput(false) // Reset custom token input visibility
     setButtonText("") // Reset buttonText
+    setQuoteProvider("auto") // Reset quoteProvider to default
     resetCustomCss() // Reset custom CSS
     // Clear localStorage
     Object.values(STORAGE_KEYS).forEach((key) => {
@@ -899,7 +925,7 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
             </Tooltip>
           </label>
           <div className="flex space-x-4">
-            {(["pay", "fund"] as const).map((modeOption) => (
+            {(["pay", "fund", "earn"] as const).map((modeOption) => (
               <div key={modeOption} className="flex items-center space-x-2">
                 <button
                   type="button"
@@ -1226,6 +1252,26 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
           />
         </div>
 
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              setToAddress("")
+              setToAmount("")
+              setToChainId(undefined)
+              setToToken(undefined)
+              setToCalldata("")
+              setToRecipient("")
+              setSelectedScenario("")
+              setCustomTokenAddress("")
+              setShowCustomTokenInput(false)
+            }}
+            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors duration-200 text-sm font-medium border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 cursor-pointer"
+          >
+            Reset Form Fields
+          </button>
+        </div>
+
         <div className="pt-2">
           <details className="group">
             <summary className="flex items-center cursor-pointer list-none py-2">
@@ -1395,31 +1441,39 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
                   </Tooltip>
                 </label>
                 <div className="flex flex-wrap gap-3">
-                  {defaultWalletOptions.map((wallet: string) => {
-                    const isSelected = walletOptions?.includes(wallet)
-                    return (
-                      <div key={wallet} className="flex items-center space-x-2">
-                        <button
-                          type="button"
-                          onClick={() => handleWalletOptionToggle(wallet)}
-                          className={`w-7 h-7 rounded border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
-                            isSelected
-                              ? "bg-blue-500 border-blue-500 text-white"
-                              : "bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600"
-                          }`}
+                  {[...new Set([...defaultWalletOptions, "walletconnect"])].map(
+                    (wallet: string) => {
+                      const isSelected = walletOptions?.includes(wallet)
+                      return (
+                        <div
+                          key={wallet}
+                          className="flex items-center space-x-2"
                         >
-                          {isSelected && <Checkmark />}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleWalletOptionToggle(wallet)}
-                          className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
-                        >
-                          {wallet.charAt(0).toUpperCase() + wallet.slice(1)}
-                        </button>
-                      </div>
-                    )
-                  })}
+                          <button
+                            type="button"
+                            onClick={() => handleWalletOptionToggle(wallet)}
+                            className={`w-7 h-7 rounded border-2 transition-all duration-200 cursor-pointer flex items-center justify-center ${
+                              isSelected
+                                ? "bg-blue-500 border-blue-500 text-white"
+                                : "bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600"
+                            }`}
+                          >
+                            {isSelected && <Checkmark />}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleWalletOptionToggle(wallet)}
+                            className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+                          >
+                            {wallet === "walletconnect"
+                              ? "WalletConnect"
+                              : wallet.charAt(0).toUpperCase() +
+                                wallet.slice(1)}
+                          </button>
+                        </div>
+                      )
+                    },
+                  )}
                 </div>
               </div>
 
@@ -1811,6 +1865,37 @@ export const CustomizationForm: React.FC<CustomizationFormProps> = ({
         </div>
 
         <div className="pt-2">
+          <details className="group">
+            <summary className="flex items-center cursor-pointer list-none py-2">
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-200">
+                Advanced Settings
+              </span>
+              <ChevronDown className="text-gray-500 dark:text-gray-400 h-5 w-5 transition-transform group-open:rotate-180 ml-2" />
+            </summary>
+            <div className="mt-3 space-y-4">
+              <div>
+                <label
+                  className="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-2 flex items-center gap-2"
+                  htmlFor="quoteProvider"
+                >
+                  Quote Provider
+                  <Tooltip message="Choose which swap provider to use for quote. Auto will select the best available provider automatically.">
+                    <InfoIcon
+                      size="sm"
+                      className="text-gray-500 dark:text-gray-400 cursor-pointer"
+                    />
+                  </Tooltip>
+                </label>
+                <QuoteProviderSelector
+                  selectedProvider={quoteProvider}
+                  onProviderSelect={setQuoteProvider}
+                />
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <div className="pt-2">
           <button
             type="button"
             onClick={handleReset}
@@ -1867,16 +1952,13 @@ export function encodeAaveEthDepositCalldata(recipient: string = zeroAddress) {
   return calldata
 }
 
-const PLACEHOLDER_AMOUNT =
-  0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefn // used by proxyCaller.ts in widget sdk
-
 export function encodeErc20AaveDepositCalldata(
   recipient: string = zeroAddress,
   amount: string = "0.1",
 ) {
   let effectiveAmount = BigInt(0)
   if (amount === "") {
-    effectiveAmount = PLACEHOLDER_AMOUNT
+    effectiveAmount = TRAILS_CONTRACT_PLACEHOLDER_AMOUNT
   } else {
     effectiveAmount = parseUnits(amount, 6)
   }

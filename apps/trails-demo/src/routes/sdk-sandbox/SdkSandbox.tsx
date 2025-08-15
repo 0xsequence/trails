@@ -47,6 +47,7 @@ export function SdkSandbox() {
     TradeType.EXACT_OUTPUT,
   )
   const [quoteToRecipient, setQuoteToRecipient] = useState("")
+  const [slippageTolerance, setSlippageTolerance] = useState("0.03")
 
   // Prefill recipient with connected account address
   useEffect(() => {
@@ -100,7 +101,7 @@ export function SdkSandbox() {
     ).toString(),
     tradeType: quoteTradeType,
     toRecipient: quoteToRecipient,
-    slippageTolerance: "0.03", // 0.03 = 3%
+    slippageTolerance: slippageTolerance,
     onStatusUpdate,
   })
 
@@ -613,6 +614,7 @@ export function SdkSandbox() {
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
           Swap
         </h2>
+        {/* From/To Token Selectors */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label
@@ -684,8 +686,7 @@ export function SdkSandbox() {
           </div>
         </div>
 
-        {/* Amount and Recipient Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
           <div>
             <label
               htmlFor="quote-swap-amount"
@@ -727,6 +728,33 @@ export function SdkSandbox() {
               <option value={TradeType.EXACT_OUTPUT}>
                 {TradeType.EXACT_OUTPUT}
               </option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              htmlFor="slippage-tolerance"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              Slippage Tolerance
+            </label>
+            <select
+              id="slippage-tolerance"
+              value={slippageTolerance}
+              onChange={(e) => setSlippageTolerance(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              style={{
+                colorScheme: "light dark",
+                backgroundColor: "var(--tw-bg-opacity, 1)",
+                color: "var(--tw-text-opacity, 1)",
+              }}
+            >
+              <option value="0.001">0.1%</option>
+              <option value="0.005">0.5%</option>
+              <option value="0.01">1%</option>
+              <option value="0.018">1.8%</option>
+              <option value="0.03">3%</option>
+              <option value="0.05">5%</option>
             </select>
           </div>
 
@@ -910,7 +938,12 @@ export function SdkSandbox() {
                           Slippage Tolerance:
                         </span>
                         <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          {Number(quote?.slippageTolerance).toFixed(2)}%
+                          {(
+                            Math.round(
+                              Number(quote?.slippageTolerance) * 100 * 100,
+                            ) / 100
+                          ).toFixed(2)}
+                          %
                         </span>
                       </div>
                     )}
@@ -924,6 +957,39 @@ export function SdkSandbox() {
                         </span>
                       </div>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {/* Quote Provider */}
+              {(quote as any).quoteProvider && (
+                <div className="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Quote Provider:
+                    </span>
+                    <a
+                      href={(quote as any).quoteProvider?.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 hover:underline flex items-center gap-1"
+                    >
+                      {(quote as any).quoteProvider?.name}
+                      <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                        />
+                      </svg>
+                    </a>
                   </div>
                 </div>
               )}
@@ -1063,9 +1129,9 @@ export function SdkSandbox() {
               Transaction States
             </h3>
             <div className="space-y-3">
-              {transactionStates.map((tx, index) => (
+              {transactionStates.map((tx) => (
                 <div
-                  key={index}
+                  key={`${tx.transactionHash}-${tx.chainId}`}
                   className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
                 >
                   <div className="flex items-center justify-between mb-2">

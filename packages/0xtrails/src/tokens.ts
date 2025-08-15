@@ -1019,3 +1019,16 @@ export const commonTokens: SupportedToken[] = [
     imageUrl: commonTokenImages.LINK!,
   },
 ]
+
+export const wethAddresses: Record<string, string> = {
+  1: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+  10: "0x4200000000000000000000000000000000000006",
+  8453: "0x4200000000000000000000000000000000000006",
+  42161: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+  137: "0x7ceb23fd6bc0add59e62ac25578270cff1b9f619",
+  100: "0x6a023ccd1ff6f2045c3309768ead9e68f978f6e1",
+}
+
+export function getWethAddress(chainId: number): string | null {
+  return wethAddresses[chainId] ?? null
+}

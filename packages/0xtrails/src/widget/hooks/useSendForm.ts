@@ -1,5 +1,4 @@
 import type { TokenPrice } from "@0xsequence/trails-api"
-import type { MetaTxnReceipt } from "@0xsequence/trails-relayer"
 import type React from "react"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import {
@@ -7,7 +6,6 @@ import {
   getAddress,
   isAddress,
   parseUnits,
-  type TransactionReceipt,
   type WalletClient,
   zeroAddress,
 } from "viem"
@@ -23,7 +21,7 @@ import {
   type PrepareSendQuote,
 } from "../../prepareSend.js"
 import type { TransactionState } from "../../transactions.js"
-import { getTokenPrice, useTokenPrices } from "../../prices.js"
+import { getTokenPrice, useTokenPrices, normalizeNumber } from "../../prices.js"
 import { useQueryParams } from "../../queryParams.js"
 import { getRelayer } from "../../relayer.js"
 import {
@@ -91,11 +89,7 @@ const FEE_TOKENS: TokenInfo[] = [
 ]
 
 export type OnCompleteProps = {
-  originChainId: number
-  destinationChainId: number
-  originUserTxReceipt: TransactionReceipt | null
-  originMetaTxnReceipt: MetaTxnReceipt | null
-  destinationMetaTxnReceipt: MetaTxnReceipt | null
+  transactionStates: TransactionState[]
 }
 
 export type UseSendProps = {
@@ -117,10 +111,23 @@ export type UseSendProps = {
   selectedToken: Token
   setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
   tradeType?: TradeType
+  quoteProvider?: string
+  fundMethod?: string | null
+  mode?: "pay" | "fund" | "earn"
+  onNavigateToMeshConnect?: (
+    props: {
+      toTokenSymbol: string
+      toTokenAmount: string
+      toChainId: number
+      toRecipientAddress: string
+    },
+    quote?: PrepareSendQuote | null,
+  ) => void
 }
 
 export type UseSendReturn = {
   amount: string
+  amountRaw: string
   amountUsdDisplay: string
   balanceUsdDisplay: string
   chainInfo: ChainInfo | null
@@ -182,6 +189,10 @@ export function useSendForm({
   onComplete,
   setWalletConfirmRetryHandler,
   tradeType = TradeType.EXACT_OUTPUT,
+  quoteProvider,
+  fundMethod,
+  mode,
+  onNavigateToMeshConnect,
 }: UseSendProps): UseSendReturn {
   const [amount, setAmount] = useState(
     tradeType === TradeType.EXACT_INPUT ? "" : (toAmount ?? ""),
@@ -197,6 +208,8 @@ export function useSendForm({
       enabled: !!recipientInput && recipientInput.endsWith(".eth"),
     },
   })
+
+  console.log("GENERATED CALLLDATA", toCalldata)
 
   useEffect(() => {
     if (ensAddress) {
@@ -397,6 +410,14 @@ export function useSendForm({
   const [isLoadingQuote, setIsLoadingQuote] = useState(false)
   const [prepareSendResult, setPrepareSendResult] =
     useState<PrepareSendReturn | null>(null)
+  // Create a stable callback for transaction state changes
+  const handleTransactionStateChange = useCallback(
+    (transactionStates: TransactionState[]) => {
+      // Pass transaction states to widget-level handler
+      onTransactionStateChange(transactionStates)
+    },
+    [onTransactionStateChange],
+  )
 
   const balanceFormatted = formatRawAmount(
     selectedToken.balance,
@@ -434,6 +455,35 @@ export function useSendForm({
     return destinationTokenAddressFromTokenSymbol ?? null
   }, [isCustomToken, toToken, destinationTokenAddressFromTokenSymbol])
 
+  // Calculate raw amount (in wei/smallest unit)
+  const amountRaw = useMemo(() => {
+    if (!amount) {
+      return "0"
+    }
+
+    // For EXACT_INPUT: use source token decimals (user enters source amount)
+    // For EXACT_OUTPUT: use destination token decimals (user enters destination amount)
+    const decimals =
+      tradeType === TradeType.EXACT_INPUT
+        ? selectedToken.contractInfo?.decimals
+        : selectedDestToken?.decimals
+
+    if (!decimals) {
+      return "0"
+    }
+
+    try {
+      return parseUnits(amount, decimals).toString()
+    } catch {
+      return "0"
+    }
+  }, [
+    amount,
+    selectedDestToken?.decimals,
+    selectedToken.contractInfo?.decimals,
+    tradeType,
+  ])
+
   // Get quote automatically when inputs change
   const getQuote = useCallback(async () => {
     // Only get quote if all required inputs are present
@@ -443,7 +493,9 @@ export function useSendForm({
       !isValidRecipient ||
       !selectedDestToken ||
       !selectedDestinationChain ||
-      amount === "0"
+      amount === "0" ||
+      !amountRaw ||
+      amountRaw === "0"
     ) {
       setPrepareSendResult(null)
       return
@@ -452,22 +504,6 @@ export function useSendForm({
     try {
       setIsLoadingQuote(true)
       setError(null)
-
-      // For EXACT_INPUT: use source token decimals (user enters source amount)
-      // For EXACT_OUTPUT: use destination token decimals (user enters destination amount)
-      const decimals =
-        tradeType === TradeType.EXACT_INPUT
-          ? selectedToken.contractInfo?.decimals
-          : selectedDestToken?.decimals
-
-      if (!decimals) {
-        console.warn("[trails-sdk] Invalid token decimals for quote")
-        setPrepareSendResult(null)
-        setIsLoadingQuote(false)
-        return
-      }
-
-      const parsedAmount = parseUnits(amount, decimals).toString()
 
       const originRelayer = getRelayer(undefined, selectedToken.chainId)
       const destinationRelayer = getRelayer(
@@ -554,11 +590,14 @@ export function useSendForm({
         account,
         originTokenAddress: selectedToken.contractAddress,
         originChainId: selectedToken.chainId,
-        originTokenBalance: selectedToken.balance,
+        originTokenBalance:
+          fundMethod === "qr-code" || fundMethod === "exchange"
+            ? "1"
+            : selectedToken.balance,
         destinationChainId: selectedDestinationChain.id,
         recipient,
         destinationTokenAddress,
-        swapAmount: parsedAmount,
+        swapAmount: amountRaw,
         tradeType,
         destinationTokenSymbol: selectedDestToken.symbol,
         fee: "0",
@@ -568,9 +607,7 @@ export function useSendForm({
         destinationRelayer,
         destinationCalldata: toCalldata,
         dryMode: isDryMode,
-        onTransactionStateChange: (transactionStates: TransactionState[]) => {
-          onTransactionStateChange(transactionStates)
-        },
+        onTransactionStateChange: handleTransactionStateChange,
         sourceTokenPriceUsd,
         destinationTokenPriceUsd,
         sourceTokenDecimals,
@@ -581,6 +618,8 @@ export function useSendForm({
           )?.url ?? undefined,
         gasless,
         originNativeTokenPriceUsd: nativeTokenPriceUsd,
+        quoteProvider,
+        fundMethod,
       }
 
       const result = await prepareSend(options)
@@ -612,13 +651,16 @@ export function useSendForm({
     toCalldata,
     paymasterUrls,
     gasless,
-    onTransactionStateChange,
+    handleTransactionStateChange,
     isValidRecipient,
     destTokenPrices?.[0]?.price?.value,
     amount,
     selectedDestToken,
     selectedDestinationChain,
     selectedToken,
+    quoteProvider,
+    fundMethod,
+    amountRaw,
   ])
 
   // Auto-fetch quotes when inputs change (debounced)
@@ -647,16 +689,17 @@ export function useSendForm({
     isValidRecipient,
     selectedDestToken?.symbol,
     selectedDestinationChain?.id,
+    toCalldata,
   ])
 
   // Calculate destination amount from quote if available
   const quotedDestinationAmount = useMemo(() => {
-    if (prepareSendResult && tradeType === TradeType.EXACT_INPUT) {
-      // For EXACT_INPUT, use the destination amount from the quote
+    if (prepareSendResult) {
       return prepareSendResult.quote.destinationAmountFormatted
     }
+
     return toAmountFormatted
-  }, [prepareSendResult, tradeType, toAmountFormatted])
+  }, [prepareSendResult, toAmountFormatted])
 
   const quotedDestinationAmountDisplay = useMemo(() => {
     return formatAmountDisplay(quotedDestinationAmount || "0")
@@ -675,6 +718,56 @@ export function useSendForm({
       const { quote, send } = prepareSendResult
 
       console.log("[trails-sdk] Using prepared send result quote:", quote)
+
+      // Handle exchange fund method - navigate to mesh-connect
+      if (fundMethod === "exchange" && onNavigateToMeshConnect) {
+        const originChainId = quote?.originChain?.id
+        const destinationChainId = quote?.destinationChain?.id
+
+        const toTokenSymbol = quote?.originToken?.symbol // MeshConnect will deposit origin token
+        const toTokenAmount = normalizeNumber(
+          quote.originAmountFormatted,
+        ).toString() // MeshConnect will deposit origin token amount
+        const toChainId = quote?.originChain?.id // MeshConnect will deposit to origin chain
+        const toRecipientAddress = quote.originAddress // MeshConnect will deposit to origin address
+
+        console.log("[trails-sdk] Navigating to mesh-connect with props:", {
+          toTokenSymbol,
+          toTokenAmount,
+          toChainId,
+          toRecipientAddress,
+        })
+
+        if (originChainId === destinationChainId) {
+          throw new Error(
+            "[trails-sdk] Must be different chain than the origin chain to use mesh-connect",
+          )
+        }
+
+        if (
+          !toTokenSymbol ||
+          !toTokenAmount ||
+          !toChainId ||
+          !toRecipientAddress
+        ) {
+          throw new Error(
+            "[trails-sdk] Missing required props for mesh-connect",
+          )
+        }
+
+        onNavigateToMeshConnect(
+          {
+            toTokenSymbol,
+            toTokenAmount,
+            toChainId,
+            toRecipientAddress,
+          },
+          prepareSendResult.quote,
+        )
+
+        await handleSend()
+        return
+      }
 
       function onOriginSend() {
         console.log("[trails-sdk] onOriginSend called")
@@ -702,11 +795,7 @@ export function useSendForm({
 
         // Move to receipt screen
         onComplete({
-          originChainId: selectedToken.chainId,
-          destinationChainId: selectedDestinationChain.id,
-          originUserTxReceipt,
-          originMetaTxnReceipt,
-          destinationMetaTxnReceipt,
+          transactionStates: quote.transactionStates,
         })
       }
 
@@ -748,7 +837,6 @@ export function useSendForm({
   }, [
     prepareSendResult,
     amount,
-    selectedToken,
     onSend,
     onConfirm,
     onComplete,
@@ -756,7 +844,8 @@ export function useSendForm({
     onWaitingForWalletConfirm,
     recipient,
     onError,
-    selectedDestinationChain?.id,
+    fundMethod,
+    onNavigateToMeshConnect,
   ])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -797,6 +886,18 @@ export function useSendForm({
       const checksummedRecipient = getAddress(recipient)
       const checksummedAccount = getAddress(account.address)
 
+      if (fundMethod === "exchange") {
+        return `Continue to Exchange`
+      }
+
+      if (fundMethod === "qr-code") {
+        return `Continue to QR Code`
+      }
+
+      if (mode === "earn") {
+        return `Deposit ${destinationAmountDisplay} ${destinationTokenSymbol}`
+      }
+
       if (tradeType === TradeType.EXACT_INPUT) {
         return `Fund with ${amountDisplay} ${tokenSymbol}`
       }
@@ -831,10 +932,13 @@ export function useSendForm({
     tradeType,
     prepareSendResult?.quote?.originAmountFormatted,
     selectedDestinationChain.id,
+    mode,
+    fundMethod,
   ])
 
   return {
     amount,
+    amountRaw,
     amountUsdDisplay,
     balanceUsdDisplay,
     chainInfo,

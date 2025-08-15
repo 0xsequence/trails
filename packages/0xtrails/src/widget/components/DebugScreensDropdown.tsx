@@ -9,9 +9,13 @@ interface DebugScreensDropdownProps {
 
 const SCREENS = [
   "Connect",
+  "Fund Methods",
+  "Mesh Connect",
+  "Wallet Connect",
   "Tokens",
   "Send Form",
   "Fund Form",
+  "Earn Pools",
   "Wallet Confirmation",
   "Wallet Confirmation Retry",
   "Pending 1-item-0-confirmed",

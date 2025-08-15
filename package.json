@@ -33,5 +33,10 @@
   },
   "dependencies": {
     "@radix-ui/react-radio-group": "^1.3.7"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@meshconnect/web-link-sdk": "patches/@meshconnect__web-link-sdk.patch"
+    }
   }
 }

@@ -25,9 +25,9 @@ import React, {
   useState,
 } from "react"
 import { createPortal } from "react-dom"
-import type { Chain, TransactionReceipt, WalletClient } from "viem"
+import type { Chain, WalletClient } from "viem"
 import { createWalletClient, custom, http, parseUnits } from "viem"
-import { mainnet } from "viem/chains"
+import * as viemChains from "viem/chains"
 import type { Connector } from "wagmi"
 import {
   createConfig,
@@ -36,7 +36,8 @@ import {
   useDisconnect,
   WagmiContext,
 } from "wagmi"
-import { injected } from "wagmi/connectors"
+import { injected, walletConnect } from "wagmi/connectors"
+// import { walletConnect } from "./walletconnectConnector.js"
 import { useAPIClient } from "../apiClient.js"
 import { getChainInfo } from "../chains.js"
 import { useIndexerGatewayClient } from "../indexerClient.js"
@@ -52,10 +53,19 @@ import { PaySendForm } from "./components/PaySendForm.js"
 import TokenList from "./components/TokenList.js"
 import TransferPending from "./components/TransferPendingVertical.js"
 import WalletConfirmation from "./components/WalletConfirmation.js"
+import QRCodeDeposit from "./components/QRCodeDeposit.js"
 import { ThemeProvider } from "./components/ThemeProvider.js"
-import { defaultPrivyAppId, defaultPrivyClientId } from "./config.js"
+import {
+  getPrivyAppId,
+  getPrivyClientId,
+  getWalletConnectProjectId,
+  setPrivyAppId,
+  setPrivyClientId,
+  setWalletConnectProjectId,
+} from "../config.js"
 import { useAmountUsd } from "./hooks/useAmountUsd.js"
 import { useRecentTokens } from "./hooks/useRecentTokens.js"
+import { getWethAddress } from "../tokens.js"
 import css from "./compiled.css?inline"
 import { trackWalletConnected, trackWidgetScreen } from "../analytics.js"
 import type { PrepareSendQuote } from "../prepareSend.js"
@@ -74,18 +84,36 @@ import {
   getSequenceIndexerUrl,
   getSequenceApiUrl,
   setSequenceEnv,
+  setSlippageTolerance,
 } from "../config.js"
 import { FundSendForm } from "./components/FundSendForm.js"
+import { MeshConnect } from "./components/MeshConnect.js"
+import type { MeshConnectProps } from "./components/MeshConnect.js"
+import WalletConnectScreen from "./components/WalletConnect.js"
+import FundMethods from "./components/FundMethods.js"
+import EarnPools from "./components/EarnPools.js"
 import type { Mode } from "../mode.js"
+import type { OnCompleteProps } from "./hooks/useSendForm.js"
+import type { Pool } from "../pools.js"
+import { usePools } from "../pools.js"
+import { AaveProvider, AaveClient } from "@aave/react"
+import { encodeFunctionData } from "viem"
+
+export const aaveClient = AaveClient.create()
 
 type Screen =
   | "connect"
   | "tokens"
   | "send-form"
   | "fund-form"
+  | "fund-methods"
+  | "earn-pools"
   | "wallet-confirmation"
+  | "qr-code-deposit"
   | "pending"
   | "receipt"
+  | "mesh-connect"
+  | "wallet-connect"
 
 export const defaultWalletOptions = ["injected", "privy"]
 
@@ -124,10 +152,13 @@ export type TrailsWidgetProps = {
   onDestinationConfirmation?: (txHash: string, chainId: number) => void
   privyAppId?: string
   privyClientId?: string
+  walletConnectProjectId?: string
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
   buttonText?: string
   customCss?: string
+  quoteProvider?: string
+  slippageTolerance?: number | string
 }
 
 export interface TrailsWidgetRef {
@@ -138,6 +169,18 @@ export interface TrailsWidgetRef {
 
 const queryClient = new QueryClient()
 
+// WalletConnect connector singleton to avoid multiple Core initializations
+let wcConnectorSingleton: ReturnType<typeof walletConnect> | null = null
+function getWalletConnectConnectorSingleton() {
+  if (!wcConnectorSingleton) {
+    wcConnectorSingleton = walletConnect({
+      projectId: getWalletConnectProjectId(),
+      showQrModal: false,
+    })
+  }
+  return wcConnectorSingleton
+}
+
 const WALLET_CONFIGS: Record<
   string,
   { id: string; name: string; connector: () => any }
@@ -146,6 +189,11 @@ const WALLET_CONFIGS: Record<
     id: "injected",
     name: "Injected Web3",
     connector: injected,
+  },
+  walletconnect: {
+    id: "walletconnect",
+    name: "WalletConnect",
+    connector: () => getWalletConnectConnectorSingleton(),
   },
   privy: {
     id: "privy",
@@ -198,6 +246,7 @@ const useWalletManager = (
 const useTransactionState = (
   onOriginConfirmation?: (txHash: string, chainId: number) => void,
   onDestinationConfirmation?: (txHash: string, chainId: number) => void,
+  onComplete?: (result: OnCompleteProps) => void,
 ) => {
   const [originTxHash, setOriginTxHash] = useState("")
   const [originChainId, setOriginChainId] = useState<number | null>(null)
@@ -220,6 +269,38 @@ const useTransactionState = (
       onDestinationConfirmation(destinationTxHash, destinationChainId)
     }
   }, [destinationTxHash, onDestinationConfirmation, destinationChainId])
+
+  // Monitor transaction states for completion - this runs regardless of which screen is active
+  useEffect(() => {
+    if (!transactionStates || transactionStates.length === 0) return
+
+    const allConfirmed = transactionStates.every(
+      (tx: TransactionState) => tx.state === "confirmed",
+    )
+    const hasFailures = transactionStates.some(
+      (tx: TransactionState) => tx.state === "failed",
+    )
+
+    console.log(
+      "[trails-sdk] Transaction state monitoring:",
+      "allConfirmed:",
+      allConfirmed,
+      "hasFailures:",
+      hasFailures,
+      "states:",
+      transactionStates.map((tx) => tx.state),
+    )
+
+    if (allConfirmed && !hasFailures && onComplete) {
+      console.log(
+        "[trails-sdk] All transactions confirmed, triggering completion",
+      )
+      // All transactions are confirmed, trigger completion
+      onComplete({
+        transactionStates: transactionStates,
+      })
+    }
+  }, [transactionStates, onComplete])
 
   return {
     originTxHash,
@@ -255,6 +336,7 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       paymasterUrls,
       gasless,
       buttonText,
+      quoteProvider,
     },
     ref,
   ) => {
@@ -266,9 +348,18 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       isConnected ? "tokens" : "connect",
     )
     const [selectedToken, setSelectedToken] = useState<Token | null>(null)
+    const [selectedFundMethod, setSelectedFundMethod] = useState<string | null>(
+      null,
+    )
+    const [selectedPool, setSelectedPool] = useState<Pool | null>(null)
+    const [generatedCalldata, setGeneratedCalldata] = useState<
+      string | undefined
+    >(undefined)
     const [error, setError] = useState<string | null>(null)
     const [prepareSendQuote, setPrepareSendQuote] =
       useState<PrepareSendQuote | null>(null)
+    const [previousConnector, setPreviousConnector] =
+      useState<Connector | null>(null)
     const [showWalletConfirmRetry, setShowWalletConfirmRetry] = useState(false)
     const [walletConfirmRetryHandler, setWalletConfirmRetryHandler] = useState<
       (() => Promise<void>) | null
@@ -276,7 +367,6 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const [totalCompletionSeconds, setTotalCompletionSeconds] = useState<
       number | null
     >(null)
-
     const { connect } = useConnect()
 
     const {
@@ -292,6 +382,99 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
 
     const walletClient = useWalletManager(address, chainId, connector)
 
+    const [meshConnectProps, setMeshConnectProps] =
+      useState<Partial<MeshConnectProps> | null>(null)
+
+    // Hook to auto-select pool when mode is "earn" and toAddress is specified
+    const useAutoSelectPool = (
+      mode: Mode,
+      toAddress?: string | null,
+      toChainId?: number | string | null,
+      toToken?: string | null,
+    ) => {
+      const { data: pools, loading: poolsLoading } = usePools()
+
+      useEffect(() => {
+        if (
+          mode === "earn" &&
+          toAddress &&
+          toChainId &&
+          toToken &&
+          pools &&
+          pools.length > 0 &&
+          (!selectedPool ||
+            selectedPool.chainId !== toChainId ||
+            (selectedPool.token.address.toLowerCase() !==
+              toToken.toLowerCase() &&
+              selectedPool.token.symbol.toLowerCase() !==
+                toToken.toLowerCase()))
+        ) {
+          const targetChainId =
+            typeof toChainId === "string" ? parseInt(toChainId) : toChainId
+
+          // Find pool that matches the toAddress, toChainId, and toToken (underlying asset)
+          const matchingPool = pools.find((pool) => {
+            let addressMatch =
+              pool.depositAddress.toLowerCase() === toAddress.toLowerCase()
+            const chainMatch = pool.chainId === targetChainId
+
+            // Check if toToken is an address (starts with 0x) or a symbol
+            let tokenMatch = toToken.startsWith("0x")
+              ? pool.token.address.toLowerCase() === toToken.toLowerCase()
+              : pool.token.symbol.toLowerCase() === toToken.toLowerCase()
+
+            // Special handling for Aave pools: ETH can be represented as WETH
+            if (!tokenMatch && pool.protocol === "Aave") {
+              const isEthToken =
+                toToken === "0x0000000000000000000000000000000000000000" ||
+                toToken === "ETH"
+              if (isEthToken) {
+                // Check if pool token is WETH (either by address or symbol)
+                const isWethPool =
+                  pool.token.symbol === "WETH" ||
+                  pool.token.address.toLowerCase() ===
+                    getWethAddress(targetChainId)?.toLowerCase()
+                tokenMatch = isWethPool
+                if (!addressMatch) {
+                  addressMatch =
+                    pool.wrappedTokenGatewayAddress?.toLowerCase() ===
+                    toAddress.toLowerCase()
+                }
+              }
+            }
+
+            return addressMatch && chainMatch && tokenMatch
+          })
+
+          if (matchingPool) {
+            console.log(
+              "[trails-sdk] Auto-selected pool for toAddress:",
+              toAddress,
+              "toChainId:",
+              targetChainId,
+              "toToken:",
+              toToken,
+              matchingPool,
+            )
+            setSelectedPool(matchingPool)
+          } else {
+            console.log(
+              "[trails-sdk] No matching pool found for toAddress:",
+              toAddress,
+              "toChainId:",
+              targetChainId,
+              "toToken:",
+              toToken,
+            )
+          }
+        }
+      }, [mode, toAddress, toChainId, toToken, pools])
+
+      return { poolsLoading }
+    }
+
+    useAutoSelectPool(mode, toAddress, toChainId, toToken)
+
     const {
       setOriginTxHash,
       setDestinationTxHash,
@@ -299,16 +482,20 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       setOriginChainId,
       transactionStates,
       setTransactionStates,
-    } = useTransactionState(onOriginConfirmation, onDestinationConfirmation)
+    } = useTransactionState(
+      onOriginConfirmation,
+      onDestinationConfirmation,
+      handleTransferComplete,
+    )
 
-    // Update screen based on connection state
+    // Update screen based on connection state and mode
     useEffect(() => {
       if (isConnected) {
         if (currentScreen === "connect") {
           setCurrentScreen("tokens")
         }
       } else {
-        if (currentScreen !== "connect") {
+        if (currentScreen !== "connect" && currentScreen !== "wallet-connect") {
           setTimeout(() => {
             setCurrentScreen("connect")
           }, 0)
@@ -347,6 +534,17 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       })
     }, [address, chainId, connector?.name])
 
+    // Update generated calldata when amount changes in earn mode
+    useEffect(() => {
+      if (selectedPool && mode === "earn" && generatedCalldata) {
+        // The calldata will be updated via the onAmountUpdate callback
+        // This effect ensures we have the initial calldata set up
+        console.log(
+          "Earn mode: Pool selected, calldata ready for amount updates",
+        )
+      }
+    }, [selectedPool, mode, generatedCalldata])
+
     const indexerGatewayClient = useIndexerGatewayClient({
       indexerGatewayUrl: sequenceIndexerUrl || undefined,
       projectAccessKey: sequenceProjectAccessKey,
@@ -365,8 +563,17 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           setError(`No configuration found for wallet: ${walletId}`)
           return
         }
+        console.log("[trails-sdk] Connecting to wallet", walletId)
         if (walletId === "injected") {
           await connect({ connector: config.connector() })
+        } else if (walletId === "walletconnect") {
+          // Store the current connector as previous before switching to WalletConnect
+          if (connector && connector.name !== "WalletConnect") {
+            setPreviousConnector(connector)
+          }
+          // Route to dedicated WalletConnect screen where we show our own QR
+          setCurrentScreen("wallet-connect")
+          return
         } else if (walletId === "privy") {
           console.log("[trails-sdk] Privy ready", privyReady)
           if (!privyReady) {
@@ -469,7 +676,22 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       try {
         setError(null)
         setSelectedToken(token)
-        setCurrentScreen(mode === "fund" ? "fund-form" : "send-form")
+
+        // For earn mode, check if we have toAddress and toChainId specified
+        if (mode === "earn") {
+          if (toAddress && toChainId) {
+            // Skip earn-pools and go directly to send-form when toAddress and toChainId are specified
+            setCurrentScreen("send-form")
+          } else if (selectedPool) {
+            // If a pool is already selected (auto-selected or manually), go to send-form
+            setCurrentScreen("send-form")
+          } else {
+            // Go to earn-pools for pool selection when no specific destination is set
+            setCurrentScreen("earn-pools")
+          }
+        } else {
+          setCurrentScreen(mode === "fund" ? "fund-form" : "send-form")
+        }
 
         // Track the token in recent tokens
         const chainInfo = getChainInfo(token.chainId)
@@ -521,8 +743,11 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     }
 
     const resetState = useCallback(() => {
+      setSelectedFundMethod(null)
       setCurrentScreen("connect")
       setSelectedToken(null)
+      setSelectedPool(null)
+      setGeneratedCalldata(undefined)
       setOriginTxHash("")
       setOriginChainId(null)
       setDestinationTxHash("")
@@ -562,12 +787,23 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const handleBack = () => {
       setError(null)
       switch (currentScreen) {
-        case "tokens":
-          setCurrentScreen("connect")
+        case "fund-methods":
+          setCurrentScreen("tokens")
           break
-        case "send-form":
+        case "tokens":
+          setCurrentScreen("fund-methods")
+          break
+        case "earn-pools":
           setCurrentScreen("tokens")
           setSelectedToken(null)
+          break
+        case "send-form":
+          if (mode === "earn" && !toAddress && !toChainId) {
+            setCurrentScreen("earn-pools")
+          } else {
+            setCurrentScreen("tokens")
+            setSelectedToken(null)
+          }
           break
         case "fund-form":
           setCurrentScreen("tokens")
@@ -584,6 +820,12 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
           setOriginTxHash("")
           setOriginChainId(null)
           break
+        case "mesh-connect":
+          setCurrentScreen("fund-methods")
+          break
+        case "wallet-connect":
+          setCurrentScreen("fund-methods")
+          break
         default:
           break
       }
@@ -597,35 +839,46 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       setTotalCompletionSeconds(totalCompletionSeconds)
     }
 
-    function handleTransferComplete(data?: {
-      originChainId: number
-      destinationChainId: number
-      originUserTxReceipt: TransactionReceipt | null
-      originMetaTxnReceipt: MetaTxnReceipt | null
-      destinationMetaTxnReceipt: MetaTxnReceipt | null
-    }) {
-      if (data) {
-        if (data.originUserTxReceipt) {
-          setOriginTxHash(data.originUserTxReceipt.transactionHash)
-        }
+    function handleTransferComplete({ transactionStates }: OnCompleteProps) {
+      const firstTransactionState = transactionStates[0]
+      const lastTransactionState =
+        transactionStates[transactionStates.length - 1]
 
-        if (data.originChainId) {
-          setOriginChainId(data.originChainId)
-        }
-
-        if (data.destinationMetaTxnReceipt || data.originUserTxReceipt) {
-          setDestinationTxHash(
-            (data.destinationMetaTxnReceipt as MetaTxnReceipt)?.txnHash ||
-              (data.originUserTxReceipt as TransactionReceipt)?.transactionHash,
-          )
-        }
-
-        if (data.destinationChainId) {
-          setDestinationChainId(data.destinationChainId)
-        }
-
-        setCurrentScreen("receipt")
+      if (
+        firstTransactionState?.transactionHash &&
+        firstTransactionState?.chainId
+      ) {
+        setOriginTxHash(firstTransactionState.transactionHash)
+        setOriginChainId(firstTransactionState.chainId)
       }
+
+      if (
+        lastTransactionState?.transactionHash ||
+        ((lastTransactionState as unknown as MetaTxnReceipt)?.txnHash &&
+          lastTransactionState?.chainId)
+      ) {
+        setDestinationTxHash(
+          lastTransactionState?.transactionHash ||
+            (lastTransactionState as unknown as MetaTxnReceipt)?.txnHash,
+        )
+        setDestinationChainId(lastTransactionState?.chainId)
+      } else {
+        setError("No destination transaction hash found")
+        return
+      }
+
+      setCurrentScreen("receipt")
+    }
+
+    function handleMeshConnectComplete(transferData: any) {
+      console.log("[trails-sdk] Mesh Connect transfer completed:", transferData)
+      console.log(
+        "[trails-sdk] Using real transaction states from prepareSendQuote",
+      )
+      if (prepareSendQuote) {
+        setTransactionStates(prepareSendQuote.transactionStates)
+      }
+      setCurrentScreen("pending")
     }
 
     function handleTransactionStateChange(
@@ -1020,7 +1273,129 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
 
           setCurrentScreen("receipt")
           break
+        case "mesh-connect":
+          setCurrentScreen("mesh-connect")
+          break
+        case "wallet-connect":
+          setCurrentScreen("wallet-connect")
+          break
+        case "fund-methods":
+          setCurrentScreen("fund-methods")
+          break
+        case "earn-pools":
+          setCurrentScreen("earn-pools")
+          break
       }
+    }
+
+    const handleSelectWalletConnect = () => {
+      // Store the current connector as previous before switching to WalletConnect
+      if (connector && connector.name !== "WalletConnect") {
+        setPreviousConnector(connector)
+      }
+      setCurrentScreen("wallet-connect")
+    }
+
+    const handleReconnectPreviousWallet = async () => {
+      if (previousConnector) {
+        try {
+          console.log(
+            "[trails-sdk] Reconnecting to previous wallet:",
+            previousConnector.name,
+          )
+          // First disconnect from current connector to avoid "already connected" error
+          // await disconnectAsync()
+          // Then connect to the previous connector
+          try {
+            await connect({ connector: previousConnector })
+          } catch (error) {
+            console.error(
+              "[trails-sdk] Failed to reconnect to previous wallet:",
+              error,
+            )
+          }
+          setPreviousConnector(null) // Clear the stored connector
+        } catch (error) {
+          console.error(
+            "[trails-sdk] Failed to reconnect to previous wallet:",
+            error,
+          )
+          // If reconnection fails, go back to fund methods
+          setCurrentScreen("fund-methods")
+        }
+      } else {
+        // If no previous connector, go back to fund methods
+        setCurrentScreen("fund-methods")
+      }
+    }
+
+    // Generate deposit calldata for Aave pool
+    const generateDepositCalldata = (pool: Pool, amount: string) => {
+      try {
+        const userAddress =
+          walletClient?.account?.address || walletClient?.account
+        if (!userAddress) {
+          throw new Error("User address not found")
+        }
+
+        // Validate amount
+        if (
+          !amount ||
+          amount === "" ||
+          Number.isNaN(Number(amount)) ||
+          Number(amount) <= 0
+        ) {
+          throw new Error("Invalid amount")
+        }
+
+        // Aave V3 Pool contract deposit function
+        // function supply(address asset, uint256 amount, address onBehalfOf, uint16 referralCode)
+        const calldata = encodeFunctionData({
+          abi: [
+            {
+              name: "supply",
+              type: "function",
+              inputs: [
+                { name: "asset", type: "address" },
+                { name: "amount", type: "uint256" },
+                { name: "onBehalfOf", type: "address" },
+                { name: "referralCode", type: "uint16" },
+              ],
+              outputs: [],
+              stateMutability: "nonpayable",
+            },
+          ],
+          args: [
+            pool.token.address as `0x${string}`, // asset address
+            BigInt(amount), // amount to deposit
+            userAddress as `0x${string}`, // onBehalfOf (user's address)
+            0, // referralCode (0 for no referral)
+          ],
+        })
+        return calldata
+      } catch (error) {
+        console.error("Error generating deposit calldata:", error)
+        return undefined
+      }
+    }
+
+    const handleSelectExchange = () => {
+      setSelectedFundMethod("exchange")
+      setCurrentScreen("tokens")
+    }
+
+    const handleNavigateToMeshConnect = (
+      props: {
+        toTokenSymbol: string
+        toTokenAmount: string
+        toChainId: number
+        toRecipientAddress: string
+      },
+      quote?: PrepareSendQuote | null,
+    ) => {
+      setPrepareSendQuote(quote ?? null)
+      setMeshConnectProps(props)
+      setCurrentScreen("mesh-connect")
     }
 
     const handleSendError = (error: Error | string | null) => {
@@ -1056,7 +1431,12 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
 
     const handleWaitingForWalletConfirm = (quote: PrepareSendQuote) => {
       setShowWalletConfirmRetry(false)
-      setCurrentScreen("wallet-confirmation")
+      // Navigate to QR code deposit screen if fund method is qr-code, otherwise to wallet confirmation
+      if (selectedFundMethod === "qr-code") {
+        setCurrentScreen("qr-code-deposit")
+      } else {
+        setCurrentScreen("wallet-confirmation")
+      }
       setPrepareSendQuote(quote ?? null)
     }
 
@@ -1096,6 +1476,22 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onError={handleConnectError}
             />
           )
+        case "fund-methods":
+          return (
+            <FundMethods
+              onBack={handleBack}
+              onSelectWalletConnect={handleSelectWalletConnect}
+              onSelectExchange={handleSelectExchange}
+              onSelectConnectedAccount={() => {
+                setSelectedFundMethod("connected-account")
+                setCurrentScreen("tokens")
+              }}
+              onSelectQrCode={() => {
+                setSelectedFundMethod("qr-code")
+                setCurrentScreen("tokens")
+              }}
+            />
+          )
         case "tokens":
           return (
             <TokenList
@@ -1108,6 +1504,9 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               mode={mode}
               recentTokens={recentTokens}
               onRecentTokenSelect={handleRecentTokenSelect}
+              fundMethod={selectedFundMethod}
+              renderInline={renderInline}
+              onNavigateToFundMethods={() => setCurrentScreen("fund-methods")}
             />
           )
         case "send-form":
@@ -1120,17 +1519,58 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               onComplete={handleTransferComplete}
               selectedToken={selectedToken}
               account={walletClient.account}
-              toRecipient={toAddress || undefined}
+              toRecipient={
+                selectedPool
+                  ? selectedPool.depositAddress
+                  : toAddress || undefined
+              }
               toAmount={toAmount || undefined}
-              toChainId={toChainId ? Number(toChainId) : undefined}
-              toToken={toToken || undefined}
-              toCalldata={toCalldata || undefined}
+              toChainId={
+                selectedPool
+                  ? selectedPool.chainId
+                  : toChainId
+                    ? Number(toChainId)
+                    : undefined
+              }
+              toToken={
+                selectedPool ? selectedPool.token.address : toToken || undefined
+              }
+              toCalldata={
+                selectedPool ? generatedCalldata : toCalldata || undefined
+              }
               walletClient={walletClient}
               onTransactionStateChange={handleTransactionStateChange}
               onError={handleSendError}
               paymasterUrls={paymasterUrls}
               gasless={gasless}
               setWalletConfirmRetryHandler={setWalletConfirmRetryHandler}
+              quoteProvider={quoteProvider}
+              fundMethod={selectedFundMethod}
+              onNavigateToMeshConnect={handleNavigateToMeshConnect}
+              onAmountUpdate={(amount: string) => {
+                if (
+                  selectedPool &&
+                  mode === "earn" &&
+                  amount &&
+                  amount !== ""
+                ) {
+                  try {
+                    const updatedCalldata = generateDepositCalldata(
+                      selectedPool,
+                      amount,
+                    )
+                    console.log("Updated calldata:", updatedCalldata, amount)
+                    setGeneratedCalldata(updatedCalldata)
+                  } catch (error) {
+                    console.error("Error updating calldata:", error)
+                    setGeneratedCalldata(undefined)
+                  }
+                } else {
+                  setGeneratedCalldata(undefined)
+                }
+              }}
+              mode={mode}
+              selectedPool={selectedPool}
             />
           ) : (
             <div className="text-center p-4 rounded-lg text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800">
@@ -1158,6 +1598,9 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               gasless={gasless}
               setWalletConfirmRetryHandler={setWalletConfirmRetryHandler}
               toCalldata={toCalldata || undefined}
+              quoteProvider={quoteProvider}
+              fundMethod={selectedFundMethod}
+              onNavigateToMeshConnect={handleNavigateToMeshConnect}
             />
           ) : (
             <div className="text-center p-4 rounded-lg text-gray-600 bg-gray-50 dark:text-gray-300 dark:bg-gray-800">
@@ -1174,6 +1617,8 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               quote={prepareSendQuote}
             />
           )
+        case "qr-code-deposit":
+          return <QRCodeDeposit onBack={handleBack} quote={prepareSendQuote} />
         case "pending":
           return (
             <TransferPending
@@ -1191,6 +1636,34 @@ const WidgetInner = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
               transactionStates={transactionStates}
               totalCompletionSeconds={totalCompletionSeconds ?? undefined}
               quote={prepareSendQuote}
+            />
+          )
+        case "mesh-connect":
+          return (
+            <MeshConnect
+              onBack={handleBack}
+              onComplete={handleMeshConnectComplete}
+              quote={prepareSendQuote}
+              {...meshConnectProps}
+            />
+          )
+        case "wallet-connect":
+          return (
+            <WalletConnectScreen
+              onBack={handleBack}
+              onContinue={handleContinue}
+              onReconnectPreviousWallet={handleReconnectPreviousWallet}
+            />
+          )
+        case "earn-pools":
+          return (
+            <EarnPools
+              onBack={handleBack}
+              onPoolSelect={(pool) => {
+                console.log("Selected pool:", pool)
+                setSelectedPool(pool)
+                setCurrentScreen("send-form")
+              }}
             />
           )
         default:
@@ -1304,12 +1777,28 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       if (props.sequenceEnv) {
         setSequenceEnv(props.sequenceEnv)
       }
+      if (props.privyAppId) {
+        setPrivyAppId(props.privyAppId)
+      }
+      if (props.privyClientId) {
+        setPrivyClientId(props.privyClientId)
+      }
+      if (props.walletConnectProjectId) {
+        setWalletConnectProjectId(props.walletConnectProjectId)
+      }
+      if (props.slippageTolerance !== undefined) {
+        setSlippageTolerance(String(props.slippageTolerance))
+      }
     }, [
       props.appId,
       props.sequenceUseV3Relayers,
       props.sequenceIndexerUrl,
       props.sequenceApiUrl,
       props.sequenceEnv,
+      props.privyAppId,
+      props.privyClientId,
+      props.walletConnectProjectId,
+      props.slippageTolerance,
     ])
 
     // Check if privy is in walletOptions
@@ -1317,10 +1806,10 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
     const shouldUsePrivy = true // walletOptions.includes('privy') // TODO: need to disable all privy hooks if walletOptions.includes('privy') is false
 
     const wagmiConfig = React.useMemo(() => {
-      const chains = [mainnet] as const
+      const chains = [...Object.values(viemChains)] as any
       const baseConfig = {
         chains,
-        transports: (Object.values(chains) as Array<Chain>).reduce(
+        transports: (chains as Array<Chain>).reduce(
           (acc, chain) => ({
             ...acc,
             [chain.id]: http(),
@@ -1334,7 +1823,13 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       } else {
         return createConfig({
           ...baseConfig,
-          connectors: [injected()],
+          connectors: [
+            injected(),
+            walletConnect({
+              projectId: getWalletConnectProjectId(),
+              showQrModal: false,
+            }),
+          ],
         })
       }
     }, [])
@@ -1348,52 +1843,54 @@ export const TrailsWidget = forwardRef<TrailsWidgetRef, TrailsWidgetProps>(
       )
 
       const baseContent = (
-        <QueryClientProvider client={queryClient}>
-          {sequenceHooksContext ? (
-            // SequenceHooksProvider exists in parent, don't wrap
-            wagmiContext ? (
-              // Both providers exist in parent, just render widget
-              widgetContent
-            ) : (
-              // Only WagmiProvider missing, wrap with it
-              <WagmiProvider config={wagmiConfig}>
-                {widgetContent}
-              </WagmiProvider>
-            )
-          ) : (
-            // SequenceHooksProvider missing, wrap with it
-            <SequenceHooksProvider
-              config={{
-                projectAccessKey: props.appId,
-                env: {
-                  indexerUrl:
-                    props.sequenceIndexerUrl || getSequenceIndexerUrl(),
-                  indexerGatewayUrl:
-                    props.sequenceIndexerUrl || getSequenceIndexerUrl(),
-                  apiUrl: props.sequenceApiUrl || getSequenceApiUrl(),
-                },
-              }}
-            >
-              {wagmiContext ? (
-                // WagmiProvider exists in parent, don't wrap
+        <AaveProvider client={aaveClient}>
+          <QueryClientProvider client={queryClient}>
+            {sequenceHooksContext ? (
+              // SequenceHooksProvider exists in parent, don't wrap
+              wagmiContext ? (
+                // Both providers exist in parent, just render widget
                 widgetContent
               ) : (
-                // WagmiProvider missing, wrap with it
+                // Only WagmiProvider missing, wrap with it
                 <WagmiProvider config={wagmiConfig}>
                   {widgetContent}
                 </WagmiProvider>
-              )}
-            </SequenceHooksProvider>
-          )}
-        </QueryClientProvider>
+              )
+            ) : (
+              // SequenceHooksProvider missing, wrap with it
+              <SequenceHooksProvider
+                config={{
+                  projectAccessKey: props.appId,
+                  env: {
+                    indexerUrl:
+                      props.sequenceIndexerUrl || getSequenceIndexerUrl(),
+                    indexerGatewayUrl:
+                      props.sequenceIndexerUrl || getSequenceIndexerUrl(),
+                    apiUrl: props.sequenceApiUrl || getSequenceApiUrl(),
+                  },
+                }}
+              >
+                {wagmiContext ? (
+                  // WagmiProvider exists in parent, don't wrap
+                  widgetContent
+                ) : (
+                  // WagmiProvider missing, wrap with it
+                  <WagmiProvider config={wagmiConfig}>
+                    {widgetContent}
+                  </WagmiProvider>
+                )}
+              </SequenceHooksProvider>
+            )}
+          </QueryClientProvider>
+        </AaveProvider>
       )
 
       // Only wrap with PrivyProvider if privy is in walletOptions
       if (shouldUsePrivy) {
         return (
           <PrivyProvider
-            appId={props.privyAppId || defaultPrivyAppId}
-            clientId={props.privyClientId || defaultPrivyClientId}
+            appId={props.privyAppId || getPrivyAppId()}
+            clientId={props.privyClientId || getPrivyClientId()}
             config={{
               embeddedWallets: {
                 createOnLogin: "users-without-wallets",

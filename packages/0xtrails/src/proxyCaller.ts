@@ -1,7 +1,7 @@
 import { encodeFunctionData } from "viem"
 import * as chains from "viem/chains"
 
-const PLACEHOLDER_AMOUNT =
+export const TRAILS_CONTRACT_PLACEHOLDER_AMOUNT =
   0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefn
 
 const proxyCallers: Record<string, string> = {
@@ -52,7 +52,7 @@ export function encodeProxyCallerCalldata({
 }) {
   // Convert BigInt to bytes32 format
   const placeholderBytes32 =
-    `0x${PLACEHOLDER_AMOUNT.toString(16).padStart(64, "0")}` as `0x${string}`
+    `0x${TRAILS_CONTRACT_PLACEHOLDER_AMOUNT.toString(16).padStart(64, "0")}` as `0x${string}`
 
   return encodeFunctionData({
     abi: proxyCallerAbi,
@@ -84,7 +84,9 @@ export function wrapCalldataWithProxyCallerIfNeeded({
     originTokenAddress?.toLowerCase() === destinationTokenAddress?.toLowerCase()
   if (originChainId === destinationChainId && isSameToken) {
     const amountHex = BigInt(amount).toString(16).padStart(64, "0") // 32-byte hex (no 0x)
-    const placeholderHex = PLACEHOLDER_AMOUNT.toString(16).padStart(64, "0")
+    const placeholderHex = TRAILS_CONTRACT_PLACEHOLDER_AMOUNT.toString(
+      16,
+    ).padStart(64, "0")
 
     if (!calldata.includes(placeholderHex)) {
       return null
@@ -102,7 +104,10 @@ export function wrapCalldataWithProxyCallerIfNeeded({
     return null
   }
 
-  const amountOffset = getAmountOffset(calldata, BigInt(PLACEHOLDER_AMOUNT))
+  const amountOffset = getAmountOffset(
+    calldata,
+    BigInt(TRAILS_CONTRACT_PLACEHOLDER_AMOUNT),
+  )
   if (amountOffset === -1) {
     return null
   }

@@ -13,6 +13,10 @@ export function useQueryParams() {
   )
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return
+    }
+
     const updateQueryParams = () => {
       setQueryParams(new URLSearchParams(window.location.search))
     }
@@ -53,6 +57,10 @@ export function useQueryParams() {
   }
 
   const setParam = (key: string, value: string) => {
+    if (typeof window === "undefined") {
+      return
+    }
+
     const newParams = new URLSearchParams(queryParams)
     newParams.set(key, value)
     const url = new URL(window.location.href)
@@ -62,6 +70,10 @@ export function useQueryParams() {
   }
 
   const removeParam = (key: string) => {
+    if (typeof window === "undefined") {
+      return
+    }
+
     const newParams = new URLSearchParams(queryParams)
     newParams.delete(key)
     const url = new URL(window.location.href)

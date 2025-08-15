@@ -46,6 +46,7 @@ interface OutputScreenProps {
   gasless: boolean | null
   buttonText: string
   customCss: string
+  quoteProvider: string
   children: React.ReactNode
   apiUrl: string
   indexerUrl: string
@@ -56,29 +57,33 @@ interface OutputScreenProps {
 }
 
 export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
-  ({
-    mode,
-    appId,
-    toAddress,
-    toAmount,
-    toChainId,
-    toToken,
-    toCalldata,
-    useCustomButton,
-    renderInline,
-    theme,
-    walletOptions,
-    paymasterUrls,
-    gasless,
-    buttonText,
-    customCss,
-    apiUrl,
-    indexerUrl,
-    env,
-    privyAppId,
-    privyClientId,
-    defaultSequenceProjectAccessKey,
-  }) => {
+  (
+    {
+      mode,
+      appId,
+      toAddress,
+      toAmount,
+      toChainId,
+      toToken,
+      toCalldata,
+      useCustomButton,
+      renderInline,
+      theme,
+      walletOptions,
+      paymasterUrls,
+      gasless,
+      buttonText,
+      customCss,
+      quoteProvider,
+      apiUrl,
+      indexerUrl,
+      env,
+      privyAppId,
+      privyClientId,
+      defaultSequenceProjectAccessKey,
+    },
+    _ref,
+  ) => {
     const [activeTab, setActiveTab] = useState<"modal" | "button" | "code">(
       "modal",
     )
@@ -185,6 +190,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
                   onDestinationConfirmation={onDestinationConfirmation}
                   buttonText={buttonText}
                   customCss={customCss}
+                  {...(quoteProvider !== "auto" && { quoteProvider })}
                 />
               </div>
             </div>
@@ -215,6 +221,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
                 onDestinationConfirmation={onDestinationConfirmation}
                 buttonText={buttonText}
                 customCss={customCss}
+                {...(quoteProvider !== "auto" && { quoteProvider })}
               >
                 {useCustomButton ? (
                   <button
@@ -246,6 +253,7 @@ export const OutputScreen = forwardRef<OutputScreenRef, OutputScreenProps>(
                 gasless={gasless}
                 buttonText={buttonText}
                 customCss={customCss}
+                quoteProvider={quoteProvider}
                 onOriginConfirmation={onOriginConfirmation?.toString()}
                 onDestinationConfirmation={onDestinationConfirmation?.toString()}
               />

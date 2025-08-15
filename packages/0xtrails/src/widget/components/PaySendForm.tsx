@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronLeft, Loader2 } from "lucide-react"
+import { ChevronDown, ChevronLeft, Loader2, TrendingUp } from "lucide-react"
 import type React from "react"
 import { useCallback, useEffect, useRef } from "react"
 import type { Account, WalletClient } from "viem"
@@ -12,6 +12,9 @@ import { TokenImage } from "./TokenImage.js"
 import { QuoteDetails } from "./QuoteDetails.js"
 import { TruncatedAddress } from "./TruncatedAddress.js"
 import { type PrepareSendQuote, TradeType } from "../../prepareSend.js"
+import { getChainInfo, getChainColor } from "../../chains.js"
+import { formatTvl } from "../../prices.js"
+import aaveLogo from "../assets/aave.svg"
 
 interface PaySendFormProps {
   selectedToken: Token
@@ -32,6 +35,38 @@ interface PaySendFormProps {
   paymasterUrls?: Array<{ chainId: number; url: string }>
   gasless?: boolean
   setWalletConfirmRetryHandler: (handler: () => Promise<void>) => void
+  quoteProvider?: string
+  fundMethod?: string | null
+  onNavigateToMeshConnect?: (
+    props: {
+      toTokenSymbol: string
+      toTokenAmount: string
+      toChainId: number
+      toRecipientAddress: string
+    },
+    quote?: PrepareSendQuote | null,
+  ) => void
+  onAmountUpdate?: (amount: string) => void
+  mode?: "pay" | "fund" | "earn"
+  selectedPool?: {
+    id: string
+    name: string
+    protocol: string
+    chainId: number
+    apy: number
+    tvl: number
+    token: {
+      symbol: string
+      name: string
+      address: string
+      decimals: number
+      logoUrl?: string
+    }
+    depositAddress: string
+    isActive: boolean
+    poolUrl?: string
+    protocolUrl?: string
+  } | null
 }
 
 export const PaySendForm: React.FC<PaySendFormProps> = ({
@@ -53,9 +88,16 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
   paymasterUrls,
   gasless,
   setWalletConfirmRetryHandler,
+  quoteProvider,
+  fundMethod,
+  onNavigateToMeshConnect,
+  onAmountUpdate,
+  mode,
+  selectedPool,
 }) => {
   const {
     amount,
+    amountRaw,
     amountUsdDisplay,
     balanceUsdDisplay,
     chainInfo,
@@ -108,6 +150,10 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
     selectedToken,
     setWalletConfirmRetryHandler,
     tradeType: TradeType.EXACT_OUTPUT,
+    quoteProvider,
+    fundMethod,
+    mode,
+    onNavigateToMeshConnect,
   })
 
   // Handle amount input changes with decimal validation
@@ -122,6 +168,13 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
     },
     [setAmount],
   )
+
+  // Call onAmountUpdate when amountRaw changes
+  useEffect(() => {
+    if (onAmountUpdate) {
+      onAmountUpdate(amountRaw)
+    }
+  }, [amountRaw, onAmountUpdate])
 
   const chainDropdownRef = useRef<HTMLDivElement>(null)
   const tokenDropdownRef = useRef<HTMLDivElement>(null)
@@ -167,7 +220,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 px-2">
       <div className="flex items-center relative">
         <button
           type="button"
@@ -177,7 +230,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
           <ChevronLeft className="h-6 w-6" />
         </button>
         <h2 className="text-lg font-semibold w-full text-center text-gray-900 dark:text-white">
-          Send Payment
+          {mode === "earn" ? "Earn" : "Send Payment"}
         </h2>
       </div>
 
@@ -207,19 +260,104 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
           </div>
 
           {/* Right side - USD value and amount */}
-          <div className="text-right">
-            <div className="text-sm font-medium text-gray-900 dark:text-white">
-              <span className="text-gray-600 dark:text-gray-400">
-                Balance:{" "}
-              </span>
-              {balanceUsdDisplay}
+          {fundMethod !== "qr-code" && fundMethod !== "exchange" && (
+            <div className="text-right">
+              <div className="text-sm font-medium text-gray-900 dark:text-white">
+                <span className="text-gray-600 dark:text-gray-400">
+                  Balance:{" "}
+                </span>
+                {balanceUsdDisplay}
+              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {balanceFormatted} {selectedToken.symbol}
+              </div>
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              {balanceFormatted} {selectedToken.symbol}
+          )}
+        </div>
+      </div>
+
+      {/* Pool Information - Only show in earn mode when selectedPool is available */}
+      {mode === "earn" && selectedPool && (
+        <div className="p-4 trails-border-radius-container trails-bg-secondary">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-3">
+              <div style={{ width: "32px", height: "32px" }}>
+                <TokenImage
+                  symbol={selectedPool.token.symbol}
+                  imageUrl={selectedPool.token.logoUrl}
+                  chainId={selectedPool.chainId}
+                  size={32}
+                />
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-900 dark:text-white text-sm">
+                  {selectedPool.poolUrl ? (
+                    <a
+                      href={selectedPool.poolUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline cursor-pointer"
+                    >
+                      {selectedPool.name}
+                    </a>
+                  ) : (
+                    selectedPool.name
+                  )}
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center">
+                    {selectedPool.protocol === "Aave" && (
+                      <img src={aaveLogo} alt="Aave" className="w-3 h-3 mr-1" />
+                    )}
+                    {selectedPool.protocolUrl ? (
+                      <a
+                        href={selectedPool.protocolUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:underline cursor-pointer"
+                      >
+                        {selectedPool.protocol}
+                      </a>
+                    ) : (
+                      selectedPool.protocol
+                    )}
+                  </span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-xs font-medium ${getChainColor(selectedPool.chainId)}`}
+                  >
+                    {getChainInfo(selectedPool.chainId)?.name ||
+                      `Chain ${selectedPool.chainId}`}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="flex items-center space-x-1 text-green-600 dark:text-green-400">
+                <TrendingUp className="w-3 h-3" />
+                <span className="font-semibold text-sm">
+                  {selectedPool.apy.toFixed(1)}%
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400">APY</p>
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center space-x-1 text-gray-600 dark:text-gray-400">
+              <span className="text-xs">
+                TVL: {formatTvl(selectedPool.tvl)}
+              </span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <span
+                className={`w-2 h-2 rounded-full ${selectedPool.isActive ? "bg-green-500" : "bg-red-500"}`}
+              />
+              <span className="text-xs text-gray-600 dark:text-gray-400">
+                {selectedPool.isActive ? "Active" : "Inactive"}
+              </span>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-2">
         {/* Chain Selection - More Compact */}
@@ -361,7 +499,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               htmlFor="amount"
               className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300"
             >
-              Amount to Receive
+              Amount to {mode === "earn" ? "Deposit" : "Receive"}
             </label>
             <div className="relative trails-border-radius-container">
               <input
@@ -378,13 +516,13 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
                 </span>
               </div>
             </div>
-            <div className="h-6 mt-1">
-              {amount && selectedDestToken?.symbol && (
+            {amountUsdDisplay && selectedDestToken?.symbol && (
+              <div className="h-6 mt-1">
                 <div className="text-sm text-gray-400">
                   ≈ {amountUsdDisplay}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -394,7 +532,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
             <div
               className={`text-lg font-semibold text-left ${"text-gray-900 dark:text-white"}`}
             >
-              Receive
+              {mode === "earn" ? "Deposit" : "Receive"}
             </div>
 
             <div className="p-2">
@@ -439,7 +577,7 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
               recipient.toLowerCase() !== account.address.toLowerCase() && (
                 <div className="px-2 pb-1">
                   <div className={`text-xs text-left ${"text-gray-400"}`}>
-                    Recipient:{" "}
+                    {mode === "earn" ? "Pool" : "Recipient"}:{" "}
                     <TruncatedAddress
                       address={recipient}
                       chainId={selectedDestinationChain.id}
@@ -459,7 +597,11 @@ export const PaySendForm: React.FC<PaySendFormProps> = ({
                   htmlFor="recipient"
                   className="text-sm font-medium text-gray-700 dark:text-gray-300"
                 >
-                  {toCalldata ? "Destination Address" : "Recipient Address"}
+                  {toCalldata
+                    ? "Destination Address"
+                    : mode === "earn"
+                      ? "Pool Address"
+                      : "Recipient Address"}
                 </label>
                 {recipient &&
                   isAddress(recipient) &&

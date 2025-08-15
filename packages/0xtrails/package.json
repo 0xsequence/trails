@@ -28,7 +28,8 @@
     "lint:fix": "biome lint --write ./src",
     "format": "biome format --write ./src",
     "prepublishOnly": "node scripts/replace-workspace-versions.cjs",
-    "postpublish": "node scripts/restore-workspace-versions.cjs"
+    "postpublish": "node scripts/restore-workspace-versions.cjs",
+    "postinstall": "npx patch-package"
   },
   "keywords": [
     "trails",
@@ -51,7 +52,10 @@
     "@0xsequence/wagmi-connector": "^4.0.1",
     "@0xsequence/wallet-core": "github:0xsequence/sequence.js#dists/wallet/core",
     "@0xsequence/wallet-primitives": "github:0xsequence/sequence.js#dists/wallet/primitives",
+    "@aave/react": "^0.4.0",
     "@databeat/tracker": "^0.9.3",
+    "@meshconnect/node-api": "^2.0.22",
+    "@meshconnect/web-link-sdk": "3.2.14",
     "@privy-io/react-auth": "^2.21.0",
     "@privy-io/wagmi": "^1.0.5",
     "@reservoir0x/relay-sdk": "^2.3.1",
@@ -59,6 +63,8 @@
     "@tanstack/query-core": "^5.83.0",
     "@tanstack/react-query": "^5.83.0",
     "@wagmi/core": "^2.18.0",
+    "@walletconnect/core": "^2.21.7",
+    "@walletconnect/ethereum-provider": "^2.21.7",
     "buffer": "^6.0.3",
     "ethers": "^6.15.0",
     "framer-motion": "^12.23.12",
@@ -66,6 +72,7 @@
     "lucide-react": "^0.493.0",
     "motion": "^12.23.12",
     "ox": "^0.7.2",
+    "qrcode.react": "^4.2.0",
     "viem": "^2.33.1",
     "vite-plugin-dts": "^4.5.4",
     "wagmi": "^2.16.0"
@@ -91,6 +98,7 @@
     "autoprefixer": "^10.4.21",
     "dotenv": "^16.6.1",
     "globals": "^15.15.0",
+    "patch-package": "^8.0.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
     "turbo": "^2.5.5",

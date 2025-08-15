@@ -20,7 +20,6 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   quote,
 }) => {
   const [showContent, setShowContent] = useState(false)
-
   const [showTimeoutWarning, setShowTimeoutWarning] = useState(false)
 
   useEffect(() => {
@@ -28,11 +27,14 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
   }, [])
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!retryEnabled) {
-        setShowTimeoutWarning(true)
-      }
-    }, 60000) // 1 minute
+    const timer = setTimeout(
+      () => {
+        if (!retryEnabled) {
+          setShowTimeoutWarning(true)
+        }
+      },
+      2 * 60 * 1000,
+    ) // 2 minutes
 
     return () => clearTimeout(timer)
   }, [retryEnabled])
@@ -90,7 +92,7 @@ export const WalletConfirmation: React.FC<WalletConfirmationProps> = ({
           <div
             className={`transition-all duration-500 ease-out delay-150 ${showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}
           >
-            <div className="p-4 rounded-lg text-sm bg-yellow-50 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700/50">
+            <div className="p-4 trails-border-radius-container text-sm bg-yellow-50 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700/50">
               <div className="flex items-start space-x-3">
                 <svg
                   className="w-5 h-5 mt-0.5 flex-shrink-0 text-yellow-600 dark:text-yellow-400"

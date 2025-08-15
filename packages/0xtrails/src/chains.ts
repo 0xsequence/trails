@@ -196,3 +196,21 @@ export function getIsTestnetChainId(chainId: number): boolean {
   const testnetChainIds = Object.keys(supportedSequenceTestnetChains)
   return testnetChainIds.includes(chainId.toString())
 }
+
+// Get chain color for UI styling
+export function getChainColor(chainId: number): string {
+  switch (chainId) {
+    case 1:
+      return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200" // More gray-blue for Ethereum
+    case 8453:
+      return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200" // Blue for Base
+    case 42161:
+      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+    case 137:
+      return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+    case 10:
+      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+    default:
+      return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
+  }
+}

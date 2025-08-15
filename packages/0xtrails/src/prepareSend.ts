@@ -108,19 +108,23 @@ import type {
   TransactionState,
   TransactionStateStatus,
 } from "./transactions.js"
-import { getTxTimeDiff } from "./transactions.js"
+import { getTxTimeDiff, getAccountTransactionHistory } from "./transactions.js"
 import { requestWithTimeout } from "./utils.js"
 import { InsufficientBalanceError } from "./error.js"
 import { estimateGasCostUsd } from "./estimate.js"
 import { wrapCalldataWithProxyCallerIfNeeded } from "./proxyCaller.js"
-import { getSequenceUseV3Relayers, getSequenceEnv } from "./config.js"
+import {
+  getSequenceUseV3Relayers,
+  getSequenceEnv,
+  getSlippageTolerance,
+} from "./config.js"
 
 export enum TradeType {
   EXACT_INPUT = "EXACT_INPUT",
   EXACT_OUTPUT = "EXACT_OUTPUT",
 }
 
-export type SendOptions = {
+export type PrepareSendOptions = {
   account: Account
   originTokenAddress: string
   originChainId: number
@@ -148,6 +152,8 @@ export type SendOptions = {
   gasless?: boolean
   slippageTolerance?: string
   originNativeTokenPriceUsd?: number | null
+  quoteProvider?: string | null
+  fundMethod?: string | null
 }
 
 export type PrepareSendFees = {
@@ -186,14 +192,14 @@ export type PrepareSendQuote = {
   fees: PrepareSendFees
   slippageTolerance: string
   priceImpact: string
+  priceImpactUsdDisplay: string
   completionEstimateSeconds: number
   transactionStates: TransactionState[]
   gasCostUsd: number
   gasCostUsdDisplay: string
   originTokenRate: string
   destinationTokenRate: string
-  quoteProvider: string
-  quoteProviderUrl: string
+  quoteProvider: QuoteProviderInfo | null
 }
 
 export type PrepareSendReturn = {
@@ -270,8 +276,13 @@ function getIntentArgs(
   destinationSalt: string = Date.now().toString(),
   slippageTolerance: string, // 0.03 = 3%
   tradeType: TradeType,
+  provider?: string | null,
 ): GetIntentCallsPayloadsArgs {
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
+
+  if (!provider || provider === "auto") {
+    provider = undefined
+  }
 
   const intentArgs = {
     userAddress: mainSignerAddress,
@@ -288,13 +299,14 @@ function getIntentArgs(
     destinationSalt,
     slippageTolerance: Number(slippageTolerance),
     tradeType,
+    provider,
   }
 
   return intentArgs
 }
 
 export async function prepareSend(
-  options: SendOptions,
+  options: PrepareSendOptions,
 ): Promise<PrepareSendReturn> {
   const {
     account,
@@ -321,8 +333,10 @@ export async function prepareSend(
     destinationTokenDecimals,
     paymasterUrl,
     gasless = false,
-    slippageTolerance = "0.03", // 0.03 = 3%
+    slippageTolerance = getSlippageTolerance(),
     originNativeTokenPriceUsd,
+    quoteProvider,
+    fundMethod,
   } = options
 
   const hasCustomCalldata = getIsCustomCalldata(destinationCalldata)
@@ -432,6 +446,8 @@ export async function prepareSend(
     })
   }
 
+  onTransactionStateChange(transactionStates)
+
   if (isToSameChain && !isToSameToken) {
     return await sendHandlerForSameChainDifferentToken({
       originTokenAddress,
@@ -506,6 +522,8 @@ export async function prepareSend(
     slippageTolerance,
     tradeType,
     originNativeTokenPriceUsd,
+    quoteProvider,
+    fundMethod,
   })
 }
 
@@ -540,6 +558,8 @@ async function sendHandlerForDifferentChainDifferentToken({
   slippageTolerance,
   tradeType,
   originNativeTokenPriceUsd,
+  quoteProvider,
+  fundMethod,
 }: {
   mainSignerAddress: string
   originChainId: number
@@ -571,6 +591,8 @@ async function sendHandlerForDifferentChainDifferentToken({
   slippageTolerance: string
   tradeType: TradeType
   originNativeTokenPriceUsd?: number | null
+  quoteProvider?: string | null
+  fundMethod?: string | null
 }): Promise<PrepareSendReturn> {
   const testnet = isTestnetDebugMode()
   const useCctp = getUseCctp(
@@ -778,6 +800,7 @@ async function sendHandlerForDifferentChainDifferentToken({
     destinationSalt,
     slippageTolerance,
     tradeType,
+    quoteProvider,
   )
 
   console.log("[trails-sdk] Creating intent with args:", intentArgs)
@@ -871,20 +894,23 @@ async function sendHandlerForDifferentChainDifferentToken({
       destinationChainId,
       slippageTolerance: slippageTolerance,
       priceImpact: getPriceImpactFromIntent(intent),
+      priceImpactUsd: getPriceImpactUsdFromIntent(intent),
       transactionStates,
       originNativeTokenPriceUsd,
       quoteProvider: intent?.quote?.quoteProvider,
     }),
     send: async (onOriginSend?: () => void): Promise<SendReturn> => {
-      const { hasEnoughBalance, balanceError } = await checkAccountBalance({
-        account,
-        tokenAddress: originTokenAddress,
-        depositAmount,
-        publicClient,
-      })
+      if (!(fundMethod === "qr-code" || fundMethod === "exchange")) {
+        const { hasEnoughBalance, balanceError } = await checkAccountBalance({
+          account,
+          tokenAddress: originTokenAddress,
+          depositAmount,
+          publicClient,
+        })
 
-      if (!hasEnoughBalance) {
-        throw balanceError
+        if (!hasEnoughBalance) {
+          throw balanceError
+        }
       }
 
       console.log("[trails-sdk] sending origin transaction")
@@ -928,6 +954,12 @@ async function sendHandlerForDifferentChainDifferentToken({
       console.log("[trails-sdk] testnet", testnet)
 
       const depositPromise = async () => {
+        // Skip wallet deposit if fund method is qr-code
+        if (fundMethod === "qr-code" || fundMethod === "exchange") {
+          console.log("[trails-sdk] Skipping wallet deposit for QR code mode")
+          return
+        }
+
         originUserTxReceipt = await attemptUserDepositTx({
           originTokenAddress: effectiveOriginTokenAddress,
           gasless,
@@ -949,6 +981,7 @@ async function sendHandlerForDifferentChainDifferentToken({
           swapAmount,
           onTransactionStateChange,
           transactionStates,
+          fundMethod,
         })
 
         if (!originUserTxReceipt) {
@@ -961,6 +994,56 @@ async function sendHandlerForDifferentChainDifferentToken({
           "Transfer",
         )
         onTransactionStateChange(transactionStates)
+      }
+
+      const checkForDepositTx = async () => {
+        while (true) {
+          try {
+            const response = await getAccountTransactionHistory({
+              chainId: originChainId,
+              accountAddress: intentAddress,
+            })
+            console.log(
+              "[trails-sdk] getAccountTransactionHistory response",
+              response,
+            )
+            if (response.transactions.length > 0) {
+              const tx = response.transactions[0]
+              if (!tx) {
+                await new Promise((resolve) => setTimeout(resolve, 1000))
+                continue
+              }
+              // const isReceive = tx.transfers.some(
+              //   (transfer) => transfer.transferType === "RECEIVE",
+              // )
+              // if (!isReceive) {
+              //   await new Promise((resolve) => setTimeout(resolve, 1000))
+              //   continue
+              // }
+              const originDepositTxReceipt =
+                await publicClient.getTransactionReceipt({
+                  hash: tx.txnHash as `0x${string}`,
+                })
+
+              originUserTxReceipt = originDepositTxReceipt
+
+              transactionStates[0] = getTransactionStateFromReceipt(
+                originDepositTxReceipt,
+                originChainId,
+                "Transfer",
+              )
+              onTransactionStateChange(transactionStates)
+
+              if (onOriginSend) {
+                onOriginSend()
+              }
+              break
+            }
+          } catch (error) {
+            console.error("Error checking for deposit tx", error)
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+        }
       }
 
       const originMetaTxnPromise = async () => {
@@ -1041,6 +1124,10 @@ async function sendHandlerForDifferentChainDifferentToken({
           }
         }
       }
+
+      checkForDepositTx().catch((error) => {
+        console.error("Error checking for deposit tx", error)
+      })
 
       await Promise.all([
         depositPromise(),
@@ -1427,6 +1514,7 @@ async function sendHandlerForSameChainDifferentToken({
       fees: getFeesFromRelaySdkQuote(quote),
       slippageTolerance: getSlippageToleranceFromRelaySdkQuote(quote),
       priceImpact: getPriceImpactFromRelaySdkQuote(quote),
+      priceImpactUsd: getPriceImpactUsdFromRelaySdkQuote(quote),
       transactionStates,
       originChainId,
       destinationChainId: originChainId,
@@ -1952,6 +2040,7 @@ async function attemptUserDepositTx({
   swapAmount,
   onTransactionStateChange,
   transactionStates,
+  fundMethod,
 }: {
   originTokenAddress: string
   gasless: boolean
@@ -1973,9 +2062,17 @@ async function attemptUserDepositTx({
   fee: string
   onTransactionStateChange: (transactionStates: TransactionState[]) => void
   transactionStates: TransactionState[]
+  fundMethod?: string | null
 }): Promise<TransactionReceipt | null> {
   let originUserTxReceipt: TransactionReceipt | null = null
   const originChainId = chain.id
+
+  // Skip wallet deposit if fund method is qr-code
+  if (fundMethod === "qr-code" || fundMethod === "exchange") {
+    console.log("[trails-sdk] Skipping wallet deposit for QR code mode")
+    return null
+  }
+
   const doGasless = getDoGasless(originTokenAddress, gasless, paymasterUrl)
   console.log("[trails-sdk] doGasless", doGasless, paymasterUrl)
   if (doGasless) {
@@ -2296,6 +2393,12 @@ export type SwapReturn = {
   totalCompletionSeconds?: number
 }
 
+export type QuoteProviderInfo = {
+  id: string
+  name: string
+  url: string
+}
+
 export type UseQuoteReturn = {
   quote: {
     fromAmount: string
@@ -2312,6 +2415,7 @@ export type UseQuoteReturn = {
     completionEstimateSeconds: number
     transactionStates?: TransactionState[]
     originTokenRate?: string
+    quoteProvider?: QuoteProviderInfo | null
     destinationTokenRate?: string
   } | null
   swap: (() => Promise<SwapReturn | null>) | null
@@ -2459,6 +2563,7 @@ export function useQuote({
         transactionStates: prepareSendQuote.transactionStates,
         originTokenRate: prepareSendQuote.originTokenRate,
         destinationTokenRate: prepareSendQuote.destinationTokenRate,
+        quoteProvider: prepareSendQuote.quoteProvider,
       }
 
       const swap = async (): Promise<SwapReturn> => {
@@ -2530,8 +2635,8 @@ export function getFeesFromIntent(
     toAmountUsd,
   }: { tradeType: TradeType; fromAmountUsd: number; toAmountUsd: number },
 ): PrepareSendFees {
-  const totalFeeAmountUsd = Math.max(fromAmountUsd - toAmountUsd, 0)
-
+  // TODO: remove this once API types are regenerated
+  const totalFeeAmountUsd = (intent?.quote as any)?.quoteProviderFeeUsd ?? 0
   const totalFeeAmountUsdDisplay = formatUsdAmountDisplay(totalFeeAmountUsd)
 
   console.log("[trails-sdk] getFeesFromIntent", {
@@ -2562,6 +2667,13 @@ export function getPriceImpactFromIntent(
   return intent?.quote?.priceImpact?.toString() ?? "0"
 }
 
+export function getPriceImpactUsdFromIntent(
+  intent: GetIntentCallsPayloadsReturn,
+): string {
+  // Temporary type assertion until API types are regenerated
+  return (intent?.quote as any)?.priceImpactUsd?.toString() ?? "0"
+}
+
 export function getFeesFromRelaySdkQuote(quote: RelayQuote): PrepareSendFees {
   const totalFeeAmountUsd = quote?.fees?.relayer?.amount ?? 0
   const totalFeeAmountUsdDisplay = formatUsdAmountDisplay(totalFeeAmountUsd)
@@ -2582,7 +2694,11 @@ export function getSlippageToleranceFromRelaySdkQuote(
 }
 
 export function getPriceImpactFromRelaySdkQuote(quote: RelayQuote): string {
-  return quote?.details?.swapImpact?.percent ?? "0"
+  return (quote?.details?.swapImpact?.percent ?? 0).toString()
+}
+
+export function getPriceImpactUsdFromRelaySdkQuote(quote: RelayQuote): string {
+  return (quote?.details?.swapImpact?.usd ?? 0).toString()
 }
 
 export function getZeroFees(): PrepareSendFees {
@@ -2641,6 +2757,7 @@ export async function getNormalizedQuoteObject({
   fees,
   slippageTolerance,
   priceImpact,
+  priceImpactUsd,
   originNativeTokenPriceUsd,
   quoteProvider,
 }: {
@@ -2661,6 +2778,7 @@ export async function getNormalizedQuoteObject({
   fees?: PrepareSendFees
   slippageTolerance?: string
   priceImpact?: string
+  priceImpactUsd?: string
   originNativeTokenPriceUsd?: number | null
   quoteProvider?: string
 }): Promise<PrepareSendQuote> {
@@ -2798,6 +2916,24 @@ export async function getNormalizedQuoteObject({
     quoteProviderUrl = "https://li.fi/"
   }
 
+  const quoteProviderNames = {
+    cctp: "Circle CCTP",
+    relay: "Relay",
+    lifi: "LiFi",
+  }
+
+  const quoteProviderName =
+    quoteProviderNames[quoteProvider as keyof typeof quoteProviderNames] ||
+    quoteProvider ||
+    ""
+  const quoteProviderInfo: QuoteProviderInfo = {
+    id: quoteProvider || "",
+    name: quoteProviderName || "",
+    url: quoteProviderUrl || "",
+  }
+
+  const priceImpactUsdDisplay = formatUsdAmountDisplay(priceImpactUsd)
+
   return {
     originAddress: originAddress || "",
     destinationAddress: destinationAddress || "",
@@ -2821,6 +2957,7 @@ export async function getNormalizedQuoteObject({
     fees: fees || getZeroFees(),
     slippageTolerance: slippageTolerance || "0",
     priceImpact: priceImpact || "0",
+    priceImpactUsdDisplay: priceImpactUsdDisplay || "0",
     originChain,
     destinationChain,
     completionEstimateSeconds: getCompletionEstimateSeconds({
@@ -2838,8 +2975,7 @@ export async function getNormalizedQuoteObject({
     destinationAmountMinDisplay: formatAmountDisplay(
       destinationAmountMinFormatted,
     ),
-    quoteProvider: quoteProvider || "",
-    quoteProviderUrl: quoteProviderUrl || "",
+    quoteProvider: quoteProviderInfo,
   }
 }
 

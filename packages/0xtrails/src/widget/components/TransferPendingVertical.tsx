@@ -329,7 +329,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
 
       {/* Transfer Information */}
       <div
-        className={`w-full max-w-sm p-3 rounded-lg transition-all duration-500 ease-out delay-100 ${
+        className={`w-full max-w-sm p-3 trails-border-radius-container transition-all duration-500 ease-out delay-100 ${
           showContent ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
         } trails-bg-secondary trails-text-secondary`}
       >
@@ -362,7 +362,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
 
           {/* Right side - USD value and amount */}
           <div className="text-right">
-            <div className="text-xs font-medium text-left text-gray-900 dark:text-white">
+            <div className="text-xs font-medium text-right text-gray-900 dark:text-white">
               {quote?.originAmountUsdDisplay}
             </div>
             <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -381,7 +381,7 @@ export const TransferPending: React.FC<TransferPendingProps> = ({
               : "opacity-0 translate-y-4"
           }`}
         >
-          <div className="p-4 rounded-lg text-sm bg-yellow-50 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700/50">
+          <div className="p-4 trails-border-radius-container text-sm bg-yellow-50 border border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700/50">
             <div className="flex items-start space-x-3">
               <svg
                 className="w-5 h-5 mt-0.5 flex-shrink-0 text-yellow-600 dark:text-yellow-400"

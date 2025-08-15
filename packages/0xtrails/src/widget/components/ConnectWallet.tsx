@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import { useAccount, useDisconnect } from "wagmi"
 import MetaMaskFox from "../assets/MetaMask-icon-fox.svg"
 import MetaMaskLogoWhite from "../assets/MetaMask-logo-white.svg"
+import WalletConnectLogo from "../assets/WalletConnect-logo.svg"
 import PrivyLogoBlack from "../assets/Privy_Brandmark_Black.svg"
 import PrivyLogoWhite from "../assets/Privy_Brandmark_White.svg"
 
@@ -73,6 +74,8 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
     switch (walletId) {
       case "privy":
         return "bg-black hover:bg-black/90 text-white dark:bg-white dark:hover:bg-white/90 dark:text-black"
+      case "walletconnect":
+        return "bg-white hover:bg-gray-50 text-gray-900 border border-gray-200 dark:bg-white dark:hover:bg-gray-100"
       default:
         return "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
     }
@@ -88,7 +91,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
 
       {isConnected ? (
         <div className="space-y-4">
-          <div className="p-4 rounded-2xl trails-bg-secondary">
+          <div className="p-4 trails-border-radius-container trails-bg-secondary">
             <p className="text-gray-500 dark:text-gray-400">
               Connected with {connector?.name || ""}
             </p>
@@ -159,6 +162,14 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
                       className="h-6"
                     />
                   </div>
+                ) : wallet.id === "walletconnect" ? (
+                  <div className="flex items-center space-x-2">
+                    <img
+                      src={WalletConnectLogo}
+                      alt="WalletConnect"
+                      className="h-6"
+                    />
+                  </div>
                 ) : (
                   <span>{wallet.name}</span>
                 )}
@@ -166,7 +177,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({
             ))
           ) : (
             <div className="space-y-6">
-              <div className="text-center p-4 rounded-lg trails-text-tertiary trails-bg-secondary">
+              <div className="text-center p-4 trails-border-radius-container trails-text-tertiary trails-bg-secondary">
                 Please connect wallet in dapp
               </div>
             </div>

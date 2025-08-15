@@ -8,6 +8,7 @@ import { getChainInfo, useSupportedChains } from "../../chains.js"
 import type {
   TokenBalanceExtended,
   TokenBalanceWithPrice,
+  NativeTokenBalanceWithPrice,
 } from "../../tokenBalances.js"
 import {
   formatRawAmount,
@@ -15,7 +16,7 @@ import {
   useHasSufficientBalanceUsd,
   useTokenBalances,
 } from "../../tokenBalances.js"
-import { getFormatttedTokenName } from "../../tokens.js"
+import { getFormatttedTokenName, getSupportedTokens } from "../../tokens.js"
 
 export interface Token {
   id: number
@@ -51,6 +52,7 @@ export type UseTokenListProps = {
   targetAmountUsd?: number | null
   indexerGatewayClient: SequenceIndexerGateway
   onError: (error: Error | string | null) => void
+  fundMethod?: string | null
 }
 
 export type UseTokenListReturn = {
@@ -68,6 +70,7 @@ export type UseTokenListReturn = {
   totalBalanceUsdFormatted: string
   isLoadingTotalBalanceUsd: boolean
   showInsufficientBalance: boolean
+  isLoadingTokens: boolean
 }
 
 export function useTokenList({
@@ -75,15 +78,25 @@ export function useTokenList({
   targetAmountUsd,
   indexerGatewayClient,
   onError,
+  fundMethod,
 }: UseTokenListProps): UseTokenListReturn {
   const [selectedToken, setSelectedToken] = useState<Token | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
+  const [allSupportedTokens, setAllSupportedTokens] = useState<any[]>([])
+  const [isLoadingSupportedTokens, setIsLoadingSupportedTokens] =
+    useState(false)
   const { address } = useAccount()
   const {
     sortedTokens: allSortedTokens,
     isLoadingSortedTokens,
     balanceError,
   } = useTokenBalances(address as Address.Address, indexerGatewayClient)
+
+  // Determine loading state based on fund method
+  const isLoadingTokens =
+    fundMethod === "qr-code" || fundMethod === "exchange"
+      ? isLoadingSupportedTokens
+      : isLoadingSortedTokens
 
   const {
     totalBalanceUsd,
@@ -98,18 +111,101 @@ export function useTokenList({
   const showContinueButton = false
   const { supportedChains: supportedToChains } = useSupportedChains()
 
+  // Fetch all supported tokens when fundMethod is "qr-code" or "exchange"
+  useEffect(() => {
+    if (fundMethod === "qr-code" || fundMethod === "exchange") {
+      setIsLoadingSupportedTokens(true)
+      getSupportedTokens()
+        .then((tokens) => {
+          setAllSupportedTokens(tokens)
+        })
+        .catch((error) => {
+          console.error("[trails-sdk] Failed to fetch supported tokens:", error)
+        })
+        .finally(() => {
+          setIsLoadingSupportedTokens(false)
+        })
+    }
+  }, [fundMethod])
+
   const supportedChainIds = useMemo(() => {
     return new Set(supportedToChains.map((c) => c.id))
   }, [supportedToChains])
 
   const sortedTokens = useMemo<Array<TokenBalanceExtended>>(() => {
+    // If fundMethod is "qr-code" or "exchange", use all supported tokens instead of account-specific tokens
+    if (fundMethod === "qr-code" || fundMethod === "exchange") {
+      // Filter to only show specific tokens for QR code and exchange modes
+      const filteredTokens = allSupportedTokens.filter((token) => {
+        const symbol = token.symbol.toUpperCase()
+        return ["ETH", "POL", "USDC", "USDT", "DAI", "BAT", "WETH"].includes(
+          symbol,
+        )
+      })
+
+      // Convert SupportedToken to TokenBalanceExtended format
+      return filteredTokens.map((token) => {
+        // Check if it's a native token (like ETH)
+        if (
+          token.contractAddress === "0x0000000000000000000000000000000000000000"
+        ) {
+          // Native token format
+          return {
+            chainId: token.chainId,
+            balance: "0", // No balance info for QR code and exchange modes
+            balanceUsd: 0,
+            balanceUsdFormatted: "0",
+            price: { value: 0, currency: "USD" },
+            imageUrl: token.imageUrl,
+            symbol: token.symbol,
+            isSufficientBalance: true, // Always true for QR code and exchange modes
+            accountAddress: address as Address.Address,
+          } as NativeTokenBalanceWithPrice
+        } else {
+          // ERC20 token format
+          return {
+            chainId: token.chainId,
+            contractAddress: token.contractAddress,
+            balance: "0", // No balance info for QR code and exchange modes
+            balanceUsd: 0,
+            balanceUsdFormatted: "0",
+            price: { value: 0, currency: "USD" },
+            imageUrl: token.imageUrl,
+            contractInfo: {
+              decimals: token.decimals,
+              symbol: token.symbol,
+              name: token.name,
+            },
+            isSufficientBalance: true, // Always true for QR code and exchange modes
+            // Add required properties for TokenBalanceWithPrice
+            contractType: "ERC20",
+            accountAddress: address as Address.Address,
+            blockHash: "",
+            blockNumber: 0,
+            logIndex: 0,
+            transactionHash: "",
+            transactionIndex: 0,
+            uniqueCollectibles: "0",
+            isSummary: false,
+          } as any
+        }
+      }) as unknown as TokenBalanceExtended[]
+    }
+
+    // Default behavior: use account-specific tokens
     return allSortedTokens.filter((token: TokenBalanceExtended) => {
       if (!supportedChainIds.has(token.chainId)) {
         return false
       }
       return true
     })
-  }, [allSortedTokens, supportedChainIds])
+  }, [
+    allSortedTokens,
+    supportedChainIds,
+    fundMethod,
+    allSupportedTokens,
+    address,
+  ])
 
   useEffect(() => {
     if (onError) {
@@ -387,5 +483,6 @@ export function useTokenList({
     totalBalanceUsdFormatted,
     isLoadingTotalBalanceUsd,
     showInsufficientBalance,
+    isLoadingTokens,
   }
 }
