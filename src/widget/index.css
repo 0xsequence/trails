@@ -1,0 +1,492 @@
+@config "../../tailwind.config.ts";
+@import "@0xsequence/design-system/preset";
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*:focus {
+  outline: none;
+}
+
+/* Trails Widget Theme Variables - Easy to customize */
+:root {
+  /* Font Family - Customizable font for the entire widget */
+  --trails-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* Border Radius - Customizable border radius for the widget */
+  --trails-border-radius-widget: 32px; /* Main widget container border radius */
+  --trails-border-radius-button: 32px; /* Primary buttons border radius */
+  --trails-border-radius-input: 32px; /* Input fields border radius */
+  --trails-border-radius-dropdown: 32px; /* Dropdown border radius now matches input and button */
+  --trails-border-radius-container: 8px; /* Container elements border radius (balance cards, etc.) */
+  --trails-border-radius-list: 8px; /* Token list border radius */
+
+  /* Widget Border - Customizable widget border */
+  --trails-widget-border: 1px solid rgb(229 231 235); /* Default widget border */
+
+  /* Primary Colors - These apply to both themes */
+  --trails-primary: rgb(59 130 246); /* blue-500 - Change this to customize */
+  --trails-primary-hover: rgb(37 99 235); /* blue-600 - Change this for hover state */
+  --trails-primary-disabled: rgb(209 213 219); /* gray-300 - Disabled state */
+  --trails-primary-disabled-text: rgb(107 114 128); /* gray-500 - Disabled text */
+
+  /* Modal Button Colors - Customizable modal trigger button */
+  --trails-modal-button-bg: var(--trails-primary, rgb(59 130 246)); /* Defaults to primary color */
+  --trails-modal-button-hover-bg: var(--trails-primary-hover, rgb(37 99 235)); /* Defaults to primary hover */
+  --trails-modal-button-text: rgb(255 255 255); /* white text */
+  --trails-modal-button-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* subtle shadow */
+}
+
+/* Utility Classes that use CSS Variables */
+.trails-bg-primary {
+  background-color: var(--trails-bg-primary);
+}
+
+.trails-bg-secondary {
+  background-color: var(--trails-bg-secondary);
+}
+
+.trails-bg-tertiary {
+  background-color: var(--trails-bg-tertiary);
+}
+
+.trails-bg-card {
+  background-color: var(--trails-bg-card);
+}
+
+.trails-bg-overlay {
+  background-color: var(--trails-bg-overlay);
+}
+
+.trails-text-primary {
+  color: var(--trails-text-primary);
+}
+
+.trails-text-secondary {
+  color: var(--trails-text-secondary);
+}
+
+.trails-text-tertiary {
+  color: var(--trails-text-tertiary);
+}
+
+.trails-text-muted {
+  color: var(--trails-text-muted);
+}
+
+.trails-text-inverse {
+  color: var(--trails-text-inverse);
+}
+
+.trails-border-primary {
+  border-color: var(--trails-border-primary);
+}
+
+.trails-border-secondary {
+  border-color: var(--trails-border-secondary);
+}
+
+.trails-border-tertiary {
+  border-color: var(--trails-border-tertiary);
+}
+
+.trails-hover-bg:hover {
+  background-color: var(--trails-hover-bg);
+}
+
+.trails-hover-text:hover {
+  color: var(--trails-hover-text);
+}
+
+
+
+/* Font Family Utility Class */
+.trails-font {
+  font-family: var(--trails-font-family);
+}
+
+/* Border Radius Utility Classes */
+.trails-border-radius-widget {
+  border-radius: var(--trails-border-radius-widget);
+}
+
+.trails-border-radius-button {
+  border-radius: var(--trails-border-radius-button);
+}
+
+.trails-border-radius-input {
+  border-radius: var(--trails-border-radius-input);
+}
+
+.trails-border-radius-dropdown {
+  border-radius: var(--trails-border-radius-dropdown);
+}
+
+.trails-border-radius-container {
+  border-radius: var(--trails-border-radius-container);
+}
+
+.trails-border-radius-list {
+  border-radius: var(--trails-border-radius-list);
+}
+
+.trails-border-radius-container {
+  border-radius: var(--trails-border-radius-container);
+}
+
+.trails-widget-border {
+  border: var(--trails-widget-border);
+}
+
+/* Input Field Utility Classes */
+.trails-input {
+  background-color: var(--trails-input-bg);
+  border-color: var(--trails-input-border);
+  color: var(--trails-input-text);
+  border-radius: var(--trails-border-radius-input);
+}
+
+.trails-input::placeholder {
+  color: var(--trails-input-placeholder);
+}
+
+.trails-input:focus {
+  border-color: var(--trails-input-focus-border);
+  --tw-ring-color: var(--trails-input-focus-border);
+}
+
+/* Dropdown Utility Classes */
+.trails-dropdown {
+  background-color: var(--trails-dropdown-bg);
+  border-color: var(--trails-dropdown-border);
+  color: var(--trails-dropdown-text);
+  border-radius: var(--trails-border-radius-dropdown);
+}
+
+.trails-dropdown:focus {
+  border-color: var(--trails-dropdown-focus-border, var(--trails-dropdown-border));
+  --tw-ring-color: var(--trails-dropdown-focus-border, var(--trails-dropdown-border));
+}
+
+.trails-dropdown-item {
+  color: var(--trails-dropdown-text);
+}
+
+.trails-dropdown-item:hover {
+  background-color: var(--trails-dropdown-hover-bg);
+}
+
+.trails-list-item:hover {
+  background-color: var(--trails-list-hover-bg);
+}
+
+/* Token List Utility Classes */
+.trails-list {
+  background-color: var(--trails-list-bg);
+  border: 1px solid var(--trails-list-border);
+}
+
+.trails-border-list {
+  border-color: var(--trails-list-border);
+}
+
+.trails-dropdown-item-selected {
+  background-color: var(--trails-dropdown-selected-bg);
+  color: var(--trails-dropdown-selected-text);
+}
+
+/* Light Mode Theme Variables */
+[data-theme="light"] {
+  /* Background Colors */
+  --trails-bg-primary: rgb(255 255 255); /* white */
+  --trails-bg-secondary: rgb(249 250 251); /* gray-50 */
+  --trails-bg-tertiary: rgb(243 244 246); /* gray-100 */
+  --trails-bg-card: rgb(255 255 255); /* white */
+  --trails-bg-overlay: rgb(255 255 255); /* white */
+
+  /* Text Colors */
+  --trails-text-primary: rgb(17 24 39); /* gray-900 */
+  --trails-text-secondary: rgb(75 85 99); /* gray-600 */
+  --trails-text-tertiary: rgb(107 114 128); /* gray-500 */
+  --trails-text-muted: rgb(156 163 175); /* gray-400 */
+  --trails-text-inverse: rgb(255 255 255); /* white */
+
+  /* Border Colors */
+  --trails-border-primary: rgb(229 231 235); /* gray-200 */
+  --trails-border-secondary: rgb(209 213 219); /* gray-300 */
+  --trails-border-tertiary: rgb(243 244 246); /* gray-100 */
+
+  /* Interactive Colors */
+  --trails-hover-bg: rgb(249 250 251); /* gray-50 */
+  --trails-hover-text: rgb(17 24 39); /* gray-900 */
+
+  /* Input Field Colors */
+  --trails-input-bg: rgb(255 255 255); /* white */
+  --trails-input-border: rgb(209 213 219); /* gray-300 */
+  --trails-input-text: rgb(17 24 39); /* gray-900 */
+  --trails-input-placeholder: rgb(156 163 175); /* gray-400 */
+  --trails-input-focus-border: rgb(59 130 246); /* blue-500 */
+
+  /* Dropdown Colors */
+  --trails-dropdown-bg: rgb(255 255 255); /* white */
+  --trails-dropdown-border: rgb(229 231 235); /* gray-200 */
+  --trails-dropdown-text: rgb(17 24 39); /* gray-900 */
+  --trails-dropdown-hover-bg: rgb(249 250 251); /* gray-50 */
+  --trails-dropdown-selected-bg: rgb(243 244 246); /* gray-100 */
+  --trails-dropdown-selected-text: rgb(17 24 39); /* gray-900 */
+  --trails-dropdown-focus-border: rgb(59 130 246); /* blue-500 - matches input focus border */
+
+  /* Modal Button Colors - Light Mode */
+  --trails-modal-button-bg: var(--trails-primary, rgb(59 130 246)); /* blue-500 for light mode */
+  --trails-modal-button-hover-bg: var(--trails-primary-hover, rgb(37 99 235)); /* blue-600 for light mode */
+  --trails-modal-button-text: rgb(255 255 255); /* white text */
+  --trails-modal-button-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); /* subtle shadow for light mode */
+
+  /* Token List Colors */
+  --trails-list-bg: rgb(255 255 255); /* white background for token list */
+  --trails-list-border: rgb(229 231 235); /* gray-200 border */
+  --trails-list-hover-bg: rgb(249 250 251); /* gray-50 hover */
+
+  /* Widget Border - Customizable widget border */
+  --trails-widget-border: none; /* Default widget border */
+
+  /* Border Radius - Customizable border radius for the widget */
+  --trails-border-radius-widget: 32px; /* Main widget container border radius */
+  --trails-border-radius-button: 32px; /* Primary buttons border radius */
+  --trails-border-radius-input: 32px; /* Input fields border radius */
+  --trails-border-radius-dropdown: 32px; /* Dropdown border radius */
+  --trails-border-radius-container: 8px; /* Container elements border radius (balance cards, etc.) */
+  --trails-border-radius-list: 8px; /* Token list border radius */
+
+  /* Status Colors */
+  --trails-success-bg: rgb(240 253 244); /* green-50 */
+  --trails-success-text: rgb(22 163 74); /* green-600 */
+  --trails-success-border: rgb(187 247 208); /* green-200 */
+
+  --trails-warning-bg: rgb(255 251 235); /* amber-50 */
+  --trails-warning-text: rgb(217 119 6); /* amber-600 */
+  --trails-warning-border: rgb(253 230 138); /* amber-200 */
+
+  --trails-error-bg: rgb(254 242 242); /* red-50 */
+  --trails-error-text: rgb(220 38 38); /* red-600 */
+  --trails-error-border: rgb(254 202 202); /* red-200 */
+
+  /* Shadow */
+  --trails-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Dark Mode Theme Variables */
+[data-theme="dark"] {
+  /* Background Colors */
+  --trails-bg-primary: rgb(17 24 39); /* gray-900 */
+  --trails-bg-secondary: rgb(31 41 55); /* gray-800 */
+  --trails-bg-tertiary: rgb(55 65 81); /* gray-700 */
+  --trails-bg-card: rgb(31 41 55); /* gray-800 */
+  --trails-bg-overlay: rgb(17 24 39); /* gray-900 */
+
+  /* Text Colors */
+  --trails-text-primary: rgb(255 255 255); /* white */
+  --trails-text-secondary: rgb(209 213 219); /* gray-300 */
+  --trails-text-tertiary: rgb(156 163 175); /* gray-400 */
+  --trails-text-muted: rgb(107 114 128); /* gray-500 */
+  --trails-text-inverse: rgb(17 24 39); /* gray-900 */
+
+  /* Border Colors */
+  --trails-border-primary: rgb(55 65 81); /* gray-700 */
+  --trails-border-secondary: rgb(75 85 99); /* gray-600 */
+  --trails-border-tertiary: rgb(31 41 55); /* gray-800 */
+
+  /* Interactive Colors */
+  --trails-hover-bg: rgb(55 65 81); /* gray-700 */
+  --trails-hover-text: rgb(255 255 255); /* white */
+
+  /* Input Field Colors */
+  --trails-input-bg: rgb(31 41 55); /* gray-800 */
+  --trails-input-border: rgb(75 85 99); /* gray-600 */
+  --trails-input-text: rgb(255 255 255); /* white */
+  --trails-input-placeholder: rgb(107 114 128); /* gray-500 */
+--trails-input-focus-border: rgb(59 130 246); /* blue-500 */
+
+  /* Dropdown Colors */
+  --trails-dropdown-bg: rgb(31 41 55); /* gray-800 */
+  --trails-dropdown-border: rgb(75 85 99); /* gray-600 */
+  --trails-dropdown-text: rgb(255 255 255); /* white */
+  --trails-dropdown-hover-bg: rgb(55 65 81); /* gray-700 */
+  --trails-dropdown-selected-bg: rgb(55 65 81); /* gray-700 */
+  --trails-dropdown-selected-text: rgb(255 255 255); /* white */
+  --trails-dropdown-focus-border: rgb(59 130 246); /* blue-500 - matches input focus border */
+
+  /* Modal Button Colors - Dark Mode */
+  --trails-modal-button-bg: var(--trails-primary, rgb(37 99 235)); /* blue-600 for dark mode */
+  --trails-modal-button-hover-bg: var(--trails-primary-hover, rgb(29 78 216)); /* blue-700 for dark mode */
+  --trails-modal-button-text: rgb(255 255 255); /* white text */
+  --trails-modal-button-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.1); /* subtle shadow for dark mode */
+
+    /* Token List Colors */
+  --trails-list-bg: rgb(31 41 55); /* gray-800 background for token list */
+  --trails-list-border: rgb(55 65 81); /* gray-700 border - good balance */
+  --trails-list-hover-bg: rgb(55 65 81); /* gray-700 hover */
+
+  /* Widget Border - Customizable widget border */
+  --trails-widget-border: none; /* Default widget border */
+
+  /* Border Radius - Customizable border radius for the widget */
+  --trails-border-radius-widget: 32px; /* Main widget container border radius */
+  --trails-border-radius-button: 32px; /* Primary buttons border radius */
+  --trails-border-radius-input: 32px; /* Input fields border radius */
+  --trails-border-radius-dropdown: 32px; /* Dropdown border radius */
+  --trails-border-radius-container: 8px; /* Container elements border radius (balance cards, etc.) */
+  --trails-border-radius-list: 8px; /* Token list border radius */
+
+  /* Status Colors */
+  --trails-success-bg: rgb(22 163 74 / 0.2); /* green-600 with opacity */
+  --trails-success-text: rgb(134 239 172); /* green-400 */
+  --trails-success-border: rgb(22 163 74 / 0.3); /* green-600 with opacity */
+
+  --trails-warning-bg: rgb(217 119 6 / 0.2); /* amber-600 with opacity */
+  --trails-warning-text: rgb(251 191 36); /* amber-400 */
+  --trails-warning-border: rgb(217 119 6 / 0.3); /* amber-600 with opacity */
+
+  --trails-error-bg: rgb(239 68 68 / 0.2); /* red-500 with opacity */
+  --trails-error-text: rgb(252 165 165); /* red-400 */
+  --trails-error-border: rgb(239 68 68 / 0.3); /* red-500 with opacity */
+
+  /* Shadow */
+  --trails-shadow:
+    0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+}
+
+/* Custom Scrollbar Styles */
+.trails-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(209 213 219) transparent;
+}
+
+.trails-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.trails-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.trails-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgb(209 213 219);
+  border-radius: 3px;
+  transition: background-color 0.2s ease;
+}
+
+.trails-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(156 163 175);
+}
+
+/* Dark mode scrollbar styles */
+[data-theme="dark"] .trails-scrollbar,
+.dark .trails-scrollbar {
+  scrollbar-color: rgb(75 85 99) transparent;
+}
+
+[data-theme="dark"] .trails-scrollbar::-webkit-scrollbar-thumb,
+.dark .trails-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgb(75 85 99);
+}
+
+[data-theme="dark"] .trails-scrollbar::-webkit-scrollbar-thumb:hover,
+.dark .trails-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(107 114 128);
+}
+
+/* Define dark mode selector for Tailwind */
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Default light theme before JavaScript loads */
+:root:not([data-theme]) {
+  color-scheme: light;
+}
+
+/* Ensure light mode takes precedence when data-theme="light" */
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Note: Components should use proper light/dark classes instead of relying on CSS overrides */
+
+/* Primary Button Override Classes - These will override Tailwind classes */
+/* Light mode primary button */
+.bg-blue-500 {
+  background-color: var(--trails-primary, rgb(59 130 246));
+}
+
+/* Dark mode primary button */
+.dark .bg-blue-500 {
+  background-color: var(--trails-primary, rgb(37 99 235)); /* blue-600 for dark mode */
+}
+
+/* Light mode hover */
+.hover\:bg-blue-600:hover {
+  background-color: var(--trails-primary-hover, rgb(37 99 235));
+}
+
+/* Dark mode hover */
+.dark .hover\:bg-blue-600:hover {
+  background-color: var(--trails-primary-hover, rgb(29 78 216)); /* blue-700 for dark mode */
+}
+
+/* Light mode disabled background */
+.disabled\:bg-gray-300:disabled {
+  background-color: var(--trails-primary-disabled, rgb(209 213 219));
+}
+
+/* Dark mode disabled background */
+.dark .disabled\:bg-gray-300:disabled {
+  background-color: rgb(55 65 81); /* gray-700 for dark mode */
+}
+
+/* Light mode disabled text */
+.disabled\:text-gray-500:disabled {
+  color: var(--trails-primary-disabled-text, rgb(107 114 128));
+}
+
+/* Dark mode disabled text */
+.dark .disabled\:text-gray-500:disabled {
+  color: rgb(156 163 175); /* gray-400 for dark mode */
+}
+
+/* Alternative approach: Direct color overrides */
+.trails-btn-primary {
+  background-color: var(--trails-primary, rgb(59 130 246));
+  color: white;
+  transition: all 0.2s ease-in-out;
+  border-radius: var(--trails-border-radius-button);
+}
+
+.trails-btn-primary:hover:not(:disabled) {
+  background-color: var(--trails-primary-hover, rgb(37 99 235));
+}
+
+.trails-btn-primary:disabled {
+  background-color: var(--trails-primary-disabled, rgb(209 213 219));
+  color: var(--trails-primary-disabled-text, rgb(107 114 128));
+  cursor: not-allowed;
+}
+
+/* Modal Button Utility Classes */
+.trails-modal-button {
+  background-color: var(--trails-modal-button-bg, var(--trails-primary, rgb(59 130 246)));
+  color: var(--trails-modal-button-text, rgb(255 255 255));
+  box-shadow: var(--trails-modal-button-shadow, 0 1px 2px 0 rgb(0 0 0 / 0.05));
+  transition: all 0.2s ease-in-out;
+  border-radius: var(--trails-border-radius-button);
+}
+
+.trails-modal-button:hover {
+  background-color: var(--trails-modal-button-hover-bg, var(--trails-primary-hover, rgb(37 99 235)));
+}

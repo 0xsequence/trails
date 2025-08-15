@@ -1,0 +1,1 @@
+{"version":3,"file":"encoders.d.ts","sourceRoot":"","sources":["../src/encoders.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,GAAG,EAAE,MAAM,MAAM,CAAA;AAE/B,MAAM,MAAM,mBAAmB,GAAG;IAChC,SAAS,EAAE,MAAM,CAAA;IACjB,MAAM,EAAE,MAAM,CAAA;CACf,CAAA;AAED,wBAAgB,oBAAoB,CAAC,EACnC,SAAS,EACT,MAAM,GACP,EAAE,mBAAmB,GAAG,GAAG,CAQ3B"}
