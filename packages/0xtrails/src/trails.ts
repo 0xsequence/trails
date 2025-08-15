@@ -918,12 +918,50 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
 
         // Queue Circle CCTP transfer when origin call succeeds and provider is CCTP
         try {
-          const isCctp = trailsFee?.quoteProvider === "cctp"
+          const providerFromQuote = trailsFee?.quoteProvider
+            ? String(trailsFee.quoteProvider).toLowerCase()
+            : undefined
+          const providerFromArgs = createIntentMutation.variables?.provider
+            ? String(createIntentMutation.variables.provider).toLowerCase()
+            : undefined
+          const isCctp =
+            providerFromQuote === "cctp" || providerFromArgs === "cctp"
           const sourceTxHash = receipt.transactionHash
           const originChainIdForCctp =
             createIntentMutation.variables?.originChainId
           const destinationChainIdForCctp =
             createIntentMutation.variables?.destinationChainId
+
+          console.log("[Trails] isCctp", isCctp)
+          console.log("[Trails] providerFromQuote", providerFromQuote)
+          console.log("[Trails] providerFromArgs", providerFromArgs)
+          console.log("[Trails] trailsFee", trailsFee)
+          console.log(
+            "[Trails] createIntentMutation.variables",
+            createIntentMutation.variables,
+          )
+          console.log(
+            "[Trails] createIntentMutation.variables.provider",
+            createIntentMutation.variables?.provider,
+          )
+          console.log(
+            "[Trails] createIntentMutation.variables.originChainId",
+            createIntentMutation.variables?.originChainId,
+          )
+          console.log(
+            "[Trails] createIntentMutation.variables.destinationChainId",
+            createIntentMutation.variables?.destinationChainId,
+          )
+          console.log(
+            "[Trails] lastQueuedCctpSourceTxHash",
+            lastQueuedCctpSourceTxHash.current,
+          )
+          console.log("[Trails] sourceTxHash", sourceTxHash)
+          console.log("[Trails] originChainIdForCctp", originChainIdForCctp)
+          console.log(
+            "[Trails] destinationChainIdForCctp",
+            destinationChainIdForCctp,
+          )
 
           if (
             isCctp &&
