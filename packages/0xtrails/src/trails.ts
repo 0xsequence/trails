@@ -177,6 +177,25 @@ export type UseTrailsReturn = {
 
 const RETRY_WINDOW_MS = 10_000
 
+// Narrow API client to one that supports queueing CCTP transfers without using 'any'
+type CctpQueueCapable = {
+  queueCCTPTransfer: (
+    args: {
+      sourceTxHash?: string
+      metaTxHash?: string
+      sourceChainId: number
+      destinationChainId: number
+    },
+    headers?: object,
+    signal?: AbortSignal,
+  ) => Promise<unknown>
+}
+
+function hasCctpQueue(client: unknown): client is CctpQueueCapable {
+  const maybe = client as { queueCCTPTransfer?: unknown } | null | undefined
+  return typeof maybe?.queueCCTPTransfer === "function"
+}
+
 export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
   const {
     account,
@@ -429,44 +448,27 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
     },
   })
 
-  async function fallbackQueueCCTPTransfer(args: {
-    sourceTxHash?: string
-    metaTxHash?: string
-    sourceChainId: number
-    destinationChainId: number
-  }) {
-    const apiUrl = getSequenceApiUrl()
-    const accessKey = getSequenceProjectAccessKey()
-    const headers: { [key: string]: string } = {
-      "Content-Type": "application/json",
-    }
-    if (accessKey) headers["X-Access-Key"] = accessKey
-    await fetch(`${apiUrl.replace(/\/*$/, "")}/rpc/API/QueueCCTPTransfer`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(args),
-    })
-  }
-
-  // Narrow API client to one that supports queueing CCTP transfers without using 'any'
-  type CctpQueueCapable = {
-    queueCCTPTransfer: (
-      args: {
-        sourceTxHash?: string
-        metaTxHash?: string
-        sourceChainId: number
-        destinationChainId: number
-      },
-      headers?: object,
-      signal?: AbortSignal,
-    ) => Promise<unknown>
-  }
-
-  function hasCctpQueue(client: unknown): client is CctpQueueCapable {
-    if (!client) return false
-    const record = client as Record<string, unknown>
-    return typeof record["queueCCTPTransfer"] === "function"
-  }
+  const fallbackQueueCCTPTransfer = useCallback(
+    async (args: {
+      sourceTxHash?: string
+      metaTxHash?: string
+      sourceChainId: number
+      destinationChainId: number
+    }) => {
+      const apiUrl = getSequenceApiUrl()
+      const accessKey = getSequenceProjectAccessKey()
+      const headers: { [key: string]: string } = {
+        "Content-Type": "application/json",
+      }
+      if (accessKey) headers["X-Access-Key"] = accessKey
+      await fetch(`${apiUrl.replace(/\/*$/, "")}/rpc/API/QueueCCTPTransfer`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(args),
+      })
+    },
+    [],
+  )
 
   // New Query to fetch committed intent config
   const {
@@ -935,95 +937,6 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
           }
         }
         fetchTimestamp()
-
-        // Queue Circle CCTP transfer when origin call succeeds and provider is CCTP
-        try {
-          const providerFromQuote = trailsFee?.quoteProvider
-            ? String(trailsFee.quoteProvider).toLowerCase()
-            : undefined
-          const providerFromArgs = createIntentMutation.variables?.provider
-            ? String(createIntentMutation.variables.provider).toLowerCase()
-            : undefined
-          const isCctp =
-            providerFromQuote === "cctp" || providerFromArgs === "cctp"
-          const sourceTxHash = receipt.transactionHash
-          const originChainIdForCctp =
-            createIntentMutation.variables?.originChainId
-          const destinationChainIdForCctp =
-            createIntentMutation.variables?.destinationChainId
-
-          console.log("[Trails] isCctp", isCctp)
-          console.log("[Trails] providerFromQuote", providerFromQuote)
-          console.log("[Trails] providerFromArgs", providerFromArgs)
-          console.log("[Trails] trailsFee", trailsFee)
-          console.log(
-            "[Trails] createIntentMutation.variables",
-            createIntentMutation.variables,
-          )
-          console.log(
-            "[Trails] createIntentMutation.variables.provider",
-            createIntentMutation.variables?.provider,
-          )
-          console.log(
-            "[Trails] createIntentMutation.variables.originChainId",
-            createIntentMutation.variables?.originChainId,
-          )
-          console.log(
-            "[Trails] createIntentMutation.variables.destinationChainId",
-            createIntentMutation.variables?.destinationChainId,
-          )
-          console.log(
-            "[Trails] lastQueuedCctpSourceTxHash",
-            lastQueuedCctpSourceTxHash.current,
-          )
-          console.log("[Trails] sourceTxHash", sourceTxHash)
-          console.log("[Trails] originChainIdForCctp", originChainIdForCctp)
-          console.log(
-            "[Trails] destinationChainIdForCctp",
-            destinationChainIdForCctp,
-          )
-
-          if (
-            isCctp &&
-            apiClient &&
-            sourceTxHash &&
-            typeof originChainIdForCctp === "number" &&
-            typeof destinationChainIdForCctp === "number" &&
-            lastQueuedCctpSourceTxHash.current !== sourceTxHash
-          ) {
-            lastQueuedCctpSourceTxHash.current = sourceTxHash
-            ;(async () => {
-              try {
-                console.log(
-                  "[Trails] Queueing CCTP transfer:",
-                  sourceTxHash,
-                  originChainIdForCctp,
-                  destinationChainIdForCctp,
-                )
-                if (hasCctpQueue(apiClient)) {
-                  await apiClient.queueCCTPTransfer({
-                    sourceTxHash,
-                    sourceChainId: originChainIdForCctp,
-                    destinationChainId: destinationChainIdForCctp,
-                  })
-                } else {
-                  await fallbackQueueCCTPTransfer({
-                    sourceTxHash,
-                    sourceChainId: originChainIdForCctp,
-                    destinationChainId: destinationChainIdForCctp,
-                  })
-                }
-              } catch (err) {
-                console.error("[Trails] Failed to queue CCTP transfer:", err)
-                if (lastQueuedCctpSourceTxHash.current === sourceTxHash) {
-                  lastQueuedCctpSourceTxHash.current = null
-                }
-              }
-            })()
-          }
-        } catch (err) {
-          console.error("[Trails] Error while handling CCTP queue flow:", err)
-        }
       } else if (newStatus !== "Success") {
         setOriginBlockTimestamp(null)
       }
@@ -1503,7 +1416,7 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
       return
     }
 
-    metaTxns.forEach(async (metaTxn: MetaTxn) => {
+    metaTxns.forEach(async (metaTxn: MetaTxn, index: number) => {
       const operationKey = `${metaTxn.chainId}-${metaTxn.id}`
 
       // Skip if already processed
@@ -1568,6 +1481,84 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
               error: undefined,
             },
           }))
+
+          // Queue CCTP transfer using the first confirmed origin meta-tx hash
+          try {
+            const providerFromQuote = trailsFee?.quoteProvider
+              ? String(trailsFee.quoteProvider).toLowerCase()
+              : undefined
+            const providerFromArgs = createIntentMutation.variables?.provider
+              ? String(createIntentMutation.variables.provider).toLowerCase()
+              : undefined
+            const isCctp =
+              providerFromQuote === "cctp" || providerFromArgs === "cctp"
+
+            const originChainIdForCctp =
+              createIntentMutation.variables?.originChainId
+            const destinationChainIdForCctp =
+              createIntentMutation.variables?.destinationChainId
+
+            console.log("[Trails] isCctp", isCctp)
+            console.log("[Trails] providerFromQuote", providerFromQuote)
+            console.log("[Trails] providerFromArgs", providerFromArgs)
+            console.log("[Trails] trailsFee", trailsFee)
+            console.log(
+              "[Trails] createIntentMutation.variables",
+              createIntentMutation.variables,
+            )
+            console.log(
+              "[Trails] createIntentMutation.variables.provider",
+              createIntentMutation.variables?.provider,
+            )
+            console.log(
+              "[Trails] createIntentMutation.variables.originChainId",
+              createIntentMutation.variables?.originChainId,
+            )
+            console.log(
+              "[Trails] createIntentMutation.variables.destinationChainId",
+              createIntentMutation.variables?.destinationChainId,
+            )
+            console.log(
+              "[Trails] lastQueuedCctpSourceTxHash",
+              lastQueuedCctpSourceTxHash.current,
+            )
+            console.log("[Trails] transactionHash", transactionHash)
+            console.log("[Trails] originChainIdForCctp", originChainIdForCctp)
+            console.log(
+              "[Trails] destinationChainIdForCctp",
+              destinationChainIdForCctp,
+            )
+
+            if (
+              isCctp &&
+              apiClient &&
+              transactionHash &&
+              typeof originChainIdForCctp === "number" &&
+              typeof destinationChainIdForCctp === "number" &&
+              lastQueuedCctpSourceTxHash.current !== transactionHash &&
+              index === 0
+            ) {
+              lastQueuedCctpSourceTxHash.current = transactionHash
+              if (hasCctpQueue(apiClient)) {
+                await apiClient.queueCCTPTransfer({
+                  metaTxHash: transactionHash,
+                  sourceChainId: originChainIdForCctp,
+                  destinationChainId: destinationChainIdForCctp,
+                })
+              } else {
+                await fallbackQueueCCTPTransfer({
+                  metaTxHash: transactionHash,
+                  sourceChainId: originChainIdForCctp,
+                  destinationChainId: destinationChainIdForCctp,
+                })
+              }
+            }
+          } catch (err) {
+            console.error(
+              `[trails-sdk] Queue CCTP on meta-tx error (${operationKey}):`,
+              err,
+            )
+          }
         } else {
           console.warn(
             `[trails-sdk] MetaTxn ${operationKey}: No block number in receipt`,
@@ -1591,7 +1582,15 @@ export function useTrails(config: UseTrailsConfig): UseTrailsReturn {
         }))
       }
     })
-  }, [metaTxns, metaTxnMonitorStatuses, metaTxnBlockTimestamps])
+  }, [
+    metaTxns,
+    metaTxnMonitorStatuses,
+    metaTxnBlockTimestamps,
+    trailsFee,
+    createIntentMutation.variables,
+    apiClient,
+    fallbackQueueCCTPTransfer,
+  ])
 
   const updateAutoExecute = (enabled: boolean) => {
     setIsAutoExecute(enabled)
