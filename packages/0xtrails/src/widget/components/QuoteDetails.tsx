@@ -458,7 +458,10 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
             {quote?.quoteProvider && (
               <div className="flex justify-between items-center">
                 <span className="text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                  Swap Provider:
+                  {quote.originChain.id === quote.destinationChain.id
+                    ? "Swap Provider"
+                    : "Bridge"}
+                  :
                   <Tooltip message="The service that fullfils the swap and/or bridge">
                     <InfoIcon className="w-3 h-3 text-gray-500 dark:text-gray-400 cursor-pointer" />
                   </Tooltip>

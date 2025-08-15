@@ -9,6 +9,7 @@ export interface QuoteProvider {
   name: string
   description: string
   icon?: string
+  hidden?: boolean
 }
 
 const QUOTE_PROVIDERS: QuoteProvider[] = [
@@ -28,6 +29,7 @@ const QUOTE_PROVIDERS: QuoteProvider[] = [
     name: "LiFi",
     description: "LiFi Protocol",
     icon: lifiIcon,
+    hidden: true,
   },
   {
     id: "cctp",
@@ -147,32 +149,34 @@ export const QuoteProviderSelector: React.FC<QuoteProviderSelectorProps> = ({
 
       {isDropdownOpen && !disabled && (
         <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto">
-          {QUOTE_PROVIDERS.map((provider) => (
-            <button
-              key={provider.id}
-              type="button"
-              onClick={() => handleProviderSelect(provider.id)}
-              className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm ${
-                selectedProvider === provider.id
-                  ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
-                  : "text-gray-900 dark:text-gray-200"
-              }`}
-            >
-              <ProviderIcon provider={provider} />
-              <div className="ml-3 flex-1 text-left">
-                <div className="font-medium">
-                  {provider.name}
-                  {provider.id === "auto" && " (Recommended)"}
+          {QUOTE_PROVIDERS.filter((provider) => !provider.hidden).map(
+            (provider) => (
+              <button
+                key={provider.id}
+                type="button"
+                onClick={() => handleProviderSelect(provider.id)}
+                className={`w-full flex items-center px-3 sm:px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm ${
+                  selectedProvider === provider.id
+                    ? "bg-gray-100 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
+                    : "text-gray-900 dark:text-gray-200"
+                }`}
+              >
+                <ProviderIcon provider={provider} />
+                <div className="ml-3 flex-1 text-left">
+                  <div className="font-medium">
+                    {provider.name}
+                    {provider.id === "auto" && " (Recommended)"}
+                  </div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    {provider.description}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {provider.description}
-                </div>
-              </div>
-              {selectedProvider === provider.id && (
-                <span className="ml-auto text-blue-400">•</span>
-              )}
-            </button>
-          ))}
+                {selectedProvider === provider.id && (
+                  <span className="ml-auto text-blue-400">•</span>
+                )}
+              </button>
+            ),
+          )}
         </div>
       )}
     </div>
